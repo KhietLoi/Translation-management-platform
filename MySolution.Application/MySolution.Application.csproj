@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MySolution.Domain\MySolution.Domain.csproj" />
+      <ProjectReference Include="..\Shared\Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Common\Behaviors\" />
+      <Folder Include="Common\Model\" />
+      <Folder Include="Constants\" />
+      <Folder Include="Features\Categories\" />
+      <Folder Include="Features\Transactions\" />
+      <Folder Include="Features\User\Commands\" />
+      <Folder Include="Features\User\Queries\GetUserInfo\" />
+      <Folder Include="Models\" />
+      <Folder Include="Service\" />
+      <Folder Include="Validation\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.9" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,24 @@
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using MySolution.Application.Common.Interfaces;
+using MySolution.Domain.Entities;
+
+namespace MySolution.Infrastructure.Authentication;
+
+public class PasswordHasher : IPasswordHasher
+{
+    private readonly PasswordHasher<User> _passwordHasher = new();
+    public string HashPassword(string password)
+    {
+        return _passwordHasher.HashPassword(null!, password);
+    }
+
+    public bool VerifyPassword(string password, string passwordHash)
+    {
+        var result = _passwordHasher.VerifyHashedPassword(
+            null!,
+            password,
+            passwordHash);
+        return result != PasswordVerificationResult.Failed;
+    }
+}
