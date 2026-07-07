@@ -1,6 +1,9 @@
-﻿namespace MySolution.Infrastructure.Authentication;
+﻿using MySolution.Application.Common.Interfaces;
 
-public class DateTimeProvider
+namespace MySolution.Infrastructure.Authentication;
+
+public class DateTimeProvider : IDateTimeProvider
 {
-    private DateTime UtcNow { get; }
+    public DateTime UtcNow  => DateTime.UtcNow;
+    public DateTime LocalNow => DateTime.UtcNow;
 }

@@ -18,10 +18,10 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
         return await _dbSet.FirstOrDefaultAsync(x => x.Email == email);
     }
 
-    public async Task<User?> GetByUsernameAsync(string username)
+    /*public async Task<User?> GetByUsernameAsync(string username)
     {
         return await _dbSet.FirstOrDefaultAsync(x => x.Username == username);
-    }
+    }*/
 
     public virtual async Task<bool> ExistsByEmailAsync(string email)
     {
@@ -51,5 +51,25 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
             .Select(x => x.Permission)
             .Distinct()
             .ToListAsync();
+    }
+
+    public async Task<User?> GetUserWithRolesAsync(string username)
+    {
+        return await _dbSet
+            .Include(x => x.UserRoles)
+            .ThenInclude(x => x.Role)
+            .ThenInclude(x => x.RolePermissions)
+            .ThenInclude(x => x.Permission)
+            .FirstOrDefaultAsync(x => x.Username == username);
+    }
+
+    public async Task<User?> GetUserWithRolesAsync(Guid userId)
+    {
+        return await _context.Users
+            .Include(x => x.UserRoles)
+            .ThenInclude(x => x.Role)
+            .ThenInclude(x => x.RolePermissions)
+            .ThenInclude(x => x.Permission)
+            .FirstOrDefaultAsync(x => x.Id == userId);
     }
 }

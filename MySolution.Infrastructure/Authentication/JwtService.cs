@@ -9,36 +9,24 @@ using MySolution.Domain.Entities;
 
 namespace MySolution.Infrastructure.Authentication;
 
+
 public class JwtService : IJwtService
 {
     private readonly JwtSettings _jwtSettings;
+    private readonly JwtSecurityTokenHandler _tokenHandler = new();
+
     public JwtService(IOptions<JwtSettings> options)
     {
         _jwtSettings = options.Value;
     }
-    
+
+
+    /// Tạo Access Token.
     public string GenerateJwtToken(User user)
     {
-        var claims = new List<Claim>
-        {
-         
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, user.Username),
-            new(ClaimTypes.Email, user.Email),
-           
-        };
+        ArgumentNullException.ThrowIfNull(user);
 
-        // Roles
-        claims.AddRange(
-            user.UserRoles.Select(x =>
-                new Claim(ClaimTypes.Role, x.Role.Name)));
-
-        // Permissions
-        claims.AddRange(
-            user.UserRoles
-                .SelectMany(x => x.Role.RolePermissions)
-                .Select(x =>
-                    new Claim("permission", x.Permission.Code)));
+        var claims = BuildClaims(user);
 
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
@@ -51,27 +39,35 @@ public class JwtService : IJwtService
             issuer: _jwtSettings.Issuer,
             audience: _jwtSettings.Audience,
             claims: claims,
+            notBefore: DateTime.UtcNow,
             expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpireMinutes),
             signingCredentials: credentials);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
-
+        return _tokenHandler.WriteToken(token);
     }
-    
-    
-    //Cap lai token moi
+
+
+    /// Tạo Refresh Token 
     public string GenerateRefreshToken()
     {
-        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        return Convert.ToBase64String(
+            RandomNumberGenerator.GetBytes(64));
     }
 
+ 
+    /// Đọc Claims từ Access Token đã hết hạn.
     public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(token);
+
         var tokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidateLifetime = false, // Cho phép đọc token đã hết hạn
+
+            // Không kiểm tra thời gian hết hạn
+            ValidateLifetime = false,
+
             ValidateIssuerSigningKey = true,
 
             ValidIssuer = _jwtSettings.Issuer,
@@ -81,22 +77,60 @@ public class JwtService : IJwtService
                 Encoding.UTF8.GetBytes(_jwtSettings.SecretKey))
         };
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-
-        var principal = tokenHandler.ValidateToken(
+        var principal = _tokenHandler.ValidateToken(
             token,
             tokenValidationParameters,
             out var securityToken);
 
-        if (securityToken is not JwtSecurityToken jwtSecurityToken ||
-            !jwtSecurityToken.Header.Alg.Equals(
-                SecurityAlgorithms.HmacSha256,
-                StringComparison.InvariantCultureIgnoreCase))
+        if (securityToken is not JwtSecurityToken jwtToken)
         {
-            throw new SecurityTokenException("Invalid token.");
+            throw new SecurityTokenException("Invalid JWT token.");
+        }
+
+        if (!jwtToken.Header.Alg.Equals(
+                SecurityAlgorithms.HmacSha256,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            throw new SecurityTokenException("Invalid signing algorithm.");
         }
 
         return principal;
+    }
+    
+    /// Tạo danh sách Claims của người dùng.
+    private static List<Claim> BuildClaims(User user)
+    {
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
 
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+
+            new(JwtRegisteredClaimNames.Email, user.Email),
+
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+
+            new(ClaimTypes.Name, user.Username),
+
+            new(ClaimTypes.Email, user.Email)
+        };
+
+        // Roles
+        claims.AddRange(
+            user.UserRoles.Select(userRole =>
+                new Claim(
+                    ClaimTypes.Role,
+                    userRole.Role.Name)));
+
+        // Permissions
+        claims.AddRange(
+            user.UserRoles
+                .SelectMany(userRole => userRole.Role.RolePermissions)
+                .Select(rolePermission =>
+                    new Claim(
+                        "permission",
+                        rolePermission.Permission.Code)));
+
+        return claims;
     }
 }

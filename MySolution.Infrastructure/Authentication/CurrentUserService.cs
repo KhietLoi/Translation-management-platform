@@ -12,24 +12,47 @@ public class CurrentUserService:ICurrentUser
     {
         _httpContextAccessor = httpContextAccessor;
     }
-
+    private ClaimsPrincipal? User => _httpContextAccessor.HttpContext?.User;
     public Guid UserId
     {
         get
         {
-            var value = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var value = User?
+                .FindFirst(ClaimTypes.NameIdentifier)?
+                .Value;
 
-            return Guid.TryParse((ReadOnlySpan<byte>)value, out var id)
+            return Guid.TryParse(value, out var id)
                 ? id
                 : Guid.Empty;
-
         }
-    } 
-    public string Username { get; }
-    public string Email { get; }
-    public bool IsActive { get; }
-    public IReadOnlyCollection<string> Roles { get; }
-    public IReadOnlyCollection<string> Permissions { get; }
-    public bool IsAuthenticated { get; }
+    }
+    public string Username =>
+        User?   
+            .FindFirst(ClaimTypes.Name)?
+            .Value
+        ?? string.Empty;
+    
+    
+    public string Email =>
+        User? 
+            .FindFirst(ClaimTypes.Email)?
+            .Value
+        ?? string.Empty;
+
+    public IReadOnlyCollection<string> Roles =>
+        User?
+            .FindAll(ClaimTypes.Role)
+            .Select(x => x.Value)
+            .ToList()
+        ?? [];
+
+    public IReadOnlyCollection<string> Permissions =>
+        User?
+            .FindAll("permission")
+            .Select(x => x.Value)
+            .ToList()
+        ?? [];
+    public bool IsAuthenticated =>
+        User?.Identity?.IsAuthenticated ?? false;
     
 }
