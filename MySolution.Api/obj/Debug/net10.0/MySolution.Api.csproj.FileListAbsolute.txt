@@ -52,8 +52,14 @@ C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\D
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\MySolution.Api.runtimeconfig.json
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\MySolution.Api.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\MySolution.Api.pdb
+C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\FluentValidation.dll
+C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\FluentValidation.DependencyInjectionExtensions.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Humanizer.dll
-C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.AspNetCore.OpenApi.dll
+C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\MediatR.dll
+C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\MediatR.Contracts.dll
+C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\MediatR.Extensions.Microsoft.DependencyInjection.dll
+C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.Bcl.Cryptography.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.Build.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.Build.Framework.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.Build.Tasks.Core.dll
@@ -69,6 +75,12 @@ C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\D
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.Design.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.Relational.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.NET.StringTools.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Microsoft.OpenApi.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\Mono.TextTemplating.dll
@@ -86,6 +98,7 @@ C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\D
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\System.Composition.TypedParts.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\System.Configuration.ConfigurationManager.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\System.Formats.Nrbf.dll
+C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\System.Reflection.MetadataLoadContext.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\System.Resources.Extensions.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Api\bin\Debug\net10.0\System.Security.Cryptography.ProtectedData.dll

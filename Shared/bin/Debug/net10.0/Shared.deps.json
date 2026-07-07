@@ -11,7 +11,8 @@
           "Microsoft.Extensions.Configuration": "10.0.9",
           "Microsoft.Extensions.Configuration.Abstractions": "10.0.9",
           "Microsoft.Extensions.Configuration.Binder": "10.0.9",
-          "Microsoft.Extensions.Logging": "10.0.9"
+          "Microsoft.Extensions.Logging": "10.0.9",
+          "Newtonsoft.Json": "13.0.4"
         },
         "runtime": {
           "Shared.dll": {}
@@ -114,6 +115,14 @@
             "fileVersion": "10.0.926.27113"
           }
         }
+      },
+      "Newtonsoft.Json/13.0.4": {
+        "runtime": {
+          "lib/net6.0/Newtonsoft.Json.dll": {
+            "assemblyVersion": "13.0.0.0",
+            "fileVersion": "13.0.4.30916"
+          }
+        }
       }
     }
   },
@@ -185,6 +194,13 @@
       "sha512": "sha512-fmEbAUFsaIKirgLt/lYhuFRBwhcSJN31jjHgCdbQxJiWOum6EdLjkbgGuukSP9z/a+9LibaxII/kF+GwOXgC4g==",
       "path": "microsoft.extensions.primitives/10.0.9",
       "hashPath": "microsoft.extensions.primitives.10.0.9.nupkg.sha512"
+    },
+    "Newtonsoft.Json/13.0.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-pdgNNMai3zv51W5aq268sujXUyx7SNdE2bj1wZcWjAQrKMFZV260lbqYop1d2GM67JI1huLRwxo9ZqnfF/lC6A==",
+      "path": "newtonsoft.json/13.0.4",
+      "hashPath": "newtonsoft.json.13.0.4.nupkg.sha512"
     }
   }
 }
