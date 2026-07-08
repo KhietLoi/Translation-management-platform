@@ -143,9 +143,12 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             await _unitOfWork.SaveAsync(cancellationToken);
 
             // Build successful response
-            response.AccessToken = accessToken;
-            response.RefreshToken = newRefreshToken;
-            response.ExpiredAt = _dateTimeProvider.UtcNow.AddMinutes(15);
+            response.Data = new RefreshTokenResult
+            {
+                AccessToken = accessToken,
+                RefreshToken = newRefreshToken,
+                ExpiredAt = _dateTimeProvider.UtcNow.AddMinutes(15)
+            };
 
             response
                 .WithSuccess(true)

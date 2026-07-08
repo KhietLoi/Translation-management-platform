@@ -16,6 +16,12 @@ public interface IUserRepository : IRepository<User>
     Task<List<Permission>> GetPermissionsAsync(Guid userId);
     
     Task<User?> GetUserWithRolesAsync(string username);
+    // Get all of role for user
     Task<User?> GetUserWithRolesAsync(Guid userId);
+    
+    //Check Email with other user
+    Task<bool> ExistsByEmailAsync(string email, Guid excludeUserId );
+    //Check UserName with other user
+    Task<bool> ExistsByUsernameAsync(string username, Guid excludeUserId);
     
 }

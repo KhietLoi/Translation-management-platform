@@ -1,0 +1,13 @@
+﻿using MySolution.Application.Common.Model;
+
+namespace MySolution.Application.Features.User.Commands.DeleteUser;
+
+public class DeleteUserResponse : BaseResponse <DeleteUserData>
+{
+}
+public class DeleteUserData
+{
+    public Guid Id { get; set; }
+    public string Username { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+}

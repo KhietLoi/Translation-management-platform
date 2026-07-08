@@ -13,8 +13,11 @@
 
     <ItemGroup>
       <Folder Include="Constants\" />
-      <Folder Include="Features\User\Commands\" />
-      <Folder Include="Features\User\Queries\GetUserInfo\" />
+      <Folder Include="Features\Permission\Commands\CreatePermission\" />
+      <Folder Include="Features\Permission\Commands\DeletePermission\" />
+      <Folder Include="Features\Permission\Commands\UpdatePermission\" />
+      <Folder Include="Features\Permission\Queries\GetPermissionById\" />
+      <Folder Include="Features\Permission\Queries\GetPermissions\" />
       <Folder Include="Models\" />
       <Folder Include="Service\" />
     </ItemGroup>

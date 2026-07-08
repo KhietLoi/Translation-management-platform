@@ -16,6 +16,15 @@ builder.Services
 
 var app = builder.Build();
 
+
+// 3. Middleware pipeline
+//app.UseRequestLocalizationLayer();
+//app.UseSwaggerLayer();
+//app.UseSerilogRequestLogging();
+//app.UseCors("_allowSpecificOrigins");
+//app.UseRequestLogging();
+//app.UseExceptionLayer();
+
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider

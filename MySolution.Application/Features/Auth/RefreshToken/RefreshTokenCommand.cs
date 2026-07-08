@@ -4,5 +4,9 @@ namespace MySolution.Application.Features.Auth.RefreshToken;
 
 public class RefreshTokenCommand : IRequest<RefreshTokenResponse>
 {
-    public RefreshTokenRequest Payload { get; set; } = new();
+    public RefreshTokenRequest Payload { get; }
+    public RefreshTokenCommand(RefreshTokenRequest payload)
+    {
+        Payload = payload;
+    }
 }

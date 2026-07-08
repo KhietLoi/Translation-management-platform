@@ -18,7 +18,7 @@ public class ValidationResultModel
         
     }
 
-    public ValidationResultModel(ValidationResult result = null)
+    public ValidationResultModel(ValidationResult result = null!)
     {
         Errors = result?.Errors
             .Select(error => new ValidationError(error.PropertyName,error.ErrorMessage, error.ErrorCode))

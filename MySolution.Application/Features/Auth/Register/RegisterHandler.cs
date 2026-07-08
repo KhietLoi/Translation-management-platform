@@ -66,7 +66,7 @@ public class RegisterHandler
                 return response;
             }
 
-            var user = new User
+            var user = new Domain.Entities.User
             {
                 Id = Guid.NewGuid(),
                 Username = payload.Username,
@@ -92,6 +92,7 @@ public class RegisterHandler
                 Username = user.Username,
                 Email = user.Email
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.Created);
