@@ -23,7 +23,5 @@ public class PermissionConfiguration: IEntityTypeConfiguration<Permission>
             .HasDefaultValueSql("now()");
         builder.Property(x => x.UpdatedAt)
             .HasDefaultValueSql("now()");
-        
-        
     }
 }

@@ -1,6 +1,21 @@
-﻿namespace MySolution.Application.Features.Roles.Queries.GetRoles;
+﻿using MySolution.Application.Common.Model;
+using MySolution.Domain.Entities;
 
-public class GetRolesResponse
+namespace MySolution.Application.Features.Roles.Queries.GetRoles;
+
+public class GetRolesResponse : BaseResponse <GetRolesResult>
 {
-    
+}
+
+public class GetRolesResult
+{
+    public List<GetRoleData> Roles { get; set; } = [];
+    public PagingInfo Paging { get; set; } = new();
+}
+
+public class GetRoleData
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
 }

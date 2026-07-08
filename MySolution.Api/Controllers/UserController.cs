@@ -11,19 +11,13 @@ namespace MySolution.Api.Controllers;
 
 [Route("api/[controller]") ]
 [ApiController]
-public class UserController : Controller
+public class UserController(IMediator mediator) : Controller
 {
-    private readonly IMediator _mediator;
-    public UserController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-    
     //Get All User, Limit by page,
     [HttpGet]
     public async Task<IActionResult> GetUsers([FromQuery] GetUsersRequest request, CancellationToken cancellationToken)
     {
-        var response = await _mediator.Send(new GetUsersQuery(request), cancellationToken);
+        var response = await mediator.Send(new GetUsersQuery(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data
         );
     }
@@ -32,12 +26,8 @@ public class UserController : Controller
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetUserById(Guid id, CancellationToken cancellationToken)
     {
-        var response = await _mediator.Send(new GetUserByIdQuery(
-                new GetUserByIdRequest
-                {
-                    Id = id
-                }),
-            cancellationToken);
+        var response = await mediator.Send(new GetUserByIdQuery(id), cancellationToken);
+           
         return ResponseHelper.ToResponse(
             response.StatusCode,
             response,
@@ -48,7 +38,7 @@ public class UserController : Controller
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
     {
-        var response = await  _mediator.Send(new CreateUserCommand(request), cancellationToken);
+        var response = await  mediator.Send(new CreateUserCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
@@ -56,7 +46,7 @@ public class UserController : Controller
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
     {
-        var response = await _mediator.Send(new UpdateUserCommand(id, request), cancellationToken);
+        var response = await mediator.Send(new UpdateUserCommand(id, request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
@@ -64,7 +54,7 @@ public class UserController : Controller
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteUser(Guid id, CancellationToken cancellationToken)
     {
-        var response = await _mediator.Send(new DeleteUserCommand(id), cancellationToken);
+        var response = await mediator.Send(new DeleteUserCommand(id), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 }

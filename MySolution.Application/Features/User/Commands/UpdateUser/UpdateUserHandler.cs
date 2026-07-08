@@ -6,10 +6,9 @@ using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
 
-namespace MySolution.Application.Features.Users.Commands.UpdateUser;
+namespace MySolution.Application.Features.User.Commands.UpdateUser;
 
-public class UpdateUserHandler
-    : IRequestHandler<UpdateUserCommand, UpdateUserResponse>
+public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserResponse>
 {
     private readonly ILogger<UpdateUserHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
@@ -113,17 +112,13 @@ public class UpdateUserHandler
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-
-            return response;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Update User Failed");
-
             response.ErrorMessage = ex.Message;
             response.WithStatus(HttpStatusCode.InternalServerError);
-
             return response;
         }
+        return response;
     }
 }

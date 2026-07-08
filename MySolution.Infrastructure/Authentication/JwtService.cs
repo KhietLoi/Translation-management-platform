@@ -10,16 +10,11 @@ using MySolution.Domain.Entities;
 namespace MySolution.Infrastructure.Authentication;
 
 
-public class JwtService : IJwtService
+public class JwtService(IOptions<JwtSettings> options) : IJwtService
 {
-    private readonly JwtSettings _jwtSettings;
+    private readonly JwtSettings _jwtSettings = options.Value;
     private readonly JwtSecurityTokenHandler _tokenHandler = new();
 
-    public JwtService(IOptions<JwtSettings> options)
-    {
-        _jwtSettings = options.Value;
-    }
-    
     /// Tạo Access Token.
     public string GenerateJwtToken(User user)
     {
@@ -61,15 +56,11 @@ public class JwtService : IJwtService
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-
             // Không kiểm tra thời gian hết hạn
             ValidateLifetime = false,
-
             ValidateIssuerSigningKey = true,
-
             ValidIssuer = _jwtSettings.Issuer,
             ValidAudience = _jwtSettings.Audience,
-
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_jwtSettings.SecretKey))
         };
@@ -127,7 +118,6 @@ public class JwtService : IJwtService
                     new Claim(
                         "permission",
                         rolePermission.Permission.Code)));
-
         return claims;
     }
 }

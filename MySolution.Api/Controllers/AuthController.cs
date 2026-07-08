@@ -11,32 +11,26 @@ namespace MySolution.Api.Controllers;
 
 [Route("api/[controller]") ]
 [ApiController]
-public class AuthController : Controller
+public class AuthController(IMediator mediator) : Controller
 {
-    private readonly IMediator _mediator;
-    public AuthController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-    
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
     {
-        var response = await _mediator.Send(new RegisterCommand(request), cancellationToken);
+        var response = await mediator.Send(new RegisterCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
-        var response = await _mediator.Send(new LoginCommand(request), cancellationToken);
+        var response = await mediator.Send(new LoginCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
     {
-        var response = await _mediator.Send(new RefreshTokenCommand(request), cancellationToken);
+        var response = await mediator.Send(new RefreshTokenCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
@@ -44,7 +38,7 @@ public class AuthController : Controller
     [HttpPost("logout")]
     public async Task<IActionResult> Logout(CancellationToken cancellationToken)
     {
-        var response = await _mediator.Send(new LogoutCommand(), cancellationToken);
+        var response = await mediator.Send(new LogoutCommand(), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
 }

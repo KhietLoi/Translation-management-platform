@@ -1,6 +1,7 @@
 ﻿using MediatR;
+using MySolution.Application.Features.User.Queries.GetUser;
 
-namespace MySolution.Application.Features.Users.Queries.GetUser;
+namespace MySolution.Application.Features.User.Queries.GetUser;
 
 public class GetUsersQuery : IRequest<GetUsersResponse>
 {

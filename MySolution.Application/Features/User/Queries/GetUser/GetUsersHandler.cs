@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Common.Model;
-using MySolution.Application.Features.Users.Queries.GetUser;
 
 namespace MySolution.Application.Features.User.Queries.GetUser;
 
@@ -27,17 +26,19 @@ public class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersResponse>
     {
         var payload = request.Payload;
         var functionName = $"{nameof(GetUsersHandler)} =>";
-        _logger.LogInformation($"Getting users for {functionName}");
+        _logger.LogInformation(functionName);
         var response = new GetUsersResponse
         {
             Success = false,
             StatusCode = HttpStatusCode.InternalServerError
         };
+        
         try
         {
             var query = _unitOfWork.User
                 .GetAll()
                 .AsNoTracking();
+            
             if (!string.IsNullOrWhiteSpace(payload.Search))
             {
                 query = query.Where(x =>
@@ -78,8 +79,9 @@ public class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersResponse>
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
-            throw;
+            response.ErrorMessage = ex.Message;
+            response.WithStatus(HttpStatusCode.InternalServerError);
+            return response;
         }
         return response;
     }

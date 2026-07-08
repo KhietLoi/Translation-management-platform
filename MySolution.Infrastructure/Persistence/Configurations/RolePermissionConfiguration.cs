@@ -9,17 +9,14 @@ public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermissi
     public void Configure(EntityTypeBuilder<RolePermission> builder)
     {
         builder.ToTable("RolePermissions");
-
         builder.HasKey(x => new
         {
             x.RoleId,
             x.PermissionId
         });
-
         builder.HasOne(x => x.Role)
             .WithMany(x => x.RolePermissions)
             .HasForeignKey(x => x.RoleId);
-
         builder.HasOne(x => x.Permission)
             .WithMany(x => x.RolePermissions)
             .HasForeignKey(x => x.PermissionId);

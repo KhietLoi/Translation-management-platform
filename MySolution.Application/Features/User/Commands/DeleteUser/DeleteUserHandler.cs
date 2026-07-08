@@ -48,10 +48,11 @@ public class DeleteUserHandler : IRequestHandler<DeleteUserCommand,DeleteUserRes
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-        }catch(Exception e)
+        }catch(Exception ex)
         { 
-            Console.WriteLine(e);
-            throw;
+            response.ErrorMessage = ex.Message;
+            response.WithStatus(HttpStatusCode.InternalServerError);
+            return response;
         }
         return response;
     }

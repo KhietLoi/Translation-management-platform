@@ -2,11 +2,7 @@
 
 namespace MySolution.Application.Features.User.Commands.DeleteUser;
 
-public class DeleteUserCommand : IRequest <DeleteUserResponse>
+public class DeleteUserCommand(Guid id) : IRequest<DeleteUserResponse>
 {
-    public Guid Id { get; set; }
-    public DeleteUserCommand(Guid id)
-    {
-        Id = id;
-    }
+    public Guid Id { get; set; } = id;
 }

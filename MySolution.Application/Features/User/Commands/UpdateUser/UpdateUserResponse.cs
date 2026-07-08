@@ -1,6 +1,6 @@
 ﻿using MySolution.Application.Common.Model;
 
-namespace MySolution.Application.Features.Users.Commands.UpdateUser;
+namespace MySolution.Application.Features.User.Commands.UpdateUser;
 
 public class UpdateUserResponse : BaseResponse <UpdateUserData>
 { 

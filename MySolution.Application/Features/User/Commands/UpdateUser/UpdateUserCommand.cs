@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MySolution.Application.Features.Users.Commands.UpdateUser;
+namespace MySolution.Application.Features.User.Commands.UpdateUser;
 
 public class UpdateUserCommand : IRequest<UpdateUserResponse>
 {
