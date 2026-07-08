@@ -1,4 +1,4 @@
-﻿namespace MySolution.Application.Features.Users.Queries.GetUser;
+﻿namespace MySolution.Application.Features.User.Queries.GetUser;
 
 public class GetUsersRequest
 {

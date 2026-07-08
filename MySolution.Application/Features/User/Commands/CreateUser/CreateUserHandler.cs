@@ -41,6 +41,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
             Success = false,
             StatusCode = HttpStatusCode.InternalServerError
         };
+        
         try
         {
             //Check Username is existing
@@ -80,7 +81,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
                 CreatedAt = _dateTimeProvider.UtcNow,
             };
             //Add
-            _unitOfWork.User.Add(user);
+            await _unitOfWork.User.Add(user);
             //Asign Roles
             foreach (var role in roles)
             {
@@ -103,12 +104,12 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.Created);
-
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
-            throw;
+            response.ErrorMessage = ex.Message;
+            response.WithStatus(HttpStatusCode.InternalServerError);
+            return response;
         }
         return response;
     }

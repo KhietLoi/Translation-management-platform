@@ -17,11 +17,6 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
         return await _dbSet.FirstOrDefaultAsync(x => x.Email == email);
     }
 
-    /*public async Task<User?> GetByUsernameAsync(string username)
-    {
-        return await _dbSet.FirstOrDefaultAsync(x => x.Username == username);
-    }*/
-
     public virtual async Task<bool> ExistsByEmailAsync(string email)
     {
         return await _dbSet.FirstOrDefaultAsync(x => x.Email == email) != null;

@@ -24,7 +24,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDefaultValue(true);
         builder.Property(x => x.CreatedAt)
             .HasDefaultValueSql("now()");
-        
         //Index:
         builder.HasIndex(x => x.Email)
             .IsUnique();

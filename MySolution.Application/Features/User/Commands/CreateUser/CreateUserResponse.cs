@@ -1,6 +1,6 @@
 ﻿using MySolution.Application.Common.Model;
 
-namespace MySolution.Application.Features.Users.Commands.CreateUser;
+namespace MySolution.Application.Features.User.Commands.CreateUser;
 
 public class CreateUserResponse : BaseResponse <CreateUserData>
 {

@@ -4,15 +4,9 @@ using MySolution.Application.Common.Interfaces;
 
 namespace MySolution.Infrastructure.Authentication;
 
-public class CurrentUserService:ICurrentUser
+public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public CurrentUserService(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
-    private ClaimsPrincipal? User => _httpContextAccessor.HttpContext?.User;
+    private ClaimsPrincipal? User => httpContextAccessor.HttpContext?.User;
     public Guid UserId
     {
         get
@@ -26,12 +20,12 @@ public class CurrentUserService:ICurrentUser
                 : Guid.Empty;
         }
     }
+    
     public string Username =>
         User?   
             .FindFirst(ClaimTypes.Name)?
             .Value
         ?? string.Empty;
-    
     
     public string Email =>
         User? 

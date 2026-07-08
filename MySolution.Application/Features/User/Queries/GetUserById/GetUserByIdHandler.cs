@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
-namespace MySolution.Application.Features.Users.Queries.GetUserById;
+namespace MySolution.Application.Features.User.Queries.GetUserById;
 
 public class GetUserByIdHandler :IRequestHandler<GetUserByIdQuery,GetUserByIdResponse>
 {
@@ -16,7 +16,6 @@ public class GetUserByIdHandler :IRequestHandler<GetUserByIdQuery,GetUserByIdRes
     }
     public async Task<GetUserByIdResponse> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
     {
-        var payload = request.Payload;
         var functionName = $"{nameof(GetUserByIdHandler)}";
         _logger.LogInformation(functionName);
 
@@ -28,7 +27,7 @@ public class GetUserByIdHandler :IRequestHandler<GetUserByIdQuery,GetUserByIdRes
 
         try
         {
-            var user = await _unitOfWork.User.GetUserWithRolesAsync(payload.Id);
+            var user = await _unitOfWork.User.GetUserWithRolesAsync(request.Id);
 
             if (user == null)
             {
@@ -69,10 +68,11 @@ public class GetUserByIdHandler :IRequestHandler<GetUserByIdQuery,GetUserByIdRes
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
-            throw;
+            response.ErrorMessage = ex.Message;
+            response.WithStatus(HttpStatusCode.InternalServerError);
+            return response;
         }
         return response;
     }

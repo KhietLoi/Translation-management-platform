@@ -1,13 +1,12 @@
 ﻿using MediatR;
 
-namespace MySolution.Application.Features.Users.Queries.GetUserById;
+namespace MySolution.Application.Features.User.Queries.GetUserById;
 
 public class GetUserByIdQuery : IRequest<GetUserByIdResponse>
 {
-    public GetUserByIdRequest Payload { get; }
-
-    public GetUserByIdQuery(GetUserByIdRequest payload)
+   public Guid Id { get; set; }
+   public  GetUserByIdQuery(Guid id)
     {
-        Payload = payload;
+        Id = id;
     }
 }
