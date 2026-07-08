@@ -8,22 +8,21 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 public class RoleRepository (AppDbContext context, ILogger logger) : Repository<Role>(context, logger), IRoleRepository
 {
     // Nghiep vu rieng:
-    public virtual async Task<Role?> GetByIdAsync(Guid id)
+    public async Task<Role?> GetByIdAsync(Guid id)
     {
         return await _dbSet.FindAsync(id);
     }
 
-    public virtual async Task<Role?> GetByNameAsync(string name)
+    public async Task<Role?> GetByNameAsync(string name)
     {
         return await _dbSet.FirstOrDefaultAsync(x => x.Name == name);
     }
 
-    public virtual async Task<bool> ExistsByNameAsync(string name)
+    public async Task<bool> ExistsByNameAsync(string name)
     {
         return await _dbSet.FirstOrDefaultAsync(x => x.Name == name) != null;
     }
-
-    public virtual async Task<List<Permission>> GetPermissionsAsync(Guid roleId)
+    public async Task<List<Permission>> GetPermissionsAsync(Guid roleId)
     {
         return await _context.RolePermissions
             .AsNoTracking()

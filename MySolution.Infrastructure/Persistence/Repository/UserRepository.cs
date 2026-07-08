@@ -7,8 +7,7 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 
 public class UserRepository (AppDbContext context, ILogger logger) : Repository<User>(context, logger), IUserRepository
 {
-    // 
-    public virtual async Task<User?> GetByIdAsync(Guid id)
+    public async Task<User?> GetByIdAsync(Guid id)
     {
         return await _dbSet.FindAsync(id);
     }
@@ -30,7 +29,7 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
 
     public virtual async Task<bool> ExistsByUsernameAsync(string username)
     {
-        return await _dbSet.Where(u => u.Username == username).AnyAsync();
+        return await _dbSet.FirstOrDefaultAsync(x => x.Username == username) != null;
     }
 
     public virtual async Task<List<Role>> GetRolesAsync(Guid userId)
@@ -71,5 +70,16 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
             .ThenInclude(x => x.RolePermissions)
             .ThenInclude(x => x.Permission)
             .FirstOrDefaultAsync(x => x.Id == userId);
+    }
+
+    // Check Email 
+    public async Task<bool> ExistsByEmailAsync(string email, Guid excludeUserId)
+    {
+        return await _dbSet.AnyAsync(x => x.Email == email && x.Id != excludeUserId);
+    }
+    //Check UserName
+    public async Task<bool> ExistsByUsernameAsync(string username, Guid excludeUserId)
+    {
+        return await _dbSet.AnyAsync(x => x.Username == username && x.Id != excludeUserId);
     }
 }

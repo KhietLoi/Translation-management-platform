@@ -19,8 +19,7 @@ public class JwtService : IJwtService
     {
         _jwtSettings = options.Value;
     }
-
-
+    
     /// Tạo Access Token.
     public string GenerateJwtToken(User user)
     {
@@ -46,15 +45,13 @@ public class JwtService : IJwtService
         return _tokenHandler.WriteToken(token);
     }
 
-
     /// Tạo Refresh Token 
     public string GenerateRefreshToken()
     {
         return Convert.ToBase64String(
             RandomNumberGenerator.GetBytes(64));
     }
-
- 
+    
     /// Đọc Claims từ Access Token đã hết hạn.
     public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
     {
