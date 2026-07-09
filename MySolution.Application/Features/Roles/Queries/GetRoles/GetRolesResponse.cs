@@ -3,6 +3,9 @@ using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.Roles.Queries.GetRoles;
 
+/// <summary>
+/// Response class for the get roles operation.
+/// </summary>
 public class GetRolesResponse : BaseResponse <GetRolesResult>
 {
 }

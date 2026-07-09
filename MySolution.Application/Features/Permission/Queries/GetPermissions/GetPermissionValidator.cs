@@ -3,6 +3,9 @@ using MySolution.Application.Common.Model;
 
 namespace MySolution.Application.Features.Permission.Queries.GetPermissions;
 
+/// <summary>
+/// Validator for the GetPermissionsQuery class, ensuring that the query parameters are valid.
+/// </summary>
 public class GetPermissionsValidator : AbstractValidator<GetPermissionsQuery>
 {
     public GetPermissionsValidator()

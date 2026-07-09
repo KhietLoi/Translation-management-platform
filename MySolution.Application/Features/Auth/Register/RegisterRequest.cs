@@ -1,5 +1,8 @@
 ﻿namespace MySolution.Application.Features.Auth.Register;
 
+/// <summary>
+/// Request model for user registration
+/// </summary>
 public class RegisterRequest
 {
     public string Username { get; set; } = string.Empty;

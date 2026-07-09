@@ -2,6 +2,9 @@
 
 namespace MySolution.Application.Features.User.Queries.GetUser;
 
+/// <summary>
+/// Validator for the GetUsersQuery
+/// </summary>
 public class GetUsersValidator : AbstractValidator<GetUsersQuery>
 {
     public GetUsersValidator()

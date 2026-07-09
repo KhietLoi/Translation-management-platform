@@ -2,6 +2,9 @@
 
 namespace MySolution.Application.Features.User.Commands.DeleteUser;
 
+/// <summary>
+/// Response class for the delete user operation.
+/// </summary>
 public class DeleteUserResponse : BaseResponse <DeleteUserData>
 {
 }

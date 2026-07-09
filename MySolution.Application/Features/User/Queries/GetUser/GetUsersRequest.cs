@@ -1,5 +1,8 @@
 ﻿namespace MySolution.Application.Features.User.Queries.GetUser;
 
+/// <summary>
+/// Request model for retrieving a list of users with pagination and optional search criteria
+/// </summary>
 public class GetUsersRequest
 {
     public int Page { get; set; } = 1;

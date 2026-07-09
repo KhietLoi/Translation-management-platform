@@ -7,6 +7,9 @@ using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.UserRoles.Commands.AssignRoleToUser;
 
+/// <summary>
+/// Handler for assigning a role to a user.
+/// </summary>
 public class AssignRoleToUserHandler : IRequestHandler<AssignRoleToUserCommand, AssignRoleToUserResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -87,8 +90,8 @@ public class AssignRoleToUserHandler : IRequestHandler<AssignRoleToUserCommand, 
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = ex.Message; 
-            response.WithStatus(HttpStatusCode.InternalServerError); 
         }
         return response;
     }

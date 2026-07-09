@@ -6,6 +6,9 @@ using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Application.Features.Roles.Commands.UpdateRole;
 
+/// <summary>
+/// Handler for updating a role.
+/// </summary>
 public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleResponse>
 {
     private readonly ILogger<UpdateRoleHandler> _logger;
@@ -36,7 +39,7 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
         
         try
         {
-            //Check role existings
+            // Check if role exists
             var role = await _unitOfWork.Role.GetByIdAsync(request.Id);
             if (role == null)
             {
@@ -45,8 +48,9 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
                 return response;
             }
             
-            // Check role name already exists
+            // Check if role name already exists
             var existing = await _unitOfWork.Role.GetByNameAsync(payload.Name);
+            
             if (existing is not null && existing.Id != role.Id)
             {
                 response.ErrorMessage = "Role name already exists.";
@@ -57,23 +61,22 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
             // Update
             role.Name = payload.Name;
             role.Description = payload.Description;
-           await _unitOfWork.SaveAsync(cancellationToken);
-           response.Data = new UpdateRoleData
-           {
+            await _unitOfWork.SaveAsync(cancellationToken); 
+            response.Data = new UpdateRoleData 
+            {
                RoleId = role.Id,
                RoleName = role.Name,
                RoleDescription = role.Description,
-               UpdatedAt = _dateTimeProvider.UtcNow
-           };
-           
-           response
+               UpdatedAt = _dateTimeProvider.UtcNow 
+            }; 
+            response
                .WithSuccess(true)
                .WithStatus(HttpStatusCode.OK);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = ex.Message; 
-            response.WithStatus(HttpStatusCode.InternalServerError);
         }
         return response;
     }

@@ -2,6 +2,9 @@
 
 namespace MySolution.Application.Features.Permission.Commands.CreatePermission;
 
+/// <summary>
+/// Validator for the CreatePermissionCommand, ensuring that the required fields are not empty and meet length constraints.
+/// </summary>
 public class CreatePermissionValidator : AbstractValidator<CreatePermissionCommand>
 {
     public CreatePermissionValidator()

@@ -2,6 +2,9 @@
 
 namespace MySolution.Application.Features.Permission.Commands.UpdatePermission;
 
+/// <summary>
+/// Command to update a permission
+/// </summary>
 public class UpdatePermissionCommand : IRequest <UpdatePermissionResponse>
 {
     public Guid Id { get; set; }

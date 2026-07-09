@@ -5,13 +5,17 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 namespace MySolution.Infrastructure.Authentication;
 
+/// <summary>
+/// Provides extension methods for configuring JWT authentication in the application.
+/// </summary>
 public static class JwtConfiguration
 {
     public static IServiceCollection AddJwtAuthentication(
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        // Bind JwtSettings từ appsettings.json
+   
+        // Binds the JWT settings from the configuration.
         services.Configure<JwtSettings>(
             configuration.GetSection(JwtSettings.SectionName));
 
@@ -45,24 +49,18 @@ public static class JwtConfiguration
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    // Kiểm tra Issuer
+                    // Check the Issuer
                     ValidateIssuer = true,
                     ValidIssuer = jwtSettings.Issuer,
-
-                    // Kiểm tra Audience
+                    // Check the Audience
                     ValidateAudience = true,
                     ValidAudience = jwtSettings.Audience,
-
-                    // Kiểm tra thời gian hết hạn
+                    // Check the expiration time
                     ValidateLifetime = true,
-
-                    // Kiểm tra chữ ký
+                    // Check the signing key
                     ValidateIssuerSigningKey = true,
-
-                    // Key dùng để verify JWT
-                    IssuerSigningKey =
-                        new SymmetricSecurityKey(key),
-
+                    // Set the signing key
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
                     ClockSkew = TimeSpan.Zero
                 };
             });

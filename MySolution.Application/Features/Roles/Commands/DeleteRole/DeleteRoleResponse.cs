@@ -2,10 +2,12 @@
 
 namespace MySolution.Application.Features.Roles.Commands.DeleteRole;
 
+/// <summary>
+/// Response class for the delete role operation.
+/// </summary>
 public class DeleteRoleResponse : BaseResponse <DeleteRoleData>
 {
 }
-
 public class DeleteRoleData
 {
     public Guid Id { get; set; }

@@ -4,6 +4,9 @@ using MySolution.Domain.Entities;
 
 namespace MySolution.Infrastructure.Persistence.Configurations;
 
+/// <summary>
+/// Configures the entity type for the Permission entity.
+/// </summary>
 public class PermissionConfiguration: IEntityTypeConfiguration<Permission>
 {
     public void Configure(EntityTypeBuilder<Permission> builder)
@@ -12,13 +15,11 @@ public class PermissionConfiguration: IEntityTypeConfiguration<Permission>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
             .ValueGeneratedOnAdd();
-        
         builder.Property(x => x.Code)
             .IsRequired()
             .HasMaxLength(200);
         builder.Property(x => x.Description)
             .HasMaxLength(500);
-        
         builder.Property(x => x.CreatedAt)
             .HasDefaultValueSql("now()");
         builder.Property(x => x.UpdatedAt)

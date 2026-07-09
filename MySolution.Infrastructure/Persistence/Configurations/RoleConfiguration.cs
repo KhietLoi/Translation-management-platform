@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MySolution.Domain.Entities;
 
 namespace MySolution.Infrastructure.Persistence.Configurations;
 
+/// <summary>
+/// Represents the configuration for the Role entity in the database context.
+/// </summary>
 public class RoleConfiguration : IEntityTypeConfiguration<Role>
 {
     public void Configure(EntityTypeBuilder<Role> builder)

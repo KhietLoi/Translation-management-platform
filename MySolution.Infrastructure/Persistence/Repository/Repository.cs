@@ -6,64 +6,68 @@ using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Infrastructure.Persistence.Repository;
 
+/// <summary>
+/// Generic repository implementation for performing CRUD operations on entities of type T.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class Repository<T> : IRepository<T> where T: class
 {
     
-    protected readonly AppDbContext _context;
-    protected readonly DbSet<T> _dbSet;
-    protected readonly ILogger _logger;
+    protected readonly AppDbContext Context;
+    protected readonly DbSet<T> DbSet;
+    protected readonly ILogger Logger;
     
     //Constructor:
     protected Repository(AppDbContext context, ILogger logger)
     {
-        _context = context;
-        _logger = logger;
-        _dbSet = _context.Set<T>();
+        Context = context;
+        Logger = logger;
+        DbSet = Context.Set<T>();
     }
     public virtual IQueryable<T> GetAll()
     {
-        return _dbSet;
+        return DbSet;
     }
 
     public virtual async Task<bool> Add(T entity)
     {
-        await _dbSet.AddAsync(entity);
+        await DbSet.AddAsync(entity);
         return true;
     }
 
     public virtual async Task<bool> AddRange(List<T> entity)
     {
-        await _dbSet.AddRangeAsync(entity);
+        await DbSet.AddRangeAsync(entity);
         return true;
     }
 
     public virtual bool Delete(T entity)
     {
-        _dbSet.Remove(entity);
+        DbSet.Remove(entity);
         return true;
     }
 
     public virtual bool DeleteRange(List<T> entities)
     {
-        _dbSet.RemoveRange(entities);
+        DbSet.RemoveRange(entities);
         return true;
     }
 
     public virtual async Task DeleteRangeAsync(Expression<Func<T, bool>> expression)
     {
-        var queryable = _dbSet.Where(expression);
-        _dbSet.RemoveRange(queryable);
-        await _context.SaveChangesAsync();
+        var queryable = DbSet.Where(expression);
+        DbSet.RemoveRange(queryable);
+        await Context.SaveChangesAsync();
     }
 
     public virtual IQueryable<T> Where(Expression<Func<T, bool>> expression)
     {
-        return _dbSet.Where(expression);
+        return DbSet.Where(expression);
     }
 
     public EntityEntry<T> Update(T entity)
     {
-        return _dbSet.Update(entity);
+        return DbSet.Update(entity);
     }
 
     

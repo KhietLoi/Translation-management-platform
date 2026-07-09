@@ -2,6 +2,9 @@
 
 namespace MySolution.Application.Features.User.Commands.CreateUser;
 
+/// <summary>
+/// Response class for the create user operation.
+/// </summary>
 public class CreateUserResponse : BaseResponse <CreateUserData>
 {
 }

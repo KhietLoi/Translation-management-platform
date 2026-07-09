@@ -5,6 +5,9 @@ using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Application.Features.User.Queries.GetUserById;
 
+/// <summary>
+/// Handler for retrieving a user by their ID.
+/// </summary>
 public class GetUserByIdHandler :IRequestHandler<GetUserByIdQuery,GetUserByIdResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -70,10 +73,10 @@ public class GetUserByIdHandler :IRequestHandler<GetUserByIdQuery,GetUserByIdRes
         }
         catch (Exception ex)
         {
-            response.ErrorMessage = ex.Message;
-            response.WithStatus(HttpStatusCode.InternalServerError);
-            return response;
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = ex.Message; 
         }
+        
         return response;
     }
 }

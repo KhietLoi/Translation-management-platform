@@ -8,6 +8,9 @@ using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.User.Commands.UpdateUser;
 
+/// <summary>
+/// Handler for updating a user.
+/// </summary>
 public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserResponse>
 {
     private readonly ILogger<UpdateUserHandler> _logger;
@@ -24,9 +27,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
         _passwordHasher = passwordHasher;
     }
 
-    public async Task<UpdateUserResponse> Handle(
-        UpdateUserCommand request,
-        CancellationToken cancellationToken)
+    public async Task<UpdateUserResponse> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
         var payload =  request.Payload;
         var functionName =  $"{nameof(UpdateUserHandler)}";
@@ -115,9 +116,8 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
         }
         catch (Exception ex)
         {
-            response.ErrorMessage = ex.Message;
-            response.WithStatus(HttpStatusCode.InternalServerError);
-            return response;
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = ex.Message; 
         }
         return response;
     }

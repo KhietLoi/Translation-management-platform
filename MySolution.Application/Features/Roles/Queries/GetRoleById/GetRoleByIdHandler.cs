@@ -5,6 +5,9 @@ using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Application.Features.Roles.Queries.GetRoleById;
 
+/// <summary>
+/// Handler for the GetRoleByIdQuery, responsible for retrieving a role by its ID.
+/// </summary>
 public class GetRoleByIdHandler : IRequestHandler<GetRoleByIdQuery, GetRoleByIdResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -63,9 +66,8 @@ public class GetRoleByIdHandler : IRequestHandler<GetRoleByIdQuery, GetRoleByIdR
         }
         catch (Exception ex)
         {
-            response.ErrorMessage = ex.Message;
-            response.WithStatus(HttpStatusCode.InternalServerError);
-            return response;
+             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+             response.ErrorMessage = ex.Message; 
         }
         return response;
     }

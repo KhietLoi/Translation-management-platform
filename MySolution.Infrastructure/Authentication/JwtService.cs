@@ -14,21 +14,13 @@ public class JwtService(IOptions<JwtSettings> options) : IJwtService
 {
     private readonly JwtSettings _jwtSettings = options.Value;
     private readonly JwtSecurityTokenHandler _tokenHandler = new();
-
-    /// Tạo Access Token.
+    // Create Access Token
     public string GenerateJwtToken(User user)
     {
         ArgumentNullException.ThrowIfNull(user);
-
         var claims = BuildClaims(user);
-
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
-
-        var credentials = new SigningCredentials(
-            key,
-            SecurityAlgorithms.HmacSha256);
-
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
+        var credentials = new SigningCredentials(key,SecurityAlgorithms.HmacSha256);
         var token = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,
             audience: _jwtSettings.Audience,
@@ -36,18 +28,16 @@ public class JwtService(IOptions<JwtSettings> options) : IJwtService
             notBefore: DateTime.UtcNow,
             expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpireMinutes),
             signingCredentials: credentials);
-
         return _tokenHandler.WriteToken(token);
     }
 
-    /// Tạo Refresh Token 
+    // Create Refresh Token
     public string GenerateRefreshToken()
     {
         return Convert.ToBase64String(
             RandomNumberGenerator.GetBytes(64));
     }
-    
-    /// Đọc Claims từ Access Token đã hết hạn.
+    // Validate Token and Get ClaimsPrincipal from Expired Token
     public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(token);
@@ -56,7 +46,6 @@ public class JwtService(IOptions<JwtSettings> options) : IJwtService
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            // Không kiểm tra thời gian hết hạn
             ValidateLifetime = false,
             ValidateIssuerSigningKey = true,
             ValidIssuer = _jwtSettings.Issuer,
@@ -85,21 +74,16 @@ public class JwtService(IOptions<JwtSettings> options) : IJwtService
         return principal;
     }
     
-    /// Tạo danh sách Claims của người dùng.
+    // Create Claims from User Entity
     private static List<Claim> BuildClaims(User user)
     {
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-
             new(JwtRegisteredClaimNames.Email, user.Email),
-
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-
             new(ClaimTypes.Name, user.Username),
-
             new(ClaimTypes.Email, user.Email)
         };
 

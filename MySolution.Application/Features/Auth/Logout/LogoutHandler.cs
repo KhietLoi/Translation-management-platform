@@ -6,6 +6,10 @@ using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Application.Features.Auth.Logout;
 
+/// <summary>
+/// Handler for processing logout requests.
+/// It revokes all refresh tokens associated with the current user and returns a response indicating the success or failure of the operation.
+/// </summary>
 public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
 {
     private readonly ILogger<LogoutHandler> _logger;
@@ -36,42 +40,30 @@ public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
 
         try
         {
-            // Check authentication
+            
+            // Check if the user is authenticated
             if (!_currentUser.IsAuthenticated)
             {
                 response.ErrorMessage = "Unauthorized.";
-
                 response.WithStatus(HttpStatusCode.Unauthorized);
-
                 return response;
             }
 
             // Revoke all refresh tokens of the current user
             await _unitOfWork.RefreshToken
                 .RevokeAsync(_currentUser.UserId);
-
             // Save changes
             await _unitOfWork.SaveAsync(cancellationToken);
-
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-
-            _logger.LogInformation(
-                "{FunctionName} User {UserId} logged out successfully.",
-                functionName,
-                _currentUser.UserId);
+            _logger.LogInformation("{FunctionName} User {UserId} logged out successfully.", functionName, _currentUser.UserId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "{FunctionName} Unexpected error.",
-                functionName);
-
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = ex.Message;
         }
-
         return response;
     }
 }

@@ -2,6 +2,9 @@
 
 namespace MySolution.Application.Features.Permission.Commands.UpdatePermission;
 
+/// <summary>
+/// Validator for the UpdatePermissionCommand, ensuring that the required fields are not empty and meet length constraints.
+/// </summary>
 public class UpdatePermissionValidator : AbstractValidator<UpdatePermissionCommand>
 {
     public UpdatePermissionValidator()

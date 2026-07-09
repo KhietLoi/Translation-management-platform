@@ -27,16 +27,11 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
         _jwtService = jwtService;
         _dateTimeProvider = dateTimeProvider;
     }
-   public async Task<RefreshTokenResponse> Handle(
-    RefreshTokenCommand request,
-    CancellationToken cancellationToken)
+   public async Task<RefreshTokenResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
-
         var functionName = $"{nameof(RefreshTokenHandler)} =>";
-
         _logger.LogInformation(functionName);
-
         var response = new RefreshTokenResponse
         {
             Success = false,
@@ -54,9 +49,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             if (userIdClaim is null)
             {
                 response.ErrorMessage = "Invalid access token.";
-
                 response.WithStatus(HttpStatusCode.Unauthorized);
-
                 return response;
             }
 
@@ -69,9 +62,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             if (refreshToken is null)
             {
                 response.ErrorMessage = "Refresh token not found.";
-
                 response.WithStatus(HttpStatusCode.Unauthorized);
-
                 return response;
             }
 
@@ -79,9 +70,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             if (refreshToken.UserId != userId)
             {
                 response.ErrorMessage = "Invalid refresh token.";
-
                 response.WithStatus(HttpStatusCode.Unauthorized);
-
                 return response;
             }
 
@@ -89,9 +78,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             if (refreshToken.IsRevoked)
             {
                 response.ErrorMessage = "Refresh token has been revoked.";
-
                 response.WithStatus(HttpStatusCode.Unauthorized);
-
                 return response;
             }
 
@@ -99,9 +86,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             if (refreshToken.ExpiredAt <= _dateTimeProvider.UtcNow)
             {
                 response.ErrorMessage = "Refresh token has expired.";
-
                 response.WithStatus(HttpStatusCode.Unauthorized);
-
                 return response;
             }
 
@@ -112,9 +97,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             if (user is null)
             {
                 response.ErrorMessage = "User not found.";
-
                 response.WithStatus(HttpStatusCode.NotFound);
-
                 return response;
             }
 
@@ -161,14 +144,9 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "{FunctionName} Unexpected error occurred.",
-                functionName);
-
+            _logger.LogError(ex, "{FunctionName} Unexpected error occurred.", functionName);
             response.ErrorMessage = ex.Message;
         }
-
         return response;
     }
 }

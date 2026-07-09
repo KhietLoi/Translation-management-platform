@@ -15,7 +15,12 @@ namespace MySolution.Api.Controllers;
 [ApiController]
 public class UserController(IMediator mediator) : Controller
 {
-    //Get All User, Limit by page,
+    /// <summary>
+    /// Get all users with optional filtering and pagination
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet]
     public async Task<IActionResult> GetUsers([FromQuery] GetUsersRequest request, CancellationToken cancellationToken)
     {
@@ -24,19 +29,25 @@ public class UserController(IMediator mediator) : Controller
         );
     }
     
-    //Get User by Id:
+    /// <summary>
+    /// Get a user by their ID
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetUserById(Guid id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new GetUserByIdQuery(id), cancellationToken);
-           
-        return ResponseHelper.ToResponse(
-            response.StatusCode,
-            response,
-            response.Data);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    // Create User
+    /// <summary>
+    /// Create a new user
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
     {
@@ -44,7 +55,13 @@ public class UserController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //Update User
+    /// <summary>
+    /// Update an existing user
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
     {
@@ -52,7 +69,12 @@ public class UserController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //Delete User
+    /// <summary>
+    /// Delete a user by their ID
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteUser(Guid id, CancellationToken cancellationToken)
     {
@@ -60,19 +82,29 @@ public class UserController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //Assign Role to user
+    /// <summary>
+    /// Assign a role to a user
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("assign-role")]
-    public async Task<IActionResult> AssignRoleToUser([FromBody] AssignRoleToUserRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> AssignRoleToUser([FromBody] AssignRoleToUserRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new AssignRoleToUserCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-    //Remove Role to user
+    /// <summary>
+    /// Remove a role from a user
+    /// </summary>
+    /// <param name="roleId"></param>
+    /// <param name="userId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPut("delete-role")]
-    public async Task<IActionResult> RemoveRoleFromUser(Guid roleid, Guid userid, CancellationToken cancellationToken)
+    public async Task<IActionResult> RemoveRoleFromUser(Guid roleId, Guid userId, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new RemoveRoleFromUserCommand(roleid,userid), cancellationToken);
+        var response = await mediator.Send(new RemoveRoleFromUserCommand(roleId, userId), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 }

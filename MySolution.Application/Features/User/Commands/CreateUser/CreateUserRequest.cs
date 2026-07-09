@@ -1,5 +1,8 @@
 ﻿namespace MySolution.Application.Features.User.Commands.CreateUser;
 
+/// <summary>
+/// Request model for creating a new user
+/// </summary>
 public class CreateUserRequest
 {
     public string Username { get; set; } = string.Empty;

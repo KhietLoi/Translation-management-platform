@@ -2,10 +2,12 @@
 
 namespace MySolution.Application.Features.Permission.Queries.GetPermissions;
 
+/// <summary>
+/// Response class for the get permissions operation.
+/// </summary>
 public class GetPermissionsResponse : BaseResponse <GetPermissionsResult>
 {
 }
-
 public class GetPermissionsResult
 {
     public List<GetPermissionsData> Roles { get; set; } = [];

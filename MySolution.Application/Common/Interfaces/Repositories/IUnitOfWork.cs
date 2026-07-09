@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MySolution.Application.Common.Interfaces.Repositories;
-
+/// <summary>
+/// Unit of Work interface for managing repositories and transactions
+/// </summary>
 public interface IUnitOfWork
 {
     IUserRepository User { get; }

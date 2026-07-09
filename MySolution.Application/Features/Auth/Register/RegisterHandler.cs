@@ -7,6 +7,9 @@ using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.Auth.Register;
 
+/// <summary>
+/// Handler for the RegisterCommand, responsible for processing user registration requests.
+/// </summary>
 public class RegisterHandler
     : IRequestHandler<RegisterCommand, RegisterResponse>
 {
@@ -27,12 +30,9 @@ public class RegisterHandler
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<RegisterResponse> Handle(
-        RegisterCommand request,
-        CancellationToken cancellationToken)
+    public async Task<RegisterResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
-
         var response = new RegisterResponse
         {
             Success = false,
@@ -45,7 +45,6 @@ public class RegisterHandler
             {
                 response.ErrorMessage = "Username already exists.";
                 response.WithStatus(HttpStatusCode.BadRequest);
-
                 return response;
             }
 
@@ -53,7 +52,6 @@ public class RegisterHandler
             {
                 response.ErrorMessage = "Email already exists.";
                 response.WithStatus(HttpStatusCode.BadRequest);
-
                 return response;
             }
 
@@ -62,7 +60,6 @@ public class RegisterHandler
             if (role is null)
             {
                 response.ErrorMessage = "Default role not found.";
-
                 return response;
             }
 
@@ -96,15 +93,12 @@ public class RegisterHandler
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.Created);
-            Console.WriteLine(response.Data?.Username);
             return response;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Register failed");
-
             response.ErrorMessage = ex.Message;
-
             return response;
         }
     }
