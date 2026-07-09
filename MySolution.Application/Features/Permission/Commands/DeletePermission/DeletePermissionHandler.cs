@@ -5,6 +5,9 @@ using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Application.Features.Permission.Commands.DeletePermission;
 
+/// <summary>
+/// Handler for deleting a permission.
+/// </summary>
 public class DeletePermissionHandler : IRequestHandler<DeletePermissionCommand, DeletePermissionResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -27,10 +30,10 @@ public class DeletePermissionHandler : IRequestHandler<DeletePermissionCommand, 
 
         try
         {
-            //Perrmission
+            // Get permission by Id
             var permission = await _unitOfWork.Permission.GetPermissionByIdAsync(request.Id);
            
-            //Check null
+            // Check if permission exists
             if (permission == null)
             {
                 response.ErrorMessage = "Permission not found";
@@ -38,11 +41,11 @@ public class DeletePermissionHandler : IRequestHandler<DeletePermissionCommand, 
                 return response;
             }
             
-            //Delete
+            // Delete
             _unitOfWork.Permission.Delete(permission);
-            //Save
+            // Save
             await _unitOfWork.SaveAsync(cancellationToken);
-            //Response
+            // Response
             response.Data = new DeletePermissionData
             {
                 Id = permission.Id,
@@ -55,8 +58,8 @@ public class DeletePermissionHandler : IRequestHandler<DeletePermissionCommand, 
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = ex.Message; 
-            response.WithStatus(HttpStatusCode.InternalServerError); 
         }
         return response;
     }

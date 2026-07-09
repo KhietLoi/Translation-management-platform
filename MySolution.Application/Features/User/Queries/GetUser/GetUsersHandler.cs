@@ -7,6 +7,9 @@ using MySolution.Application.Common.Model;
 
 namespace MySolution.Application.Features.User.Queries.GetUser;
 
+/// <summary>
+/// Handler for processing the GetUsersQuery
+/// </summary>
 public class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersResponse>
 {
     private readonly ILogger<GetUsersHandler> _logger;
@@ -79,9 +82,8 @@ public class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersResponse>
         }
         catch (Exception ex)
         {
-            response.ErrorMessage = ex.Message;
-            response.WithStatus(HttpStatusCode.InternalServerError);
-            return response;
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = ex.Message; 
         }
         return response;
     }

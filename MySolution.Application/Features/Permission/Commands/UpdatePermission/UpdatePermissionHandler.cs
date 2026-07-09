@@ -5,6 +5,9 @@ using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Application.Features.Permission.Commands.UpdatePermission;
 
+/// <summary>
+/// Handler for updating a permission.
+/// </summary>
 public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, UpdatePermissionResponse>
 {
     private IUnitOfWork _unitOfWork;
@@ -32,7 +35,7 @@ public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, 
 
         try
         {
-            //Check permission existing
+            // Check if permission exists
             var permission = await _unitOfWork.Permission.GetPermissionByIdAsync(request.Id);
             
             if (permission == null)
@@ -42,7 +45,7 @@ public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, 
                 return response;
             }
             
-            //Check code already exists
+            // Check if code already exists
             var existingPermission = await _unitOfWork.Permission.GetPermissionByCodeAsync(payload.Code);
             
             if (existingPermission is not null && existingPermission.Id != request.Id)
@@ -56,6 +59,7 @@ public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, 
             permission.Code =payload.Code;
             permission.Description = payload.Description;
             permission.UpdatedAt = DateTime.UtcNow;
+            
             //Save
             await _unitOfWork.SaveAsync(cancellationToken);
             response.Data = new UpdatePermissionData
@@ -72,8 +76,8 @@ public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, 
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = ex.Message; 
-            response.WithStatus(HttpStatusCode.InternalServerError); 
         }
         return response;
     }

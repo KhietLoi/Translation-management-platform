@@ -8,6 +8,9 @@ using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.User.Commands.CreateUser;
 
+/// <summary>
+/// Handler for creating a new user.
+/// </summary>
 public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -43,17 +46,17 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
         
         try
         {
-            //Check Username is existing
+            // Check Username
             if (await _unitOfWork.User.ExistsByUsernameAsync(payload.Username))
             {
-                response.ErrorMessage = "Username already exists."; //Update after (!)
+                response.ErrorMessage = "Username already exists."; 
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-            //Check Email
+            // Check Email
             if (await _unitOfWork.User.ExistsByEmailAsync(payload.Email))
             {
-                response.ErrorMessage = "Email already exists."; //Update after (!)
+                response.ErrorMessage = "Email already exists."; 
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
@@ -79,7 +82,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
                 IsActive = true,
                 CreatedAt = _dateTimeProvider.UtcNow,
             };
-            //Add
+            //Add User
             await _unitOfWork.User.Add(user);
             //Asign Roles
             foreach (var role in roles)
@@ -106,9 +109,8 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
         }
         catch (Exception ex)
         {
-            response.ErrorMessage = ex.Message;
-            response.WithStatus(HttpStatusCode.InternalServerError);
-            return response;
+             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+             response.ErrorMessage = ex.Message; 
         }
         return response;
     }

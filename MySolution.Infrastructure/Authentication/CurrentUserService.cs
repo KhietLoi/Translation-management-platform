@@ -4,6 +4,10 @@ using MySolution.Application.Common.Interfaces;
 
 namespace MySolution.Infrastructure.Authentication;
 
+/// <summary>
+/// Service to get the current authenticated user information from the HTTP context.
+/// </summary>
+/// <param name="httpContextAccessor"></param>
 public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
     private ClaimsPrincipal? User => httpContextAccessor.HttpContext?.User;
@@ -48,5 +52,4 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
         ?? [];
     public bool IsAuthenticated =>
         User?.Identity?.IsAuthenticated ?? false;
-    
 }

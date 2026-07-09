@@ -2,6 +2,9 @@
 
 namespace MySolution.Application.Features.User.Queries.GetUser;
 
+/// <summary>
+/// Response class for the get users operation.
+/// </summary>
 public class GetUsersResponse : BaseResponse
 {
     public GetUsersResult? Data { get; set; }

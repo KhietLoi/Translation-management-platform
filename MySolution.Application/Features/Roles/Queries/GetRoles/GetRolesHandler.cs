@@ -8,6 +8,9 @@ using MySolution.Application.Features.User.Queries.GetUser;
 
 namespace MySolution.Application.Features.Roles.Queries.GetRoles;
 
+/// <summary>
+/// Handler for processing the GetRolesQuery,
+/// </summary>
 public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
 {
     private readonly ILogger<GetUsersHandler> _logger;
@@ -73,9 +76,8 @@ public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
         }
         catch (Exception ex)
         {
-            response.ErrorMessage = ex.Message;
-            response.WithStatus(HttpStatusCode.InternalServerError);
-            return response;
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = ex.Message; 
         }
         return response;
     }

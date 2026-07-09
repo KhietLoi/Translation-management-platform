@@ -2,6 +2,9 @@
 
 namespace MySolution.Application.Features.User.Commands.UpdateUser;
 
+/// <summary>
+/// Response class for the update user operation.
+/// </summary>
 public class UpdateUserResponse : BaseResponse <UpdateUserData>
 { 
 }

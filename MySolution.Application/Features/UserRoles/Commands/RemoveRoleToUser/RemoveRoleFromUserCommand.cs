@@ -2,6 +2,9 @@
 
 namespace MySolution.Application.Features.UserRoles.Commands.RemoveRoleToUser;
 
+/// <summary>
+/// Command to remove a role from a user
+/// </summary>
 public class RemoveRoleFromUserCommand : IRequest <RemoveRoleFromUserResponse>
 {
     public Guid RoleId { get; set; }

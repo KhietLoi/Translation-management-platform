@@ -2,6 +2,9 @@
 
 namespace MySolution.Application.Features.Roles.Commands.UpdateRole;
 
+/// <summary>
+/// Response class for the update role operation.
+/// </summary>
 public class UpdateRoleResponse : BaseResponse <UpdateRoleData>
 {
 }

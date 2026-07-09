@@ -2,6 +2,9 @@
 
 namespace MySolution.Application.Features.User.Commands.CreateUser;
 
+/// <summary>
+/// Validator for the CreateUserCommand
+/// </summary>
 public class CreateUserValidator : AbstractValidator<CreateUserCommand>
 {
     public CreateUserValidator()

@@ -5,6 +5,9 @@ using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Application.Features.User.Commands.DeleteUser;
 
+/// <summary>
+/// Handler for deleting a user by its ID.
+/// </summary>
 public class DeleteUserHandler : IRequestHandler<DeleteUserCommand,DeleteUserResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -27,18 +30,21 @@ public class DeleteUserHandler : IRequestHandler<DeleteUserCommand,DeleteUserRes
         
         try
         {
-            //Get user:
+            //Check if user exists
             var user = await _unitOfWork.User.GetByIdAsync(request.Id);
+            
             if (user == null)
             {
                 response.ErrorMessage = "User not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-            //Delete user
+            
+            // Delete user
             _unitOfWork.User.Delete(user);
+            // Save changes
             await _unitOfWork.SaveAsync(cancellationToken);
-            //Return value
+            // Return value
             response.Data = new DeleteUserData
             {
                 Id = user.Id,
@@ -48,11 +54,11 @@ public class DeleteUserHandler : IRequestHandler<DeleteUserCommand,DeleteUserRes
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-        }catch(Exception ex)
+        }
+        catch(Exception ex)
         { 
-            response.ErrorMessage = ex.Message;
-            response.WithStatus(HttpStatusCode.InternalServerError);
-            return response;
+             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+             response.ErrorMessage = ex.Message; 
         }
         return response;
     }

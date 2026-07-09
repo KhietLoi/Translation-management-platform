@@ -1,5 +1,8 @@
 ﻿namespace MySolution.Domain.Entities;
 
+/// <summary>
+/// Represents a role in the system, which can be assigned to users and associated with permissions.
+/// </summary>
 public class Role
 {
     public Guid Id { get; set; }
@@ -7,13 +10,6 @@ public class Role
     public string? Description { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
-    
-    //Navigation:
-    // Danh sach User thuoc Role
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-    
-    // Danh sach Permission cua Role
     public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
-    
-    
 }

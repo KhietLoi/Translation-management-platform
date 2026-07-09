@@ -4,6 +4,9 @@ using MySolution.Domain.Entities;
 
 namespace MySolution.Infrastructure.Persistence.Configurations;
 
+/// <summary>
+/// Represents the configuration for the User entity in the database context.
+/// </summary>
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
@@ -24,7 +27,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDefaultValue(true);
         builder.Property(x => x.CreatedAt)
             .HasDefaultValueSql("now()");
-        //Index:
         builder.HasIndex(x => x.Email)
             .IsUnique();
     }

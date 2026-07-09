@@ -4,6 +4,9 @@ using MySolution.Domain.Entities;
 
 namespace MySolution.Infrastructure.Persistence.Configurations;
 
+/// <summary>
+/// Represents the configuration for the UserRole entity in the database context.
+/// </summary>
 public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 {
     public void Configure(EntityTypeBuilder<UserRole> builder)

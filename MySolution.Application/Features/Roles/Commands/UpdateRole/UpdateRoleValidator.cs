@@ -2,6 +2,9 @@
 
 namespace MySolution.Application.Features.Roles.Commands.UpdateRole;
 
+/// <summary>
+/// Validator for the UpdateRoleCommand
+/// </summary>
 public class UpdateRoleValidator : AbstractValidator<UpdateRoleCommand>
 {
     public UpdateRoleValidator()

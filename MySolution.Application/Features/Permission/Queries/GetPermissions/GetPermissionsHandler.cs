@@ -8,6 +8,10 @@ using MySolution.Application.Features.User.Queries.GetUser;
 
 namespace MySolution.Application.Features.Permission.Queries.GetPermissions;
 
+/// <summary>
+/// Handler for processing the GetPermissionsQuery,
+/// which retrieves a list of permissions based on the provided search criteria and pagination parameters.
+/// </summary>
 public class GetPermissionsHandler : IRequestHandler <GetPermissionsQuery,GetPermissionsResponse>
 {
     private readonly ILogger<GetUsersHandler> _logger;
@@ -73,8 +77,8 @@ public class GetPermissionsHandler : IRequestHandler <GetPermissionsQuery,GetPer
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = ex.Message; 
-            response.WithStatus(HttpStatusCode.InternalServerError); 
         }
         return response;
     }

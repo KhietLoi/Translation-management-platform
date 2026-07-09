@@ -29,7 +29,7 @@ public class RemoveRoleFromUserHandler : IRequestHandler<RemoveRoleFromUserComma
 
         try
         {
-            //UserRole
+            // Check if user exists
             var userRole = await _unitOfWork.UserRole.GetAsync(request.UserId, request.RoleId);
             
             if (userRole == null)
@@ -39,11 +39,11 @@ public class RemoveRoleFromUserHandler : IRequestHandler<RemoveRoleFromUserComma
                 return response;
             }
             
-            //Delete
+            // Remove role from user
             _unitOfWork.UserRole.Delete(userRole);
-            //Save
+            // Save
             await _unitOfWork.SaveAsync(cancellationToken);
-            //Response
+            // Return value
             response.Data = new RemoveRoleFromUserData
             {
                 UserId = request.UserId,
@@ -55,9 +55,10 @@ public class RemoveRoleFromUserHandler : IRequestHandler<RemoveRoleFromUserComma
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = ex.Message; 
-            response.WithStatus(HttpStatusCode.InternalServerError); 
         }
+        
         return response;
     }
     

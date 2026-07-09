@@ -5,6 +5,9 @@ using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Application.Features.Roles.Commands.DeleteRole;
 
+/// <summary>
+/// Handler for deleting a role.
+/// </summary>
 public class DeleteRoleHandler : IRequestHandler<DeleteRoleCommand,DeleteRoleResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -48,10 +51,11 @@ public class DeleteRoleHandler : IRequestHandler<DeleteRoleCommand,DeleteRoleRes
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
 
-        }catch(Exception ex)
+        }
+        catch(Exception ex)
         {
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = ex.Message; 
-            response.WithStatus(HttpStatusCode.InternalServerError);
         }
         return response;
     }

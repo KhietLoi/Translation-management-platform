@@ -7,6 +7,9 @@ using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.Roles.Commands.CreateRole;
 
+/// <summary>
+/// Handler for creating a new role.
+/// </summary>
 public class CreateRoleHandler : IRequestHandler<CreateRoleCommand, CreateRoleResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -38,7 +41,7 @@ public class CreateRoleHandler : IRequestHandler<CreateRoleCommand, CreateRoleRe
         
         try
         {
-            //CheckName:
+            // Validate if the role name already exists
             if (await _unitOfWork.Role.ExistsByNameAsync(payload.Name))
             {
                 response.ErrorMessage = "Role name already exists";
@@ -46,7 +49,7 @@ public class CreateRoleHandler : IRequestHandler<CreateRoleCommand, CreateRoleRe
                 return response;
             }
 
-            //Add new Role
+            // Create Role
             var role = new Role
             {
                 Id = Guid.NewGuid(),
@@ -68,12 +71,11 @@ public class CreateRoleHandler : IRequestHandler<CreateRoleCommand, CreateRoleRe
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.Created);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
-            throw;
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = ex.Message; 
         }
-        
         return response;
     }
 }

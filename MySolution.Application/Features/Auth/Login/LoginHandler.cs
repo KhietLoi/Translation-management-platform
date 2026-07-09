@@ -50,67 +50,49 @@ public class LoginHandler
 
         try
         {
-            // Tìm User
+            // Find user by username
             var user = await _unitOfWork.User
                 .GetUserWithRolesAsync(payload.Username);
 
             if (user == null)
             {
-                _logger.LogWarning(
-                    "{FunctionName} User not found: {Username}",
-                    functionName,
-                    payload.Username);
-
-                response.ErrorMessage = "Username hoặc Password không đúng.";
-
+                _logger.LogWarning("{FunctionName} User not found: {Username}", functionName, payload.Username);
+                response.ErrorMessage = "Username or Password is incorrect.";
                 response.WithStatus(HttpStatusCode.Unauthorized);
-
                 return response;
             }
 
-            // Kiểm tra trạng thái tài khoản
+            // Check account status
             if (!user.IsActive)
             {
-                _logger.LogWarning(
-                    "{FunctionName} User inactive: {Username}",
-                    functionName,
-                    payload.Username);
-
-                response.ErrorMessage = "Tài khoản đã bị khóa.";
-
+                _logger.LogWarning("{FunctionName} User inactive: {Username}", functionName, payload.Username);
+                response.ErrorMessage = "Account is locked.";
                 response.WithStatus(HttpStatusCode.Forbidden);
-
                 return response;
             }
 
-            // Kiểm tra Password
+            // Check Password
             var verify = _passwordHasher.VerifyPassword(
                 payload.Password,
                 user.PasswordHash);
 
             if (!verify)
             {
-                _logger.LogWarning(
-                    "{FunctionName} Invalid password: {Username}",
-                    functionName,
-                    payload.Username);
-
-                response.ErrorMessage = "Username hoặc Password không đúng.";
-
+                _logger.LogWarning("{FunctionName} Invalid password: {Username}", functionName, payload.Username);
+                response.ErrorMessage = "Username or Password is incorrect.";
                 response.WithStatus(HttpStatusCode.Unauthorized);
-
                 return response;
             }
 
-            // Sinh JWT
+            // Generate JWT
             var accessToken =
                 _jwtService.GenerateJwtToken(user);
 
-            // Sinh RefreshToken
+            // Generate RefreshToken
             var refreshToken =
                 _jwtService.GenerateRefreshToken();
 
-            // Lưu RefreshToken
+            // Save RefreshToken to database
             await _unitOfWork.RefreshToken.Add(
                 new Domain.Entities.RefreshToken
                 {
@@ -123,7 +105,7 @@ public class LoginHandler
                 });
 
             await _unitOfWork.SaveAsync(cancellationToken);
-
+            
             response.Data = new LoginResult
             {
                 AccessToken = accessToken,

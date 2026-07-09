@@ -6,6 +6,9 @@ using MySolution.Application.Features.Roles.Queries.GetRoleById;
 
 namespace MySolution.Application.Features.Permission.Queries.GetPermissionById;
 
+/// <summary>
+/// Handler for the GetPermissionByIdQuery, responsible for retrieving a permission by its ID.
+/// </summary>
 public class GetPermissionByIdHandler : IRequestHandler<GetPermissionByIdQuery, GetPermissionByIdResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -53,10 +56,9 @@ public class GetPermissionByIdHandler : IRequestHandler<GetPermissionByIdQuery, 
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = ex.Message; 
-            response.WithStatus(HttpStatusCode.InternalServerError); 
         }
-        
         return response;
     }
 }

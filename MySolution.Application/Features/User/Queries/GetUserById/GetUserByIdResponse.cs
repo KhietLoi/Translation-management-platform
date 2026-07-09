@@ -26,5 +26,5 @@ public class PermissionData
 {
     public Guid PermissionId { get; set; }
     public string PermissionCode { get; set; } = string.Empty;
-    public string PermissionDescription { get; set; } = string.Empty;
+    public string? PermissionDescription { get; set; }
 }
