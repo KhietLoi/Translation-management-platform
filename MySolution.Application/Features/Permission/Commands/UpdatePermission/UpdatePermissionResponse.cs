@@ -1,0 +1,16 @@
+﻿using MySolution.Application.Common.Model;
+
+namespace MySolution.Application.Features.Permission.Commands.UpdatePermission;
+
+public class UpdatePermissionResponse : BaseResponse <UpdatePermissionData>
+{
+}
+
+public class UpdatePermissionData
+{
+    public Guid Id { get; set; }
+    public string Code { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+}

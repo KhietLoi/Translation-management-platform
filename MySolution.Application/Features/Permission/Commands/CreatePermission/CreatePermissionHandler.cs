@@ -1,0 +1,71 @@
+﻿using System.Net;
+using MediatR;
+using Microsoft.Extensions.Logging;
+using MySolution.Application.Common.Interfaces.Repositories;
+
+namespace MySolution.Application.Features.Permission.Commands.CreatePermission;
+
+public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, CreatePermissionResponse>
+{
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<CreatePermissionHandler> _logger;
+
+    public CreatePermissionHandler
+    (
+        IUnitOfWork unitOfWork,
+        ILogger<CreatePermissionHandler> logger
+    )
+    {
+        _unitOfWork = unitOfWork;
+        _logger = logger;
+    }
+    public async Task<CreatePermissionResponse> Handle(CreatePermissionCommand request, CancellationToken cancellationToken)
+    {
+        var payload = request.Payload;
+        var functionName = $"{nameof(CreatePermissionHandler)} =>";
+        _logger.LogInformation(functionName);
+        var response = new CreatePermissionResponse
+        {
+            Success = false,
+            StatusCode = HttpStatusCode.InternalServerError
+        };
+
+        try
+        {
+            //Check code:
+            if (await _unitOfWork.Permission.ExistsByCodeAsync(payload.Code))
+            {
+                response.ErrorMessage = "Permission code already exists";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
+            //Create Permission
+            var permission = new Domain.Entities.Permission
+            {
+                Id = Guid.NewGuid(),
+                Code = payload.Code,
+                Description = payload.Description,
+                CreatedAt = DateTime.UtcNow
+            };
+            //Save
+            await _unitOfWork.Permission.Add(permission);
+            await _unitOfWork.SaveAsync(cancellationToken);
+            //Response
+            response.Data = new CreatePermissionData
+            {
+                Code = permission.Code,
+                Description = permission.Description,
+                CreatedAt = permission.CreatedAt
+            };
+            response
+                .WithSuccess(true)
+                .WithStatus(HttpStatusCode.Created);
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = ex.Message; 
+            response.WithStatus(HttpStatusCode.InternalServerError); 
+        }
+        return response;
+    }
+}

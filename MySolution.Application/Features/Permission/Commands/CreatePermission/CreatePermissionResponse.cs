@@ -1,0 +1,14 @@
+﻿using MySolution.Application.Common.Model;
+
+namespace MySolution.Application.Features.Permission.Commands.CreatePermission;
+
+public class CreatePermissionResponse : BaseResponse <CreatePermissionData>
+{
+}
+
+public class CreatePermissionData
+{
+    public string Code { get; set; } = string.Empty;
+    public string? Description { get; set; } 
+    public DateTime CreatedAt { get; set; }
+}

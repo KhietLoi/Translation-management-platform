@@ -19,12 +19,16 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
         Role = new RoleRepository(_context, _logger);
         Permission = new PermissionRepository(_context, _logger);
         RefreshToken = new RefreshTokenRepository(_context, _logger);
+        UserRole = new UserRoleRepository(_context, _logger);
+        RolePermission = new RolePermissionRepository(_context, _logger);
         
     }
     public IUserRepository User { get; }
     public IRoleRepository Role { get; }
     public IPermissionRepository Permission { get; }
     public IRefreshTokenRepository RefreshToken { get; }
+    public IUserRoleRepository UserRole { get; }
+    public IRolePermissionRepository RolePermission { get; }
 
 
     public async Task SaveAsync(CancellationToken cancellationToken)
