@@ -8,6 +8,8 @@ public interface IUnitOfWork
     IRoleRepository Role { get; }
     IPermissionRepository Permission { get; }
     IRefreshTokenRepository RefreshToken { get; }
+    IUserRoleRepository UserRole { get; }
+    IRolePermissionRepository RolePermission { get; }
     
     Task SaveAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> OpenTransactionAsync(CancellationToken cancellationToken = default);

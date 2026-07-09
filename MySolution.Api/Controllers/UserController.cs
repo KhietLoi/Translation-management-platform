@@ -1,11 +1,13 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Helpers;
+using MySolution.Application.Features.User.Commands.CreateUser;
 using MySolution.Application.Features.User.Commands.DeleteUser;
-using MySolution.Application.Features.Users.Commands.CreateUser;
-using MySolution.Application.Features.Users.Commands.UpdateUser;
-using MySolution.Application.Features.Users.Queries.GetUser;
-using MySolution.Application.Features.Users.Queries.GetUserById;
+using MySolution.Application.Features.User.Commands.UpdateUser;
+using MySolution.Application.Features.User.Queries.GetUser;
+using MySolution.Application.Features.User.Queries.GetUserById;
+using MySolution.Application.Features.UserRoles.Commands.AssignRoleToUser;
+using MySolution.Application.Features.UserRoles.Commands.RemoveRoleToUser;
 
 namespace MySolution.Api.Controllers;
 
@@ -55,6 +57,22 @@ public class UserController(IMediator mediator) : Controller
     public async Task<IActionResult> DeleteUser(Guid id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new DeleteUserCommand(id), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    
+    //Assign Role to user
+    [HttpPost("assign-role")]
+    public async Task<IActionResult> AssignRoleToUser([FromBody] AssignRoleToUserRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new AssignRoleToUserCommand(request), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    //Remove Role to user
+    [HttpPut("delete-role")]
+    public async Task<IActionResult> RemoveRoleFromUser(Guid roleid, Guid userid, CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new RemoveRoleFromUserCommand(roleid,userid), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 }

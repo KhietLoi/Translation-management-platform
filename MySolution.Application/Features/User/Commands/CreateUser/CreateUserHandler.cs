@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Features.Users.Commands.CreateUser;
 using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.User.Commands.CreateUser;
