@@ -57,9 +57,11 @@ public class DeleteUserHandler : IRequestHandler<DeleteUserCommand,DeleteUserRes
         }
         catch(Exception ex)
         { 
-             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
-             response.ErrorMessage = ex.Message; 
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
+            response.WithStatus(HttpStatusCode.InternalServerError);
         }
+        
         return response;
     }
 }

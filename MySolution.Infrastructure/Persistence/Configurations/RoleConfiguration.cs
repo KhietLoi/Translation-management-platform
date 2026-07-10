@@ -24,6 +24,9 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
             .HasDefaultValueSql("now()");
         builder.Property(x => x.UpdatedAt)
             .HasDefaultValueSql("now()");
+        // Index for Role:
+        builder.HasIndex(x => x.Name)
+            .IsUnique();
         
     }
 }

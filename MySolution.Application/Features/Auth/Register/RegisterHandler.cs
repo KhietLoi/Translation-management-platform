@@ -33,6 +33,8 @@ public class RegisterHandler
     public async Task<RegisterResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
+        var functionName = $"{nameof(RegisterHandler)}";
+        _logger.LogInformation(functionName);
         var response = new RegisterResponse
         {
             Success = false,
@@ -41,21 +43,15 @@ public class RegisterHandler
 
         try
         {
-            if (await _unitOfWork.User.ExistsByUsernameAsync(payload.Username))
+            if (await _unitOfWork.User.ExistsByEmailOrUsernameAsync(payload.Email, payload.Username))
             {
-                response.ErrorMessage = "Username already exists.";
+                response.ErrorMessage = "Username and Email already exist.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-
-            if (await _unitOfWork.User.ExistsByEmailAsync(payload.Email))
-            {
-                response.ErrorMessage = "Email already exists.";
-                response.WithStatus(HttpStatusCode.BadRequest);
-                return response;
-            }
-
-            var role = await _unitOfWork.Role.GetByNameAsync("User");
+            
+            // user role default
+            var role = await _unitOfWork.Role.GetByNameAsync("User"); 
 
             if (role is null)
             {
@@ -97,9 +93,12 @@ public class RegisterHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Register failed");
-            response.ErrorMessage = ex.Message;
-            return response;
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
+            response.WithStatus(HttpStatusCode.InternalServerError);
         }
+        
+           
+        return response;
     }
 }

@@ -1,5 +1,7 @@
-﻿using System.Net;
+﻿using System.Data.Common;
+using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -36,7 +38,7 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
             Success = false,
             StatusCode = HttpStatusCode.InternalServerError
         };
-        
+
         try
         {
             // Check if role exists
@@ -47,37 +49,40 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-            
-            // Check if role name already exists
-            var existing = await _unitOfWork.Role.GetByNameAsync(payload.Name);
-            
-            if (existing is not null && existing.Id != role.Id)
-            {
-                response.ErrorMessage = "Role name already exists.";
-                response.WithStatus(HttpStatusCode.BadRequest);
-                return response;
-            }
-            
+
             // Update
             role.Name = payload.Name;
             role.Description = payload.Description;
-            await _unitOfWork.SaveAsync(cancellationToken); 
-            response.Data = new UpdateRoleData 
+            await _unitOfWork.SaveAsync(cancellationToken);
+            response.Data = new UpdateRoleData
             {
-               RoleId = role.Id,
-               RoleName = role.Name,
-               RoleDescription = role.Description,
-               UpdatedAt = _dateTimeProvider.UtcNow 
-            }; 
+                RoleId = role.Id,
+                RoleName = role.Name,
+                RoleDescription = role.Description,
+                UpdatedAt = _dateTimeProvider.UtcNow
+            };
             response
-               .WithSuccess(true)
-               .WithStatus(HttpStatusCode.OK);
+                .WithSuccess(true)
+                .WithStatus(HttpStatusCode.OK);
+        }
+       
+        catch (DbUpdateException ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "{FunctionName} Role name already exists.",
+                functionName);
+
+            response.ErrorMessage = "Role name already exists.";
+            response.WithStatus(HttpStatusCode.BadRequest);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
-            response.ErrorMessage = ex.Message; 
+            response.ErrorMessage = "An unexpected error occurred.";
+            response.WithStatus(HttpStatusCode.InternalServerError);
         }
+        
         return response;
     }
 }

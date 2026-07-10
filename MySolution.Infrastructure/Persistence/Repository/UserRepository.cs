@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
@@ -21,15 +22,10 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
     {
         return await DbSet.FirstOrDefaultAsync(x => x.Email == email);
     }
-
-    public virtual async Task<bool> ExistsByEmailAsync(string email)
+    
+    public async Task <bool> ExistsByEmailOrUsernameAsync(string email, string username)
     {
-        return await DbSet.FirstOrDefaultAsync(x => x.Email == email) != null;
-    }
-
-    public virtual async Task<bool> ExistsByUsernameAsync(string username)
-    {
-        return await DbSet.FirstOrDefaultAsync(x => x.Username == username) != null;
+        return await DbSet.AnyAsync(x => x.Email == email || x.Username == username);
     }
 
     public virtual async Task<List<Role>> GetRolesAsync(Guid userId)
@@ -72,7 +68,7 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
             .FirstOrDefaultAsync(x => x.Id == userId);
     }
 
-    // Check Email 
+    /*// Check Email 
     public async Task<bool> ExistsByEmailAsync(string email, Guid excludeUserId)
     {
         return await DbSet.AnyAsync(x => x.Email == email && x.Id != excludeUserId);
@@ -81,5 +77,10 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
     public async Task<bool> ExistsByUsernameAsync(string username, Guid excludeUserId)
     {
         return await DbSet.AnyAsync(x => x.Username == username && x.Id != excludeUserId);
+    }*/
+    
+    public async Task <bool>  ExistsByEmailOrUsernameAsync(string email, string username, Guid excludeUserId)
+    {
+        return await DbSet.AnyAsync(x => (x.Email == email || x.Username == username) && x.Id != excludeUserId);
     }
 }

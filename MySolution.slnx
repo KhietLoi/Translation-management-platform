@@ -3,6 +3,5 @@
   <Project Path="MySolution.Application/MySolution.Application.csproj" />
   <Project Path="MySolution.Domain/MySolution.Domain.csproj" />
   <Project Path="MySolution.Infrastructure/MySolution.Infrastructure.csproj" />
-  <Project Path="MySolution.Migration/MySolution.Migration.csproj" />
   <Project Path="Shared/Shared.csproj" />
 </Solution>

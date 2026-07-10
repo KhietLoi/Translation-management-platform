@@ -10,13 +10,16 @@ builder.Services
     .AddApplication(builder.Configuration)
     .AddInfrastructure(builder.Configuration)
     .AddSwaggerLayer()
-    .AddControllersLayer();
+    .AddControllersLayer()
+    .AddCorsLayer(builder.Configuration);
+
+
 var app = builder.Build();
 // 3. Middleware pipeline
 //app.UseRequestLocalizationLayer();
 //app.UseSwaggerLayer();
 //app.UseSerilogRequestLogging();
-//app.UseCors("_allowSpecificOrigins");
+
 //app.UseRequestLogging();
 //app.UseExceptionLayer();
 using (var scope = app.Services.CreateScope())
@@ -30,6 +33,7 @@ using (var scope = app.Services.CreateScope())
 }
 app.UseSwaggerLayer();
 app.UseHttpsRedirection();
+app.UseCors("_allowSpecificOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

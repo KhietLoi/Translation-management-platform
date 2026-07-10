@@ -41,27 +41,27 @@ public class AssignPermissionToRoleHandler : IRequestHandler<AssignPermissionToR
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-            
+
             //Check Permission
             var permission = await _unitOfWork.Permission.GetPermissionByIdAsync(payload.PermissionId);
-            
+
             if (permission == null)
             {
                 response.ErrorMessage = "Permission not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-            
+
             //Check if the role is already assigned to the permission
             bool existed = await _unitOfWork.RolePermission.ExistsAsync(role.Id, permission.Id);
-            
+
             if (existed)
             {
                 response.ErrorMessage = "Role is already assigned to this permission";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-            
+
             //Create RolePermission
             var rolePermission = new RolePermission
             {
@@ -79,16 +79,18 @@ public class AssignPermissionToRoleHandler : IRequestHandler<AssignPermissionToR
                 PermissionId = permission.Id,
                 PermissionCode = permission.Code
             };
-            
+
             response
                 .WithSuccess(true)
-                .WithStatus(HttpStatusCode.OK);
+                .WithStatus(HttpStatusCode.Created);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
-            response.ErrorMessage = ex.Message; 
+            response.ErrorMessage = "An unexpected error occurred.";
+            response.WithStatus(HttpStatusCode.InternalServerError);
         }
+
         return response;
     }
 }
