@@ -1,0 +1,59 @@
+.dashboard-banner {
+    background: linear-gradient(135deg, #000, #ffc107);
+    color: #fff;
+    border-radius: 12px;
+    padding: 30px;
+}
+
+.stat-card {
+    border: 0;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.08);
+    transition: .3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+}
+
+.stat-title {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #000;
+}
+
+.text-gold {
+    color: #ffc107;
+}
+
+.card-custom {
+    border: 0;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.08);
+}
+
+.card-custom .card-header {
+    background: #fff;
+    border-bottom: 2px solid #ffc107;
+    font-weight: 700;
+}
+
+.badge-gold {
+    background: #ffc107;
+    color: #000;
+}
+
+.activity-item {
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.activity-item:last-child {
+    border-bottom: 0;
+}

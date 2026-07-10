@@ -1,0 +1,114 @@
+.login-page {
+    min-height: 100vh;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.login-card {
+    width: 950px;
+    min-height: 520px;
+    display: flex;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,.15);
+    animation: show .5s ease;
+}
+
+@keyframes show {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-left,
+.login-right {
+    width: 50%;
+    padding: 60px;
+}
+
+.logo {
+    width: 70px;
+    height: 70px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffc107;
+    color: #000;
+    font-size: 28px;
+    font-weight: 800;
+    border-radius: 8px;
+}
+
+.form-control {
+    height: 45px;
+    border-radius: 4px;
+}
+
+.login-btn {
+    height: 45px;
+    background: #ffc107;
+    color: #000;
+    border: 0;
+    font-weight: 700;
+    transition: .3s;
+}
+
+.login-btn:hover {
+    background: #000;
+    color: #ffc107;
+}
+
+.login-right {
+    background: linear-gradient(135deg, #000, #ffc107);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-right h1 {
+    font-size: 48px;
+    font-weight: 800;
+}
+
+.login-right h4 {
+    margin-bottom: 20px;
+}
+
+.login-right p {
+    line-height: 1.8;
+}
+
+.line {
+    width: 80px;
+    height: 5px;
+    background: #fff;
+    margin: 20px 0;
+}
+
+@media (max-width:768px) {
+    .login-card {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .login-left,
+    .login-right {
+        width: 100%;
+        padding: 40px;
+    }
+
+    .login-right {
+        min-height: 250px;
+    }
+}
