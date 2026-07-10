@@ -34,10 +34,40 @@ public class AuthController(IMediator mediator) : Controller
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Login(
+        [FromBody] LoginRequest request,
+        CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new LoginCommand(request), cancellationToken);
-        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+        var response = await mediator.Send(
+            new LoginCommand(request),
+            cancellationToken);
+
+        if (!response.Success)
+        {
+            return ResponseHelper.ToResponse(
+                response.StatusCode,
+                response);
+        }
+
+        Response.Cookies.Append(
+            "refreshToken",
+            response.Data.RefreshToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false, // localhost
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTime.UtcNow.AddDays(7)
+            });
+
+        return ResponseHelper.ToResponse(
+            response.StatusCode,
+            response,
+            new
+            {
+                AccessToken = response.Data.AccessToken,
+                ExpiredAt = response.Data.ExpiresAt
+            });
     }
 
     /// <summary>
@@ -46,11 +76,60 @@ public class AuthController(IMediator mediator) : Controller
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpPost("refresh-token")]
+    /*[HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new RefreshTokenCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }*/
+    
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken(
+        CancellationToken cancellationToken)
+    {
+        var refreshToken = Request.Cookies["refreshToken"];
+        Console.WriteLine(refreshToken);
+        if (string.IsNullOrWhiteSpace(refreshToken))
+        {
+            return Unauthorized("Refresh token is missing.");
+        }
+
+        var response = await mediator.Send(
+            new RefreshTokenCommand(
+                new RefreshTokenRequest
+                {
+                    RefreshToken = refreshToken
+                }),
+            cancellationToken);
+
+        if (!response.Success)
+        {
+            Response.Cookies.Delete("refreshToken");
+
+            return ResponseHelper.ToResponse(
+                response.StatusCode,
+                response);
+        }
+
+        Response.Cookies.Append(
+            "refreshToken",
+            response.Data.RefreshToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false, // localhost
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTime.UtcNow.AddDays(7)
+            });
+
+        return ResponseHelper.ToResponse(
+            response.StatusCode,
+            response,
+            new
+            {
+                AccessToken = response.Data.AccessToken,
+                ExpiredAt = response.Data.ExpiredAt
+            });
     }
 
     /// <summary>

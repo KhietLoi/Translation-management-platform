@@ -24,5 +24,9 @@ public class PermissionConfiguration: IEntityTypeConfiguration<Permission>
             .HasDefaultValueSql("now()");
         builder.Property(x => x.UpdatedAt)
             .HasDefaultValueSql("now()");
+        
+        // Create a unique index on the Code property to ensure that permission codes are unique in the database.
+        builder.HasIndex(x => x.Code)
+            .IsUnique();
     }
 }

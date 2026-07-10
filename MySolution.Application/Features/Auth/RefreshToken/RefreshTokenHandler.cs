@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Security.Claims;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
@@ -40,21 +39,6 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
 
         try
         {
-            // Read claims from the expired access token
-            var principal = _jwtService.GetPrincipalFromExpiredToken(
-                payload.AccessToken);
-
-            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
-
-            if (userIdClaim is null)
-            {
-                response.ErrorMessage = "Invalid access token.";
-                response.WithStatus(HttpStatusCode.Unauthorized);
-                return response;
-            }
-
-            var userId = Guid.Parse(userIdClaim.Value);
-
             // Retrieve refresh token from the database
             var refreshToken = await _unitOfWork.RefreshToken
                 .GetByTokenAsync(payload.RefreshToken);
@@ -65,15 +49,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
                 response.WithStatus(HttpStatusCode.Unauthorized);
                 return response;
             }
-
-            // Ensure the refresh token belongs to the current user
-            if (refreshToken.UserId != userId)
-            {
-                response.ErrorMessage = "Invalid refresh token.";
-                response.WithStatus(HttpStatusCode.Unauthorized);
-                return response;
-            }
-
+            
             // Check whether the refresh token has been revoked
             if (refreshToken.IsRevoked)
             {
@@ -89,11 +65,9 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
                 response.WithStatus(HttpStatusCode.Unauthorized);
                 return response;
             }
-
-            // Load user with roles and permissions
-            var user = await _unitOfWork.User
-                .GetUserWithRolesAsync(userId);
-
+            
+            var user = await _unitOfWork.User.GetByIdAsync(refreshToken.UserId);
+            
             if (user is null)
             {
                 response.ErrorMessage = "User not found.";
@@ -130,7 +104,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             {
                 AccessToken = accessToken,
                 RefreshToken = newRefreshToken,
-                ExpiredAt = _dateTimeProvider.UtcNow.AddMinutes(15)
+                ExpiredAt = _dateTimeProvider.UtcNow.AddMinutes(1)
             };
 
             response
@@ -144,8 +118,9 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "{FunctionName} Unexpected error occurred.", functionName);
-            response.ErrorMessage = ex.Message;
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
+            response.WithStatus(HttpStatusCode.InternalServerError);
         }
         return response;
     }

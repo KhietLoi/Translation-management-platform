@@ -46,20 +46,13 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
         
         try
         {
-            // Check Username
-            if (await _unitOfWork.User.ExistsByUsernameAsync(payload.Username))
+            if (await _unitOfWork.User.ExistsByEmailOrUsernameAsync(payload.Email, payload.Username))
             {
-                response.ErrorMessage = "Username already exists."; 
+                response.ErrorMessage = "Username or Email already exists."; 
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-            // Check Email
-            if (await _unitOfWork.User.ExistsByEmailAsync(payload.Email))
-            {
-                response.ErrorMessage = "Email already exists."; 
-                response.WithStatus(HttpStatusCode.BadRequest);
-                return response;
-            }
+         
             // Check Roles
             var roles = await _unitOfWork.Role
                 .Where(x => payload.RoleIds.Contains(x.Id))
@@ -109,9 +102,11 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
         }
         catch (Exception ex)
         {
-             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
-             response.ErrorMessage = ex.Message; 
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
+            response.WithStatus(HttpStatusCode.InternalServerError);
         }
+        
         return response;
     }
 }

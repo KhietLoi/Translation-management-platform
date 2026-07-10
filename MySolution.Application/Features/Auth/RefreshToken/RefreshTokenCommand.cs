@@ -13,4 +13,3 @@ public class RefreshTokenCommand : IRequest<RefreshTokenResponse>
         Payload = payload;
     }
 }
-}

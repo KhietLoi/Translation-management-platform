@@ -29,5 +29,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDefaultValueSql("now()");
         builder.HasIndex(x => x.Email)
             .IsUnique();
+        builder.HasIndex(x => x.Username)
+            .IsUnique();
     }
 }

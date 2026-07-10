@@ -15,7 +15,6 @@ public class PermissionRepository (AppDbContext context, ILogger logger) : Repos
     public virtual async Task<Permission?> GetPermissionByIdAsync(Guid permissionId)
     {
         return await DbSet
-                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == permissionId);
     }
 

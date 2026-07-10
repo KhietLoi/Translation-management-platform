@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Features.Permission.Commands.DeletePermission;
 
 namespace MySolution.Application.Features.UserRoles.Commands.RemoveRoleToUser;
 
@@ -56,10 +55,10 @@ public class RemoveRoleFromUserHandler : IRequestHandler<RemoveRoleFromUserComma
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
-            response.ErrorMessage = ex.Message; 
+            response.ErrorMessage = "An unexpected error occurred.";
+            response.WithStatus(HttpStatusCode.InternalServerError);
         }
         
         return response;
     }
-    
 }

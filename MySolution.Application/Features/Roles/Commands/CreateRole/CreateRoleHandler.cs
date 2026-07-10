@@ -74,8 +74,10 @@ public class CreateRoleHandler : IRequestHandler<CreateRoleCommand, CreateRoleRe
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
-            response.ErrorMessage = ex.Message; 
+            response.ErrorMessage = "An unexpected error occurred.";
+            response.WithStatus(HttpStatusCode.InternalServerError);
         }
+        
         return response;
     }
 }

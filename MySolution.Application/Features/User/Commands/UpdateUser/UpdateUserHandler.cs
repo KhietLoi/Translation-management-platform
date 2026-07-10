@@ -49,21 +49,13 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-
-            if (await _unitOfWork.User.ExistsByUsernameAsync(
+            
+            if (await _unitOfWork.User.ExistsByEmailOrUsernameAsync(
+                    payload.Email,
                     payload.Username,
                     request.Id))
             {
-                response.ErrorMessage = "Username already exists.";
-                response.WithStatus(HttpStatusCode.BadRequest);
-                return response;
-            }
-
-            if (await _unitOfWork.User.ExistsByEmailAsync(
-                    payload.Email,
-                    request.Id))
-            {
-                response.ErrorMessage = "Email already exists.";
+                response.ErrorMessage = "Username or email already exists.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
@@ -117,8 +109,10 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
-            response.ErrorMessage = ex.Message; 
+            response.ErrorMessage = "An unexpected error occurred.";
+            response.WithStatus(HttpStatusCode.InternalServerError);
         }
+        
         return response;
     }
 }

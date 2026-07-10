@@ -16,19 +16,9 @@ public interface IUserRepository : IRepository<User>
     /// <param name="email"></param>
     /// <returns></returns>
     Task<User?> GetByEmailAsync(string email);
-    /// <summary>
-    /// Check if user exists by email
-    /// </summary>
-    /// <param name="email"></param>
-    /// <returns></returns>
-    Task<bool> ExistsByEmailAsync(string email);
-    /// <summary>
-    /// Check if user exists by username
-    /// </summary>
-    /// <param name="username"></param>
-    /// <returns></returns>
-    Task<bool> ExistsByUsernameAsync(string username);
-    /// <summary>
+    
+    Task<bool> ExistsByEmailOrUsernameAsync(string email, string username);
+
     /// Get roles for a user
     /// </summary>
     /// <param name="userId"></param>
@@ -52,19 +42,13 @@ public interface IUserRepository : IRepository<User>
     /// <param name="userId"></param>
     /// <returns></returns>
     Task<User?> GetUserWithRolesAsync(Guid userId);
+    
     /// <summary>
-    /// Check if user exists by email excluding a specific userId (useful for updates)
+    /// Check if a user exists by email or username excluding a specific userId (useful for updates)
     /// </summary>
     /// <param name="email"></param>
-    /// <param name="excludeUserId"></param>
-    /// <returns></returns>
-    Task<bool> ExistsByEmailAsync(string email, Guid excludeUserId );
-    /// <summary>
-    /// Check if user exists by username excluding a specific userId (useful for updates)
-    /// </summary>
     /// <param name="username"></param>
     /// <param name="excludeUserId"></param>
     /// <returns></returns>
-    Task<bool> ExistsByUsernameAsync(string username, Guid excludeUserId);
-    
+    Task<bool> ExistsByEmailOrUsernameAsync(string email, string username, Guid excludeUserId);
 }
