@@ -23,5 +23,12 @@ public interface IPermissionRepository : IRepository<Permission>
     /// <returns></returns>
     Task<bool> ExistsByCodeAsync(string code);
     
+    /// <summary>
+    /// Gets a list of permissions by their unique identifiers.
+    /// </summary>
+    /// <param name="ids"></param>
+    /// <returns></returns>
+    Task<List<Permission>> GetByIdsAsync(List<Guid> ids);
+    
     
 }

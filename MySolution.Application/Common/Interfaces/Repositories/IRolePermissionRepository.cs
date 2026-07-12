@@ -18,4 +18,18 @@ public interface IRolePermissionRepository : IRepository<RolePermission>
     /// <param name="permissionId"></param>
     /// <returns></returns>
     Task<bool> ExistsAsync(Guid roleId, Guid permissionId);
+    
+    /// <summary>
+    /// Get RolePermissions by roleId
+    /// </summary>
+    /// <param name="roleId"></param>
+    /// <returns></returns>
+    Task<List<RolePermission>> GetByRoleIdAsync(Guid roleId);
+    
+    /// <summary>
+    /// Get RolePermissions by roleId with related Permission entity
+    /// </summary>
+    /// <param name="roleId"></param>
+    /// <returns></returns>
+    Task<List<RolePermission>> GetByRoleIdWithPermissionAsync(Guid roleId);
 }

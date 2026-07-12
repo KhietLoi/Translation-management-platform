@@ -75,11 +75,11 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
             user.Email = payload.Email;
             user.IsActive = payload.IsActive;
 
-            if (!string.IsNullOrWhiteSpace(payload.Password))
+            /*if (!string.IsNullOrWhiteSpace(payload.Password))
             {
                 user.PasswordHash =
                     _passwordHasher.HashPassword(payload.Password);
-            }
+            }*/
 
             user.UserRoles.Clear();
 

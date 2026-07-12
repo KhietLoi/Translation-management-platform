@@ -35,4 +35,9 @@ public class RoleRepository (AppDbContext context, ILogger logger) : Repository<
             .Distinct()
             .ToListAsync();
     }
+
+    public async Task<List<Role>> GetByIdsAsync(List<Guid> ids)
+    {
+        return await DbSet.Where(r => ids.Contains(r.Id)).ToListAsync();
+    }
 }

@@ -10,7 +10,7 @@ public class GetPermissionsResponse : BaseResponse <GetPermissionsResult>
 }
 public class GetPermissionsResult
 {
-    public List<GetPermissionsData> Roles { get; set; } = [];
+    public List<GetPermissionsData> Permissions { get; set; } = [];
     public PagingInfo Paging { get; set; } = new();
 }
 public class GetPermissionsData

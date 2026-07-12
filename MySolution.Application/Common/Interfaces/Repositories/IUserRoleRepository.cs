@@ -18,4 +18,18 @@ public interface IUserRoleRepository : IRepository<UserRole>
     /// <param name="roleId"></param>
     /// <returns></returns>
     Task<bool> ExistsAsync(Guid userId, Guid roleId);
+    
+    /// <summary>
+    /// Get UserRoles by userId
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<List<UserRole>> GetByUserIdAsync(Guid userId);
+    
+    /// <summary>
+    /// Get UserRoles by userId with Role included
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<List<UserRole>> GetByUserIdWithRoleAsync(Guid userId);
 }

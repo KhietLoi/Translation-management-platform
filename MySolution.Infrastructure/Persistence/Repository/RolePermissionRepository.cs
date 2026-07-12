@@ -21,4 +21,14 @@ public class RolePermissionRepository (AppDbContext context, ILogger logger) : R
     {
         return await DbSet.AnyAsync(x => x.RoleId == roleId && x.PermissionId == permissionId);
     }
+
+    public async Task<List<RolePermission>> GetByRoleIdAsync(Guid roleId)
+    {
+        return await DbSet.Where(x => x.RoleId == roleId).ToListAsync();
+    }
+
+    public async Task<List<RolePermission>> GetByRoleIdWithPermissionAsync(Guid roleId)
+    {
+        return await DbSet.Where(x => x.RoleId == roleId).Include(x => x.Permission).ToListAsync();
+    }
 }
