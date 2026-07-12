@@ -1,0 +1,37 @@
+/* Bổ sung cho Bootstrap 5 - Black Gold Theme */
+.sidebar {
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.8);
+}
+
+.hover-bg-secondary:hover {
+  background-color: #1f1f1f !important;
+  color: white !important;
+}
+
+.btn {
+  border-radius: 0 !important; /* Góc vuông */
+  transition: all 0.25s ease;
+}
+
+.btn:hover {
+  transform: translateX(4px);
+}
+
+/* Active state đẹp hơn */
+.bg-warning {
+  box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.3) !important;
+}
+
+/* Rotate chevron */
+.transition-transform {
+  transition: transform 0.3s ease;
+}
+
+/* Scrollbar */
+.overflow-auto::-webkit-scrollbar {
+  width: 6px;
+}
+.overflow-auto::-webkit-scrollbar-thumb {
+  background: #d4af37;
+  border-radius: 3px;
+}

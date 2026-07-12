@@ -6,7 +6,9 @@ import Dashboard from "../pages/Dashboard/Dashboard";
 
 import MainLayout from "../layouts/MainLayout";
 
-// import Users from "../pages/Users/Users";
+import Users from "../pages/Users/Users";
+import Roles from "../pages/Roles/Roles";
+import Permissions from "../pages/Permissions/Permissions";
 // import Roles from "../pages/Roles/Roles";
 // import Permissions from "../pages/Permissions/Permissions";
 
@@ -21,14 +23,10 @@ export default function AppRoutes() {
 
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
-
-          {/* Thêm sau khi tạo page */}
-          {/* <Route path="/users" element={<Users />} /> */}
-          {/* <Route path="/roles" element={<Roles />} /> */}
-          {/* <Route path="/permissions" element={<Permissions />} /> */}
-
+          <Route path="/users" element={<Users />} />
+          <Route path="/roles" element={<Roles />} />
+          <Route path="/permissions" element={<Permissions />} /> 
         </Route>
-
       </Routes>
     </BrowserRouter>
   );

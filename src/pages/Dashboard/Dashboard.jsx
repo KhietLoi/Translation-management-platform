@@ -2,21 +2,7 @@ export default function Dashboard() {
   return (
     <div className="container-fluid">
 
-      {/* Banner */}
-      <div
-        className="mb-4 p-4 rounded-4 text-white"
-        style={{
-          background: "linear-gradient(135deg,#000,#ffc107)",
-        }}
-      >
-        <h2 className="fw-bold mb-2">
-          Authentication Dashboard
-        </h2>
-
-        <p className="mb-0">
-          Quản lý người dùng, vai trò, quyền hạn và bảo mật hệ thống
-        </p>
-      </div>
+    
 
       {/* Statistics */}
       <div className="row g-4 mb-4">
