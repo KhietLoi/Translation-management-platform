@@ -17,9 +17,9 @@ public class UpdateUserValidator : AbstractValidator<UpdateUserCommand>
             .NotEmpty()
             .EmailAddress();
 
-        RuleFor(x => x.Payload.Password)
+        /*RuleFor(x => x.Payload.Password)
             .NotEmpty()
-            .MinimumLength(8);
+            .MinimumLength(8);*/
 
         RuleFor(x => x.Payload.RoleIds)
             .NotEmpty()

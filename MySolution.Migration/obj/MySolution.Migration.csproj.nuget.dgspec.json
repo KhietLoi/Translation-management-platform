@@ -1,23 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Migration\\MySolution.Migration.csproj": {}
+    "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Migration\\MySolution.Migration.csproj": {}
   },
   "projects": {
-    "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Migration\\MySolution.Migration.csproj": {
+    "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Migration\\MySolution.Migration.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Migration\\MySolution.Migration.csproj",
+        "projectUniqueName": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Migration\\MySolution.Migration.csproj",
         "projectName": "MySolution.Migration",
-        "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Migration\\MySolution.Migration.csproj",
-        "packagesPath": "C:\\Users\\DEV\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Migration\\obj\\",
+        "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Migration\\MySolution.Migration.csproj",
+        "packagesPath": "C:\\Users\\lpn31\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Migration\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\DEV\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lpn31\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -50,6 +51,50 @@
       "frameworks": {
         "net10.0": {
           "targetAlias": "net10.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.9, )"
+            },
+            "Microsoft.Extensions.Configuration": {
+              "target": "Package",
+              "version": "[10.0.9, )"
+            },
+            "Microsoft.Extensions.Configuration.Binder": {
+              "target": "Package",
+              "version": "[10.0.9, )"
+            },
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": {
+              "target": "Package",
+              "version": "[10.0.9, )"
+            },
+            "Microsoft.Extensions.Configuration.Json": {
+              "target": "Package",
+              "version": "[10.0.9, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[10.0.1, )"
+            },
+            "Serilog": {
+              "target": "Package",
+              "version": "[4.4.0, )"
+            },
+            "Serilog.Sinks.Console": {
+              "target": "Package",
+              "version": "[6.1.1, )"
+            },
+            "dbup-core": {
+              "target": "Package",
+              "version": "[6.1.1, )"
+            },
+            "dbup-postgresql": {
+              "target": "Package",
+              "version": "[7.0.1, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

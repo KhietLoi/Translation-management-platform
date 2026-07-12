@@ -31,4 +31,11 @@ public class PermissionRepository (AppDbContext context, ILogger logger) : Repos
                 .AsNoTracking()
                 .AnyAsync(x => x.Code == code);
     }
+
+    public virtual async Task<List<Permission>> GetByIdsAsync(List<Guid> ids)
+    {
+        return await DbSet
+                .Where(x => ids.Contains(x.Id))
+                .ToListAsync();
+    }
 }

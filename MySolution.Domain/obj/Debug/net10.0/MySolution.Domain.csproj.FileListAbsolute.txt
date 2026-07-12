@@ -10,3 +10,15 @@ C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Domain\ob
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Domain\obj\Debug\net10.0\refint\MySolution.Domain.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Domain\obj\Debug\net10.0\MySolution.Domain.pdb
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Domain\obj\Debug\net10.0\ref\MySolution.Domain.dll
+C:\Users\lpn31\Computer\MyProject\MySolution\MySolution.Domain\bin\Debug\net10.0\MySolution.Domain.deps.json
+C:\Users\lpn31\Computer\MyProject\MySolution\MySolution.Domain\bin\Debug\net10.0\MySolution.Domain.dll
+C:\Users\lpn31\Computer\MyProject\MySolution\MySolution.Domain\bin\Debug\net10.0\MySolution.Domain.pdb
+C:\Users\lpn31\Computer\MyProject\MySolution\MySolution.Domain\obj\Debug\net10.0\MySolution.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\lpn31\Computer\MyProject\MySolution\MySolution.Domain\obj\Debug\net10.0\MySolution.Domain.AssemblyInfoInputs.cache
+C:\Users\lpn31\Computer\MyProject\MySolution\MySolution.Domain\obj\Debug\net10.0\MySolution.Domain.AssemblyInfo.cs
+C:\Users\lpn31\Computer\MyProject\MySolution\MySolution.Domain\obj\Debug\net10.0\MySolution.Domain.csproj.CoreCompileInputs.cache
+C:\Users\lpn31\Computer\MyProject\MySolution\MySolution.Domain\obj\Debug\net10.0\MySolution.Domain.sourcelink.json
+C:\Users\lpn31\Computer\MyProject\MySolution\MySolution.Domain\obj\Debug\net10.0\MySolution.Domain.dll
+C:\Users\lpn31\Computer\MyProject\MySolution\MySolution.Domain\obj\Debug\net10.0\refint\MySolution.Domain.dll
+C:\Users\lpn31\Computer\MyProject\MySolution\MySolution.Domain\obj\Debug\net10.0\MySolution.Domain.pdb
+C:\Users\lpn31\Computer\MyProject\MySolution\MySolution.Domain\obj\Debug\net10.0\ref\MySolution.Domain.dll

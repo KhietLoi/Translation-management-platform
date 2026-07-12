@@ -4,6 +4,7 @@ using MySolution.Api.Helpers;
 using MySolution.Application.Features.User.Commands.CreateUser;
 using MySolution.Application.Features.User.Commands.DeleteUser;
 using MySolution.Application.Features.User.Commands.UpdateUser;
+using MySolution.Application.Features.User.Commands.UpdateUserRoles;
 using MySolution.Application.Features.User.Queries.GetUser;
 using MySolution.Application.Features.User.Queries.GetUserById;
 using MySolution.Application.Features.UserRoles.Commands.AssignRoleToUser;
@@ -106,5 +107,12 @@ public class UserController(IMediator mediator) : Controller
     {
         var response = await mediator.Send(new RemoveRoleFromUserCommand(roleId, userId), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    
+    [HttpPut("roles")]
+    public async Task<IActionResult> UpdateUserRoles([FromBody] UpdateUserRolesRequest request, CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new UpdateUserRolesCommand(request), cancellationToken);
+        return ResponseHelper.ToResponse( response.StatusCode, response, response.Data);
     }
 }

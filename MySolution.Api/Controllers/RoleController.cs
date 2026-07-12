@@ -6,6 +6,7 @@ using MySolution.Application.Features.RolePermissions.Commands.RemovePermissionF
 using MySolution.Application.Features.Roles.Commands.CreateRole;
 using MySolution.Application.Features.Roles.Commands.DeleteRole;
 using MySolution.Application.Features.Roles.Commands.UpdateRole;
+using MySolution.Application.Features.Roles.Commands.UpdateRolePermissions;
 using MySolution.Application.Features.Roles.Queries.GetRoleById;
 using MySolution.Application.Features.Roles.Queries.GetRoles;
 
@@ -106,4 +107,22 @@ public class RoleController(IMediator mediator) : Controller
         var response = await mediator.Send(new RemovePermissionFromRoleCommand(roleId, permissionId), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
+    
+    
+    [HttpPut("permissions")]
+    public async Task<IActionResult> UpdateRolePermissions(
+        [FromBody] UpdateRolePermissionsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(
+            new UpdateRolePermissionsCommand(request),
+            cancellationToken);
+
+        return ResponseHelper.ToResponse(
+            response.StatusCode,
+            response,
+            response.Data);
+    }
+    
+    
 }

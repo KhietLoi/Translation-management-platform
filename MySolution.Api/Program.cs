@@ -22,7 +22,7 @@ var app = builder.Build();
 
 //app.UseRequestLogging();
 //app.UseExceptionLayer();
-using (var scope = app.Services.CreateScope())
+/*using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider
         .GetRequiredService<AppDbContext>();
@@ -30,7 +30,7 @@ using (var scope = app.Services.CreateScope())
     await context.Database.MigrateAsync();
 
     await AppDbSeeder.SeedAsync(context);
-}
+}*/
 app.UseSwaggerLayer();
 app.UseHttpsRedirection();
 app.UseCors("_allowSpecificOrigins");
@@ -42,3 +42,17 @@ app.MapGet("/", () =>
     return Results.Redirect("/swagger");
 });
 app.Run();
+
+/*using Microsoft.AspNetCore.Identity;
+using MySolution.Domain.Entities;
+
+var hasher = new PasswordHasher<User>();
+
+var user = new User
+{
+    Username = "admin"
+};
+
+var hash = hasher.HashPassword(user, "Admin@123");
+
+Console.WriteLine(hash);*/

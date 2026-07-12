@@ -57,7 +57,7 @@ public class GetPermissionsHandler : IRequestHandler <GetPermissionsQuery,GetPer
                 .ToListAsync(cancellationToken);
             response.Data = new GetPermissionsResult
             {
-                Roles = permissions.Select(x => new GetPermissionsData
+                Permissions = permissions.Select(x => new GetPermissionsData
                 {
                     Id = x.Id,
                     Code = x.Code,
