@@ -2,289 +2,214 @@ import { useEffect, useState } from "react";
 import { userService } from "../../services/userService";
 import { roleService } from "../../services/roleService";
 
-
-const defaultForm = {
-  username: "",
-  email: "",
-  password: "", //For create user
-  isActive: true,
-  roleIds: [],
-};
-
-export default function UserModal({
-  show,
-  mode,
-  userId,
-  onClose,
-  onSubmit,
-}) {
+export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState([]);
-  const [form, setForm] = useState(defaultForm);
+
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isActive, setIsActive] = useState(true);
+  const [roleIds, setRoleIds] = useState([]);
+
+  const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => {
     if (!show) return;
     loadData();
+    setFieldErrors({});
   }, [show, userId, mode]);
-  console.log("===== MODAL DEBUG =====");
-    console.log("show:", show);
-    console.log("mode:", mode);
-    console.log("userId:", userId);
-    console.log("=======================");
 
   const loadData = async () => {
     try {
       setLoading(true);
-    console.log("Loading user:", userId);
-      const roleResponse =
-        await roleService.getRoles();
-    console.log("Roles response:", roleResponse);
-    console.log("Roles data:", roleResponse?.data?.data?.roles)
 
-      setRoles(
-        roleResponse?.data?.data?.roles || []
-      );
-      console.log("Mode");
-      //For update
+      const roleResponse = await roleService.getRoles();
+      setRoles(roleResponse?.data?.data?.roles || []);
+
       if (mode === "update" && userId) {
-        const userResponse =
-          await userService.getUserById(
-            userId
-          );
-        console.log("User response:", userResponse);
+        const userResponse = await userService.getUserById(userId);
+        const user = userResponse?.data?.data;
 
-        const user =
-          userResponse?.data?.data;
-        console.log("========== USER ==========");
-            console.log(userResponse);
-            console.log(userResponse.data);
-            console.log(userResponse.data.data);
-            console.log("==========================");
-        setForm({
-          username:
-            user?.username || "",
-          email:
-            user?.email || "",
-          isActive:
-            user?.isActive ?? true,
-          roleIds:
-            user?.roles?.map(
-              (role) => role.roleId
-            ) || [],
-        });
+        setUsername(user?.username || "");
+        setEmail(user?.email || "");
+        setPassword("");
+        setIsActive(user?.isActive ?? true);
+        setRoleIds(user?.roles?.map((role) => role.id) || []);
       } else {
-        setForm(defaultForm);
+        setUsername("");
+        setEmail("");
+        setPassword("");
+        setIsActive(true);
+        setRoleIds([]);
       }
     } catch (error) {
-      console.error(
-        "Failed to load modal data:",
-        error
-      );
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRoleChange = (
-    roleId,
-    checked
-  ) => {
-    setForm((prev) => ({
-      ...prev,
-      roleIds: checked
-        ? [...prev.roleIds, roleId]
-        : prev.roleIds.filter(
-            (id) => id !== roleId
-          ),
-    }));
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!username.trim()) {
+      newErrors.username = "Username is required.";
+    } else if (username.length > 100) {
+      newErrors.username = "Username cannot exceed 100 characters.";
+    }
+
+    if (!email.trim()) {
+      newErrors.email = "Email is required.";
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        newErrors.email = "Email is invalid.";
+      }
+    }
+
+    if (mode === "create") {
+      if (!password.trim()) {
+        newErrors.password = "Password is required.";
+      } else if (password.length < 6) {
+        newErrors.password = "Password must be at least 6 characters.";
+      }
+    }
+
+    if (!roleIds || roleIds.length === 0) {
+      newErrors.roleIds = "At least one role is required.";
+    }
+
+    setFieldErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleRoleChange = (roleId, isChecked) => {
+    if (isChecked) {
+      setRoleIds((prev) => [...prev, roleId]);
+    } else {
+      setRoleIds((prev) => prev.filter((id) => id !== roleId));
+    }
+    setFieldErrors((prev) => ({ ...prev, roleIds: null }));
   };
 
   const handleSubmit = () => {
+    if (!validateForm()) return;
 
-  const payload = {
-    username: form.username,
-    email: form.email,
-    isActive: form.isActive,
-    roleIds: form.roleIds,
+    const payload = {
+      username: username.trim(),
+      email: email.trim(),
+      isActive: isActive,
+      roleIds: roleIds,
+    };
+
+    if (mode === "create") {
+      payload.password = password;
+    }
+
+    onSubmit(payload);
   };
 
-  if (mode === "create") {
-    payload.password = form.password;
-  }
-
-  onSubmit(payload);
-};
-
   if (!show) return null;
-console.log("FORM:", form);
+
   return (
-    <div
-      className="modal d-block"
-      style={{
-        background:
-          "rgba(0,0,0,.5)",
-      }}
-    >
+    <div className="modal d-block" style={{ background: "rgba(0,0,0,.5)" }}>
       <div className="modal-dialog modal-lg modal-dialog-centered">
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">
-              {mode === "create"
-                ? "Create User"
-                : "Update User"}
+              {mode === "create" ? "Create User" : "Update User"}
             </h5>
-
-            <button
-              type="button"
-              className="btn-close"
-              onClick={onClose}
-            />
+            <button type="button" className="btn-close" onClick={onClose} />
           </div>
 
           <div className="modal-body">
             {loading ? (
               <div className="text-center py-4">
-                <div
-                  className="spinner-border text-warning"
-                  role="status"
-                >
-                  <span className="visually-hidden">
-                    Loading...
-                  </span>
+                <div className="spinner-border text-warning" role="status">
+                  <span className="visually-hidden">Loading...</span>
                 </div>
               </div>
             ) : (
               <>
                 <div className="mb-3">
-                  <label className="form-label">
-                    Username
-                  </label>
-
+                  <label className="form-label">Username</label>
                   <input
                     type="text"
-                    className="form-control"
-                    value={
-                      form.username
-                    }
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        username:
-                          e.target
-                            .value,
-                      })
-                    }
+                    className={`form-control ${fieldErrors.username ? "is-invalid" : ""}`}
+                    value={username}
+                    onChange={(e) => {
+                      setUsername(e.target.value);
+                      if (fieldErrors.username) setFieldErrors({ ...fieldErrors, username: null });
+                    }}
                   />
+                  {fieldErrors.username && (
+                    <div className="invalid-feedback">{fieldErrors.username}</div>
+                  )}
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label">
-                    Email
-                  </label>
-
+                  <label className="form-label">Email</label>
                   <input
                     type="email"
-                    className="form-control"
-                    value={
-                      form.email
-                    }
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        email:
-                          e.target
-                            .value,
-                      })
-                    }
+                    className={`form-control ${fieldErrors.email ? "is-invalid" : ""}`}
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: null });
+                    }}
                   />
-
+                  {fieldErrors.email && (
+                    <div className="invalid-feedback">{fieldErrors.email}</div>
+                  )}
                 </div>
-                {mode === "create" &&(
-                  <div className="mb-3">
-                      <label className="form-label">
-                        Password
-                      </label>
 
-                      <input
+                {mode === "create" && (
+                  <div className="mb-3">
+                    <label className="form-label">Password</label>
+                    <input
                       type="password"
-                      className="form-control"
-                      value={form.password}
-                      onChange={(e) =>
-                          setForm({
-                          ...form,
-                          password: e.target.value,
-                          })
-                      }
-                      />
+                      className={`form-control ${fieldErrors.password ? "is-invalid" : ""}`}
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: null });
+                      }}
+                    />
+                    {fieldErrors.password && (
+                      <div className="invalid-feedback">{fieldErrors.password}</div>
+                    )}
                   </div>
                 )}
 
-
                 <div className="mb-3">
-                  <label className="form-label">
-                    Roles
-                  </label>
-
-                  <div className="border rounded p-3">
-                    {roles.length >
-                    0 ? (
-                      roles.map(
-                        (
-                          role
-                        ) => (
-                          <div
-                            key={
-                              role.id
-                            }
-                            className="form-check mb-2"
-                          >
-                            <input
-                              type="checkbox"
-                              className="form-check-input"
-                              id={`role-${role.id}`}
-                              checked={form.roleIds.includes(
-                                role.id
-                              )}
-                              onChange={(
-                                e
-                              ) =>
-                                handleRoleChange(
-                                  role.id,
-                                  e
-                                    .target
-                                    .checked
-                                )
-                              }
-                            />
-
-                            <label
-                              htmlFor={`role-${role.id}`}
-                              className="form-check-label"
-                            >
-                              <strong>
-                                {
-                                  role.name
-                                }
-                              </strong>
-
-                              {role.description && (
-                                <div className="text-muted small">
-                                  {
-                                    role.description
-                                  }
-                                </div>
-                              )}
-                            </label>
-                          </div>
-                        )
-                      )
+                  <label className="form-label">Roles</label>
+                  <div className={`border rounded p-3 ${fieldErrors.roleIds ? "border-danger" : ""}`}>
+                    {roles.length > 0 ? (
+                      roles.map((role) => (
+                        <div key={role.id} className="form-check mb-2">
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            id={`role-${role.id}`}
+                            checked={roleIds.includes(role.id)}
+                            onChange={(e) => handleRoleChange(role.id, e.target.checked)}
+                          />
+                          <label htmlFor={`role-${role.id}`} className="form-check-label">
+                            <strong>{role.name}</strong>
+                            {role.description && (
+                              <div className="text-muted small">{role.description}</div>
+                            )}
+                          </label>
+                        </div>
+                      ))
                     ) : (
-                      <div className="text-muted">
-                        No roles
-                        available
-                      </div>
+                      <div className="text-muted">No roles available</div>
                     )}
                   </div>
+                  {fieldErrors.roleIds && (
+                    <div className="text-danger small mt-2">{fieldErrors.roleIds}</div>
+                  )}
                 </div>
 
                 <div className="form-check">
@@ -292,23 +217,10 @@ console.log("FORM:", form);
                     type="checkbox"
                     className="form-check-input"
                     id="isActive"
-                    checked={
-                      form.isActive
-                    }
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        isActive:
-                          e.target
-                            .checked,
-                      })
-                    }
+                    checked={isActive}
+                    onChange={(e) => setIsActive(e.target.checked)}
                   />
-
-                  <label
-                    htmlFor="isActive"
-                    className="form-check-label"
-                  >
+                  <label htmlFor="isActive" className="form-check-label">
                     Active
                   </label>
                 </div>
@@ -320,27 +232,18 @@ console.log("FORM:", form);
             <button
               type="button"
               className="btn btn-secondary"
-              disabled={
-                loading
-              }
+              disabled={loading}
               onClick={onClose}
             >
               Cancel
             </button>
-
             <button
               type="button"
               className="btn btn-warning"
-              disabled={
-                loading
-              }
-              onClick={
-                handleSubmit
-              }
+              disabled={loading}
+              onClick={handleSubmit}
             >
-              {mode === "create"
-                ? "Create"
-                : "Update"}
+              {mode === "create" ? "Create" : "Update"}
             </button>
           </div>
         </div>

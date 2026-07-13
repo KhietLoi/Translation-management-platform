@@ -1,6 +1,6 @@
-import axios from "axios";
+import api from "./api"
 
-const API_URL = "http://localhost:5182/api/User";
+const API_URL = "/User";
 
 export const userService = {
   getUsers: (
@@ -8,7 +8,7 @@ export const userService = {
     limit = 5,
     search = ""
   ) =>
-    axios.get(API_URL, {
+    api.get(API_URL, {
       params: {
         Page: page,
         Limit: limit,
@@ -17,14 +17,14 @@ export const userService = {
     }),
 
   getUserById: (id) =>
-    axios.get(`${API_URL}/${id}`),
+    api.get(`${API_URL}/${id}`),
 
   createUser: (data) =>
-    axios.post(API_URL, data),
+    api.post(API_URL, data),
 
   updateUser: (id, data) =>
-    axios.put(`${API_URL}/${id}`, data),
+    api.put(`${API_URL}/${id}`, data),
 
   deleteUser: (id) =>
-    axios.delete(`${API_URL}/${id}`),
+    api.delete(`${API_URL}/${id}`),
 };

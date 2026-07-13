@@ -65,15 +65,13 @@ export default function Permissions() {
           response.data.data;
 
         setPermissions(
-          data.roles || []
+          data.permissions || []
         );
 
         setPaging(
           data.paging
         );
       } catch (error) {
-        console.error(error);
-
         toast.error(
           "Failed to load permissions"
         );

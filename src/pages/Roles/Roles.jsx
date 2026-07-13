@@ -132,7 +132,7 @@ export default function Roles() {
       // Lấy role + permission hiện tại
       const roleResponse = await roleService.getRoleById(role.id);
 
-      const allPermissions = permissionResponse.data.data.roles;
+      const allPermissions = permissionResponse.data.data.permissions;
       const currentPermissions = roleResponse.data.data.permissions;
 
       setPermissions(allPermissions);
