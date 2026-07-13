@@ -19,7 +19,7 @@ public class BaseResponse
     public string? ErrorMessageCode { get; set; }
     public PagingInfo? Paging { get; set; }
 
-    public BaseResponse Ok() => new() { Success = true };
+    public static BaseResponse Ok() => new() { Success = true };
 
     public static BaseResponse Fail(string message, string? code = null)
         => new() { Success = false, ErrorMessage = message, ErrorMessageCode = code };

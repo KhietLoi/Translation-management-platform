@@ -66,7 +66,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
                 return response;
             }
             
-            var user = await _unitOfWork.User.GetByIdAsync(refreshToken.UserId);
+            var user = await _unitOfWork.User. GetUserWithRolesAsync(refreshToken.UserId);
             
             if (user is null)
             {

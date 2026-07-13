@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MySolution.Application.Common.Models;
+﻿using MySolution.Application.Common.Models;
+using Microsoft.AspNetCore.Mvc;
 
-namespace MySolution.Api.Handler;
-
-public static class ResponseHandler
+namespace Backend_Net.Api.Handler
 {
+    public static class ResponseHandler
+    {
         // ---------------------------
         // SUCCESS RESPONSES
         // ---------------------------
@@ -132,4 +132,5 @@ public static class ResponseHandler
                     Error(message, messageCode)
             };
         }
+    }
 }

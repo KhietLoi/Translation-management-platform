@@ -1,23 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj": {}
+    "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Api\\MySolution.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj": {
+    "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Api\\MySolution.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
+        "projectUniqueName": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
         "projectName": "MySolution.Api",
-        "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
-        "packagesPath": "C:\\Users\\DEV\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\obj\\",
+        "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
+        "packagesPath": "C:\\Users\\lpn31\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\DEV\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lpn31\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -33,11 +34,11 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\MySolution.Application.csproj": {
-                "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\MySolution.Application.csproj"
+              "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Application\\MySolution.Application.csproj": {
+                "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Application\\MySolution.Application.csproj"
               },
-              "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Infrastructure\\MySolution.Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Infrastructure\\MySolution.Infrastructure.csproj"
+              "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Infrastructure\\MySolution.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Infrastructure\\MySolution.Infrastructure.csproj"
               }
             }
           }
@@ -554,20 +555,21 @@
         }
       }
     },
-    "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\MySolution.Application.csproj": {
+    "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Application\\MySolution.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\MySolution.Application.csproj",
+        "projectUniqueName": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Application\\MySolution.Application.csproj",
         "projectName": "MySolution.Application",
-        "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\MySolution.Application.csproj",
-        "packagesPath": "C:\\Users\\DEV\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\obj\\",
+        "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Application\\MySolution.Application.csproj",
+        "packagesPath": "C:\\Users\\lpn31\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\DEV\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lpn31\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -583,11 +585,11 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj": {
-                "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj"
+              "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj": {
+                "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj"
               },
-              "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj": {
-                "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj"
+              "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\Shared\\Shared.csproj": {
+                "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\Shared\\Shared.csproj"
               }
             }
           }
@@ -933,20 +935,21 @@
         }
       }
     },
-    "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj": {
+    "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj",
         "projectName": "MySolution.Domain",
-        "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj",
-        "packagesPath": "C:\\Users\\DEV\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\obj\\",
+        "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj",
+        "packagesPath": "C:\\Users\\lpn31\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\DEV\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lpn31\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -1273,20 +1276,21 @@
         }
       }
     },
-    "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Infrastructure\\MySolution.Infrastructure.csproj": {
+    "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Infrastructure\\MySolution.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Infrastructure\\MySolution.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Infrastructure\\MySolution.Infrastructure.csproj",
         "projectName": "MySolution.Infrastructure",
-        "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Infrastructure\\MySolution.Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\DEV\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Infrastructure\\obj\\",
+        "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Infrastructure\\MySolution.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\lpn31\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\DEV\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lpn31\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -1302,14 +1306,14 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\MySolution.Application.csproj": {
-                "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\MySolution.Application.csproj"
+              "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Application\\MySolution.Application.csproj": {
+                "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Application\\MySolution.Application.csproj"
               },
-              "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj": {
-                "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj"
+              "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj": {
+                "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj"
               },
-              "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj": {
-                "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj"
+              "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\Shared\\Shared.csproj": {
+                "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\Shared\\Shared.csproj"
               }
             }
           }
@@ -1641,20 +1645,21 @@
         }
       }
     },
-    "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj": {
+    "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\Shared\\Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj",
+        "projectUniqueName": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\Shared\\Shared.csproj",
         "projectName": "Shared",
-        "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj",
-        "packagesPath": "C:\\Users\\DEV\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\obj\\",
+        "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\Shared\\Shared.csproj",
+        "packagesPath": "C:\\Users\\lpn31\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\Shared\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\DEV\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lpn31\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
