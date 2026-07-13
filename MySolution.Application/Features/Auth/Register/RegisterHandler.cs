@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Application.Constants;
 using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.Auth.Register;
@@ -51,7 +52,7 @@ public class RegisterHandler
             }
             
             // user role default
-            var role = await _unitOfWork.Role.GetByNameAsync("User"); 
+            var role = await _unitOfWork.Role.GetByNameAsync(RoleConstants.User); 
 
             if (role is null)
             {

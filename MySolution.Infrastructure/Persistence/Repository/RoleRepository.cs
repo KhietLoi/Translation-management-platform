@@ -19,7 +19,7 @@ public class RoleRepository (AppDbContext context, ILogger logger) : Repository<
 
     public async Task<Role?> GetByNameAsync(string name)
     {
-        return await DbSet.FirstOrDefaultAsync(x => x.Name == name);
+        return await DbSet.FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
     }
 
     public async Task<bool> ExistsByNameAsync(string name)

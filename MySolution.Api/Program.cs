@@ -17,17 +17,6 @@ builder.Services
     .AddControllersLayer()
     .AddAuthorizationLayer();
 
-/*
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy(
-        "USER_VIEW",
-        policy => policy.RequireClaim(
-            "permission",
-            "USER_VIEW"));
-});
-*/
-
 var app = builder.Build();
 
 // 3. Middleware pipeline
@@ -52,17 +41,3 @@ app.MapGet("/", () =>
     return Results.Redirect("/swagger");
 });
 app.Run();
-
-/*using Microsoft.AspNetCore.Identity;
-using MySolution.Domain.Entities;
-
-var hasher = new PasswordHasher<User>();
-
-var user = new User
-{
-    Username = "admin"
-};
-
-var hash = hasher.HashPassword(user, "Admin@123");
-
-Console.WriteLine(hash);*/

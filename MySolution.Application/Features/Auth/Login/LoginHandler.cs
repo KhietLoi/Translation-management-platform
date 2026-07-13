@@ -32,9 +32,7 @@ public class LoginHandler
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<LoginResponse> Handle(
-        LoginCommand request,
-        CancellationToken cancellationToken)
+    public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
 
@@ -51,8 +49,7 @@ public class LoginHandler
         try
         {
             // Find user by username
-            var user = await _unitOfWork.User
-                .GetUserWithRolesAsync(payload.Username);
+            var user = await _unitOfWork.User.GetUserWithRolesAsync(payload.Username);
 
             if (user == null)
             {

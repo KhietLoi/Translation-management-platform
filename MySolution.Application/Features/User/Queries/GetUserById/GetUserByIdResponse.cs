@@ -1,4 +1,4 @@
-﻿using MySolution.Application.Common.Model;
+﻿using MySolution.Application.Common.Models;
 
 namespace MySolution.Application.Features.User.Queries.GetUserById;
 
