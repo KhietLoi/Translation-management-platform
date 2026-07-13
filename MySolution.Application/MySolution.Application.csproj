@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Constants\" />
+      <Folder Include="Features\RequestLog\Commands\CreateRequestLog\" />
       <Folder Include="Models\" />
       <Folder Include="Service\" />
     </ItemGroup>

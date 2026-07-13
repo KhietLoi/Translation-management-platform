@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net;
+using System.Text.Json;
 using FluentValidation.Results;
 
 namespace MySolution.Application.Validation;
@@ -8,7 +9,7 @@ namespace MySolution.Application.Validation;
 /// </summary>
 public class ValidationResultModel
 {
-    public int StatusCode { get; set; }
+    public int StatusCode { get; set; } = (int)HttpStatusCode.BadRequest;
     public string Message { get; set; } = "Validation Failed";
 
     public List<ValidationError>? Errors { get; set; }
