@@ -26,12 +26,19 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
     {
         var functionName = $"{nameof(ChangePasswordHandler)} =>";
         _logger.LogInformation(functionName);
-        var response = new ChangePasswordResponse();
+        var response = new ChangePasswordResponse
+        {
+            Success = false,
+            StatusCode = HttpStatusCode.InternalServerError
+        };
 
         try
         {
 
-            response.Ok();
+            response
+                .WithSuccess(true)
+                .WithStatus(HttpStatusCode.OK);
+
         }
         catch (Exception exception)
         {
