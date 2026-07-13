@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Common.Model;
+using MySolution.Application.Common.Models;
 
 namespace MySolution.Application.Features.User.Queries.GetUser;
 

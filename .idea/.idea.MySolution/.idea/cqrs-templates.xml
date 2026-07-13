@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CqrsTemplateSettings">
+    <option name="customTemplates">
+      <map>
+        <entry key="Handler" value="using System.Net;&#13;&#10;using MediatR;&#13;&#10;using Microsoft.Extensions.Logging;&#13;&#10;using MySolution.Application.Common.Interfaces.Repositories;&#13;&#10;using Shared.Extensions;&#13;&#10;namespace {{Namespace}};&#13;&#10;&#13;&#10;public class {{FeatureName}}Handler : IRequestHandler&lt;{{FeatureName}}{{Type}}, {{FeatureName}}Response&gt;&#13;&#10;{&#13;&#10;    {{InjectFields}}&#13;&#10;&#13;&#10;    public {{FeatureName}}Handler&#13;&#10;    (&#13;&#10;        {{CtorParams}}&#13;&#10;    )&#13;&#10;    {&#13;&#10;        {{AssignFields}}&#13;&#10;    }&#13;&#10;&#13;&#10;    #region Implementation of IRequestHandler&lt;in {{FeatureName}}{{Type}}, {{FeatureName}}Response&gt;&#13;&#10;&#13;&#10;    public async Task&lt;{{FeatureName}}Response&gt; Handle({{FeatureName}}{{Type}} request, CancellationToken cancellationToken)&#13;&#10;    {&#13;&#10;        var functionName = $&quot;{nameof({{FeatureName}}Handler)} =&gt;&quot;;&#13;&#10;        _logger.LogInformation(functionName);&#13;&#10;        var response = new {{FeatureName}}Response();&#13;&#10;&#13;&#10;        try&#13;&#10;        {&#13;&#10;&#13;&#10;            response.Ok();&#13;&#10;        }&#13;&#10;        catch (Exception exception)&#13;&#10;        {&#13;&#10;            exception.LogError(_logger, functionName);&#13;&#10;            response.WithStatus(HttpStatusCode.InternalServerError);&#13;&#10;        }&#13;&#10;&#13;&#10;        return response;&#13;&#10;    }&#13;&#10;&#13;&#10;    #endregion&#13;&#10;}" />
+        <entry key="Response" value="using MySolution.Application.Common.Models;&#13;&#10;&#13;&#10;namespace {{Namespace}};&#13;&#10;&#13;&#10;public class {{FeatureName}}Response : BaseResponse&#13;&#10;{&#13;&#10;&#13;&#10;}" />
+      </map>
+    </option>
+  </component>
+</project>

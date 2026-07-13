@@ -1,4 +1,4 @@
-﻿using MySolution.Application.Common.Model;
+﻿using MySolution.Application.Common.Models;
 using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.Roles.Queries.GetRoles;

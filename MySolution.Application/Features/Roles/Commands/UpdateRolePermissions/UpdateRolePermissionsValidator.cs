@@ -12,6 +12,6 @@ public class UpdateRolePermissionsValidator : AbstractValidator<UpdateRolePermis
 
         RuleFor(x => x.PermissionIds)
             .NotNull()
-            .WithMessage("Permission list is required.");
+            .WithMessage("Please provide a list of permission ids.");
     }
 }

@@ -11,8 +11,11 @@ public class UpdateRoleValidator : AbstractValidator<UpdateRoleCommand>
     {
         RuleFor(x => x.Payload.Name)
             .NotEmpty()
-            .MaximumLength(200);
+            .WithMessage("Please provide a name.")
+            .MaximumLength(200)
+            .WithMessage("{Name} must not exceed 200 characters");
         RuleFor(x => x.Payload.Description)
-            .MaximumLength(500);
+            .MaximumLength(500)
+            .WithMessage("{Description} must not exceed 500 characters");
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MySolution.Application.Common.Model;
+using MySolution.Application.Common.Models;
 
 namespace MySolution.Api.Handler;
 

@@ -11,13 +11,19 @@ public class RegisterValidator : AbstractValidator<RegisterCommand>
     {
         RuleFor(x => x.Payload.Username)
             .NotEmpty()
-            .MaximumLength(100);
+            .WithMessage("Username is required!")
+            .MaximumLength(100)
+            .WithMessage("Username must be less than 100 characters!");
+
         RuleFor(x => x.Payload.Password)
             .NotEmpty()
+            .WithMessage("Password is required!")
             .MinimumLength(8)
-            .MaximumLength(100);
+            .WithMessage("Password must be at least 8 characters!");
         RuleFor(x => x.Payload.Email)
             .NotEmpty()
-            .EmailAddress();
+            .WithMessage("Email is required!")
+            .EmailAddress()
+            .WithMessage("Please specify a valid email address!");
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using MySolution.Application.Common.Extensions;
 
-namespace MySolution.Application.Common.Model;
+namespace MySolution.Application.Common.Models;
 
 public class PagingInfo
 {
@@ -19,7 +19,7 @@ public class BaseResponse
     public string? ErrorMessageCode { get; set; }
     public PagingInfo? Paging { get; set; }
 
-    public static BaseResponse Ok() => new() { Success = true };
+    public BaseResponse Ok() => new() { Success = true };
 
     public static BaseResponse Fail(string message, string? code = null)
         => new() { Success = false, ErrorMessage = message, ErrorMessageCode = code };

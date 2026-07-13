@@ -11,8 +11,11 @@ public class UpdatePermissionValidator : AbstractValidator<UpdatePermissionComma
     {
         RuleFor(x => x.Payload.Code)
             .NotEmpty()
-            .MaximumLength(200);
+            .WithMessage("{Code} is required")
+            .MaximumLength(200)
+            .WithMessage("{Code} must not exceed 200 characters");
         RuleFor(x => x.Payload.Description)
-            .MaximumLength(500);
+            .MaximumLength(500)
+            .WithMessage("{Description} must not exceed 500 characters");
     }
 }

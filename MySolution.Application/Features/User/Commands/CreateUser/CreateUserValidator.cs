@@ -2,22 +2,28 @@
 
 namespace MySolution.Application.Features.User.Commands.CreateUser;
 
-/// <summary>
-/// Validator for the CreateUserCommand
-/// </summary>
 public class CreateUserValidator : AbstractValidator<CreateUserCommand>
 {
     public CreateUserValidator()
     {
         RuleFor(x => x.Payload.Username)
             .NotEmpty()
-            .MaximumLength(100);
+            .WithMessage("Username is required.")
+            .MaximumLength(100)
+            .WithMessage("Username cannot exceed 100 characters.");
+
         RuleFor(x => x.Payload.Email)
             .NotEmpty()
-            .EmailAddress();
+            .WithMessage("Email is required.")
+            .EmailAddress()
+            .WithMessage("Email is invalid.");
+
         RuleFor(x => x.Payload.Password)
             .NotEmpty()
-            .MinimumLength(8);
+            .WithMessage("Password is required.")
+            .MinimumLength(6)
+            .WithMessage("Password must be at least 6 characters.");
+
         RuleFor(x => x.Payload.RoleIds)
             .NotEmpty()
             .WithMessage("At least one role is required.");

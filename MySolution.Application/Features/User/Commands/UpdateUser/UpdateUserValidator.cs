@@ -2,24 +2,22 @@
 
 namespace MySolution.Application.Features.User.Commands.UpdateUser;
 
-/// <summary>
-/// Validator for the UpdateUserCommand
-/// </summary>
-public class UpdateUserValidator : AbstractValidator<UpdateUserCommand>
+public class UpdateUserValidator 
+    : AbstractValidator<UpdateUserCommand>
 {
     public UpdateUserValidator()
     {
         RuleFor(x => x.Payload.Username)
             .NotEmpty()
-            .MaximumLength(100);
+            .WithMessage("Username is required.")
+            .MaximumLength(100)
+            .WithMessage("Username cannot exceed 100 characters.");
 
         RuleFor(x => x.Payload.Email)
             .NotEmpty()
-            .EmailAddress();
-
-        /*RuleFor(x => x.Payload.Password)
-            .NotEmpty()
-            .MinimumLength(8);*/
+            .WithMessage("Email is required.")
+            .EmailAddress()
+            .WithMessage("Email is invalid.");
 
         RuleFor(x => x.Payload.RoleIds)
             .NotEmpty()
