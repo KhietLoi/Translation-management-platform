@@ -3,7 +3,6 @@
 namespace MySolution.Application.Validation;
 
 // Exception chuyên dành cho validation
-
 [Serializable]
 public class ValidationException : ExceptionError
 {

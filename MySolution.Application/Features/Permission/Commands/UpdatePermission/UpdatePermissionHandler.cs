@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
@@ -45,6 +44,14 @@ public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, 
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
+            // Check if code exists:
+            var  existingPermission = await _unitOfWork.Permission.GetPermissionByCodeAsync(payload.Code);
+            if (existingPermission != null && existingPermission.Id != permission.Id)
+            {
+                response.ErrorMessage = "Permission code already exists.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
             
             //Update
             permission.Code =payload.Code;
@@ -53,6 +60,7 @@ public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, 
             
             //Save
             await _unitOfWork.SaveAsync(cancellationToken);
+            
             response.Data = new UpdatePermissionData
             {
                 Id = permission.Id,
@@ -64,16 +72,6 @@ public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, 
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogWarning(
-                ex,
-                "{FunctionName} Permission code already exists.",
-                functionName);
-
-            response.ErrorMessage = "Permission code already exists.";
-            response.WithStatus(HttpStatusCode.BadRequest);
         }
         catch (Exception ex)
         {

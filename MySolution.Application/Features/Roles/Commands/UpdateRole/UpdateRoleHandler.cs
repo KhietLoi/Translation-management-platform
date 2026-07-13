@@ -1,7 +1,5 @@
-﻿using System.Data.Common;
-using System.Net;
+﻿using System.Net;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -49,6 +47,15 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
+            // Check role name already exists
+            var existingRole = await _unitOfWork.Role.GetByNameAsync(payload.Name);
+            
+            if (existingRole != null && existingRole.Id != role.Id)
+            {
+                response.ErrorMessage = "Role name already exists.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
 
             // Update
             role.Name = payload.Name;
@@ -64,17 +71,6 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-        }
-       
-        catch (DbUpdateException ex)
-        {
-            _logger.LogWarning(
-                ex,
-                "{FunctionName} Role name already exists.",
-                functionName);
-
-            response.ErrorMessage = "Role name already exists.";
-            response.WithStatus(HttpStatusCode.BadRequest);
         }
         catch (Exception ex)
         {
