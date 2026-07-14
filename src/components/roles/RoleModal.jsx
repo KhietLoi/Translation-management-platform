@@ -66,7 +66,7 @@ export default function RoleModal({ show, mode, roleId, onClose, onSubmit }) {
     <div className="modal d-block" style={{ background: "rgba(0,0,0,.5)" }}>
       <div className="modal-dialog modal-lg modal-dialog-centered">
         <div className="modal-content">
-          <div className="modal-header">
+          <div className="modal-header bg-warning">
             <h5 className="modal-title">
               {mode === "create" ? "Create Role" : "Update Role"}
             </h5>

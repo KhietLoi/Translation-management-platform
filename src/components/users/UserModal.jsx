@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { userService } from "../../services/userService";
 import { roleService } from "../../services/roleService";
+import Select from "react-select";
 
 export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,7 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
     if (!show) return;
     loadData();
     setFieldErrors({});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, userId, mode]);
 
   const loadData = async () => {
@@ -35,7 +37,15 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
         setEmail(user?.email || "");
         setPassword("");
         setIsActive(user?.isActive ?? true);
-        setRoleIds(user?.roles?.map((role) => role.id) || []);
+        
+        // SỬA LỖI MAPPING TẠI ĐÂY: 
+        // Ép kiểu tất cả id về dạng chuỗi (String) và hỗ trợ cả 2 trường hợp: 
+        // user.roles là mảng object [{id: 1}] hoặc là mảng ID [1, 2]
+        const existingRoleIds = user?.roles?.map((role) => 
+          typeof role === 'object' ? String(role.roleId) : String(role)
+        ) || [];
+        
+        setRoleIds(existingRoleIds);
       } else {
         setUsername("");
         setEmail("");
@@ -84,15 +94,6 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleRoleChange = (roleId, isChecked) => {
-    if (isChecked) {
-      setRoleIds((prev) => [...prev, roleId]);
-    } else {
-      setRoleIds((prev) => prev.filter((id) => id !== roleId));
-    }
-    setFieldErrors((prev) => ({ ...prev, roleIds: null }));
-  };
-
   const handleSubmit = () => {
     if (!validateForm()) return;
 
@@ -100,7 +101,7 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
       username: username.trim(),
       email: email.trim(),
       isActive: isActive,
-      roleIds: roleIds,
+      roleIds: roleIds, // payload sẽ là mảng các ID đã chọn
     };
 
     if (mode === "create") {
@@ -110,13 +111,25 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
     onSubmit(payload);
   };
 
+  // CHUẨN BỊ OPTIONS CHO REACT-SELECT
+  // Ép kiểu value về String để đảm bảo việc mapping (lọc value) luôn chính xác 100%
+  const roleOptions = roles.map((role) => ({
+    value: String(role.id),
+    label: role.description ? `${role.name} - ${role.description}` : role.name,
+    role: role,
+  }));
+
+  const selectedRoles = roleOptions.filter((option) =>
+    roleIds.map(String).includes(option.value)
+  );
+
   if (!show) return null;
 
   return (
     <div className="modal d-block" style={{ background: "rgba(0,0,0,.5)" }}>
       <div className="modal-dialog modal-lg modal-dialog-centered">
         <div className="modal-content">
-          <div className="modal-header">
+          <div className="modal-header bg-warning">
             <h5 className="modal-title">
               {mode === "create" ? "Create User" : "Update User"}
             </h5>
@@ -136,6 +149,7 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
                   <label className="form-label">Username</label>
                   <input
                     type="text"
+                    placeholder={mode ==="create" ? "Enter Username":""}
                     className={`form-control ${fieldErrors.username ? "is-invalid" : ""}`}
                     value={username}
                     onChange={(e) => {
@@ -152,6 +166,7 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
                   <label className="form-label">Email</label>
                   <input
                     type="email"
+                    placeholder={mode ==="create" ? "example@gmail.com":""}
                     className={`form-control ${fieldErrors.email ? "is-invalid" : ""}`}
                     value={email}
                     onChange={(e) => {
@@ -169,6 +184,7 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
                     <label className="form-label">Password</label>
                     <input
                       type="password"
+                      placeholder={mode === "create" ? "Enter password": ""}
                       className={`form-control ${fieldErrors.password ? "is-invalid" : ""}`}
                       value={password}
                       onChange={(e) => {
@@ -184,31 +200,23 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
 
                 <div className="mb-3">
                   <label className="form-label">Roles</label>
-                  <div className={`border rounded p-3 ${fieldErrors.roleIds ? "border-danger" : ""}`}>
-                    {roles.length > 0 ? (
-                      roles.map((role) => (
-                        <div key={role.id} className="form-check mb-2">
-                          <input
-                            type="checkbox"
-                            className="form-check-input"
-                            id={`role-${role.id}`}
-                            checked={roleIds.includes(role.id)}
-                            onChange={(e) => handleRoleChange(role.id, e.target.checked)}
-                          />
-                          <label htmlFor={`role-${role.id}`} className="form-check-label">
-                            <strong>{role.name}</strong>
-                            {role.description && (
-                              <div className="text-muted small">{role.description}</div>
-                            )}
-                          </label>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-muted">No roles available</div>
-                    )}
-                  </div>
+                  <Select
+                    isMulti
+                    options={roleOptions}
+                    value={selectedRoles}
+                    onChange={(selected) => {
+                      const selectedIds = selected?.map((x) => x.value) || [];
+                      setRoleIds(selectedIds);
+
+                      if (fieldErrors.roleIds) {
+                        setFieldErrors({ ...fieldErrors, roleIds: null });
+                      }
+                    }}
+                    placeholder="Select roles..."
+                    className={fieldErrors.roleIds ? "border border-danger rounded" : ""}
+                  />
                   {fieldErrors.roleIds && (
-                    <div className="text-danger small mt-2">{fieldErrors.roleIds}</div>
+                    <div className="text-danger small mt-1">{fieldErrors.roleIds}</div>
                   )}
                 </div>
 
