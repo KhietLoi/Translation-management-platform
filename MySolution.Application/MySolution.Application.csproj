@@ -12,7 +12,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Features\Auth\ResendVerificationEmail\" />
       <Folder Include="Features\RequestLog\Commands\CreateRequestLog\" />
       <Folder Include="Models\" />
       <Folder Include="Service\" />
