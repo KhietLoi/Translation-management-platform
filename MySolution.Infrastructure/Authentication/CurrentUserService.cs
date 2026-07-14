@@ -50,6 +50,7 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
             .Select(x => x.Value)
             .ToList()
         ?? [];
+    
     public bool IsAuthenticated =>
         User?.Identity?.IsAuthenticated ?? false;
 }

@@ -52,6 +52,7 @@ public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
             // Revoke all refresh tokens of the current user
             await _unitOfWork.RefreshToken
                 .RevokeAsync(_currentUser.UserId);
+            
             // Save changes
             await _unitOfWork.SaveAsync(cancellationToken);
             response

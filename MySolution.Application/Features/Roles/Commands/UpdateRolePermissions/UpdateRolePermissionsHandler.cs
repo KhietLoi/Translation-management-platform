@@ -10,17 +10,12 @@ namespace MySolution.Application.Features.Roles.Commands.UpdateRolePermissions;
 /// <summary>
 /// Handler for updating role permissions.
 /// </summary>
-public class UpdateRolePermissionsHandler
-    : IRequestHandler<
-        UpdateRolePermissionsCommand,
-        UpdateRolePermissionsResponse>
+public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermissionsCommand, UpdateRolePermissionsResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateRolePermissionsHandler> _logger;
 
-    public UpdateRolePermissionsHandler(
-        IUnitOfWork unitOfWork,
-        ILogger<UpdateRolePermissionsHandler> logger)
+    public UpdateRolePermissionsHandler(IUnitOfWork unitOfWork, ILogger<UpdateRolePermissionsHandler> logger)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
@@ -32,9 +27,9 @@ public class UpdateRolePermissionsHandler
     {
         var payload = request.Payload;
 
-        var functionName =
-            $"{nameof(UpdateRolePermissionsHandler)} =>";
+        var functionName = $"{nameof(UpdateRolePermissionsHandler)}";
 
+        _logger.LogInformation(functionName);
         _logger.LogInformation(functionName);
 
         var response = new UpdateRolePermissionsResponse
@@ -46,9 +41,7 @@ public class UpdateRolePermissionsHandler
         try
         {
             // Check role exists
-            var role = await _unitOfWork.Role
-                .GetByIdAsync(payload.RoleId);
-
+            var role = await _unitOfWork.Role.GetByIdAsync(payload.RoleId);
             if (role is null)
             {
                 response.ErrorMessage = "Role not found.";
@@ -58,19 +51,11 @@ public class UpdateRolePermissionsHandler
             }
 
             // Current permissions of role 
-            var currentRolePermissions =
-                await _unitOfWork.RolePermission
-                    .GetByRoleIdAsync(payload.RoleId);
+            var currentRolePermissions = await _unitOfWork.RolePermission.GetByRoleIdAsync(payload.RoleId);
 
-            var currentPermissionIds =
-                currentRolePermissions
-                    .Select(x => x.PermissionId)
-                    .ToHashSet();
+            var currentPermissionIds = currentRolePermissions.Select(x => x.PermissionId).ToHashSet();
 
-            var newPermissionIds =
-                payload.PermissionIds
-                    .Distinct()
-                    .ToHashSet();
+            var newPermissionIds = payload.PermissionIds.Distinct().ToHashSet();
 
             // Permissions need add
             var permissionIdsToAdd =
@@ -89,19 +74,12 @@ public class UpdateRolePermissionsHandler
             // Validate permissions exist
             if (permissionIdsToAdd.Count > 0)
             {
-                var permissions =
-                    await _unitOfWork.Permission
-                        .GetByIdsAsync(permissionIdsToAdd);
+                var permissions = await _unitOfWork.Permission.GetByIdsAsync(permissionIdsToAdd);
 
                 var foundPermissionIds =
-                    permissions
-                        .Select(x => x.Id)
-                        .ToHashSet();
+                    permissions.Select(x => x.Id).ToHashSet();
 
-                var invalidPermissions =
-                    permissionIdsToAdd
-                        .Except(foundPermissionIds)
-                        .ToList();
+                var invalidPermissions = permissionIdsToAdd.Except(foundPermissionIds).ToList();
 
                 if (invalidPermissions.Count > 0)
                 {

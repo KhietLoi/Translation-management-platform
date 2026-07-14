@@ -5,6 +5,8 @@ using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Infrastructure.Authentication;
 using MySolution.Infrastructure.Persistence;
+using MySolution.Infrastructure.Persistence.Configurations;
+using MySolution.Infrastructure.Services;
 
 namespace MySolution.Infrastructure;
 
@@ -23,6 +25,13 @@ public static class DependencyInjection
         //jwt:
         services.AddJwtAuthentication(configuration);
         services.AddCustomServices();
+        //Mail service:
+        services.AddOptions<SendGridOptions>()
+            .Bind(configuration.GetSection(
+                SendGridOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        services.AddScoped<IEmailService, SendGridEmailService>();
         return services;
     }
 
@@ -37,8 +46,4 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         return services;
     }
-    
-    
-    
-    
 }

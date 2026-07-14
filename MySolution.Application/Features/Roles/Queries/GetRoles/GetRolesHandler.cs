@@ -35,16 +35,13 @@ public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
         
         try
         {
-            var query = _unitOfWork.Role
-                .GetAll()
-                .AsNoTracking();
+            var query = _unitOfWork.Role.GetAll().AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(payload.Search))
             {
                 query = query.Where(x =>
                     x.Name.Contains(payload.Search) ||
-                    (x.Description != null &&
-                     x.Description.Contains(payload.Search)));
+                    (x.Description != null && x.Description.Contains(payload.Search)));
             }
 
             var totalItem = await query.CountAsync(cancellationToken);
@@ -54,6 +51,7 @@ public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
                 .Skip((payload.Page - 1) * payload.Limit)
                 .Take(payload.Limit)
                 .ToListAsync(cancellationToken);
+            
             response.Data = new GetRolesResult
             {
                 Roles = roles.Select(x => new GetRoleData
@@ -62,6 +60,7 @@ public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
                     Name = x.Name,
                     Description = x.Description
                 }).ToList(),
+                
                 Paging = new PagingInfo
                 {
                     Page = payload.Page,

@@ -67,17 +67,6 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
             .ThenInclude(x => x.Permission)
             .FirstOrDefaultAsync(x => x.Id == userId);
     }
-
-    /*// Check Email 
-    public async Task<bool> ExistsByEmailAsync(string email, Guid excludeUserId)
-    {
-        return await DbSet.AnyAsync(x => x.Email == email && x.Id != excludeUserId);
-    }
-    //Check UserName
-    public async Task<bool> ExistsByUsernameAsync(string username, Guid excludeUserId)
-    {
-        return await DbSet.AnyAsync(x => x.Username == username && x.Id != excludeUserId);
-    }*/
     
     public async Task <bool>  ExistsByEmailOrUsernameAsync(string email, string username, Guid excludeUserId)
     {

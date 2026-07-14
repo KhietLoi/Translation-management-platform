@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using MySolution.Domain.Entities;
 
 namespace MySolution.Infrastructure.Persistence;
@@ -15,6 +16,7 @@ public class AppDbContext: DbContext
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<Permission> Permissions => Set<Permission>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<EmailVerificationToken>  EmailVerificationTokens => Set<EmailVerificationToken>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

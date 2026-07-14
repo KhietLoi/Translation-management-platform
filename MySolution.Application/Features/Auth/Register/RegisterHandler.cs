@@ -11,19 +11,20 @@ namespace MySolution.Application.Features.Auth.Register;
 /// <summary>
 /// Handler for the RegisterCommand, responsible for processing user registration requests.
 /// </summary>
-public class RegisterHandler
-    : IRequestHandler<RegisterCommand, RegisterResponse>
+public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse>
 {
     private readonly ILogger<RegisterHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IDateTimeProvider _dateTimeProvider;
 
-    public RegisterHandler(
+    public RegisterHandler
+    (
         ILogger<RegisterHandler> logger,
         IUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
-        IDateTimeProvider dateTimeProvider)
+        IDateTimeProvider dateTimeProvider
+    )
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
@@ -36,11 +37,7 @@ public class RegisterHandler
         var payload = request.Payload;
         var functionName = $"{nameof(RegisterHandler)}";
         _logger.LogInformation(functionName);
-        var response = new RegisterResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new RegisterResponse();
 
         try
         {
@@ -52,8 +49,7 @@ public class RegisterHandler
             }
             
             // user role default
-            var role = await _unitOfWork.Role.GetByNameAsync(RoleConstants.User); 
-
+            var role = await _unitOfWork.Role.GetByNameAsync(RoleConstants.User);
             if (role is null)
             {
                 response.ErrorMessage = "Default role not found.";
@@ -62,7 +58,7 @@ public class RegisterHandler
 
             var user = new Domain.Entities.User
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.CreateVersion7(),
                 Username = payload.Username,
                 Email = payload.Email,
                 PasswordHash = _passwordHasher.HashPassword(payload.Password),
@@ -74,7 +70,7 @@ public class RegisterHandler
 
             user.UserRoles.Add(new UserRole
             {
-                UserId = user.Id,
+                //UserId = user.Id,
                 RoleId = role.Id
             });
 
@@ -94,12 +90,11 @@ public class RegisterHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            _logger.LogError("{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
         
-           
         return response;
     }
 }

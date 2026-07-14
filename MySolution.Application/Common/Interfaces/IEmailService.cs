@@ -1,0 +1,8 @@
+﻿using MySolution.Application.Features.RolePermissions.Commands.AssignPermissionToRole;
+
+namespace MySolution.Application.Common.Interfaces;
+
+public interface IEmailService
+{
+    Task SendEmailAsync(string toEmail, string subject, string htmlContent, CancellationToken cancellationToken = default);
+}

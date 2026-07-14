@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Application.Features.User.Events;
 using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.User.Commands.CreateUser;
@@ -17,20 +18,24 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
     private readonly ILogger<CreateUserHandler> _logger;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IMediator  _mediator;
 
     public CreateUserHandler
     (
         IUnitOfWork unitOfWork,
         ILogger<CreateUserHandler> logger,
         IPasswordHasher passwordHasher,
-        IDateTimeProvider dateTimeProvider
+        IDateTimeProvider dateTimeProvider,
+        IMediator mediator
     )
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
         _passwordHasher = passwordHasher;
         _dateTimeProvider = dateTimeProvider;
+        _mediator = mediator;
     }
+    
     public async Task<CreateUserResponse> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
@@ -87,6 +92,13 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
                 });
             }
             await _unitOfWork.SaveAsync(cancellationToken);
+            
+            //Email
+            _logger.LogInformation(
+                "Publishing UserCreatedEvent for {Email}",
+                user.Email);
+
+            await _mediator.Publish(new UserCreatedEvent(user.Id, user.Username, user.Email), cancellationToken);
             
             //Return Data
             response.Data = new CreateUserData
