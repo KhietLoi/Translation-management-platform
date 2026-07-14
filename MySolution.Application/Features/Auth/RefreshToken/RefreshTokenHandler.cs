@@ -42,7 +42,6 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             // Retrieve refresh token from the database
             var refreshToken = await _unitOfWork.RefreshToken
                 .GetByTokenAsync(payload.RefreshToken);
-
             if (refreshToken is null)
             {
                 response.ErrorMessage = "Refresh token not found.";
@@ -66,8 +65,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
                 return response;
             }
             
-            var user = await _unitOfWork.User. GetUserWithRolesAsync(refreshToken.UserId);
-            
+            var user = await _unitOfWork.User.GetUserWithRolesAsync(refreshToken.UserId);
             if (user is null)
             {
                 response.ErrorMessage = "User not found.";

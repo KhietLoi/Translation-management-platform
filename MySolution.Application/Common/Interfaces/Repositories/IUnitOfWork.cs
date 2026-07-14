@@ -12,6 +12,7 @@ public interface IUnitOfWork
     IRefreshTokenRepository RefreshToken { get; }
     IUserRoleRepository UserRole { get; }
     IRolePermissionRepository RolePermission { get; }
+    IEmailVerificationTokenRepository EmailVerificationToken { get; }
     
     Task SaveAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> OpenTransactionAsync(CancellationToken cancellationToken = default);

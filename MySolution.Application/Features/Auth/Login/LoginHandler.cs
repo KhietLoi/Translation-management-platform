@@ -35,11 +35,8 @@ public class LoginHandler
     public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
-
         var functionName = $"{nameof(LoginHandler)} =>";
-
         _logger.LogInformation(functionName);
-
         var response = new LoginResponse
         {
             Success = false,
@@ -50,7 +47,6 @@ public class LoginHandler
         {
             // Find user by username
             var user = await _unitOfWork.User.GetUserWithRolesAsync(payload.Username);
-
             if (user == null)
             {
                 _logger.LogWarning("{FunctionName} User not found: {Username}", functionName, payload.Username);
@@ -72,7 +68,6 @@ public class LoginHandler
             var verify = _passwordHasher.VerifyPassword(
                 payload.Password,
                 user.PasswordHash);
-
             if (!verify)
             {
                 _logger.LogWarning("{FunctionName} Invalid password: {Username}", functionName, payload.Username);
@@ -82,12 +77,10 @@ public class LoginHandler
             }
 
             // Generate JWT
-            var accessToken =
-                _jwtService.GenerateJwtToken(user);
+            var accessToken = _jwtService.GenerateJwtToken(user);
 
             // Generate RefreshToken
-            var refreshToken =
-                _jwtService.GenerateRefreshToken();
+            var refreshToken = _jwtService.GenerateRefreshToken();
 
             // Save RefreshToken to database
             await _unitOfWork.RefreshToken.Add(

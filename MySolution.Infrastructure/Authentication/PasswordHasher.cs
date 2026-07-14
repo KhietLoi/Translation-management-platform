@@ -19,6 +19,6 @@ public class PasswordHasher : IPasswordHasher
             null!,
             passwordHash,   // hashed password
             password);      // plain password
-        return result != PasswordVerificationResult.Failed;
+        return result == PasswordVerificationResult.Success;
     }
 }

@@ -55,6 +55,7 @@ public class GetPermissionsHandler : IRequestHandler <GetPermissionsQuery,GetPer
                 .Skip((payload.Page - 1) * payload.Limit)
                 .Take(payload.Limit)
                 .ToListAsync(cancellationToken);
+            
             response.Data = new GetPermissionsResult
             {
                 Permissions = permissions.Select(x => new GetPermissionsData
@@ -63,6 +64,7 @@ public class GetPermissionsHandler : IRequestHandler <GetPermissionsQuery,GetPer
                     Code = x.Code,
                     Description = x.Description
                 }).ToList(),
+                
                 Paging = new PagingInfo
                 {
                     Page = payload.Page,

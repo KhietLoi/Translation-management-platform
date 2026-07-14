@@ -32,6 +32,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
         var payload =  request.Payload;
         var functionName =  $"{nameof(UpdateUserHandler)}";
         _logger.LogInformation(functionName);        
+        
         var response = new UpdateUserResponse
         {
             Success = false,
@@ -50,10 +51,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
                 return response;
             }
             
-            if (await _unitOfWork.User.ExistsByEmailOrUsernameAsync(
-                    payload.Email,
-                    payload.Username,
-                    request.Id))
+            if (await _unitOfWork.User.ExistsByEmailOrUsernameAsync(payload.Email, payload.Username, request.Id))
             {
                 response.ErrorMessage = "Username or email already exists.";
                 response.WithStatus(HttpStatusCode.BadRequest);
@@ -74,13 +72,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
             user.Username = payload.Username;
             user.Email = payload.Email;
             user.IsActive = payload.IsActive;
-
-            /*if (!string.IsNullOrWhiteSpace(payload.Password))
-            {
-                user.PasswordHash =
-                    _passwordHasher.HashPassword(payload.Password);
-            }*/
-
+            
             user.UserRoles.Clear();
 
             foreach (var role in roles)

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Helpers;
+using MySolution.Application.Features.Auth.ChangePassword;
 using MySolution.Application.Features.Auth.Login;
 using MySolution.Application.Features.Auth.Logout;
 using MySolution.Application.Features.Auth.RefreshToken;
@@ -13,7 +14,6 @@ namespace MySolution.Api.Controllers;
 [ApiController]
 public class AuthController(IMediator mediator) : Controller
 {
-    
     /// <summary>
     /// Register a new user
     /// </summary>
@@ -121,4 +121,14 @@ public class AuthController(IMediator mediator) : Controller
         var response = await mediator.Send(new LogoutCommand(), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
+
+    [Authorize]
+    [HttpPut("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody]ChangePasswordRequest request,  CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new ChangePasswordCommand(request), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response);
+    }
+    
+    
 }

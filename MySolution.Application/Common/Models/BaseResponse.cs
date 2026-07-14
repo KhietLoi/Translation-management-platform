@@ -19,6 +19,12 @@ public class BaseResponse
     public string? ErrorMessageCode { get; set; }
     public PagingInfo? Paging { get; set; }
 
+    public BaseResponse()
+    {
+        Success = false;
+        StatusCode = HttpStatusCode.InternalServerError;
+    }
+
     public static BaseResponse Ok() => new() { Success = true };
 
     public static BaseResponse Fail(string message, string? code = null)

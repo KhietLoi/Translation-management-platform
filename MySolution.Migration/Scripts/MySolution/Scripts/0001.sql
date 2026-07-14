@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS mysolution."Users"
     "PasswordHash" TEXT NOT NULL,
 
     "IsActive" BOOLEAN NOT NULL DEFAULT TRUE,
+    
+    "IsEmailVerified" BOOLEAN NOT NULL DEFAULT FALSE,
 
     "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
@@ -78,6 +80,31 @@ CREATE TABLE IF NOT EXISTS mysolution."RefreshTokens"
     ON DELETE CASCADE
 );
 
+-- EmailVerificationTokens
+CREATE TABLE IF NOT EXISTS mysolution."EmailVerificationTokens"
+(
+    "Id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    
+    "UserId" UUID NOT NULL,
+
+    "Token" TEXT NOT NULL,
+
+    "ExpiresAt" TIMESTAMPTZ NOT NULL,
+
+    "CreatedAt" TIMESTAMPTZ NOT NULL,
+    
+    "IsUsed" BOOLEAN NOT NULL DEFAULT FALSE,
+
+    CONSTRAINT "PK_EmailVerificationTokens"
+    PRIMARY KEY ("Id"),
+
+    CONSTRAINT "FK_EmailVerificationTokens_Users_UserId"
+    FOREIGN KEY ("UserId")
+    REFERENCES mysolution."Users" ("Id")
+    ON DELETE CASCADE
+);
+
+
 -- UserRoles
 CREATE TABLE IF NOT EXISTS mysolution."UserRoles"
 (
@@ -141,4 +168,12 @@ CREATE INDEX IF NOT EXISTS "IX_RolePermissions_PermissionId"
 
 CREATE INDEX IF NOT EXISTS "IX_RefreshTokens_UserId"
     ON mysolution."RefreshTokens" ("UserId");
+
+CREATE UNIQUE INDEX IF NOT EXISTS
+    "IX_EmailVerificationTokens_Token"
+    ON mysolution."EmailVerificationTokens" ("Token");
+
+CREATE INDEX IF NOT EXISTS
+    "IX_EmailVerificationTokens_UserId"
+    ON mysolution."EmailVerificationTokens" ("UserId");
 

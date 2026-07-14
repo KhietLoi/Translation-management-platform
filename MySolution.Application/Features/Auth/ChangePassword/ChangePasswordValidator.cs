@@ -6,6 +6,18 @@ public class ChangePasswordValidator : AbstractValidator<ChangePasswordCommand>
 {
     public ChangePasswordValidator()
     {
-        // Add validation rules here if needed
+        RuleFor(x => x.Payload.CurrentPassword)
+            .NotEmpty()
+            .WithMessage("{PropertyName} can not be empty");
+
+        RuleFor(x => x.Payload.NewPassword)
+            .NotEmpty()
+            .WithMessage("{PropertyName} can not be empty")
+            .MinimumLength(6)
+            .WithMessage("{PropertyName} must contain at least 6 characters");
+
+        RuleFor(x => x.Payload.ConfirmNewPassword)
+            .Equal(x => x.Payload.NewPassword)
+            .WithMessage("Passwords do not match");
     }
 }

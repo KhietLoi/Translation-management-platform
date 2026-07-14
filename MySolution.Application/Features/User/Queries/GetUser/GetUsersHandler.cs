@@ -15,11 +15,7 @@ public class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersResponse>
     private readonly ILogger<GetUsersHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
 
-    public GetUsersHandler
-    (
-        ILogger<GetUsersHandler> logger,
-        IUnitOfWork unitOfWork
-    )
+    public GetUsersHandler (ILogger<GetUsersHandler> logger, IUnitOfWork unitOfWork)
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
@@ -28,7 +24,7 @@ public class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersResponse>
     public async Task<GetUsersResponse> Handle(GetUsersQuery request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
-        var functionName = $"{nameof(GetUsersHandler)} =>";
+        var functionName = $"{nameof(GetUsersHandler)}";
         _logger.LogInformation(functionName);
         var response = new GetUsersResponse
         {
@@ -38,9 +34,7 @@ public class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersResponse>
         
         try
         {
-            var query = _unitOfWork.User
-                .GetAll()
-                .AsNoTracking();
+            var query = _unitOfWork.User.GetAll().AsNoTracking();
             
             if (!string.IsNullOrWhiteSpace(payload.Search))
             {

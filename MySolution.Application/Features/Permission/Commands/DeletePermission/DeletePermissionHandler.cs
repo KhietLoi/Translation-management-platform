@@ -18,6 +18,7 @@ public class DeletePermissionHandler : IRequestHandler<DeletePermissionCommand, 
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
+    
     public async Task<DeletePermissionResponse> Handle(DeletePermissionCommand request, CancellationToken cancellationToken)
     {
         var functionName = $"{nameof(DeletePermissionHandler)}";
