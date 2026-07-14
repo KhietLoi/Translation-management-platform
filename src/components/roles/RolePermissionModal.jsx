@@ -52,7 +52,7 @@ export default function RolePermissionModal({ show, role, permissions = [], role
       <div className="modal-dialog modal-lg modal-dialog-centered">
         <div className="modal-content">
           
-          <div className="modal-header">
+          <div className="modal-header bg-warning">
             <h5 className="modal-title">Manage Permissions</h5>
             <button type="button" className="btn-close" onClick={onClose} />
           </div>
