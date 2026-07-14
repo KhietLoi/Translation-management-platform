@@ -7,6 +7,7 @@ using MySolution.Application.Features.Auth.Login;
 using MySolution.Application.Features.Auth.Logout;
 using MySolution.Application.Features.Auth.RefreshToken;
 using MySolution.Application.Features.Auth.Register;
+using MySolution.Application.Features.Auth.VerifyEmail;
 
 namespace MySolution.Api.Controllers;
 
@@ -129,6 +130,11 @@ public class AuthController(IMediator mediator) : Controller
         var response = await mediator.Send(new ChangePasswordCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
-    
-    
+
+    [HttpGet("verify-email")]
+    public async Task<IActionResult> VerifyEmail([FromQuery] string token, CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new VerifyEmailCommand(token), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response);
+    }
 }
