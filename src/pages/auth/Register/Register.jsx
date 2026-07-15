@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom"; // Đừng quên import Link
-import { register } from "../../services/authService";
+import { register } from "../../../services/authService";
 import "./Register.css";
 
 export default function Register() {
