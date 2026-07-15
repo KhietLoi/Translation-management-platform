@@ -14,22 +14,19 @@ public class LoginHandler
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtService _jwtService;
-    private readonly IDateTimeProvider _dateTimeProvider;
 
     public LoginHandler
     (
         ILogger<LoginHandler> logger,
         IUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
-        IJwtService jwtService,
-        IDateTimeProvider dateTimeProvider
+        IJwtService jwtService
     )
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
         _jwtService = jwtService;
-        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -72,10 +69,17 @@ public class LoginHandler
             {
                 _logger.LogWarning("{FunctionName} Invalid password: {Username}", functionName, payload.Username);
                 response.ErrorMessage = "Username or Password is incorrect.";
-                response.WithStatus(HttpStatusCode.Unauthorized);
+                response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-
+            //Check IsEmailVerified
+            if (!user.IsEmailVerified)
+            {
+                _logger.LogWarning("{FunctionName} User not verified: {Username}", functionName, payload.Username);
+                response.ErrorMessage = "User is not verified.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
             // Generate JWT
             var accessToken = _jwtService.GenerateJwtToken(user);
 
@@ -89,8 +93,8 @@ public class LoginHandler
                     Id = Guid.NewGuid(),
                     UserId = user.Id,
                     Token = refreshToken,
-                    CreatedAt = _dateTimeProvider.UtcNow,
-                    ExpiredAt = _dateTimeProvider.UtcNow.AddDays(7),
+                    CreatedAt = DateTime.UtcNow,
+                    ExpiredAt = DateTime.UtcNow.AddDays(7),
                     IsRevoked = false
                 });
 
@@ -100,17 +104,14 @@ public class LoginHandler
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                ExpiresAt = _dateTimeProvider.UtcNow.AddMinutes(15)
+                ExpiresAt = DateTime.UtcNow.AddMinutes(15) //after
             };
 
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
 
-            _logger.LogInformation(
-                "{FunctionName} User login successfully: {Username}",
-                functionName,
-                user.Username);
+            _logger.LogInformation("{FunctionName} User login successfully: {Username}", functionName, user.Username);
         }
         catch (Exception ex)
         {

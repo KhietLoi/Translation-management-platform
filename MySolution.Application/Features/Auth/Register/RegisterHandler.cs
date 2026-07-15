@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Constants;
+using MySolution.Application.Features.Auth.Events;
 using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.Auth.Register;
@@ -16,20 +17,21 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
     private readonly ILogger<RegisterHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
-    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IMediator _mediator;
+
 
     public RegisterHandler
     (
         ILogger<RegisterHandler> logger,
         IUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
-        IDateTimeProvider dateTimeProvider
+        IMediator mediator
     )
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
-        _dateTimeProvider = dateTimeProvider;
+        _mediator =  mediator;
     }
 
     public async Task<RegisterResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -63,9 +65,9 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
                 Email = payload.Email,
                 PasswordHash = _passwordHasher.HashPassword(payload.Password),
                 IsActive = true,
-                CreatedAt = _dateTimeProvider.UtcNow
+                CreatedAt = DateTime.UtcNow
             };
-
+    
             await _unitOfWork.User.Add(user);
 
             user.UserRoles.Add(new UserRole
@@ -75,6 +77,11 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
             });
 
             await _unitOfWork.SaveAsync(cancellationToken);
+            
+            //Email
+            _logger.LogInformation("Publishing UserCreatedEvent for {Email}", user.Email);
+
+            await _mediator.Publish(new UserRegisteredEvent(user.Id, user.Username, user.Email), cancellationToken);
             
             response.Data = new RegisterResult
             {

@@ -21,6 +21,8 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
         RefreshToken = new RefreshTokenRepository(_context, _logger);
         UserRole = new UserRoleRepository(_context, _logger);
         RolePermission = new RolePermissionRepository(_context, _logger);
+        EmailVerificationToken = new EmailVerificationTokenRepository(_context, _logger);
+        PasswordResetToken = new PasswordResetTokenRepository(_context, _logger);
         
     }
     public IUserRepository User { get; }
@@ -29,6 +31,8 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
     public IRefreshTokenRepository RefreshToken { get; }
     public IUserRoleRepository UserRole { get; }
     public IRolePermissionRepository RolePermission { get; }
+    public IEmailVerificationTokenRepository EmailVerificationToken { get; }
+    public IPasswordResetTokenRepository PasswordResetToken { get; }
 
 
     public async Task SaveAsync(CancellationToken cancellationToken)

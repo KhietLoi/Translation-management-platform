@@ -46,7 +46,7 @@ public class UserRegisteredEventHandler : INotificationHandler<UserRegisteredEve
             
             var verifyUrl = $"http://localhost:5173/verify-email?token={token}";
             //Email template:
-            var html = EmailTemplateVerifyRegister.VerifyEmail( notification.Username, verifyUrl, AuthConstants.EmailVerificationExpiryHours);
+            var html = EmailTemplateVerifyRegister.VerifyEmail(notification.Username, verifyUrl, AuthConstants.EmailVerificationExpiryHours);
 
             await _emailService.SendEmailAsync(notification.Email, "Verify your email", html, cancellationToken);
         }

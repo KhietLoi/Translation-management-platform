@@ -16,8 +16,7 @@ public static class JwtConfiguration
     {
    
         // Binds the JWT settings from the configuration.
-        services.Configure<JwtSettings>(
-            configuration.GetSection(JwtSettings.SectionName));
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
 
         var jwtSettings = configuration
                               .GetSection(JwtSettings.SectionName)

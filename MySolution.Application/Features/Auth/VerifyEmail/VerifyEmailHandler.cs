@@ -20,8 +20,7 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
 
     public async Task<VerifyEmailResponse> Handle(VerifyEmailCommand request, CancellationToken cancellationToken)
     {
-        var functionName =
-            $"{nameof(VerifyEmailHandler)} =>";
+        var functionName = $"{nameof(VerifyEmailHandler)} =>";
 
         _logger.LogInformation(functionName);
 

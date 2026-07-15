@@ -3,11 +3,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Helpers;
 using MySolution.Application.Features.Auth.ChangePassword;
+using MySolution.Application.Features.Auth.ForgotPassword;
 using MySolution.Application.Features.Auth.Login;
 using MySolution.Application.Features.Auth.Logout;
 using MySolution.Application.Features.Auth.RefreshToken;
 using MySolution.Application.Features.Auth.Register;
+using MySolution.Application.Features.Auth.ResendVerificationEmail;
+using MySolution.Application.Features.Auth.ResetPassword;
 using MySolution.Application.Features.Auth.VerifyEmail;
+
+using LoginRequest = MySolution.Application.Features.Auth.Login.LoginRequest;
+using RegisterRequest = MySolution.Application.Features.Auth.Register.RegisterRequest;
 
 namespace MySolution.Api.Controllers;
 
@@ -65,7 +71,6 @@ public class AuthController(IMediator mediator) : Controller
     /// <summary>
     /// Refresh the access token
     /// </summary>
-    /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost("refresh-token")]
@@ -137,4 +142,27 @@ public class AuthController(IMediator mediator) : Controller
         var response = await mediator.Send(new VerifyEmailCommand(token), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
+
+    [HttpPost("resend-verify-email")]
+    public async Task<IActionResult> ResendVerifyEmail([FromQuery] ResendVerificationEmailRequest request, CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new ResendVerificationEmailCommand(request), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response);
+    }
+    
+   
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new ForgotPasswordCommand(request),cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response);
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new ResetPasswordCommand(request),  cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response);
+    }
+    
 }

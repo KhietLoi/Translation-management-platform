@@ -11,20 +11,17 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
     private readonly ILogger<RefreshTokenHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IJwtService _jwtService;
-    private readonly IDateTimeProvider _dateTimeProvider;
 
     public RefreshTokenHandler
     (
         ILogger<RefreshTokenHandler> logger,
         IUnitOfWork unitOfWork,
-        IJwtService jwtService,
-        IDateTimeProvider dateTimeProvider
+        IJwtService jwtService
     )
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _jwtService = jwtService;
-        _dateTimeProvider = dateTimeProvider;
     }
    public async Task<RefreshTokenResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
@@ -58,7 +55,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             }
 
             // Check whether the refresh token has expired
-            if (refreshToken.ExpiredAt <= _dateTimeProvider.UtcNow)
+            if (refreshToken.ExpiredAt <= DateTime.UtcNow)
             {
                 response.ErrorMessage = "Refresh token has expired.";
                 response.WithStatus(HttpStatusCode.Unauthorized);
@@ -89,8 +86,8 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
                     Id = Guid.NewGuid(),
                     UserId = user.Id,
                     Token = newRefreshToken,
-                    CreatedAt = _dateTimeProvider.UtcNow,
-                    ExpiredAt = _dateTimeProvider.UtcNow.AddDays(7),
+                    CreatedAt = DateTime.UtcNow,
+                    ExpiredAt = DateTime.UtcNow.AddDays(7),
                     IsRevoked = false
                 });
 
@@ -102,7 +99,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             {
                 AccessToken = accessToken,
                 RefreshToken = newRefreshToken,
-                ExpiredAt = _dateTimeProvider.UtcNow.AddMinutes(1)
+                ExpiredAt = DateTime.UtcNow.AddDays(7)
             };
 
             response

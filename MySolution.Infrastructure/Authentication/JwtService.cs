@@ -54,19 +54,14 @@ public class JwtService(IOptions<JwtSettings> options) : IJwtService
                 Encoding.UTF8.GetBytes(_jwtSettings.SecretKey))
         };
 
-        var principal = _tokenHandler.ValidateToken(
-            token,
-            tokenValidationParameters,
-            out var securityToken);
+        var principal = _tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
 
         if (securityToken is not JwtSecurityToken jwtToken)
         {
             throw new SecurityTokenException("Invalid JWT token.");
         }
 
-        if (!jwtToken.Header.Alg.Equals(
-                SecurityAlgorithms.HmacSha256,
-                StringComparison.OrdinalIgnoreCase))
+        if (!jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.OrdinalIgnoreCase))
         {
             throw new SecurityTokenException("Invalid signing algorithm.");
         }
