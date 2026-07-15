@@ -7,14 +7,10 @@ using SendGrid.Helpers.Mail;
 
 namespace MySolution.Infrastructure.Services;
 
-public class SendGridEmailService : IEmailService
+public class SendGridEmailService(IOptions<SendGridOptions> options) : IEmailService
 {
-    private readonly SendGridOptions _options;
+    private readonly SendGridOptions _options = options.Value;
 
-    public SendGridEmailService(IOptions<SendGridOptions> options)
-    {
-        _options = options.Value;
-    }
     public async Task SendEmailAsync(string toEmail, string subject, string htmlContent, CancellationToken cancellationToken = default)
     {
         Console.WriteLine($"ApiKey Empty: {string.IsNullOrWhiteSpace(_options.ApiKey)}");

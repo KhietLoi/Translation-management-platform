@@ -18,8 +18,7 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IMediator _mediator;
-
-
+    
     public RegisterHandler
     (
         ILogger<RegisterHandler> logger,

@@ -14,12 +14,10 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
         builder.ToTable("RefreshTokens");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedOnAdd();
-        builder.Property(x => x.Token)
+        builder.Property(x => x.TokenHash)
             .IsRequired();
         builder.Property(x => x.ExpiredAt)
             .IsRequired();
-        builder.Property(x => x.IsRevoked)
-            .HasDefaultValue(false);
         builder.HasOne(x => x.User)
             .WithMany(x => x.RefreshTokens)
             .HasForeignKey(x => x.UserId);

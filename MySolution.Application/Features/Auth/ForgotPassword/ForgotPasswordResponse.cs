@@ -4,5 +4,4 @@ namespace MySolution.Application.Features.Auth.ForgotPassword;
 
 public class ForgotPasswordResponse : BaseResponse
 {
-
 }

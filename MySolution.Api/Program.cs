@@ -1,6 +1,7 @@
 using MySolution.Api.StartupRegistrations;
 using MySolution.Application.ServiceRegistration;
 using MySolution.Infrastructure;
+using MySolution.Infrastructure.Authentication;
 using Serilog;
 
 

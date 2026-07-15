@@ -25,17 +25,10 @@ public class GetRoleByIdHandler : IRequestHandler<GetRoleByIdQuery, GetRoleByIdR
     {
         var functionName = $"{nameof(GetRoleByIdHandler)}";
         _logger.LogInformation(functionName);
-
-        var response = new GetRoleByIdResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
-
+        var response = new GetRoleByIdResponse();
         try
         {
             var role = await _unitOfWork.Role.GetByIdAsync(request.RoleId);
-
             if (role == null)
             {
                 response.ErrorMessage = "Role not found.";
@@ -44,8 +37,7 @@ public class GetRoleByIdHandler : IRequestHandler<GetRoleByIdQuery, GetRoleByIdR
                 return response;
             }
 
-            var permissions = await _unitOfWork.Role
-                .GetPermissionsAsync(role.Id);
+            var permissions = await _unitOfWork.Role.GetPermissionsAsync(role.Id);
             response.Data = new GetRoleByIdData
             {
                 Id = role.Id,
@@ -70,6 +62,7 @@ public class GetRoleByIdHandler : IRequestHandler<GetRoleByIdQuery, GetRoleByIdR
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError); 
         }
+        
         return response;
     }
 }

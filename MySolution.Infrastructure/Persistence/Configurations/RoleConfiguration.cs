@@ -27,6 +27,5 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
         // Index for Role:
         builder.HasIndex(x => x.Name)
             .IsUnique();
-        
     }
 }

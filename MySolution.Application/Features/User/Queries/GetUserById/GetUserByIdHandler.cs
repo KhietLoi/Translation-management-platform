@@ -21,22 +21,15 @@ public class GetUserByIdHandler :IRequestHandler<GetUserByIdQuery,GetUserByIdRes
     {
         var functionName = $"{nameof(GetUserByIdHandler)}";
         _logger.LogInformation(functionName);
-
-        var response = new GetUserByIdResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new GetUserByIdResponse();
 
         try
         {
             var user = await _unitOfWork.User.GetUserWithRolesAsync(request.Id);
-
             if (user == null)
             {
                 response.ErrorMessage = "User not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
-
                 return response;
             }
 

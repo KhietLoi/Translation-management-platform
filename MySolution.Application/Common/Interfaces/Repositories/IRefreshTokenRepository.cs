@@ -9,7 +9,7 @@ public interface IRefreshTokenRepository : IRepository<RefreshToken>
     /// </summary>
     /// <param name="token"></param>
     /// <returns></returns>
-    Task<RefreshToken?> GetByTokenAsync(string token);
+    Task<RefreshToken?> GetByHashAsync(string tokenHash);
     /// <summary>
     /// Gets all refresh tokens for a specific user.
     /// </summary>
@@ -28,4 +28,6 @@ public interface IRefreshTokenRepository : IRepository<RefreshToken>
     /// <param name="userId"></param>
     /// <returns></returns>
     Task RevokeAsync(Guid userId);
+    
+    Task <int> CleanUpExpiredTokensAsync();
 }

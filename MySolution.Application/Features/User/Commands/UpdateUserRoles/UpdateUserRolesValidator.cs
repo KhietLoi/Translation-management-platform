@@ -11,8 +11,6 @@ public class UpdateUserRolesValidator
         RuleFor(x => x.UserId)
             .NotEmpty()
             .WithMessage("User id is required.");
-
-
         RuleFor(x => x.RoleIds)
             .NotNull()
             .WithMessage("Role list is required.");

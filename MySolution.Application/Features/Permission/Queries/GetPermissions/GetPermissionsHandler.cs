@@ -28,18 +28,11 @@ public class GetPermissionsHandler : IRequestHandler <GetPermissionsQuery,GetPer
         var payload = request.Payload;
         var functionName = $"{nameof(GetUsersHandler)} =>";
         _logger.LogInformation(functionName);
-        var response = new GetPermissionsResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new GetPermissionsResponse();
 
         try
         {
-            var query = _unitOfWork.Permission
-                .GetAll()
-                .AsNoTracking();
-            
+            var query = _unitOfWork.Permission.GetAll().AsNoTracking();
             if (!string.IsNullOrWhiteSpace(payload.Search))
             {
                 query = query.Where(x =>
@@ -49,13 +42,11 @@ public class GetPermissionsHandler : IRequestHandler <GetPermissionsQuery,GetPer
             }
             
             var totalItem = await query.CountAsync(cancellationToken);
-            
             var permissions = await query
                 .OrderBy(x => x.Code)
                 .Skip((payload.Page - 1) * payload.Limit)
                 .Take(payload.Limit)
                 .ToListAsync(cancellationToken);
-            
             response.Data = new GetPermissionsResult
             {
                 Permissions = permissions.Select(x => new GetPermissionsData
@@ -64,7 +55,6 @@ public class GetPermissionsHandler : IRequestHandler <GetPermissionsQuery,GetPer
                     Code = x.Code,
                     Description = x.Description
                 }).ToList(),
-                
                 Paging = new PagingInfo
                 {
                     Page = payload.Page,

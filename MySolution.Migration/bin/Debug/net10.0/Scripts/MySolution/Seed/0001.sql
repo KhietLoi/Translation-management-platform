@@ -60,7 +60,8 @@ INSERT INTO mysolution."Users"
     "Email",
     "PasswordHash",
     "IsActive",
-    "CreatedAt"
+    "CreatedAt",
+    "IsEmailVerified"
 )
 VALUES
     (
@@ -69,7 +70,8 @@ VALUES
         'admin@gmail.com',
         'AQAAAAIAAYagAAAAEDJZPvgqHdLIqrE3FCcpVszs8kbdPi1ELbwAIFVvvecfgPqBISyzB5qyu51oeFqvGw==',
         TRUE,
-        NOW()
+        NOW(),
+     TRUE
     )
 ON CONFLICT DO NOTHING;
 

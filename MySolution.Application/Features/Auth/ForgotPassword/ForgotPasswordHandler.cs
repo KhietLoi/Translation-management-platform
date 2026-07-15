@@ -47,30 +47,25 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
             
             //Disable old Token
             var oldTokens = await _unitOfWork.PasswordResetToken.GetActiveTokensByUserIdAsync(user.Id);
-
             foreach (var oldToken in oldTokens)
             {
                 oldToken.IsUsed = true;
             }
             
-            var resetToken = Guid.NewGuid().ToString("N");
-
+            var resetToken = Guid.CreateVersion7().ToString("N");
             await _unitOfWork.PasswordResetToken.Add(new PasswordResetToken
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.CreateVersion7(),
                 UserId = user.Id,
                 Token = resetToken,
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddHours(AuthConstants.PasswordResetExpiryHours),
                 IsUsed = false
             });
-            
             await _unitOfWork.SaveAsync(cancellationToken);
-            
             //URL Reset:
             var resetUrl = $"https://localhost:5173/reset/{resetToken}";
             var html = ResetPasswordTemplate.ResetPassword(user.Username, resetUrl, AuthConstants.PasswordResetExpiryHours);
-            
             //SendEmail
             await _emailService.SendEmailAsync(user.Email,"Reset Password",html, cancellationToken);
             response

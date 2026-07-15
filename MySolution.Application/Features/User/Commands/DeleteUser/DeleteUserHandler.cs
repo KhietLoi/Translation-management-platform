@@ -22,17 +22,12 @@ public class DeleteUserHandler : IRequestHandler<DeleteUserCommand,DeleteUserRes
     {
         var functionName = $"{nameof(DeleteUserHandler)}";
         _logger.LogInformation(functionName);
-        var response = new DeleteUserResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new DeleteUserResponse();
         
         try
         {
             //Check if user exists
             var user = await _unitOfWork.User.GetByIdAsync(request.Id);
-            
             if (user == null)
             {
                 response.ErrorMessage = "User not found";

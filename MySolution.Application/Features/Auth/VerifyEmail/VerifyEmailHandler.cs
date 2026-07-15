@@ -21,14 +21,8 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
     public async Task<VerifyEmailResponse> Handle(VerifyEmailCommand request, CancellationToken cancellationToken)
     {
         var functionName = $"{nameof(VerifyEmailHandler)} =>";
-
         _logger.LogInformation(functionName);
-
-        var response = new VerifyEmailResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new VerifyEmailResponse();
 
         try
         {
@@ -56,7 +50,6 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
             token.User.IsEmailVerified = true;
             token.IsUsed = true;
             await _unitOfWork.SaveAsync(cancellationToken);
-
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

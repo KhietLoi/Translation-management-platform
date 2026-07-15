@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Infrastructure.Authentication;
+using MySolution.Infrastructure.BackgroundServices;
 using MySolution.Infrastructure.Persistence;
 using MySolution.Infrastructure.Persistence.Configurations;
 using MySolution.Infrastructure.Services;
@@ -21,7 +22,6 @@ public static class DependencyInjection
                    {
                        options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
                    });
-        
         //jwt:
         services.AddJwtAuthentication(configuration);
         services.AddCustomServices();
@@ -32,9 +32,11 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddScoped<IEmailService, SendGridEmailService>();
+        services.AddScoped<IHashService, HashService>();
+        //Background Clean RefreshToken
+        services.AddHostedService<RefreshTokenCleanupHostedService>();
         return services;
     }
-
     public static IServiceCollection AddCustomServices(this IServiceCollection services)
     {
         //HttpContext

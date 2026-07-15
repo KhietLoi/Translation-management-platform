@@ -61,13 +61,13 @@ CREATE TABLE IF NOT EXISTS mysolution."RefreshTokens"
 (
     "Id" UUID NOT NULL DEFAULT gen_random_uuid(),
 
-    "Token" TEXT NOT NULL,
+    "TokenHash" VARCHAR(64) NOT NULL,
 
     "ExpiredAt" TIMESTAMPTZ NOT NULL,
 
     "CreatedAt" TIMESTAMPTZ NOT NULL,
-
-    "IsRevoked" BOOLEAN NOT NULL DEFAULT FALSE,
+    
+    "RevokedAt" TIMESTAMPTZ NULL,
 
     "UserId" UUID NOT NULL,
 
@@ -189,6 +189,15 @@ CREATE INDEX IF NOT EXISTS "IX_RolePermissions_PermissionId"
 
 CREATE INDEX IF NOT EXISTS "IX_RefreshTokens_UserId"
     ON mysolution."RefreshTokens" ("UserId");
+
+CREATE UNIQUE INDEX IF NOT EXISTS "IX_RefreshTokens_TokenHash"
+    ON mysolution."RefreshTokens" ("TokenHash");
+
+CREATE INDEX IF NOT EXISTS "IX_RefreshTokens_ExpiredAt"
+    ON mysolution."RefreshTokens" ("ExpiredAt");
+
+CREATE INDEX IF NOT EXISTS "IX_RefreshTokens_RevokedAt"
+    ON mysolution."RefreshTokens" ("RevokedAt");
 
 CREATE UNIQUE INDEX IF NOT EXISTS
     "IX_EmailVerificationTokens_Token"

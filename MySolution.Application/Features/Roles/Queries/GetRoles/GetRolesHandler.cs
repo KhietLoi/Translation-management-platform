@@ -27,16 +27,10 @@ public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
         var payload = request.Payload;
         var functionName = $"{nameof(GetUsersHandler)} =>";
         _logger.LogInformation(functionName);
-        var response = new GetRolesResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
-        
+        var response = new GetRolesResponse();
         try
         {
             var query = _unitOfWork.Role.GetAll().AsNoTracking();
-
             if (!string.IsNullOrWhiteSpace(payload.Search))
             {
                 query = query.Where(x =>
@@ -45,13 +39,11 @@ public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
             }
 
             var totalItem = await query.CountAsync(cancellationToken);
-
             var roles = await query
                 .OrderBy(x => x.Name)
                 .Skip((payload.Page - 1) * payload.Limit)
                 .Take(payload.Limit)
                 .ToListAsync(cancellationToken);
-            
             response.Data = new GetRolesResult
             {
                 Roles = roles.Select(x => new GetRoleData

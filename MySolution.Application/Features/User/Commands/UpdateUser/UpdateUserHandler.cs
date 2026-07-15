@@ -31,19 +31,13 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
     {
         var payload =  request.Payload;
         var functionName =  $"{nameof(UpdateUserHandler)}";
-        _logger.LogInformation(functionName);        
-        
-        var response = new UpdateUserResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        _logger.LogInformation(functionName);
+        var response = new UpdateUserResponse();
 
         try
         {
             var user = await _unitOfWork.User
                 .GetUserWithRolesAsync(request.Id);
-
             if (user == null)
             {
                 response.ErrorMessage = "User not found.";
@@ -61,7 +55,6 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
             var roles = await _unitOfWork.Role
                 .Where(x => payload.RoleIds.Contains(x.Id))
                 .ToListAsync(cancellationToken);
-
             if (roles.Count != payload.RoleIds.Count)
             {
                 response.ErrorMessage = "One or more roles do not exist.";
@@ -72,9 +65,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
             user.Username = payload.Username;
             user.Email = payload.Email;
             user.IsActive = payload.IsActive;
-            
             user.UserRoles.Clear();
-
             foreach (var role in roles)
             {
                 user.UserRoles.Add(new UserRole
@@ -83,9 +74,8 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
                     RoleId = role.Id
                 });
             }
-
+            
             await _unitOfWork.SaveAsync(cancellationToken);
-
             response.Data = new UpdateUserData
             {
                 Id = user.Id,
@@ -93,7 +83,6 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
                 Email = user.Email,
                 IsActive = user.IsActive
             };
-
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

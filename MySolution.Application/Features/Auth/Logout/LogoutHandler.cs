@@ -31,12 +31,7 @@ public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
     {
         var functionName = $"{nameof(LogoutHandler)}";
         _logger.LogInformation(functionName);
-
-        var response = new LogoutResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new LogoutResponse();
 
         try
         {
@@ -52,7 +47,6 @@ public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
             // Revoke all refresh tokens of the current user
             await _unitOfWork.RefreshToken
                 .RevokeAsync(_currentUser.UserId);
-            
             // Save changes
             await _unitOfWork.SaveAsync(cancellationToken);
             response
@@ -66,6 +60,7 @@ public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
+        
         return response;
     }
 }

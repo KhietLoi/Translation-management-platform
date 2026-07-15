@@ -26,16 +26,11 @@ public class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersResponse>
         var payload = request.Payload;
         var functionName = $"{nameof(GetUsersHandler)}";
         _logger.LogInformation(functionName);
-        var response = new GetUsersResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new GetUsersResponse();
         
         try
         {
             var query = _unitOfWork.User.GetAll().AsNoTracking();
-            
             if (!string.IsNullOrWhiteSpace(payload.Search))
             {
                 query = query.Where(x =>
@@ -60,7 +55,6 @@ public class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersResponse>
                     IsActive = x.IsActive,
                     CreatedAt = x.CreatedAt
                 }).ToList(),
-
                 Paging = new PagingInfo
                 {
                     Page = payload.Page,

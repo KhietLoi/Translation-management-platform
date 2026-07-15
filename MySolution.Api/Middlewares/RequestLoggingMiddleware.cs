@@ -33,7 +33,7 @@ public class RequestLoggingMiddleware
         }
         
         var sw = Stopwatch.StartNew();
-        var requestId = Guid.NewGuid();
+        var requestId = Guid.CreateVersion7();
 
         context.Request.EnableBuffering();
 

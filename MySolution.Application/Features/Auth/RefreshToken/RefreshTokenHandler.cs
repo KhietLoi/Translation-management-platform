@@ -11,34 +11,31 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
     private readonly ILogger<RefreshTokenHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IJwtService _jwtService;
-
+    private  readonly IHashService _hashService;
     public RefreshTokenHandler
     (
         ILogger<RefreshTokenHandler> logger,
         IUnitOfWork unitOfWork,
-        IJwtService jwtService
+        IJwtService jwtService,
+        IHashService hashService
     )
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _jwtService = jwtService;
+        _hashService =  hashService;
     }
    public async Task<RefreshTokenResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
         var functionName = $"{nameof(RefreshTokenHandler)} =>";
         _logger.LogInformation(functionName);
-        var response = new RefreshTokenResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new RefreshTokenResponse();
 
         try
         {
-            // Retrieve refresh token from the database
-            var refreshToken = await _unitOfWork.RefreshToken
-                .GetByTokenAsync(payload.RefreshToken);
+            var hash = _hashService.ComputeSha256(payload.RefreshToken);
+            var refreshToken = await _unitOfWork.RefreshToken.GetByHashAsync(hash);
             if (refreshToken is null)
             {
                 response.ErrorMessage = "Refresh token not found.";
@@ -47,17 +44,9 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             }
             
             // Check whether the refresh token has been revoked
-            if (refreshToken.IsRevoked)
+            if (!refreshToken.IsActive)
             {
                 response.ErrorMessage = "Refresh token has been revoked.";
-                response.WithStatus(HttpStatusCode.Unauthorized);
-                return response;
-            }
-
-            // Check whether the refresh token has expired
-            if (refreshToken.ExpiredAt <= DateTime.UtcNow)
-            {
-                response.ErrorMessage = "Refresh token has expired.";
                 response.WithStatus(HttpStatusCode.Unauthorized);
                 return response;
             }
@@ -75,20 +64,19 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
 
             // Generate a new refresh token
             var newRefreshToken = _jwtService.GenerateRefreshToken();
-
+            var newHash = _hashService.ComputeSha256(newRefreshToken);
             // Revoke the current refresh token
-            refreshToken.IsRevoked = true;
-
+            refreshToken.RevokedAt =  DateTime.UtcNow;
+      
             // Store the newly generated refresh token
             await _unitOfWork.RefreshToken.Add(
                 new Domain.Entities.RefreshToken
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.CreateVersion7(),
                     UserId = user.Id,
-                    Token = newRefreshToken,
+                    TokenHash = newHash,
                     CreatedAt = DateTime.UtcNow,
-                    ExpiredAt = DateTime.UtcNow.AddDays(7),
-                    IsRevoked = false
+                    ExpiredAt = DateTime.UtcNow.AddDays(7)
                 });
 
             // Persist changes
@@ -99,17 +87,14 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             {
                 AccessToken = accessToken,
                 RefreshToken = newRefreshToken,
-                ExpiredAt = DateTime.UtcNow.AddDays(7)
+                ExpiredAt = DateTime.UtcNow.AddMinutes(15),
             };
 
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
 
-            _logger.LogInformation(
-                "{FunctionName} Refresh token generated successfully for UserId: {UserId}",
-                functionName,
-                user.Id);
+            _logger.LogInformation("{FunctionName} Refresh token generated successfully for UserId: {UserId}", functionName, user.Id);
         }
         catch (Exception ex)
         {
@@ -117,6 +102,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
+        
         return response;
     }
 }

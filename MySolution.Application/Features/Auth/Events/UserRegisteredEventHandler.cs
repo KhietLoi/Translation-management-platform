@@ -28,11 +28,10 @@ public class UserRegisteredEventHandler : INotificationHandler<UserRegisteredEve
         
         try
         {
-            var token = Guid.NewGuid().ToString("N");
-
+            var token = Guid.CreateVersion7().ToString("N");
             var verificationToken = new EmailVerificationToken
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.CreateVersion7(),
                 UserId = notification.UserId,
                 Token = token,
                 CreatedAt = DateTime.UtcNow,
@@ -43,17 +42,14 @@ public class UserRegisteredEventHandler : INotificationHandler<UserRegisteredEve
             //Save Token:
             await _unitOfWork.EmailVerificationToken.Add(verificationToken);
             await _unitOfWork.SaveAsync(cancellationToken);
-            
             var verifyUrl = $"http://localhost:5173/verify-email?token={token}";
             //Email template:
             var html = EmailTemplateVerifyRegister.VerifyEmail(notification.Username, verifyUrl, AuthConstants.EmailVerificationExpiryHours);
-
             await _emailService.SendEmailAsync(notification.Email, "Verify your email", html, cancellationToken);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
-            throw;
+            _logger.LogError(ex, $"{functionName} is failed");
         }
     }
 }

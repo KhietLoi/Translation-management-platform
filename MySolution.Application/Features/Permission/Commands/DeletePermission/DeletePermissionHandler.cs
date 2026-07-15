@@ -23,17 +23,12 @@ public class DeletePermissionHandler : IRequestHandler<DeletePermissionCommand, 
     {
         var functionName = $"{nameof(DeletePermissionHandler)}";
         _logger.LogInformation(functionName);
-        var response = new DeletePermissionResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
-
+        var response = new DeletePermissionResponse();
+        
         try
         {
             // Get permission by Id
             var permission = await _unitOfWork.Permission.GetPermissionByIdAsync(request.Id);
-           
             // Check if permission exists
             if (permission == null)
             {
