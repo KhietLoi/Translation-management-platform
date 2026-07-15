@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Domain.Entities;
 

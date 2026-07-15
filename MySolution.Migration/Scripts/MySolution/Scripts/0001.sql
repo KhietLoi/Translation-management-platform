@@ -103,7 +103,28 @@ CREATE TABLE IF NOT EXISTS mysolution."EmailVerificationTokens"
     REFERENCES mysolution."Users" ("Id")
     ON DELETE CASCADE
 );
+CREATE TABLE IF NOT EXISTS mysolution."PasswordResetTokens"
+(
+    "Id" UUID NOT NULL DEFAULT gen_random_uuid(),
 
+    "UserId" UUID NOT NULL,
+
+    "Token" TEXT NOT NULL,
+
+    "CreatedAt" TIMESTAMPTZ NOT NULL,
+
+    "ExpiresAt" TIMESTAMPTZ NOT NULL,
+
+    "IsUsed" BOOLEAN NOT NULL DEFAULT FALSE,
+
+    CONSTRAINT "PK_PassswordResetTokens"
+    PRIMARY KEY ("Id"),
+
+    CONSTRAINT "FK_PasswordResetTokens_Users"
+    FOREIGN KEY ("UserId")
+    REFERENCES mysolution."Users"("Id")
+    ON DELETE CASCADE
+);
 
 -- UserRoles
 CREATE TABLE IF NOT EXISTS mysolution."UserRoles"

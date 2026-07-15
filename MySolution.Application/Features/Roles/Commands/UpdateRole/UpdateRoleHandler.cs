@@ -13,17 +13,14 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
 {
     private readonly ILogger<UpdateRoleHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IDateTimeProvider _dateTimeProvider;
 
     public UpdateRoleHandler
     (
         ILogger<UpdateRoleHandler> logger,
-        IUnitOfWork unitOfWork,
-        IDateTimeProvider dateTimeProvider)
+        IUnitOfWork unitOfWork)
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
-        _dateTimeProvider = dateTimeProvider;
     }
     
     public async Task<UpdateRoleResponse> Handle(UpdateRoleCommand request, CancellationToken cancellationToken)
@@ -66,7 +63,7 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
                 RoleId = role.Id,
                 RoleName = role.Name,
                 RoleDescription = role.Description,
-                UpdatedAt = _dateTimeProvider.UtcNow
+                UpdatedAt = DateTime.UtcNow
             };
             response
                 .WithSuccess(true)

@@ -17,7 +17,6 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CreateUserHandler> _logger;
     private readonly IPasswordHasher _passwordHasher;
-    private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IMediator  _mediator;
 
     public CreateUserHandler
@@ -25,14 +24,12 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
         IUnitOfWork unitOfWork,
         ILogger<CreateUserHandler> logger,
         IPasswordHasher passwordHasher,
-        IDateTimeProvider dateTimeProvider,
         IMediator mediator
     )
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
         _passwordHasher = passwordHasher;
-        _dateTimeProvider = dateTimeProvider;
         _mediator = mediator;
     }
     
@@ -78,7 +75,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
                 Email = payload.Email,
                 PasswordHash = _passwordHasher.HashPassword(payload.Password),
                 IsActive = true,
-                CreatedAt = _dateTimeProvider.UtcNow,
+                CreatedAt = DateTime.UtcNow,
             };
             //Add User
             await _unitOfWork.User.Add(user);

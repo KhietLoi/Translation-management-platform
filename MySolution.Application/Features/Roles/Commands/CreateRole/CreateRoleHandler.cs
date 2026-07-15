@@ -14,20 +14,17 @@ public class CreateRoleHandler : IRequestHandler<CreateRoleCommand, CreateRoleRe
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CreateRoleHandler> _logger;
-    private readonly IDateTimeProvider _dateTimeProvider;
 
     public CreateRoleHandler
     (
         IUnitOfWork unitOfWork,
-        ILogger<CreateRoleHandler> logger,
-        IDateTimeProvider dateTimeProvider
+        ILogger<CreateRoleHandler> logger
     )
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
-        _dateTimeProvider = dateTimeProvider;
     }
-    
+
     public async Task<CreateRoleResponse> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
@@ -65,7 +62,7 @@ public class CreateRoleHandler : IRequestHandler<CreateRoleCommand, CreateRoleRe
                 RoleId = role.Id,
                 RoleName = role.Name,
                 RoleDescription = role.Description,
-                CreatedAt = _dateTimeProvider.UtcNow
+                CreatedAt = DateTime.UtcNow
             };
             response
                 .WithSuccess(true)

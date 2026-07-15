@@ -31,7 +31,7 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
 
     public async Task<ChangePasswordResponse> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
     {
-        var payload = request.Payload;
+        //var payload = request.Payload;
         var functionName = $"{nameof(ChangePasswordHandler)} =>";
         _logger.LogInformation(functionName);
         var response = new ChangePasswordResponse
@@ -64,10 +64,20 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
             var isCurrentPasswordValid =
                 _passwordHasher.VerifyPassword(request.Payload.CurrentPassword, user.PasswordHash);
             
-            if (isCurrentPasswordValid)
+            if (!isCurrentPasswordValid)
             {
-                response.ErrorMessage = "Current password is valid";
+                response.ErrorMessage = "Current password is incorrect.";
                 response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
+            
+            //Check newPassword is same current password:
+            var isSamePassword = _passwordHasher.VerifyPassword(request.Payload.NewPassword, user.PasswordHash);
+            if (isSamePassword)
+            {
+                response.ErrorMessage = "New password must be different from current password.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
             }
             
             //Hash new password:

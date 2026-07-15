@@ -11,7 +11,9 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
     public bool IsEmailVerified { get; set; }
-    public DateTime CreatedAt { get; set; } public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public DateTime CreatedAt { get; set; } 
+    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     public ICollection<EmailVerificationToken>? EmailVerificationTokens { get; set; }
+    public IEnumerable<PasswordResetToken>? PasswordResetTokens { get; set; }
 }

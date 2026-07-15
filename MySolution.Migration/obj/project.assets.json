@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 3,
   "targets": {
     "net10.0": {
       "dbup-core/6.1.1": {
@@ -3211,25 +3211,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\lpn31\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "C:\\Users\\DEV\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Migration\\MySolution.Migration.csproj",
+      "projectUniqueName": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Migration\\MySolution.Migration.csproj",
       "projectName": "MySolution.Migration",
-      "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Migration\\MySolution.Migration.csproj",
-      "packagesPath": "C:\\Users\\lpn31\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Migration\\obj\\",
+      "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Migration\\MySolution.Migration.csproj",
+      "packagesPath": "C:\\Users\\DEV\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Migration\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\lpn31\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\DEV\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -3243,7 +3241,6 @@
       },
       "frameworks": {
         "net10.0": {
-          "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {}
         }
@@ -3262,7 +3259,6 @@
     },
     "frameworks": {
       "net10.0": {
-        "framework": "net10.0",
         "targetAlias": "net10.0",
         "dependencies": {
           "Microsoft.EntityFrameworkCore.Design": {
