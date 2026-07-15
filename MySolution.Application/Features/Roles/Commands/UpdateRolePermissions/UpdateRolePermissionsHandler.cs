@@ -21,22 +21,12 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
         _logger = logger;
     }
 
-    public async Task<UpdateRolePermissionsResponse> Handle(
-        UpdateRolePermissionsCommand request,
-        CancellationToken cancellationToken)
+    public async Task<UpdateRolePermissionsResponse> Handle(UpdateRolePermissionsCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
-
         var functionName = $"{nameof(UpdateRolePermissionsHandler)}";
-
         _logger.LogInformation(functionName);
-        _logger.LogInformation(functionName);
-
-        var response = new UpdateRolePermissionsResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new UpdateRolePermissionsResponse();
 
         try
         {
@@ -49,14 +39,10 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
 
                 return response;
             }
-
-            // Current permissions of role 
+            
             var currentRolePermissions = await _unitOfWork.RolePermission.GetByRoleIdAsync(payload.RoleId);
-
             var currentPermissionIds = currentRolePermissions.Select(x => x.PermissionId).ToHashSet();
-
             var newPermissionIds = payload.PermissionIds.Distinct().ToHashSet();
-
             // Permissions need add
             var permissionIdsToAdd =
                 newPermissionIds
@@ -75,12 +61,8 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
             if (permissionIdsToAdd.Count > 0)
             {
                 var permissions = await _unitOfWork.Permission.GetByIdsAsync(permissionIdsToAdd);
-
-                var foundPermissionIds =
-                    permissions.Select(x => x.Id).ToHashSet();
-
+                var foundPermissionIds = permissions.Select(x => x.Id).ToHashSet();
                 var invalidPermissions = permissionIdsToAdd.Except(foundPermissionIds).ToList();
-
                 if (invalidPermissions.Count > 0)
                 {
                     response.ErrorMessage =
@@ -101,11 +83,10 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
                                 PermissionId = x.Id
                             })
                         .ToList();
-
                 await _unitOfWork.RolePermission
                     .AddRange(entities);
             }
-
+            
             // Remove permissions
             if (rolePermissionsToRemove.Count > 0)
             {
@@ -113,14 +94,11 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
                     .DeleteRange(rolePermissionsToRemove);
             }
 
-            await _unitOfWork.SaveAsync(
-                cancellationToken);
-
+            await _unitOfWork.SaveAsync(cancellationToken);
             var updatedPermissions =
                 await _unitOfWork.RolePermission
                     .GetByRoleIdWithPermissionAsync(
                         payload.RoleId);
-
             response.Data =
                 new UpdateRolePermissionsData
                 {
@@ -138,25 +116,15 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
                                 })
                             .ToList()
                 };
-
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-
-            return response;
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "{FunctionName} Unexpected error.",
-                functionName);
-
-            response.ErrorMessage =
-                "An unexpected error occurred.";
-
-            response.WithStatus(
-                HttpStatusCode.InternalServerError);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
+            response.WithStatus(HttpStatusCode.InternalServerError);
         }
 
         return response;

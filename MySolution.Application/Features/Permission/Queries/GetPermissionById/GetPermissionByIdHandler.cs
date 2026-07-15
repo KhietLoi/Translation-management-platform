@@ -25,16 +25,11 @@ public class GetPermissionByIdHandler : IRequestHandler<GetPermissionByIdQuery, 
         var functionName = $"{nameof(GetPermissionByIdHandler)}";
         _logger.LogInformation(functionName);
 
-        var response = new GetPermissionByIdResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new GetPermissionByIdResponse();
 
         try
         {
             var permission = await _unitOfWork.Permission.GetPermissionByIdAsync(request.PermissionId);
-
             if (permission == null)
             {
                 response.ErrorMessage = "Permission not found.";
@@ -60,6 +55,7 @@ public class GetPermissionByIdHandler : IRequestHandler<GetPermissionByIdQuery, 
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
+        
         return response;
     }
 }

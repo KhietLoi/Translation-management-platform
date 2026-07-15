@@ -37,14 +37,8 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
     {
         var payload = request.Payload;
         var functionName = $"{nameof(CreateUserHandler)} =>";
-
         _logger.LogInformation(functionName);
-
-        var response = new CreateUserResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new CreateUserResponse();
         
         try
         {
@@ -59,7 +53,6 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
             var roles = await _unitOfWork.Role
                 .Where(x => payload.RoleIds.Contains(x.Id))
                 .ToListAsync(cancellationToken);
-
             if (roles.Count != payload.RoleIds.Count)
             {
                 response.ErrorMessage = "One or more roles do not exist.";
@@ -67,10 +60,11 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
 
                 return response;
             }
+            
             //Create User
             var user = new Domain.Entities.User
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.CreateVersion7(),
                 Username = payload.Username,
                 Email = payload.Email,
                 PasswordHash = _passwordHasher.HashPassword(payload.Password),
@@ -89,14 +83,9 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
                 });
             }
             await _unitOfWork.SaveAsync(cancellationToken);
-            
             //Email
-            _logger.LogInformation(
-                "Publishing UserCreatedEvent for {Email}",
-                user.Email);
-
+            _logger.LogInformation("Publishing UserCreatedEvent for {Email}", user.Email);
             await _mediator.Publish(new UserCreatedEvent(user.Id, user.Username, user.Email), cancellationToken);
-            
             //Return Data
             response.Data = new CreateUserData
             {

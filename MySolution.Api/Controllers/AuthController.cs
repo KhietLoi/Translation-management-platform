@@ -64,7 +64,7 @@ public class AuthController(IMediator mediator) : Controller
             new
             {
                 AccessToken = response.Data.AccessToken,
-                ExpiredAt = response.Data.ExpiresAt
+                ExpiredAt = response.Data.ExpiresAtAccessToken
             });
     }
 

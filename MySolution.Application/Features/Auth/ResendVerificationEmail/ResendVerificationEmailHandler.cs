@@ -57,17 +57,16 @@ public class ResendVerificationEmailHandler : IRequestHandler<ResendVerification
 
             // Check if there are any active tokens for the user
             var oldTokens = await _unitOfWork.EmailVerificationToken.GetActiveTokensByUserId(user.Id);
-
             foreach (var oldToken in oldTokens)
             {
                 oldToken.IsUsed = true;
             }
 
-            var token = Guid.NewGuid().ToString("N");
+            var token = Guid.CreateVersion7().ToString("N");
 
             await _unitOfWork.EmailVerificationToken.Add(new Domain.Entities.EmailVerificationToken
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.CreateVersion7(),
                 UserId = user.Id,
                 Token = token,
                 CreatedAt = DateTime.UtcNow,

@@ -30,11 +30,7 @@ public class CreateRoleHandler : IRequestHandler<CreateRoleCommand, CreateRoleRe
         var payload = request.Payload;
         var functionName = $"{nameof(CreateRoleHandler)} =>";
         _logger.LogInformation(functionName);
-        var response = new CreateRoleResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new CreateRoleResponse();
         
         try
         {
@@ -49,14 +45,13 @@ public class CreateRoleHandler : IRequestHandler<CreateRoleCommand, CreateRoleRe
             // Create Role
             var role = new Role
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.CreateVersion7(),
                 Name = request.Payload.Name,
                 Description = request.Payload.Description
             };
             
             await _unitOfWork.Role.Add(role);
             await _unitOfWork.SaveAsync(cancellationToken);
-
             response.Data = new CreateRoleData
             {
                 RoleId = role.Id,

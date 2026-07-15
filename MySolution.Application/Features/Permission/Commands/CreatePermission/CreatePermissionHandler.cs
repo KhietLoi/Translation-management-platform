@@ -27,11 +27,7 @@ public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, 
         var payload = request.Payload;
         var functionName = $"{nameof(CreatePermissionHandler)} =>";
         _logger.LogInformation(functionName);
-        var response = new CreatePermissionResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new CreatePermissionResponse();
 
         try
         {
@@ -46,7 +42,7 @@ public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, 
             //Create Permission
             var permission = new Domain.Entities.Permission
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.CreateVersion7(),
                 Code = payload.Code,
                 Description = payload.Description,
                 CreatedAt = DateTime.UtcNow

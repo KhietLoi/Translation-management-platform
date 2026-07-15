@@ -7,26 +7,28 @@ using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.Auth.Login;
 
-public class LoginHandler
-    : IRequestHandler<LoginCommand, LoginResponse>
+public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
 {
     private readonly ILogger<LoginHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtService _jwtService;
+    private readonly IHashService _hashService;
 
     public LoginHandler
     (
         ILogger<LoginHandler> logger,
         IUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
-        IJwtService jwtService
+        IJwtService jwtService,
+        IHashService hashService
     )
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
         _jwtService = jwtService;
+        _hashService = hashService;
     }
 
     public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -34,11 +36,7 @@ public class LoginHandler
         var payload = request.Payload;
         var functionName = $"{nameof(LoginHandler)} =>";
         _logger.LogInformation(functionName);
-        var response = new LoginResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new LoginResponse();
 
         try
         {
@@ -85,17 +83,17 @@ public class LoginHandler
 
             // Generate RefreshToken
             var refreshToken = _jwtService.GenerateRefreshToken();
+            var tokenHash = _hashService.ComputeSha256(refreshToken);
 
             // Save RefreshToken to database
             await _unitOfWork.RefreshToken.Add(
                 new Domain.Entities.RefreshToken
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.CreateVersion7(),
                     UserId = user.Id,
-                    Token = refreshToken,
+                    TokenHash = tokenHash,
                     CreatedAt = DateTime.UtcNow,
-                    ExpiredAt = DateTime.UtcNow.AddDays(7),
-                    IsRevoked = false
+                    ExpiredAt = DateTime.UtcNow.AddDays(7)
                 });
 
             await _unitOfWork.SaveAsync(cancellationToken);
@@ -104,7 +102,7 @@ public class LoginHandler
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(15) //after
+                ExpiresAtAccessToken = DateTime.UtcNow.AddMinutes(15) //after
             };
 
             response

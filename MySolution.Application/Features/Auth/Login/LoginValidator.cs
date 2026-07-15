@@ -12,12 +12,10 @@ public class LoginValidator : AbstractValidator<LoginCommand>
             .NotEmpty()
             .WithMessage("Username is required!")
             .MaximumLength(100);
-
         RuleFor(x => x.Payload.Password)
             .NotEmpty()
             .WithMessage("Password is required.")
             .MinimumLength(6)
             .WithMessage("Password must be at least 8 characters long!");
-
     }
 }

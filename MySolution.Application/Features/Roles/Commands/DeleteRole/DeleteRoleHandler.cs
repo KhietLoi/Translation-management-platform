@@ -22,16 +22,11 @@ public class DeleteRoleHandler : IRequestHandler<DeleteRoleCommand,DeleteRoleRes
     {
         var functionName = $"{nameof(DeleteRoleHandler)}";
         _logger.LogInformation(functionName);
-        var response = new DeleteRoleResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
-
+        var response = new DeleteRoleResponse();
+        
         try
         {
             var role = await _unitOfWork.Role.GetByIdAsync(request.Id);
-            
             if (role == null)
             {
                 response.ErrorMessage = "Role not found";
@@ -50,7 +45,6 @@ public class DeleteRoleHandler : IRequestHandler<DeleteRoleCommand,DeleteRoleRes
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-
         }
         catch(Exception ex)
         {

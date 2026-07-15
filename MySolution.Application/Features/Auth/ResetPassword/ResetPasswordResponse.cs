@@ -4,5 +4,4 @@ namespace MySolution.Application.Features.Auth.ResetPassword;
 
 public class ResetPasswordResponse : BaseResponse
 {
-
 }

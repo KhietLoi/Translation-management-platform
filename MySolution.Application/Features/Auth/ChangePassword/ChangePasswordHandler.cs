@@ -31,28 +31,20 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
 
     public async Task<ChangePasswordResponse> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
     {
-        //var payload = request.Payload;
         var functionName = $"{nameof(ChangePasswordHandler)} =>";
         _logger.LogInformation(functionName);
-        var response = new ChangePasswordResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new ChangePasswordResponse();
 
         try
         {
             if (!_currentUser.IsAuthenticated)
             {
                 response.ErrorMessage = "Unauthorized.";
-
-                response.WithStatus(
-                    HttpStatusCode.Unauthorized);
-
+                response.WithStatus(HttpStatusCode.Unauthorized);
                 return response;
             }
+            
             var user = await _unitOfWork.User.GetByIdAsync(_currentUser.UserId);
-
             if (user == null)
             {
                 response.ErrorMessage = "User not found";
@@ -61,9 +53,7 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
             }
             
             //Verify current password:
-            var isCurrentPasswordValid =
-                _passwordHasher.VerifyPassword(request.Payload.CurrentPassword, user.PasswordHash);
-            
+            var isCurrentPasswordValid = _passwordHasher.VerifyPassword(request.Payload.CurrentPassword, user.PasswordHash);
             if (!isCurrentPasswordValid)
             {
                 response.ErrorMessage = "Current password is incorrect.";

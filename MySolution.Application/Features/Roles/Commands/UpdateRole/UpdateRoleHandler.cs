@@ -28,11 +28,7 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
         var payload = request.Payload;
         var functionName = $"{nameof(UpdateRoleHandler)} =>";
         _logger.LogInformation(functionName);
-        var response = new UpdateRoleResponse
-        {
-            Success = false,
-            StatusCode = HttpStatusCode.InternalServerError
-        };
+        var response = new UpdateRoleResponse();
 
         try
         {
@@ -46,7 +42,6 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
             }
             // Check role name already exists
             var existingRole = await _unitOfWork.Role.GetByNameAsync(payload.Name);
-            
             if (existingRole != null && existingRole.Id != role.Id)
             {
                 response.ErrorMessage = "Role name already exists.";

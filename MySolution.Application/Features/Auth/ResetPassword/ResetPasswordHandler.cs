@@ -69,12 +69,8 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordCommand, ResetP
             }
             
             user.PasswordHash = _passwordHasher.HashPassword(payload.NewPassword);
-
             token.IsUsed = true;
-
-            await _unitOfWork.SaveAsync(
-                cancellationToken);
-            
+            await _unitOfWork.SaveAsync(cancellationToken);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

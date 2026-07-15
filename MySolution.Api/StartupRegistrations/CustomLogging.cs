@@ -62,7 +62,7 @@ public static class CustomLogging
 
         if (loggingOptions.ConsoleEnabled)
         {
-            if (environmentName.Equals("localhost"))
+            if (environmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))
             {
                 loggerConfiguration.WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] [{Properties:j}] {ExceptionEvent} {Message:lj}{NewLine}{Exception}", theme: AnsiConsoleTheme.Code);
             }
