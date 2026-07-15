@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { login } from "../../services/authService";
-import { saveToken } from "../../utils/auth";
+import { login } from "../../../services/authService";
+import { saveToken } from "../../../utils/auth";
 import "./Login.css";
 
 export default function Login() {
