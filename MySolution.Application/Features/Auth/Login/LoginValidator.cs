@@ -15,7 +15,10 @@ public class LoginValidator : AbstractValidator<LoginCommand>
         RuleFor(x => x.Payload.Password)
             .NotEmpty()
             .WithMessage("Password is required.")
-            .MinimumLength(6)
-            .WithMessage("Password must be at least 8 characters long!");
+            .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$")
+            .WithMessage(
+                "Password must contain at least 8 characters," +
+                " including an uppercase letter, a lowercase letter," +
+                " a digit, and a special character");
     }
 }

@@ -4,9 +4,9 @@ public class LoggingOptions
 {
     public static readonly string OptionName = "Logging";
     public bool ConsoleEnabled { get; set; }
-    public Seq Seq { get; set; } = default;
-    public Elk Elk { get; set; } = default;
-    public MicrosoftTeams MicrosoftTeams { get; set; } = default;
+    public Seq? Seq { get; set; } = default;
+    public Elk? Elk { get; set; } = default;
+    public MicrosoftTeams? MicrosoftTeams { get; set; } = default;
 }
 public class Seq
 {

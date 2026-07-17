@@ -39,7 +39,6 @@ public class ResendVerificationEmailHandler : IRequestHandler<ResendVerification
         try
         {
             var user = await _unitOfWork.User.GetByEmailAsync(request.Payload.Email);
-
             if (user is null)
             {
                 response.ErrorMessage = "User not found.";
@@ -67,19 +66,17 @@ public class ResendVerificationEmailHandler : IRequestHandler<ResendVerification
                 "Verify your email",
                 html,
                 cancellationToken);
-
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-
-            return response;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "ResendVerificationEmail failed");
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
-            return response;
         }
+        
+        return response;
     }
 }

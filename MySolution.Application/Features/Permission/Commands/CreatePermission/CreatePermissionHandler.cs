@@ -51,7 +51,6 @@ public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, 
             //Save
             await _unitOfWork.Permission.Add(permission);
             await _unitOfWork.SaveAsync(cancellationToken);
-            
             //Response
             response.Data = new CreatePermissionData
             {
@@ -59,7 +58,6 @@ public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, 
                 Description = permission.Description,
                 CreatedAt = permission.CreatedAt
             };
-            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.Created);
