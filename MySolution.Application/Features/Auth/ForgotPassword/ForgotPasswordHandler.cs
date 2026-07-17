@@ -64,7 +64,7 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
             });
             await _unitOfWork.SaveAsync(cancellationToken);
             //URL Reset:
-            var resetUrl = $"https://localhost:5173/reset/{resetToken}";
+            var resetUrl = $"http://localhost:5173/reset-password?token={resetToken}";
             var html = ResetPasswordTemplate.ResetPassword(user.Username, resetUrl, AuthConstants.PasswordResetExpiryHours);
             //SendEmail
             await _emailService.SendEmailAsync(user.Email,"Reset Password",html, cancellationToken);

@@ -10,9 +10,10 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 /// </summary>
 /// <param name="context"></param>
 /// <param name="logger"></param>
-public class RefreshTokenRepository(AppDbContext context, ILogger logger) : Repository<RefreshToken>(context, logger), IRefreshTokenRepository
+public class RefreshTokenRepository(AppDbContext context, ILogger logger)
+    : Repository<RefreshToken>(context, logger), IRefreshTokenRepository
 {
-    
+
     public async Task<RefreshToken?> GetByHashAsync(string tokenHash)
     {
         return await DbSet.FirstOrDefaultAsync(x => x.TokenHash == tokenHash);
@@ -32,7 +33,7 @@ public class RefreshTokenRepository(AppDbContext context, ILogger logger) : Repo
             .AsNoTracking()
             .Where(x => x.UserId == userId && x.RevokedAt == null && x.ExpiredAt > DateTime.UtcNow)
             .ToListAsync();
-            
+
     }
 
     public virtual async Task RevokeAsync(Guid userId)
@@ -41,23 +42,20 @@ public class RefreshTokenRepository(AppDbContext context, ILogger logger) : Repo
             .Where(x =>
                 x.UserId == userId &&
                 x.RevokedAt == null)
-            .ExecuteUpdateAsync(
-                setters => setters
-                    .SetProperty(
-                        x => x.RevokedAt,
-                        DateTime.UtcNow));
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(
+                    x => x.RevokedAt,
+                    DateTime.UtcNow));
     }
 
-    public async Task<int> CleanUpExpiredTokensAsync()
+    public async Task<int> CleanUpExpiredTokensAsync(int revokedBefore)
     {
         return await DbSet
             .Where(x =>
                 x.ExpiredAt < DateTime.UtcNow ||
                 (
                     x.RevokedAt != null &&
-                    x.RevokedAt < DateTime.UtcNow.AddDays(-1)
+                    x.RevokedAt < DateTime.UtcNow.AddDays(revokedBefore)
                 )).ExecuteDeleteAsync();
     }
-
-   
 }
