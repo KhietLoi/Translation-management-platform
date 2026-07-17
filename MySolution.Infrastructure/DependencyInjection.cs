@@ -60,6 +60,18 @@ public static class DependencyInjection
         });
         services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
         
+        //Frontend Url:
+        services.AddOptions<FrontendOptions>()
+            .Bind(configuration.GetSection(FrontendOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        services.AddScoped<IApplicationUrlProvider, ApplicationUrlProvider>();
+        
+        //VerifyEmail:
+        services.AddScoped<IEmailVerificationTokenService, EmailVerificationTokenService>();
+        //Reset-password:
+        services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
+        
         return services;
     }
     public static IServiceCollection AddCustomServices(this IServiceCollection services)

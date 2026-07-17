@@ -16,8 +16,6 @@ public class AppDbContext: DbContext
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<Permission> Permissions => Set<Permission>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
-    public DbSet<EmailVerificationToken>  EmailVerificationTokens => Set<EmailVerificationToken>();
-    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

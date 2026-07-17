@@ -11,17 +11,20 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordCommand, ResetP
     private readonly ILogger<ResetPasswordHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IPasswordResetTokenService  _tokenService;
 
     public ResetPasswordHandler
     (
         ILogger<ResetPasswordHandler> logger,
 		IUnitOfWork unitOfWork,
-        IPasswordHasher passwordHasher
+        IPasswordHasher passwordHasher,
+        IPasswordResetTokenService tokenService
     )
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
+        _tokenService = tokenService;
     }
 
     #region Implementation of IRequestHandler<in ResetPasswordCommand, ResetPasswordResponse>
@@ -35,41 +38,34 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordCommand, ResetP
 
         try
         {
-            var token = _unitOfWork.PasswordResetToken.GetByTokenAsync(payload.Token).Result;
-            // Check token is null:
-            if (token == null)
+            var tokenPayload = _tokenService.ValidateToken(payload.Token);
+            if (tokenPayload.ExpiredAt < DateTime.UtcNow)
             {
-                response.ErrorMessage = "Invalid token.";
+                response.ErrorMessage = "Token expired.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
             
-            // Check token isUsed:
-            if (token.IsUsed)
-            {
-                response.ErrorMessage = "Token is used.";
-                response.WithStatus(HttpStatusCode.BadRequest);
-                return response;
-            }
-            
-            // CheckToken isExpired
-            if (token.IsExpired)
-            {
-                response.ErrorMessage = "Token is expired.";
-                response.WithStatus(HttpStatusCode.BadRequest);
-                return response;
-            }
-            
-            var user = _unitOfWork.User.GetByIdAsync(token.UserId).Result;
+            var user = _unitOfWork.User.GetByIdAsync(tokenPayload.UserId).Result;
             if (user == null)
             {
-                response.ErrorMessage = "User not found.";
+                response.ErrorMessage= "User not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
             
+            //Check passwordversion:
+            if (tokenPayload.PasswordVersion != user.PasswordVersion)
+            {
+                response.ErrorMessage = "Token is invalid.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
+            
+            //Change Password:
             user.PasswordHash = _passwordHasher.HashPassword(payload.NewPassword);
-            token.IsUsed = true;
+            user.PasswordVersion++;
+            
             await _unitOfWork.SaveAsync(cancellationToken);
             response
                 .WithSuccess(true)

@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS mysolution."Users"
     "Email" VARCHAR(256) NOT NULL,
 
     "PasswordHash" TEXT NOT NULL,
+    
+    "PasswordVersion" INT NOT NULL DEFAULT 1,
 
     "IsActive" BOOLEAN NOT NULL DEFAULT TRUE,
     
@@ -75,52 +77,6 @@ CREATE TABLE IF NOT EXISTS mysolution."RefreshTokens"
     PRIMARY KEY ("Id"),
 
     CONSTRAINT "FK_RefreshTokens_Users_UserId"
-    FOREIGN KEY ("UserId")
-    REFERENCES mysolution."Users"("Id")
-    ON DELETE CASCADE
-);
-
--- EmailVerificationTokens
-CREATE TABLE IF NOT EXISTS mysolution."EmailVerificationTokens"
-(
-    "Id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    
-    "UserId" UUID NOT NULL,
-
-    "Token" TEXT NOT NULL,
-
-    "ExpiresAt" TIMESTAMPTZ NOT NULL,
-
-    "CreatedAt" TIMESTAMPTZ NOT NULL,
-    
-    "IsUsed" BOOLEAN NOT NULL DEFAULT FALSE,
-
-    CONSTRAINT "PK_EmailVerificationTokens"
-    PRIMARY KEY ("Id"),
-
-    CONSTRAINT "FK_EmailVerificationTokens_Users_UserId"
-    FOREIGN KEY ("UserId")
-    REFERENCES mysolution."Users" ("Id")
-    ON DELETE CASCADE
-);
-CREATE TABLE IF NOT EXISTS mysolution."PasswordResetTokens"
-(
-    "Id" UUID NOT NULL DEFAULT gen_random_uuid(),
-
-    "UserId" UUID NOT NULL,
-
-    "Token" TEXT NOT NULL,
-
-    "CreatedAt" TIMESTAMPTZ NOT NULL,
-
-    "ExpiresAt" TIMESTAMPTZ NOT NULL,
-
-    "IsUsed" BOOLEAN NOT NULL DEFAULT FALSE,
-
-    CONSTRAINT "PK_PassswordResetTokens"
-    PRIMARY KEY ("Id"),
-
-    CONSTRAINT "FK_PasswordResetTokens_Users"
     FOREIGN KEY ("UserId")
     REFERENCES mysolution."Users"("Id")
     ON DELETE CASCADE
@@ -199,11 +155,4 @@ CREATE INDEX IF NOT EXISTS "IX_RefreshTokens_ExpiredAt"
 CREATE INDEX IF NOT EXISTS "IX_RefreshTokens_RevokedAt"
     ON mysolution."RefreshTokens" ("RevokedAt");
 
-CREATE UNIQUE INDEX IF NOT EXISTS
-    "IX_EmailVerificationTokens_Token"
-    ON mysolution."EmailVerificationTokens" ("Token");
-
-CREATE INDEX IF NOT EXISTS
-    "IX_EmailVerificationTokens_UserId"
-    ON mysolution."EmailVerificationTokens" ("UserId");
 

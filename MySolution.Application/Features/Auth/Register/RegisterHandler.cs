@@ -79,7 +79,6 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
             
             //Email
             _logger.LogInformation("Publishing UserCreatedEvent for {Email}", user.Email);
-
             await _mediator.Publish(new UserRegisteredEvent(user.Id, user.Username, user.Email), cancellationToken);
             
             response.Data = new RegisterResult

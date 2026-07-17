@@ -1897,6 +1897,7 @@
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.9",
           "MySolution.Application": "1.0.0",
           "MySolution.Domain": "1.0.0",
+          "Newtonsoft.Json": "13.0.4",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.2",
           "SendGrid": "9.29.3",
           "Shared": "1.0.0",
