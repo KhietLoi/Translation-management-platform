@@ -13,85 +13,73 @@ public class ResendVerificationEmailHandler : IRequestHandler<ResendVerification
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
     private readonly ILogger<ResendVerificationEmailHandler> _logger;
+    private readonly IEmailVerificationTokenService  _tokenService;
+    private readonly IApplicationUrlProvider _applicationUrlProvider;
     
-    public ResendVerificationEmailHandler(
+    public ResendVerificationEmailHandler
+    (
         IUnitOfWork unitOfWork,
         IEmailService emailService,
-        ILogger<ResendVerificationEmailHandler> logger)
+        ILogger<ResendVerificationEmailHandler> logger,
+        IEmailVerificationTokenService tokenService,
+        IApplicationUrlProvider applicationUrlProvider
+    )
     {
         _unitOfWork = unitOfWork;
         _emailService = emailService;
         _logger = logger;
+        _tokenService = tokenService;
+        _applicationUrlProvider = applicationUrlProvider;
     }
     
     public async Task<ResendVerificationEmailResponse> Handle(ResendVerificationEmailCommand request, CancellationToken cancellationToken)
     {
-        var payload = request.Payload;
-        var functionName = $"{nameof(ResendVerificationEmailHandler)} =>";
-        _logger.LogInformation(functionName);
-        var response = new ResendVerificationEmailResponse
-        {
-            Success = false,
-            StatusCode = System.Net.HttpStatusCode.InternalServerError
-        };
+        var response = new ResendVerificationEmailResponse();
 
         try
         {
-            // Find user by email
-            var user = await _unitOfWork.User.GetByEmailAsync(payload.Email);
-            if (user == null)
+            var user = await _unitOfWork.User.GetByEmailAsync(request.Payload.Email);
+
+            if (user is null)
             {
-                _logger.LogWarning("{FunctionName} User not found: {Email}", functionName, payload.Email);
                 response.ErrorMessage = "User not found.";
-                response.WithStatus(System.Net.HttpStatusCode.NotFound);
+                response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
 
-            // Check if the user is already verified
             if (user.IsEmailVerified)
             {
-                response.ErrorMessage = "User is already verified.";
-                response.WithStatus(System.Net.HttpStatusCode.BadRequest);
+                response.ErrorMessage = "Email already verified.";
+                response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
 
-            // Check if there are any active tokens for the user
-            var oldTokens = await _unitOfWork.EmailVerificationToken.GetActiveTokensByUserId(user.Id);
-            foreach (var oldToken in oldTokens)
-            {
-                oldToken.IsUsed = true;
-            }
+            var token = _tokenService.GenerateVerificationToken(user.Id, user.Email);
+            var verifyUrl = _applicationUrlProvider.GetVerifyEmailUrl(Uri.EscapeDataString(token));
+            var html =
+                EmailTemplateVerifyRegister.VerifyEmail(
+                    user.Username,
+                    verifyUrl,
+                    AuthConstants.EmailVerificationExpiryMinutes);
 
-            var token = Guid.CreateVersion7().ToString("N");
-
-            await _unitOfWork.EmailVerificationToken.Add(new Domain.Entities.EmailVerificationToken
-            {
-                Id = Guid.CreateVersion7(),
-                UserId = user.Id,
-                Token = token,
-                CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddHours(AuthConstants.EmailVerificationExpiryHours),
-                IsUsed = false
-            });
-
-            await _unitOfWork.SaveAsync(cancellationToken);
-            var verifyUrl = $"http://localhost:5173/verify-email?token={token}";
-
-            var html = EmailTemplateVerifyRegister.VerifyEmail(user.Username, verifyUrl,
-                AuthConstants.EmailVerificationExpiryHours);
-            await _emailService.SendEmailAsync(user.Email, "Verify your email", html, cancellationToken);
+            await _emailService.SendEmailAsync(
+                user.Email,
+                "Verify your email",
+                html,
+                cancellationToken);
 
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
+
+            return response;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "ResendVerificationEmail failed");
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
+            return response;
         }
-
-        return response;
     }
 }

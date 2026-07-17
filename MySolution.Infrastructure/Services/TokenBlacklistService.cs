@@ -1,7 +1,7 @@
 ﻿using MySolution.Application.Common.Interfaces.Authentication;
 using StackExchange.Redis;
 
-namespace MySolution.Infrastructure.Authentication;
+namespace MySolution.Infrastructure.Services;
 
 public class TokenBlacklistService : ITokenBlacklistService
 {

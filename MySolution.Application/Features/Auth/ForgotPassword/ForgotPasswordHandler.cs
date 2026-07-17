@@ -13,17 +13,23 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
     private readonly ILogger<ForgotPasswordHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
+    private readonly IApplicationUrlProvider  _applicationUrlProvider;
+    private readonly IPasswordResetTokenService _tokenService;
 
     public ForgotPasswordHandler
     (
         ILogger<ForgotPasswordHandler> logger,
 		IUnitOfWork unitOfWork,
-        IEmailService emailService
+        IEmailService emailService,
+        IApplicationUrlProvider applicationUrlProvider,
+        IPasswordResetTokenService tokenService
     )
     {
         _logger = logger;
 		_unitOfWork = unitOfWork;
         _emailService = emailService;
+        _applicationUrlProvider = applicationUrlProvider;
+        _tokenService = tokenService;
     }
 
     #region Implementation of IRequestHandler<in ForgotPasswordCommand, ForgotPasswordResponse>
@@ -45,27 +51,11 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
                 return response;
             }
             
-            //Disable old Token
-            var oldTokens = await _unitOfWork.PasswordResetToken.GetActiveTokensByUserIdAsync(user.Id);
-            foreach (var oldToken in oldTokens)
-            {
-                oldToken.IsUsed = true;
-            }
             
-            var resetToken = Guid.CreateVersion7().ToString("N");
-            await _unitOfWork.PasswordResetToken.Add(new PasswordResetToken
-            {
-                Id = Guid.CreateVersion7(),
-                UserId = user.Id,
-                Token = resetToken,
-                CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddHours(AuthConstants.PasswordResetExpiryHours),
-                IsUsed = false
-            });
-            await _unitOfWork.SaveAsync(cancellationToken);
+            var resetToken = _tokenService.GenerateResetToken(user.Id, user.Email, user.Username, user.PasswordVersion);
             //URL Reset:
-            var resetUrl = $"http://localhost:5173/reset-password?token={resetToken}";
-            var html = ResetPasswordTemplate.ResetPassword(user.Username, resetUrl, AuthConstants.PasswordResetExpiryHours);
+            var resetUrl = _applicationUrlProvider.GetResetPasswordUrl(Uri.EscapeDataString(resetToken));
+            var html = ResetPasswordTemplate.ResetPassword(user.Username, resetUrl, AuthConstants.PasswordResetExpiryMinutes);
             //SendEmail
             await _emailService.SendEmailAsync(user.Email,"Reset Password",html, cancellationToken);
             response

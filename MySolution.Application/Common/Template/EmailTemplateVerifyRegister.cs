@@ -5,7 +5,7 @@ public static class EmailTemplateVerifyRegister
     public static string VerifyEmail(
         string userName,
         string verifyUrl,
-        int emailVerificationExpiryHours)
+        int emailVerificationExpiryMinutes)
     {
         return $"""
                 <h2>Welcome {userName}</h2>
@@ -24,7 +24,7 @@ public static class EmailTemplateVerifyRegister
                    Verify Email
                 </a>
 
-                <p>This link will expire in {emailVerificationExpiryHours} hours.</p>
+                <p>This link will expire in {emailVerificationExpiryMinutes} minutes.</p>
                 """;
     }
 }
