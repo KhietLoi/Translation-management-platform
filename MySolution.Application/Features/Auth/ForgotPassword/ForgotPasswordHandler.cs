@@ -51,7 +51,6 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
                 return response;
             }
             
-            
             var resetToken = _tokenService.GenerateResetToken(user.Id, user.Email, user.Username, user.PasswordVersion);
             //URL Reset:
             var resetUrl = _applicationUrlProvider.GetResetPasswordUrl(Uri.EscapeDataString(resetToken));
@@ -71,6 +70,5 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
 
         return response;
     }
-
     #endregion
 }

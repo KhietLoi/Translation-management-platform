@@ -47,13 +47,10 @@ public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
                 return response;
             }
             
-            //_logger.LogInformation("JTI = {Jti}", _currentUser.Jti);
-            //_logger.LogInformation("ExpiredAt = {ExpiredAt}", _currentUser.ExpiredAt);
             //Check jti:
             if (!string.IsNullOrWhiteSpace(_currentUser.Jti) && _currentUser.ExpiredAt.HasValue)
             {
                 var ttl = _currentUser.ExpiredAt.Value - DateTime.UtcNow;
-                //_logger.LogInformation("TTL = {TTL}", ttl);
                 if (ttl > TimeSpan.Zero)
                 {
                     await _tokenBlacklistService.BlacklistAsync(_currentUser.Jti, ttl);

@@ -13,9 +13,11 @@ public class ChangePasswordValidator : AbstractValidator<ChangePasswordCommand>
         RuleFor(x => x.Payload.NewPassword)
             .NotEmpty()
             .WithMessage("{PropertyName} can not be empty")
-            .MinimumLength(6)
-            .WithMessage("{PropertyName} must contain at least 6 characters");
-
+            .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$")
+            .WithMessage("{PropertyName} must contain at least 8 characters," +
+                         " including an uppercase letter, a lowercase letter," +
+                         " a digit, and a special character");
+        
         RuleFor(x => x.Payload.ConfirmNewPassword)
             .Equal(x => x.Payload.NewPassword)
             .WithMessage("Passwords do not match");

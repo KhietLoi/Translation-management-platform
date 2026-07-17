@@ -12,6 +12,6 @@ public static class ErrorCodeExtensions
         
     public static string Code<TTranslation>(this TTranslation message)
     {
-        return message.ToString();
+        return message?.ToString() ?? string.Empty;
     }
 }

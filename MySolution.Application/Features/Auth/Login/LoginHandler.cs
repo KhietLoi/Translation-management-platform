@@ -68,6 +68,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
+            
             //Check IsEmailVerified
             if (!user.IsEmailVerified)
             {
@@ -83,11 +84,9 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
             }
             // Generate JWT
             var accessToken = _jwtService.GenerateJwtToken(user);
-
             // Generate RefreshToken
             var refreshToken = _jwtService.GenerateRefreshToken();
             var tokenHash = _hashService.ComputeSha256(refreshToken);
-
             // Save RefreshToken to database
             await _unitOfWork.RefreshToken.Add(
                 new Domain.Entities.RefreshToken
@@ -98,9 +97,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                     CreatedAt = DateTime.UtcNow,
                     ExpiredAt = _jwtService.GetRefreshTokenExpirationDate()
                 });
-
             await _unitOfWork.SaveAsync(cancellationToken);
-            
             response.Data = new LoginResult
             {
                 AccessToken = accessToken,
@@ -109,11 +106,9 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                 IsEmailVerified = user.IsEmailVerified,
                 Email = user.Email
             };
-
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-
             _logger.LogInformation("{FunctionName} User login successfully: {Username}", functionName, user.Username);
         }
         catch (Exception ex)

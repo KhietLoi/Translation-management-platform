@@ -35,11 +35,8 @@ public class UserRegisteredEventHandler : INotificationHandler<UserRegisteredEve
     { 
         var functionName = $"{nameof(UserRegisteredEventHandler)} =>";
         _logger.LogInformation("{FunctionName} Start processing email verification.", functionName);
-        
         _logger.LogInformation("Start Send Email");
-
-        await Task.Delay(30000, cancellationToken);
-
+        //await Task.Delay(30000, cancellationToken);
         _logger.LogInformation("End Send Email");
         
         try

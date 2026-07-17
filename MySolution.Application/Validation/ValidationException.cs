@@ -6,7 +6,7 @@ namespace MySolution.Application.Validation;
 [Serializable]
 public class ValidationException : ExceptionError
 {
-    public ValidationResultModel ValidationResultModel { get; }
+    public ValidationResultModel ValidationResultModel { get; } = null!;
 
     public ValidationException(ValidationResultModel validationResultModel) : base(validationResultModel.ToString())
     {
