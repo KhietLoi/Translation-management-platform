@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using MySolution.Application.Common.Interfaces;
 
@@ -53,4 +54,34 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
     
     public bool IsAuthenticated =>
         User?.Identity?.IsAuthenticated ?? false;
+
+    public string? Jti =>
+        User?
+            .FindFirst(JwtRegisteredClaimNames.Jti)?
+            .Value;
+    public DateTime? ExpiredAt
+    {
+        get
+        {
+            var exp =
+                User?
+                    .FindFirst(JwtRegisteredClaimNames.Exp)?
+                    .Value;
+
+            if (string.IsNullOrWhiteSpace(exp))
+            {
+                return null;
+            }
+
+            if (!long.TryParse(exp, out var unixTime))
+            {
+                return null;
+            }
+
+            return DateTimeOffset
+                .FromUnixTimeSeconds(unixTime)
+                .UtcDateTime;
+        }
+    }
+        
 }

@@ -3,6 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.JsonWebTokens;
+using MySolution.Application.Common.Interfaces.Authentication;
+using MySolution.Infrastructure.Options;
+
 namespace MySolution.Infrastructure.Authentication;
 
 /// <summary>
@@ -10,17 +14,15 @@ namespace MySolution.Infrastructure.Authentication;
 /// </summary>
 public static class JwtConfiguration
 {
-    public static IServiceCollection AddJwtAuthentication(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
    
         // Binds the JWT settings from the configuration.
-        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
 
         var jwtSettings = configuration
-                              .GetSection(JwtSettings.SectionName)
-                              .Get<JwtSettings>()
+                              .GetSection(JwtOptions.SectionName)
+                              .Get<JwtOptions>()
                           ?? throw new InvalidOperationException("JWT configuration is missing.");
 
         if (string.IsNullOrWhiteSpace(jwtSettings.SecretKey))
@@ -61,6 +63,31 @@ public static class JwtConfiguration
                     // Set the signing key
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ClockSkew = TimeSpan.Zero
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var blacklistService = context.HttpContext
+                            .RequestServices
+                            .GetRequiredService<ITokenBlacklistService>();
+                        var jti = context.Principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+                        if (string.IsNullOrWhiteSpace(jti))
+                        {
+                            context.Fail("Missing JTI");
+                            return;
+                        }
+
+                        var isBlacklisted =
+                            await blacklistService
+                                .IsBlacklistedAsync(jti);
+
+                        if (isBlacklisted)
+                        {
+                            context.Fail("Token revoked");
+                        }
+                    }
                 };
             });
 

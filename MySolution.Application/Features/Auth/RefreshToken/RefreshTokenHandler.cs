@@ -76,7 +76,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
                     UserId = user.Id,
                     TokenHash = newHash,
                     CreatedAt = DateTime.UtcNow,
-                    ExpiredAt = DateTime.UtcNow.AddDays(7)
+                    ExpiredAt = _jwtService.GetRefreshTokenExpirationDate()
                 });
 
             // Persist changes
@@ -87,7 +87,8 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             {
                 AccessToken = accessToken,
                 RefreshToken = newRefreshToken,
-                ExpiredAt = DateTime.UtcNow.AddMinutes(15),
+                ExpiresAtAccessToken = _jwtService.GetAccessTokenExpirationDate(),
+                ExpiresAtRefreshToken = _jwtService.GetRefreshTokenExpirationDate()
             };
 
             response

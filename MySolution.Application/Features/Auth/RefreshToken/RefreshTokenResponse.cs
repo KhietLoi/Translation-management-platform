@@ -1,4 +1,5 @@
-﻿using MySolution.Application.Common.Models;
+﻿using System.Data;
+using MySolution.Application.Common.Models;
 
 namespace MySolution.Application.Features.Auth.RefreshToken;
 
@@ -12,5 +13,6 @@ public class RefreshTokenResult
 {
     public string AccessToken { get; set; } = string.Empty;
     public string RefreshToken { get; set; } = string.Empty;
-    public DateTime ExpiredAt { get; set; } 
+    public DateTime ExpiresAtAccessToken { get; set; } 
+    public DateTime ExpiresAtRefreshToken { get; set; }
 }

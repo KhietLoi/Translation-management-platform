@@ -60,9 +60,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
             }
 
             // Check Password
-            var verify = _passwordHasher.VerifyPassword(
-                payload.Password,
-                user.PasswordHash);
+            var verify = _passwordHasher.VerifyPassword(payload.Password, user.PasswordHash);
             if (!verify)
             {
                 _logger.LogWarning("{FunctionName} Invalid password: {Username}", functionName, payload.Username);
@@ -75,6 +73,11 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
             {
                 _logger.LogWarning("{FunctionName} User not verified: {Username}", functionName, payload.Username);
                 response.ErrorMessage = "User is not verified.";
+                response.Data = new LoginResult
+                {
+                    Email = user.Email,
+                    IsEmailVerified = false
+                };
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
@@ -93,7 +96,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                     UserId = user.Id,
                     TokenHash = tokenHash,
                     CreatedAt = DateTime.UtcNow,
-                    ExpiredAt = DateTime.UtcNow.AddDays(7)
+                    ExpiredAt = _jwtService.GetRefreshTokenExpirationDate()
                 });
 
             await _unitOfWork.SaveAsync(cancellationToken);
@@ -102,7 +105,9 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                ExpiresAtAccessToken = DateTime.UtcNow.AddMinutes(15) //after
+                ExpiresAtAccessToken = _jwtService.GetAccessTokenExpirationDate(),
+                IsEmailVerified = user.IsEmailVerified,
+                Email = user.Email
             };
 
             response

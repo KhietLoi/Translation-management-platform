@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using MySolution.Api.Helpers;
+
 using MySolution.Application.Features.Auth.ChangePassword;
 using MySolution.Application.Features.Auth.ForgotPassword;
 using MySolution.Application.Features.Auth.Login;
@@ -11,7 +13,7 @@ using MySolution.Application.Features.Auth.Register;
 using MySolution.Application.Features.Auth.ResendVerificationEmail;
 using MySolution.Application.Features.Auth.ResetPassword;
 using MySolution.Application.Features.Auth.VerifyEmail;
-
+using MySolution.Infrastructure.Options;
 using LoginRequest = MySolution.Application.Features.Auth.Login.LoginRequest;
 using RegisterRequest = MySolution.Application.Features.Auth.Register.RegisterRequest;
 
@@ -19,8 +21,9 @@ namespace MySolution.Api.Controllers;
 
 [Route("api/[controller]") ]
 [ApiController]
-public class AuthController(IMediator mediator) : Controller
+public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtoptions) : Controller
 {
+    private readonly JwtOptions _jwtOptions = jwtoptions.Value;
     /// <summary>
     /// Register a new user
     /// </summary>
@@ -47,25 +50,26 @@ public class AuthController(IMediator mediator) : Controller
 
         if (!response.Success)
         {
-            return ResponseHelper.ToResponse(response.StatusCode, response);
+            return ResponseHelper.ToResponse(
+                response.StatusCode,
+                response,
+                response.Data
+            );
         }
+
         Response.Cookies.Append("refreshToken", response.Data.RefreshToken,
             new CookieOptions
             {
                 HttpOnly = true,
                 Secure = false, 
                 SameSite = SameSiteMode.Lax,
-                Expires = DateTime.UtcNow.AddDays(7)
+                Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenDays)
             });
 
         return ResponseHelper.ToResponse(
             response.StatusCode,
             response,
-            new
-            {
-                AccessToken = response.Data.AccessToken,
-                ExpiredAt = response.Data.ExpiresAtAccessToken
-            });
+            response.Data);
     }
 
     /// <summary>
@@ -102,17 +106,13 @@ public class AuthController(IMediator mediator) : Controller
                 HttpOnly = true,
                 Secure = false, // localhost
                 SameSite = SameSiteMode.Lax,
-                Expires = DateTime.UtcNow.AddDays(7)
+                Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenDays)
             });
 
         return ResponseHelper.ToResponse(
             response.StatusCode,
             response,
-            new
-            {
-                AccessToken = response.Data.AccessToken,
-                ExpiredAt = response.Data.ExpiredAt
-            });
+            response.Data);
     }
 
     /// <summary>
@@ -136,15 +136,23 @@ public class AuthController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
 
-    [HttpGet("verify-email")]
-    public async Task<IActionResult> VerifyEmail([FromQuery] string token, CancellationToken cancellationToken)
+    [HttpGet("verify-email/{token}")]
+    public async Task<IActionResult> VerifyEmail(string token, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new VerifyEmailCommand(token), cancellationToken);
+        if (!response.Success)
+        {
+            return ResponseHelper.ToResponse(
+                response.StatusCode,
+                response,
+                response.Data
+            );   
+        }
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
 
     [HttpPost("resend-verify-email")]
-    public async Task<IActionResult> ResendVerifyEmail([FromQuery] ResendVerificationEmailRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> ResendVerifyEmail([FromBody] ResendVerificationEmailRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new ResendVerificationEmailCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);

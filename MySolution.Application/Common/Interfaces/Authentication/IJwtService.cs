@@ -8,4 +8,7 @@ public interface IJwtService
     string GenerateJwtToken(User user);
     string GenerateRefreshToken();
     ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
+    
+    DateTime GetAccessTokenExpirationDate();
+    DateTime GetRefreshTokenExpirationDate();
 }

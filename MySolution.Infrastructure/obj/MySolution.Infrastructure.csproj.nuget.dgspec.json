@@ -800,6 +800,10 @@
               "target": "Package",
               "version": "[9.29.3, )"
             },
+            "StackExchange.Redis": {
+              "target": "Package",
+              "version": "[3.0.17, )"
+            },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
               "version": "[8.19.1, )"

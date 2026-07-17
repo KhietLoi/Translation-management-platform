@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿
 using Microsoft.Extensions.Options;
 using MySolution.Application.Common.Interfaces;
-using MySolution.Infrastructure.Persistence.Configurations;
+using MySolution.Infrastructure.Options;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 

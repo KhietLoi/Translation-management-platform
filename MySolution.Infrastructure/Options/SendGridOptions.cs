@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MySolution.Infrastructure.Persistence.Configurations;
+namespace MySolution.Infrastructure.Options;
 
 public sealed class SendGridOptions
 {
-    public const string SectionName = "SendGrid";
+    public const string SectionName = "SendGridOfMe";
     
     [Required]
     public string ApiKey { get; set; } = string.Empty;

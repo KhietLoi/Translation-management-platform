@@ -646,6 +646,14 @@
           }
         }
       },
+      "RESPite/3.0.17": {
+        "runtime": {
+          "lib/net10.0/RESPite.dll": {
+            "assemblyVersion": "3.0.0.0",
+            "fileVersion": "3.0.17.2819"
+          }
+        }
+      },
       "SendGrid/9.29.3": {
         "dependencies": {
           "Newtonsoft.Json": "13.0.4",
@@ -848,6 +856,18 @@
           }
         }
       },
+      "StackExchange.Redis/3.0.17": {
+        "dependencies": {
+          "RESPite": "3.0.17",
+          "System.IO.Hashing": "10.0.5"
+        },
+        "runtime": {
+          "lib/net10.0/StackExchange.Redis.dll": {
+            "assemblyVersion": "3.0.0.0",
+            "fileVersion": "3.0.17.2819"
+          }
+        }
+      },
       "starkbank-ecdsa/1.3.3": {
         "runtime": {
           "lib/netstandard2.1/StarkbankEcdsa.dll": {
@@ -992,6 +1012,14 @@
           }
         }
       },
+      "System.IO.Hashing/10.0.5": {
+        "runtime": {
+          "lib/net10.0/System.IO.Hashing.dll": {
+            "assemblyVersion": "10.0.0.5",
+            "fileVersion": "10.0.526.15411"
+          }
+        }
+      },
       "System.Reflection.MetadataLoadContext/7.0.0": {
         "runtime": {
           "lib/net7.0/System.Reflection.MetadataLoadContext.dll": {
@@ -1080,6 +1108,7 @@
           "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.2",
           "SendGrid": "9.29.3",
           "Shared": "1.0.0",
+          "StackExchange.Redis": "3.0.17",
           "System.IdentityModel.Tokens.Jwt": "8.19.1"
         },
         "runtime": {
@@ -1367,6 +1396,13 @@
       "path": "npgsql.entityframeworkcore.postgresql/10.0.2",
       "hashPath": "npgsql.entityframeworkcore.postgresql.10.0.2.nupkg.sha512"
     },
+    "RESPite/3.0.17": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-68slEMyRTUNLc75DruEDsEohFmFfNwkHLLtwQ46bobF+8Tl+UXMKM1kM87ihhKy6JdAqy1RrvAfvBWeLmcY9Gg==",
+      "path": "respite/3.0.17",
+      "hashPath": "respite.3.0.17.nupkg.sha512"
+    },
     "SendGrid/9.29.3": {
       "type": "package",
       "serviceable": true,
@@ -1486,6 +1522,13 @@
       "path": "serilog.sinks.seq/9.1.0",
       "hashPath": "serilog.sinks.seq.9.1.0.nupkg.sha512"
     },
+    "StackExchange.Redis/3.0.17": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ItAm9lokZ1mWsQLF3u4Yw4eb/gvkX6Rp9bLAe1KUKgKAjPkALoQwTc6jJLtBZoOv9LT7RwvSIXZZb9FF30QhOg==",
+      "path": "stackexchange.redis/3.0.17",
+      "hashPath": "stackexchange.redis.3.0.17.nupkg.sha512"
+    },
     "starkbank-ecdsa/1.3.3": {
       "type": "package",
       "serviceable": true,
@@ -1590,6 +1633,13 @@
       "sha512": "sha512-2VHcRtT95GAcW1E3aVBLvL2rAAMxKHXKMXKXFyWzwgkdFXZPMMvP8tVOfnRydL4vTr1RirNuGC6T8VSEF2YsPQ==",
       "path": "system.identitymodel.tokens.jwt/8.19.1",
       "hashPath": "system.identitymodel.tokens.jwt.8.19.1.nupkg.sha512"
+    },
+    "System.IO.Hashing/10.0.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-8IBJWcCT9+e4Bmevm4T7+fQEiAh133KGiz4oiVTgJckd3Q76OFdR1falgn9lpz7+C4HJvogCDJeAa2QmvbeVtg==",
+      "path": "system.io.hashing/10.0.5",
+      "hashPath": "system.io.hashing.10.0.5.nupkg.sha512"
     },
     "System.Reflection.MetadataLoadContext/7.0.0": {
       "type": "package",

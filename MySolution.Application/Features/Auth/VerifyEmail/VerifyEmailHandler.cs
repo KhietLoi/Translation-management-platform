@@ -44,12 +44,28 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
             if (token.IsExpired)
             {
                 response.ErrorMessage = "Verification token expired.";
+                response.Data = new VerifyEmailData
+                {
+                    Email = token.User.Email
+                };
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
+
+            if (token.User.IsEmailVerified)
+            {
+                response.ErrorMessage = "Email already verified.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
+            
             token.User.IsEmailVerified = true;
             token.IsUsed = true;
             await _unitOfWork.SaveAsync(cancellationToken);
+            response.Data = new VerifyEmailData
+            {
+                Email = token.User.Email
+            };
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
