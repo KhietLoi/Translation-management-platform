@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using MassTransit;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
@@ -6,6 +7,7 @@ using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Constants;
 using MySolution.Application.Features.Auth.Events;
 using MySolution.Domain.Entities;
+using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.Auth.Register;
 
@@ -17,20 +19,23 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
     private readonly ILogger<RegisterHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
-    private readonly IMediator _mediator;
+    private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IEmailVerificationTokenService _emailVerificationTokenService;
     
     public RegisterHandler
     (
         ILogger<RegisterHandler> logger,
         IUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
-        IMediator mediator
+        IPublishEndpoint publishEndpoint,
+        IEmailVerificationTokenService emailVerificationTokenService
     )
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
-        _mediator =  mediator;
+        _publishEndpoint = publishEndpoint;
+        _emailVerificationTokenService = emailVerificationTokenService;
     }
 
     public async Task<RegisterResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -73,10 +78,17 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
                 RoleId = role.Id
             });
             await _unitOfWork.SaveAsync(cancellationToken);
+            var token = _emailVerificationTokenService.GenerateVerificationToken(user.Id, user.Email);
             //Email
             _logger.LogInformation("Publishing UserCreatedEvent for {Email}", user.Email);
-            await _mediator.Publish(new UserRegisteredEvent(user.Id, user.Username, user.Email), cancellationToken);
-            
+            await _publishEndpoint.Publish(
+                new SendVerifyEmailEvent
+                {
+                    UserId = user.Id,
+                    Email = user.Email,
+                    Token = token
+                },
+                cancellationToken);
             response.Data = new RegisterResult
             {
                 Id = user.Id,

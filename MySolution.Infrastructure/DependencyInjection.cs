@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySolution.Application.Common.Interfaces;
@@ -6,10 +7,12 @@ using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Infrastructure.Authentication;
 using MySolution.Infrastructure.BackgroundServices;
+using MySolution.Infrastructure.MassTransit.Consumers;
 using MySolution.Infrastructure.Options;
 using MySolution.Infrastructure.Persistence;
 using MySolution.Infrastructure.Persistence.Configurations;
 using MySolution.Infrastructure.Services;
+using Shared.MassTransit.Contracts;
 using StackExchange.Redis;
 
 namespace MySolution.Infrastructure;
@@ -53,12 +56,13 @@ public static class DependencyInjection
         var redisOptions = configuration
             .GetSection(RedisOptions.SectionName)
             .Get<RedisOptions>() ?? throw new InvalidOperationException("Redis configuration missing");
-        services.AddSingleton<IConnectionMultiplexer>(_ =>
+        /*services.AddSingleton<IConnectionMultiplexer>(_ =>
         {
             return ConnectionMultiplexer.Connect(
                 redisOptions.ConnectionString);
-        });
-        services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
+        });*/
+        //services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
+        services.AddScoped<ITokenBlacklistService, FakeTokenBlacklistService>();
         
         //Frontend Url:
         services.AddOptions<FrontendOptions>()
@@ -71,7 +75,46 @@ public static class DependencyInjection
         services.AddScoped<IEmailVerificationTokenService, EmailVerificationTokenService>();
         //Reset-password:
         services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
-        
+        //MassTransit:
+        services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
+        services.AddMassTransit(x =>
+        {
+            x.AddConsumer<SendVerifyEmailConsumer>();
+
+            x.UsingRabbitMq((context, cfg) =>
+            {
+
+                var rabbitOptions =
+                    context.GetRequiredService
+                            <Microsoft.Extensions.Options.IOptions<RabbitMqOptions>>()
+                        .Value;
+
+
+                cfg.Host(
+                    rabbitOptions.Host,
+                    "/",
+                    h =>
+                    {
+                        h.Username(
+                            rabbitOptions.Username);
+
+                        h.Password(
+                            rabbitOptions.Password);
+                    });
+
+
+
+                cfg.ReceiveEndpoint(
+                    QueueNames.VerifyEmail,
+                    e =>
+                    {
+                        e.ConfigureConsumer
+                            <SendVerifyEmailConsumer>
+                            (context);
+                    });
+
+            });
+        });
         return services;
     }
     public static IServiceCollection AddCustomServices(this IServiceCollection services)
