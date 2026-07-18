@@ -82,6 +82,52 @@
           }
         }
       },
+      "MassTransit/8.5.10": {
+        "type": "package",
+        "dependencies": {
+          "MassTransit.Abstractions": "8.5.10"
+        },
+        "compile": {
+          "lib/net10.0/MassTransit.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/MassTransit.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "MassTransit.Abstractions/8.5.10": {
+        "type": "package",
+        "compile": {
+          "lib/net10.0/MassTransit.Abstractions.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/MassTransit.Abstractions.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "MassTransit.RabbitMQ/8.5.10": {
+        "type": "package",
+        "dependencies": {
+          "MassTransit": "8.5.10",
+          "RabbitMQ.Client": "7.2.1"
+        },
+        "compile": {
+          "lib/net10.0/MassTransit.RabbitMqTransport.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/MassTransit.RabbitMqTransport.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "MediatR/14.2.0": {
         "type": "package",
         "dependencies": {
@@ -1144,6 +1190,19 @@
           }
         }
       },
+      "RabbitMQ.Client/7.2.1": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/RabbitMQ.Client.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/RabbitMQ.Client.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "RESPite/3.0.17": {
         "type": "package",
         "compile": {
@@ -1866,6 +1925,7 @@
         "dependencies": {
           "FluentValidation": "12.1.1",
           "FluentValidation.DependencyInjectionExtensions": "12.1.1",
+          "MassTransit.Abstractions": "8.5.10",
           "MediatR": "14.2.0",
           "MediatR.Extensions.Microsoft.DependencyInjection": "10.0.0",
           "Microsoft.EntityFrameworkCore": "10.0.9",
@@ -1894,6 +1954,8 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
+          "MassTransit": "8.5.10",
+          "MassTransit.RabbitMQ": "8.5.10",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.9",
           "MySolution.Application": "1.0.0",
           "MySolution.Domain": "1.0.0",
@@ -2026,6 +2088,75 @@
         "lib/netstandard2.0/Humanizer.dll",
         "lib/netstandard2.0/Humanizer.xml",
         "logo.png"
+      ]
+    },
+    "MassTransit/8.5.10": {
+      "sha512": "TGi34UA8RftBIpYCHEdoIP5uSu2/pLWZRen4RUcg4CV1nr8MmCZMuFYjzvXXUyFcj0ZuRQxZZNhG7fB5/raSOg==",
+      "type": "package",
+      "path": "masstransit/8.5.10",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "NuGet.README.md",
+        "lib/net10.0/MassTransit.dll",
+        "lib/net10.0/MassTransit.xml",
+        "lib/net472/MassTransit.dll",
+        "lib/net472/MassTransit.xml",
+        "lib/net8.0/MassTransit.dll",
+        "lib/net8.0/MassTransit.xml",
+        "lib/net9.0/MassTransit.dll",
+        "lib/net9.0/MassTransit.xml",
+        "lib/netstandard2.0/MassTransit.dll",
+        "lib/netstandard2.0/MassTransit.xml",
+        "masstransit.8.5.10.nupkg.sha512",
+        "masstransit.nuspec",
+        "mt-logo-small.png"
+      ]
+    },
+    "MassTransit.Abstractions/8.5.10": {
+      "sha512": "nZnm2YNH+NcVwY6yC114sJy8J9LtKdFjfKUm/A5HfmzOlZ8ksjgHaPBg5XCG1VAqKDRDFnaudIcesVultKJD7g==",
+      "type": "package",
+      "path": "masstransit.abstractions/8.5.10",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "NuGet.README.md",
+        "lib/net10.0/MassTransit.Abstractions.dll",
+        "lib/net10.0/MassTransit.Abstractions.xml",
+        "lib/net472/MassTransit.Abstractions.dll",
+        "lib/net472/MassTransit.Abstractions.xml",
+        "lib/net8.0/MassTransit.Abstractions.dll",
+        "lib/net8.0/MassTransit.Abstractions.xml",
+        "lib/net9.0/MassTransit.Abstractions.dll",
+        "lib/net9.0/MassTransit.Abstractions.xml",
+        "lib/netstandard2.0/MassTransit.Abstractions.dll",
+        "lib/netstandard2.0/MassTransit.Abstractions.xml",
+        "masstransit.abstractions.8.5.10.nupkg.sha512",
+        "masstransit.abstractions.nuspec",
+        "mt-logo-small.png"
+      ]
+    },
+    "MassTransit.RabbitMQ/8.5.10": {
+      "sha512": "5aQGpJpeqRhRv+htkXfi6MfWu0dj/4Lcf1c6h2J3tYZClupGklqB1ixlP3IRdZExrH9BI/60uYoxR+7pg3s1oQ==",
+      "type": "package",
+      "path": "masstransit.rabbitmq/8.5.10",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "NuGet.README.md",
+        "lib/net10.0/MassTransit.RabbitMqTransport.dll",
+        "lib/net10.0/MassTransit.RabbitMqTransport.xml",
+        "lib/net472/MassTransit.RabbitMqTransport.dll",
+        "lib/net472/MassTransit.RabbitMqTransport.xml",
+        "lib/net8.0/MassTransit.RabbitMqTransport.dll",
+        "lib/net8.0/MassTransit.RabbitMqTransport.xml",
+        "lib/net9.0/MassTransit.RabbitMqTransport.dll",
+        "lib/net9.0/MassTransit.RabbitMqTransport.xml",
+        "lib/netstandard2.0/MassTransit.RabbitMqTransport.dll",
+        "lib/netstandard2.0/MassTransit.RabbitMqTransport.xml",
+        "masstransit.rabbitmq.8.5.10.nupkg.sha512",
+        "masstransit.rabbitmq.nuspec",
+        "mt-logo-small.png"
       ]
     },
     "MediatR/14.2.0": {
@@ -3968,6 +4099,23 @@
         "postgresql.png"
       ]
     },
+    "RabbitMQ.Client/7.2.1": {
+      "sha512": "YKXEfg9fVQiTKgZlvIhAfPSFaamEgi8DsQmisCH0IAsU4FYLrtoguDrDj6JtJVGUt40QPnBLRH6fTQcAC4qsOg==",
+      "type": "package",
+      "path": "rabbitmq.client/7.2.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "icon.png",
+        "lib/net8.0/RabbitMQ.Client.dll",
+        "lib/net8.0/RabbitMQ.Client.xml",
+        "lib/netstandard2.0/RabbitMQ.Client.dll",
+        "lib/netstandard2.0/RabbitMQ.Client.xml",
+        "rabbitmq.client.7.2.1.nupkg.sha512",
+        "rabbitmq.client.nuspec"
+      ]
+    },
     "RESPite/3.0.17": {
       "sha512": "68slEMyRTUNLc75DruEDsEohFmFfNwkHLLtwQ46bobF+8Tl+UXMKM1kM87ihhKy6JdAqy1RrvAfvBWeLmcY9Gg==",
       "type": "package",
@@ -5005,23 +5153,25 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\DEV\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\lpn31\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
+      "projectUniqueName": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
       "projectName": "MySolution.Api",
-      "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
-      "packagesPath": "C:\\Users\\DEV\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\obj\\",
+      "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
+      "packagesPath": "C:\\Users\\lpn31\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Api\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\DEV\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\lpn31\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -5037,11 +5187,11 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\MySolution.Application.csproj": {
-              "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\MySolution.Application.csproj"
+            "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Application\\MySolution.Application.csproj": {
+              "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Application\\MySolution.Application.csproj"
             },
-            "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Infrastructure\\MySolution.Infrastructure.csproj": {
-              "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Infrastructure\\MySolution.Infrastructure.csproj"
+            "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Infrastructure\\MySolution.Infrastructure.csproj": {
+              "projectPath": "C:\\Users\\lpn31\\Computer\\MyProject\\MySolution\\MySolution.Infrastructure\\MySolution.Infrastructure.csproj"
             }
           }
         }
@@ -5140,7 +5290,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

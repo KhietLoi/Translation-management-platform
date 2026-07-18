@@ -81,6 +81,37 @@
           }
         }
       },
+      "MassTransit/8.5.10": {
+        "dependencies": {
+          "MassTransit.Abstractions": "8.5.10"
+        },
+        "runtime": {
+          "lib/net10.0/MassTransit.dll": {
+            "assemblyVersion": "8.5.10.0",
+            "fileVersion": "8.5.10.0"
+          }
+        }
+      },
+      "MassTransit.Abstractions/8.5.10": {
+        "runtime": {
+          "lib/net10.0/MassTransit.Abstractions.dll": {
+            "assemblyVersion": "8.5.10.0",
+            "fileVersion": "8.5.10.0"
+          }
+        }
+      },
+      "MassTransit.RabbitMQ/8.5.10": {
+        "dependencies": {
+          "MassTransit": "8.5.10",
+          "RabbitMQ.Client": "7.2.1"
+        },
+        "runtime": {
+          "lib/net10.0/MassTransit.RabbitMqTransport.dll": {
+            "assemblyVersion": "8.5.10.0",
+            "fileVersion": "8.5.10.0"
+          }
+        }
+      },
       "MediatR/14.2.0": {
         "dependencies": {
           "MediatR.Contracts": "2.0.1",
@@ -646,6 +677,14 @@
           }
         }
       },
+      "RabbitMQ.Client/7.2.1": {
+        "runtime": {
+          "lib/net8.0/RabbitMQ.Client.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.2.1.0"
+          }
+        }
+      },
       "RESPite/3.0.17": {
         "runtime": {
           "lib/net10.0/RESPite.dll": {
@@ -1078,6 +1117,7 @@
         "dependencies": {
           "FluentValidation": "12.1.1",
           "FluentValidation.DependencyInjectionExtensions": "12.1.1",
+          "MassTransit.Abstractions": "8.5.10",
           "MediatR": "14.2.0",
           "MediatR.Extensions.Microsoft.DependencyInjection": "10.0.0",
           "Microsoft.EntityFrameworkCore": "10.0.9",
@@ -1102,6 +1142,8 @@
       },
       "MySolution.Infrastructure/1.0.0": {
         "dependencies": {
+          "MassTransit": "8.5.10",
+          "MassTransit.RabbitMQ": "8.5.10",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.9",
           "MySolution.Application": "1.0.0",
           "MySolution.Domain": "1.0.0",
@@ -1179,6 +1221,27 @@
       "sha512": "sha512-lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw==",
       "path": "humanizer.core/2.14.1",
       "hashPath": "humanizer.core.2.14.1.nupkg.sha512"
+    },
+    "MassTransit/8.5.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-TGi34UA8RftBIpYCHEdoIP5uSu2/pLWZRen4RUcg4CV1nr8MmCZMuFYjzvXXUyFcj0ZuRQxZZNhG7fB5/raSOg==",
+      "path": "masstransit/8.5.10",
+      "hashPath": "masstransit.8.5.10.nupkg.sha512"
+    },
+    "MassTransit.Abstractions/8.5.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-nZnm2YNH+NcVwY6yC114sJy8J9LtKdFjfKUm/A5HfmzOlZ8ksjgHaPBg5XCG1VAqKDRDFnaudIcesVultKJD7g==",
+      "path": "masstransit.abstractions/8.5.10",
+      "hashPath": "masstransit.abstractions.8.5.10.nupkg.sha512"
+    },
+    "MassTransit.RabbitMQ/8.5.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-5aQGpJpeqRhRv+htkXfi6MfWu0dj/4Lcf1c6h2J3tYZClupGklqB1ixlP3IRdZExrH9BI/60uYoxR+7pg3s1oQ==",
+      "path": "masstransit.rabbitmq/8.5.10",
+      "hashPath": "masstransit.rabbitmq.8.5.10.nupkg.sha512"
     },
     "MediatR/14.2.0": {
       "type": "package",
@@ -1396,6 +1459,13 @@
       "sha512": "sha512-PsNYgPOSW41Xx19gin7y4EdZAPteWr9Cb01XkdObxOsPzi+mgBupBEN7J7+erXFsROPOILM7MlIoO9QzL8+LGQ==",
       "path": "npgsql.entityframeworkcore.postgresql/10.0.2",
       "hashPath": "npgsql.entityframeworkcore.postgresql.10.0.2.nupkg.sha512"
+    },
+    "RabbitMQ.Client/7.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-YKXEfg9fVQiTKgZlvIhAfPSFaamEgi8DsQmisCH0IAsU4FYLrtoguDrDj6JtJVGUt40QPnBLRH6fTQcAC4qsOg==",
+      "path": "rabbitmq.client/7.2.1",
+      "hashPath": "rabbitmq.client.7.2.1.nupkg.sha512"
     },
     "RESPite/3.0.17": {
       "type": "package",
