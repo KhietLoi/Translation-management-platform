@@ -1,11 +1,10 @@
 ﻿using System.Net;
-using MassTransit;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Constants;
-using MySolution.Application.Features.Auth.Events;
 using MySolution.Domain.Entities;
 using Shared.MassTransit.IntegrationEvents;
 
@@ -19,7 +18,7 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
     private readonly ILogger<RegisterHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
-    private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IMessageSender _messageSender;
     private readonly IEmailVerificationTokenService _emailVerificationTokenService;
     
     public RegisterHandler
@@ -27,14 +26,14 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
         ILogger<RegisterHandler> logger,
         IUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
-        IPublishEndpoint publishEndpoint,
+        IMessageSender messageSender,
         IEmailVerificationTokenService emailVerificationTokenService
     )
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
-        _publishEndpoint = publishEndpoint;
+        _messageSender = messageSender;
         _emailVerificationTokenService = emailVerificationTokenService;
     }
 
@@ -81,10 +80,11 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
             var token = _emailVerificationTokenService.GenerateVerificationToken(user.Id, user.Email);
             //Email
             _logger.LogInformation("Publishing UserCreatedEvent for {Email}", user.Email);
-            await _publishEndpoint.Publish(
+            await _messageSender.SendMessage<SendVerifyEmailEvent>(
                 new SendVerifyEmailEvent
                 {
                     UserId = user.Id,
+                    Username = user.Username,
                     Email = user.Email,
                     Token = token
                 },
@@ -103,7 +103,7 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
         }
         catch (Exception ex)
         {
-            _logger.LogError("{FunctionName} Unexpected error.", functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

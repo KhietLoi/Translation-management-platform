@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using FluentValidation;
+using MySolution.Application.Service;
 using MySolution.Application.Validation;
 
 namespace MySolution.Application.ServiceRegistration;
@@ -21,6 +22,9 @@ public static class DependencyInjection
         
         //Fluent Validation:
         services.AddValidatorsFromAssembly(assembly);
+        
+        //Register:
+        services.AddScoped<IMessageBusService, MessageBusService>();
         return services;
 
     }

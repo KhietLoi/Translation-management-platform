@@ -5,7 +5,7 @@ public class ResetPasswordTemplate
     public static string ResetPassword(
         string userName,
         string resetUrl,
-        int passwordResetExpiryHours)
+        int passwordResetExpiryMinutes)
     {
         return $"""
                 <h2>Hello {userName}</h2>
@@ -16,7 +16,7 @@ public class ResetPasswordTemplate
                     Reset Password
                 </a>
 
-                <p>This link expires in {passwordResetExpiryHours} hour.</p>
+                <p>This link expires in {passwordResetExpiryMinutes} minutes.</p>
                 """;
     }
 }

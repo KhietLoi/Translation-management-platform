@@ -3,9 +3,11 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Features.User.Events;
 using MySolution.Domain.Entities;
+using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.User.Commands.CreateUser;
 
@@ -18,19 +20,25 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
     private readonly ILogger<CreateUserHandler> _logger;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IMediator  _mediator;
+    private readonly IPasswordResetTokenService _passwordResetTokenService;
+    private readonly IMessageSender _messageSender;
 
     public CreateUserHandler
     (
         IUnitOfWork unitOfWork,
         ILogger<CreateUserHandler> logger,
         IPasswordHasher passwordHasher,
-        IMediator mediator
+        IMediator mediator,
+        IPasswordResetTokenService passwordResetTokenService,
+        IMessageSender messageSender
     )
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
         _passwordHasher = passwordHasher;
         _mediator = mediator;
+        _passwordResetTokenService = passwordResetTokenService;
+        _messageSender = messageSender;
     }
     
     public async Task<CreateUserResponse> Handle(CreateUserCommand request, CancellationToken cancellationToken)
@@ -62,13 +70,15 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
             }
             
             //Create User
+            string password_temp =_passwordHasher.HashPassword(Guid.CreateVersion7().ToString());
             var user = new Domain.Entities.User
             {
                 Id = Guid.CreateVersion7(),
                 Username = payload.Username,
                 Email = payload.Email,
-                PasswordHash = _passwordHasher.HashPassword(payload.Password),
-                IsActive = true,
+                PasswordHash = password_temp,
+                IsEmailVerified = true,
+                IsActive = false,
                 CreatedAt = DateTime.UtcNow,
             };
             //Add User
@@ -83,10 +93,23 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
                 });
             }
             await _unitOfWork.SaveAsync(cancellationToken);
-            //Email
+            
+            var token = _passwordResetTokenService.GenerateResetToken(user.Id, user.Email,user.Username, user.PasswordVersion);
+            
+            await   _messageSender.SendMessage<SendSetUpPasswordEmailEvent>(
+                new SendSetUpPasswordEmailEvent
+                {
+                    UserId = user.Id,
+                    Username = user.Username,
+                    Email = user.Email,
+                    Token = token
+                },
+                cancellationToken);
+            /*//Email
             _logger.LogInformation("Publishing UserCreatedEvent for {Email}", user.Email);
-            await _mediator.Publish(new UserCreatedEvent(user.Id, user.Username, user.Email), cancellationToken);
+            await _mediator.Publish(new UserCreatedEvent(user.Id, user.Username, user.Email), cancellationToken);*/
             //Return Data
+          
             response.Data = new CreateUserData
             {
                 Id = user.Id,

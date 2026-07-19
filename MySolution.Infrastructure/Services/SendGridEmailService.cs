@@ -13,11 +13,10 @@ public class SendGridEmailService(IOptions<SendGridOptions> options) : IEmailSer
 
     public async Task SendEmailAsync(string toEmail, string subject, string htmlContent, CancellationToken cancellationToken = default)
     {
-        Console.WriteLine($"ApiKey Empty: {string.IsNullOrWhiteSpace(_options.ApiKey)}");
+        /*Console.WriteLine($"ApiKey Empty: {string.IsNullOrWhiteSpace(_options.ApiKey)}");
         Console.WriteLine($"FromEmail: {_options.FromEmail}");
         Console.WriteLine($"FromName: {_options.FromName}");
-        Console.WriteLine($"ToEmail: {toEmail}");
-        
+        Console.WriteLine($"ToEmail: {toEmail}");*/
         //Client
         var client = new SendGridClient(_options.ApiKey);
         //From Email and name:

@@ -2,34 +2,31 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Common.Templates;
-using MySolution.Application.Constants;
-using MySolution.Domain.Entities;
+using Shared.MassTransit.IntegrationEvents;
+
 namespace MySolution.Application.Features.Auth.ForgotPassword;
 
 public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, ForgotPasswordResponse>
 {
     private readonly ILogger<ForgotPasswordHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
-    private readonly IEmailService _emailService;
-    private readonly IApplicationUrlProvider  _applicationUrlProvider;
     private readonly IPasswordResetTokenService _tokenService;
+    private readonly IMessageSender _messageSender;
 
     public ForgotPasswordHandler
     (
         ILogger<ForgotPasswordHandler> logger,
 		IUnitOfWork unitOfWork,
-        IEmailService emailService,
-        IApplicationUrlProvider applicationUrlProvider,
-        IPasswordResetTokenService tokenService
+        IPasswordResetTokenService tokenService,
+        IMessageSender messageSender
     )
     {
         _logger = logger;
 		_unitOfWork = unitOfWork;
-        _emailService = emailService;
-        _applicationUrlProvider = applicationUrlProvider;
         _tokenService = tokenService;
+        _messageSender = messageSender;
     }
 
     #region Implementation of IRequestHandler<in ForgotPasswordCommand, ForgotPasswordResponse>
@@ -52,11 +49,16 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
             }
             
             var resetToken = _tokenService.GenerateResetToken(user.Id, user.Email, user.Username, user.PasswordVersion);
-            //URL Reset:
-            var resetUrl = _applicationUrlProvider.GetResetPasswordUrl(Uri.EscapeDataString(resetToken));
-            var html = ResetPasswordTemplate.ResetPassword(user.Username, resetUrl, AuthConstants.PasswordResetExpiryMinutes);
             //SendEmail
-            await _emailService.SendEmailAsync(user.Email,"Reset Password",html, cancellationToken);
+            await _messageSender.SendMessage<SendForgotPasswordEmailEvent>(
+                new SendForgotPasswordEmailEvent
+                {
+                    UserId = user.Id,
+                    Email = user.Email,
+                    Username = user.Username,
+                    Token = resetToken
+                }, cancellationToken);
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

@@ -13,7 +13,6 @@
 
     <ItemGroup>
       <Folder Include="Features\RequestLog\Commands\CreateRequestLog\" />
-      <Folder Include="Service\" />
     </ItemGroup>
 
     <ItemGroup>

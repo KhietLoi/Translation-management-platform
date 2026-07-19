@@ -4,16 +4,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
+using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Infrastructure.Authentication;
 using MySolution.Infrastructure.BackgroundServices;
+using MySolution.Infrastructure.MassTransit;
 using MySolution.Infrastructure.MassTransit.Consumers;
 using MySolution.Infrastructure.Options;
 using MySolution.Infrastructure.Persistence;
-using MySolution.Infrastructure.Persistence.Configurations;
 using MySolution.Infrastructure.Services;
 using Shared.MassTransit.Contracts;
-using StackExchange.Redis;
 
 namespace MySolution.Infrastructure;
 
@@ -76,45 +76,41 @@ public static class DependencyInjection
         //Reset-password:
         services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
         //MassTransit:
-        services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
+        var rabbitMqOptions = configuration
+            .GetSection(RabbitMqOptions.SectionName)
+            .Get<RabbitMqOptions>() ?? throw new InvalidOperationException("RabbitMQ configuration missing");
         services.AddMassTransit(x =>
         {
             x.AddConsumer<SendVerifyEmailConsumer>();
-
-            x.UsingRabbitMq((context, cfg) =>
+            x.AddConsumer<SendSetupPasswordEmailConsumer>();
+            x.AddConsumer<SendForgotPasswordEmailConsumer>();
+            //x.SetKebabCaseEndpointNameFormatter();
+            
+            x.UsingRabbitMq((context,cfg) =>
             {
-
-                var rabbitOptions =
-                    context.GetRequiredService
-                            <Microsoft.Extensions.Options.IOptions<RabbitMqOptions>>()
-                        .Value;
-
-
-                cfg.Host(
-                    rabbitOptions.Host,
-                    "/",
-                    h =>
-                    {
-                        h.Username(
-                            rabbitOptions.Username);
-
-                        h.Password(
-                            rabbitOptions.Password);
-                    });
-
-
-
-                cfg.ReceiveEndpoint(
-                    QueueNames.VerifyEmail,
-                    e =>
-                    {
-                        e.ConfigureConsumer
-                            <SendVerifyEmailConsumer>
-                            (context);
-                    });
-
+               //cfg.UseRawJsonDeserializer();
+               cfg.Host(rabbitMqOptions.Host, "/", h =>
+               {
+                   h.Username(rabbitMqOptions.Username);
+                   h.Password(rabbitMqOptions.Password);
+               });
+               //cfg.ConfigureEndpoints(context);
+               cfg.ReceiveEndpoint(QueueNames.VerifyEmail, e =>
+               {
+                   e.ConfigureConsumer<SendVerifyEmailConsumer>(context);
+               });
+               cfg.ReceiveEndpoint(QueueNames.SetupPasswordEmail, e =>
+               {
+                   e.ConfigureConsumer<SendSetupPasswordEmailConsumer>(context);
+               });
+               cfg.ReceiveEndpoint(QueueNames.ForgotPasswordEmail, e =>
+               {
+                   e.ConfigureConsumer<SendForgotPasswordEmailConsumer>(context);
+               });
             });
         });
+        
+        services.AddScoped<IMessageSender, SendEndPointCustomProvider>();
         return services;
     }
     public static IServiceCollection AddCustomServices(this IServiceCollection services)
