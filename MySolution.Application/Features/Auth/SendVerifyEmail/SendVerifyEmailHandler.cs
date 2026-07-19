@@ -23,7 +23,7 @@ public class SendVerifyEmailHandler : IRequestHandler<SendVerifyEmailCommand>
         var verifyUrl = _applicationUrlProvider.GetVerifyEmailUrl(request.Message.Token);
         var html = EmailTemplateVerifyRegister.VerifyEmail(
             request.Message.Username,
-            verifyUrl,
+            verifyUrl,  
             AuthConstants.EmailVerificationExpiryMinutes
         );
         
