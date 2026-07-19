@@ -18,11 +18,11 @@ public class CreateUserValidator : AbstractValidator<CreateUserCommand>
             .EmailAddress()
             .WithMessage("Email is invalid.");
 
-        RuleFor(x => x.Payload.Password)
+        /*RuleFor(x => x.Payload.Password)
             .NotEmpty()
             .WithMessage("Password is required.")
             .MinimumLength(6)
-            .WithMessage("Password must be at least 6 characters.");
+            .WithMessage("Password must be at least 6 characters.");*/
 
         RuleFor(x => x.Payload.RoleIds)
             .NotEmpty()

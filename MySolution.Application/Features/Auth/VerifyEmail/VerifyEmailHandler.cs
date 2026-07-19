@@ -65,7 +65,6 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-
             return response;
         }
         catch (Exception ex)

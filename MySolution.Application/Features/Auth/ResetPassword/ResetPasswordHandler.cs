@@ -64,6 +64,10 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordCommand, ResetP
             
             //Change Password:
             user.PasswordHash = _passwordHasher.HashPassword(payload.NewPassword);
+            if (!user.IsActive)
+            {
+                user.IsActive = true;
+            }
             user.PasswordVersion++;
             await _unitOfWork.SaveAsync(cancellationToken);
             response
