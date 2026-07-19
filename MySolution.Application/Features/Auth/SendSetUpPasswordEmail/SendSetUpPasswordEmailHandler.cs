@@ -22,7 +22,7 @@ public class SendSetUpPasswordEmailHandler : IRequestHandler<SendSetUpPasswordEm
     public async Task Handle(SendSetUpPasswordEmailCommand request, CancellationToken cancellationToken)
     {
         
-        await Task.Delay(10000, cancellationToken); // Simulate a delay of 10 seconds
+        // await Task.Delay(10000, cancellationToken); 
         var setupPasswordUrl = _applicationUrlProvider.GetResetPasswordUrl(request.Message.Token);
 
         var html = SetupPasswordTemplate.SetupPassword(

@@ -1,35 +1,32 @@
 ﻿using System.Net;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Common.Templates;
-using MySolution.Application.Constants;
+
+using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.Auth.ResendVerificationEmail;
 
 public class ResendVerificationEmailHandler : IRequestHandler<ResendVerificationEmailCommand, ResendVerificationEmailResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IEmailService _emailService;
     private readonly ILogger<ResendVerificationEmailHandler> _logger;
     private readonly IEmailVerificationTokenService  _tokenService;
-    private readonly IApplicationUrlProvider _applicationUrlProvider;
+    private readonly IMessageSender _messageSender;
     
     public ResendVerificationEmailHandler
     (
         IUnitOfWork unitOfWork,
-        IEmailService emailService,
         ILogger<ResendVerificationEmailHandler> logger,
         IEmailVerificationTokenService tokenService,
-        IApplicationUrlProvider applicationUrlProvider
+        IMessageSender messageSender
     )
     {
         _unitOfWork = unitOfWork;
-        _emailService = emailService;
         _logger = logger;
         _tokenService = tokenService;
-        _applicationUrlProvider = applicationUrlProvider;
+        _messageSender = messageSender;
     }
     
     public async Task<ResendVerificationEmailResponse> Handle(ResendVerificationEmailCommand request, CancellationToken cancellationToken)
@@ -54,18 +51,15 @@ public class ResendVerificationEmailHandler : IRequestHandler<ResendVerification
             }
 
             var token = _tokenService.GenerateVerificationToken(user.Id, user.Email);
-            var verifyUrl = _applicationUrlProvider.GetVerifyEmailUrl(Uri.EscapeDataString(token));
-            var html =
-                EmailTemplateVerifyRegister.VerifyEmail(
-                    user.Username,
-                    verifyUrl,
-                    AuthConstants.EmailVerificationExpiryMinutes);
-
-            await _emailService.SendEmailAsync(
-                user.Email,
-                "Verify your email",
-                html,
-                cancellationToken);
+            await _messageSender.SendMessage<SendVerifyEmailEvent>(
+                new SendVerifyEmailEvent
+                {
+                    UserId = user.Id,
+                    Username = user.Username,
+                    Email = user.Email,
+                    Token = token
+                }, cancellationToken);
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Common.Models;
+using MySolution.Application.Constants;
 using Newtonsoft.Json;
 
 namespace MySolution.Infrastructure.Authentication;
@@ -19,7 +20,7 @@ public class EmailVerificationTokenService : IEmailVerificationTokenService
         {
             UserId = userid,
             Email = email,
-            ExpiredAt = DateTime.UtcNow.AddMinutes(1)
+            ExpiredAt = DateTime.UtcNow.AddMinutes(AuthConstants.PasswordResetExpiryMinutes)
         };
         var json = JsonConvert.SerializeObject(payload);
         //Decrypt:
