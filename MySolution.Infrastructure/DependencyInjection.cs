@@ -14,6 +14,7 @@ using MySolution.Infrastructure.Options;
 using MySolution.Infrastructure.Persistence;
 using MySolution.Infrastructure.Services;
 using Shared.MassTransit.Contracts;
+using StackExchange.Redis;
 
 namespace MySolution.Infrastructure;
 
@@ -44,6 +45,12 @@ public static class DependencyInjection
         services.AddScoped<IEmailService, SendGridEmailService>();
         services.AddScoped<IHashService, HashService>();
         
+        //Token Options: (Use for Token email)
+        services.AddOptions<TokenOptions>()
+            .Bind(configuration.GetSection(TokenOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        services.AddSingleton<ITokenSetting, TokenSetting>();
         //Background Clean RefreshToken
         services.AddHostedService<RefreshTokenCleanupHostedService>();
         services.AddOptions<RefreshTokenCleanupOptions>()
@@ -56,13 +63,13 @@ public static class DependencyInjection
         var redisOptions = configuration
             .GetSection(RedisOptions.SectionName)
             .Get<RedisOptions>() ?? throw new InvalidOperationException("Redis configuration missing");
-        /*services.AddSingleton<IConnectionMultiplexer>(_ =>
+        services.AddSingleton<IConnectionMultiplexer>(_ =>
         {
             return ConnectionMultiplexer.Connect(
                 redisOptions.ConnectionString);
-        });*/
-        //services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
-        services.AddScoped<ITokenBlacklistService, FakeTokenBlacklistService>();
+        });
+        services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
+        //services.AddScoped<ITokenBlacklistService, FakeTokenBlacklistService>();
         
         //Frontend Url:
         services.AddOptions<FrontendOptions>()
@@ -111,6 +118,9 @@ public static class DependencyInjection
         });
         
         services.AddScoped<IMessageSender, SendEndPointCustomProvider>();
+        //AzureBlob:
+        services.Configure<AzureBlobOptions>(configuration.GetSection(AzureBlobOptions.SectionName));
+        services.AddScoped<IAzureBlobService, AzureBlobService>();
         return services;
     }
     public static IServiceCollection AddCustomServices(this IServiceCollection services)

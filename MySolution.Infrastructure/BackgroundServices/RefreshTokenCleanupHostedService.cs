@@ -27,6 +27,7 @@ public class RefreshTokenCleanupHostedService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("RefreshTokenCleanupHostedService started.");
+        
         while (!stoppingToken.IsCancellationRequested)
         {
             try

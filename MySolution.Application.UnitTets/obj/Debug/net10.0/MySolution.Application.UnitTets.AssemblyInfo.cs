@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MySolution.Application.UnitTets")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7da9ac02ad71fd63963cf004cfa0111bc087a0ab")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6dbf38bd403741fd250b65c05ab507db9a7f11b3")]
 [assembly: System.Reflection.AssemblyProductAttribute("MySolution.Application.UnitTets")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MySolution.Application.UnitTets")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

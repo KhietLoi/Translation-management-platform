@@ -9,11 +9,13 @@ public class SendVerifyEmailHandler : IRequestHandler<SendVerifyEmailCommand>
 {
     private readonly IEmailService _emailService;
     private readonly IApplicationUrlProvider _applicationUrlProvider;
+    private readonly ITokenSetting _tokenSettings;
 
-    public SendVerifyEmailHandler(IEmailService emailService, IApplicationUrlProvider applicationUrlProvider)
+    public SendVerifyEmailHandler(IEmailService emailService, IApplicationUrlProvider applicationUrlProvider,  ITokenSetting tokenSetting)
     {
         _emailService = emailService;
         _applicationUrlProvider = applicationUrlProvider;
+        _tokenSettings = tokenSetting;
     }
 
     public async Task Handle(SendVerifyEmailCommand request, CancellationToken cancellationToken)
@@ -24,7 +26,7 @@ public class SendVerifyEmailHandler : IRequestHandler<SendVerifyEmailCommand>
         var html = EmailTemplateVerifyRegister.VerifyEmail(
             request.Message.Username,
             verifyUrl,  
-            AuthConstants.EmailVerificationExpiryMinutes
+            _tokenSettings.EmailVerificationExpiryMinutes
         );
         
         await _emailService.SendEmailAsync(request.Message.Email, "Verify Your Email", html, cancellationToken);
