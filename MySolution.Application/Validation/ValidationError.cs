@@ -11,7 +11,6 @@ public class ValidationError
 
     public ValidationError()
     {
-        
     }
 
     public ValidationError(string field, string errorMessage, string errorMessageCode)

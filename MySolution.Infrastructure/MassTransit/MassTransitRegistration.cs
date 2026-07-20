@@ -46,21 +46,52 @@ public static class MassTransitRegistration
         return services;
     }
 
-    private static void ConfigureEmailQueues(IBusRegistrationContext context,
+    private static void ConfigureEmailQueues(
+        IBusRegistrationContext context,
         IRabbitMqBusFactoryConfigurator cfg)
     {
-        cfg.ReceiveEndpoint(QueueNameHelper.Get<SendVerifyEmailEvent>(), e =>
-        {
-            e.ConfigureConsumer<SendVerifyEmailConsumer>(context);
-        });
-        cfg.ReceiveEndpoint(QueueNameHelper.Get<SendSetUpPasswordEmailEvent>(), e =>
-        {
-            e.ConfigureConsumer<SendSetupPasswordEmailConsumer>(context);
-        });
-        cfg.ReceiveEndpoint(QueueNameHelper.Get<SendForgotPasswordEmailEvent>(), e =>
-        {
-            e.ConfigureConsumer<SendForgotPasswordEmailConsumer>(context);
-        });
+        cfg.ReceiveEndpoint(
+            QueueNameHelper.Get<SendVerifyEmailEvent>(),
+            e=>
+            {
+                ConfigureRetry(e);
+
+                e.ConfigureConsumer<SendVerifyEmailConsumer>(
+                    context);
+            });
+
+        cfg.ReceiveEndpoint(
+            QueueNameHelper.Get<SendSetUpPasswordEmailEvent>(),
+            e=>
+            {
+                ConfigureRetry(e);
+
+                e.ConfigureConsumer<SendSetupPasswordEmailConsumer>(
+                    context);
+            });
+
+        cfg.ReceiveEndpoint(
+            QueueNameHelper.Get<SendForgotPasswordEmailEvent>(),
+            e=>
+            {
+                ConfigureRetry(e);
+                e.ConfigureConsumer<SendForgotPasswordEmailConsumer>(
+                    context);
+            });
     }
     
-}
+    //Retry RabbitMq:
+    private static void ConfigureRetry(
+        IRabbitMqReceiveEndpointConfigurator endpoint)
+    {
+        endpoint.UseMessageRetry(r =>
+        {
+            r.Interval(
+                retryCount: 3,
+                interval: TimeSpan.FromSeconds(5));
+        });
+
+        endpoint.ConcurrentMessageLimit = 5;
+    }
+    }
+    
