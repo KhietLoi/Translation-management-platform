@@ -1,13 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import {
-    Container,
-    Row,
-    Col,
-    Card,
-    Form,
-    Button
-} from "react-bootstrap";
+import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import { forgotPassword } from "../../../services/authService";
+import { toast } from "react-toastify";
 
 export default function ForgotPasswordPage() {
     const navigate = useNavigate();
@@ -21,11 +16,15 @@ export default function ForgotPasswordPage() {
         try {
             setLoading(true);
 
-            // await authService.forgotPassword(email);
+            await forgotPassword(email);
 
-            navigate("/check-email", {
-                state: { email }
-            });
+            // navigate("/", {
+            //     state: { email }
+            // });
+            toast.success("Please check your email!");
+            setTimeout(() => {
+                navigate("/");
+            }, 2000);
         } catch (error) {
             console.error(error);
         } finally {

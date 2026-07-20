@@ -1,23 +1,12 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import {
-    Container,
-    Row,
-    Col,
-    Card,
-    Form,
-    Button
-} from "react-bootstrap";
-
+import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import { resetPassword } from "../../../services/authService";
 export default function ResetPasswordPage() {
     const [searchParams] = useSearchParams();
-
     const token = searchParams.get("token");
-
     const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] =
-        useState("");
-
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
 
@@ -32,19 +21,28 @@ export default function ResetPasswordPage() {
         try {
             setLoading(true);
 
-            // await authService.resetPassword({
-            //   token,
-            //   newPassword: password
-            // });
+            const payload = {
+                token,
+                newPassword: password
+            };
+
+            console.log("Payload:", payload);
+
+            const response = await resetPassword(payload);
+
+            console.log("Response:", response);
 
             setSuccess(true);
         } catch (error) {
-            console.error(error);
+            console.log("Error:", error.response?.data);
+            alert(
+                error.response?.data?.errorMessage ||
+                "Reset password failed."
+            );
         } finally {
             setLoading(false);
         }
     };
-
     return (
         <Container fluid className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
             <Row className="w-100 justify-content-center">
@@ -126,7 +124,7 @@ export default function ResetPasswordPage() {
 
                                     <Button
                                         as={Link}
-                                        to="/login"
+                                        to="/"
                                         variant="primary"
                                     >
                                         Đăng nhập
