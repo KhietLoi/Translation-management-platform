@@ -21,7 +21,7 @@ public class SendVerifyEmailHandler : IRequestHandler<SendVerifyEmailCommand>
     public async Task Handle(SendVerifyEmailCommand request, CancellationToken cancellationToken)
     {
         await Task.Delay(10000, cancellationToken); 
-        
+        Console.WriteLine("Got to SendVerifyEmailHandler");
         var verifyUrl = _applicationUrlProvider.GetVerifyEmailUrl(request.Message.Token);
         var html = EmailTemplateVerifyRegister.VerifyEmail(
             request.Message.Username,

@@ -1,19 +1,15 @@
-﻿using MassTransit;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
-using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Infrastructure.Authentication;
 using MySolution.Infrastructure.BackgroundServices;
 using MySolution.Infrastructure.MassTransit;
-using MySolution.Infrastructure.MassTransit.Consumers;
 using MySolution.Infrastructure.Options;
 using MySolution.Infrastructure.Persistence;
 using MySolution.Infrastructure.Services;
-using Shared.MassTransit.Contracts;
 using StackExchange.Redis;
 
 namespace MySolution.Infrastructure;
@@ -83,41 +79,7 @@ public static class DependencyInjection
         //Reset-password:
         services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
         //MassTransit:
-        var rabbitMqOptions = configuration
-            .GetSection(RabbitMqOptions.SectionName)
-            .Get<RabbitMqOptions>() ?? throw new InvalidOperationException("RabbitMQ configuration missing");
-        services.AddMassTransit(x =>
-        {
-            x.AddConsumer<SendVerifyEmailConsumer>();
-            x.AddConsumer<SendSetupPasswordEmailConsumer>();
-            x.AddConsumer<SendForgotPasswordEmailConsumer>();
-            //x.SetKebabCaseEndpointNameFormatter();
-            
-            x.UsingRabbitMq((context,cfg) =>
-            {
-               //cfg.UseRawJsonDeserializer();
-               cfg.Host(rabbitMqOptions.Host, "/", h =>
-               {
-                   h.Username(rabbitMqOptions.Username);
-                   h.Password(rabbitMqOptions.Password);
-               });
-               //cfg.ConfigureEndpoints(context);
-               cfg.ReceiveEndpoint(QueueNames.VerifyEmail, e =>
-               {
-                   e.ConfigureConsumer<SendVerifyEmailConsumer>(context);
-               });
-               cfg.ReceiveEndpoint(QueueNames.SetupPasswordEmail, e =>
-               {
-                   e.ConfigureConsumer<SendSetupPasswordEmailConsumer>(context);
-               });
-               cfg.ReceiveEndpoint(QueueNames.ForgotPasswordEmail, e =>
-               {
-                   e.ConfigureConsumer<SendForgotPasswordEmailConsumer>(context);
-               });
-            });
-        });
-        
-        services.AddScoped<IMessageSender, SendEndPointCustomProvider>();
+        services.AddMassTransitServices(configuration);
         //AzureBlob:
         services.Configure<AzureBlobOptions>(configuration.GetSection(AzureBlobOptions.SectionName));
         services.AddScoped<IAzureBlobService, AzureBlobService>();
