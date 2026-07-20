@@ -55,7 +55,7 @@ public class RefreshTokenRepository(AppDbContext context, ILogger logger)
                 x.ExpiredAt < DateTime.UtcNow ||
                 (
                     x.RevokedAt != null &&
-                    x.RevokedAt < DateTime.UtcNow.AddDays(revokedBefore)
+                    x.RevokedAt < DateTime.UtcNow.AddDays(-revokedBefore)
                 )).ExecuteDeleteAsync();
     }
 }

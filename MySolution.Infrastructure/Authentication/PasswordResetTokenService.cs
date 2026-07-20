@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Models;
-using MySolution.Application.Constants;
+using MySolution.Infrastructure.Services;
 using Newtonsoft.Json;
 
 namespace MySolution.Infrastructure.Authentication;
@@ -9,10 +9,12 @@ namespace MySolution.Infrastructure.Authentication;
 public class PasswordResetTokenService : IPasswordResetTokenService
 {
     private readonly IDataProtector _protector;
+    private readonly ITokenSetting _tokenSetting;
 
-    public PasswordResetTokenService(IDataProtectionProvider protectionProvider)
+    public PasswordResetTokenService(IDataProtectionProvider protectionProvider, ITokenSetting tokenSetting)
     {
         _protector = protectionProvider.CreateProtector(nameof(PasswordResetTokenService));
+        _tokenSetting = tokenSetting;
     }
 
     public string GenerateResetToken(Guid userId, string email, string username, int passwordversion)
@@ -22,7 +24,7 @@ public class PasswordResetTokenService : IPasswordResetTokenService
                 UserId = userId,
                 Email = email,
                 PasswordVersion = passwordversion,
-                ExpiredAt = DateTime.UtcNow.AddMinutes(AuthConstants.PasswordResetExpiryMinutes)
+                ExpiredAt = DateTime.UtcNow.AddMinutes(_tokenSetting.PasswordResetExpiryMinutes),
             };
 
         var json = JsonConvert.SerializeObject(payload);

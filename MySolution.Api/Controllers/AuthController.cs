@@ -47,14 +47,9 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtoptions)
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new LoginCommand(request), cancellationToken);
-
         if (!response.Success)
         {
-            return ResponseHelper.ToResponse(
-                response.StatusCode,
-                response,
-                response.Data
-            );
+            return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
         }
 
         Response.Cookies.Append("refreshToken", response.Data.RefreshToken,
@@ -81,14 +76,12 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtoptions)
     public async Task<IActionResult> RefreshToken(CancellationToken cancellationToken)
     {
         var refreshToken = Request.Cookies["refreshToken"];
-        Console.WriteLine(refreshToken);
         if (string.IsNullOrWhiteSpace(refreshToken))
         {
             return Unauthorized("Refresh token is missing.");
         }
 
         var response = await mediator.Send( new RefreshTokenCommand( new RefreshTokenRequest { RefreshToken = refreshToken }), cancellationToken);
-
         if (!response.Success)
         {
             Response.Cookies.Delete("refreshToken");
@@ -109,10 +102,7 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtoptions)
                 Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenDays)
             });
 
-        return ResponseHelper.ToResponse(
-            response.StatusCode,
-            response,
-            response.Data);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
     /// <summary>
@@ -142,11 +132,7 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtoptions)
         var response = await mediator.Send(new VerifyEmailCommand(token), cancellationToken);
         if (!response.Success)
         {
-            return ResponseHelper.ToResponse(
-                response.StatusCode,
-                response,
-                response.Data
-            );   
+            return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);   
         }
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }

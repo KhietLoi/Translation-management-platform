@@ -8,14 +8,11 @@ public class PermissionPolicyProvider : DefaultAuthorizationPolicyProvider
     
     public const string PolicyPrefix = "Permission:";
 
-    public PermissionPolicyProvider(
-        IOptions<AuthorizationOptions> options)
-        : base(options)
+    public PermissionPolicyProvider(IOptions<AuthorizationOptions> options) : base(options)
     {
     }
 
-    public override async Task<AuthorizationPolicy?> GetPolicyAsync(
-        string policyName)
+    public override async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
         if (!policyName.StartsWith(PolicyPrefix, StringComparison.OrdinalIgnoreCase))
         {

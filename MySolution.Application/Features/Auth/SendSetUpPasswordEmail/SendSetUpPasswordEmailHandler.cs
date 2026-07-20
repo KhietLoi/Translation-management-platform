@@ -11,25 +11,24 @@ public class SendSetUpPasswordEmailHandler : IRequestHandler<SendSetUpPasswordEm
 {
     private readonly IApplicationUrlProvider _applicationUrlProvider;
     private readonly IEmailService _emailService;
+    private readonly ITokenSetting _tokenSettings;
 
-    
-    public SendSetUpPasswordEmailHandler(IEmailService emailService, IApplicationUrlProvider applicationUrlProvider)
+    public SendSetUpPasswordEmailHandler(IEmailService emailService, IApplicationUrlProvider applicationUrlProvider, ITokenSetting tokenSetting)
     {
         _emailService = emailService;
         _applicationUrlProvider = applicationUrlProvider;
+        _tokenSettings = tokenSetting;
     }
 
     public async Task Handle(SendSetUpPasswordEmailCommand request, CancellationToken cancellationToken)
     {
-        
-        // await Task.Delay(10000, cancellationToken); 
+        await Task.Delay(10000, cancellationToken); 
         var setupPasswordUrl = _applicationUrlProvider.GetResetPasswordUrl(request.Message.Token);
-
         var html = SetupPasswordTemplate.SetupPassword(
             request.Message.Username,
             setupPasswordUrl,
-            AuthConstants.PasswordResetExpiryMinutes
+            _tokenSettings.PasswordResetExpiryMinutes
         );
-        await _emailService.SendEmailAsync(request.Message.Email, "Verify Your Email", html, cancellationToken);
+        await _emailService.SendEmailAsync(request.Message.Email, "Set Up Your Password", html, cancellationToken);
     }
 }
