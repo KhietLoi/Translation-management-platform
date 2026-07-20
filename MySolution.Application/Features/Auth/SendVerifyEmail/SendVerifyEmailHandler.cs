@@ -20,15 +20,21 @@ public class SendVerifyEmailHandler : IRequestHandler<SendVerifyEmailCommand>
 
     public async Task Handle(SendVerifyEmailCommand request, CancellationToken cancellationToken)
     {
-        await Task.Delay(10000, cancellationToken); 
+        //await Task.Delay(10000, cancellationToken); 
         Console.WriteLine("Got to SendVerifyEmailHandler");
-        var verifyUrl = _applicationUrlProvider.GetVerifyEmailUrl(request.Message.Token);
+        
+        Console.WriteLine(
+            $"Handler executed: {DateTime.Now}");
+
+        throw new Exception("TEST RETRY");
+
+        /*var verifyUrl = _applicationUrlProvider.GetVerifyEmailUrl(request.Message.Token);
         var html = EmailTemplateVerifyRegister.VerifyEmail(
             request.Message.Username,
             verifyUrl,  
             _tokenSettings.EmailVerificationExpiryMinutes
         );
         
-        await _emailService.SendEmailAsync(request.Message.Email, "Verify Your Email", html, cancellationToken);
+        await _emailService.SendEmailAsync(request.Message.Email, "Verify Your Email", html, cancellationToken);*/
     }
 }

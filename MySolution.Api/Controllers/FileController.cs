@@ -24,6 +24,7 @@ public class FileController (IMediator mediator) : Controller
         var response = await mediator.Send(new DeleteFileCommand(req), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Success);
     }
+    
     [HttpGet]
     public async Task<IActionResult> GetAllFiles(CancellationToken cancellationToken)
     {
