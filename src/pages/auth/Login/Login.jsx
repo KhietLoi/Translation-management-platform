@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { login } from "../../../services/authService";
+import { login, resendVerificationEmail } from "../../../services/authService";
 import { saveToken } from "../../../utils/auth";
 import "./Login.css";
 
@@ -33,41 +33,95 @@ export default function Login() {
 
       // 5. Nếu thành công -> Lưu token và chuyển hướng
       saveToken(
-          response.data.accessToken
+        response.data.accessToken
       );
       //localStorage.setItem("accessToken", response.data.accessToken);
       navigate("/dashboard");
 
     } catch (error) {
-      // 6. Xử lý khi thất bại
+
       const responseData = error.response?.data;
+
       console.log(responseData);
-      
-      // Trường hợp A: Mất mạng hoặc Server không phản hồi
+
+
       if (!responseData) {
-        setGlobalError("Cannot connect to server. Please try again later.");
-        return; // Dừng hàm tại đây
+        setGlobalError(
+          "Cannot connect to server. Please try again later."
+        );
+        return;
       }
 
-      // Trường hợp B: Lỗi Validation từ FluentValidation (trả về một mảng các lỗi)
-      if (responseData.errors && Array.isArray(responseData.errors)) {
+
+      // User chưa verify
+      if (
+        responseData.errorMessage === "User is not verified."
+        &&
+        responseData.data?.email
+      ) {
+
+        const email = responseData.data.email;
+        try {
+
+          // tự động gửi mail verify
+          await resendVerificationEmail(email);
+
+
+          // chuyển sang màn check email
+          navigate("/checkemail", {
+            state: {
+              email: email
+            }
+          });
+
+
+          return;
+
+        } catch (err) {
+
+          console.error(err);
+
+          setGlobalError(
+            "Cannot resend verification email."
+          );
+
+          return;
+        }
+      }
+
+
+
+      if (
+        responseData.errors &&
+        Array.isArray(responseData.errors)
+      ) {
+
         const newFieldErrors = {};
 
-        // Dùng forEach duyệt qua từng lỗi một cách dễ hiểu
+
         responseData.errors.forEach((err) => {
-          // err.Field thường có dạng "Payload.Username" -> Cắt lấy chữ "Username"
-          const fieldName = err.Field.split(".").pop();
-          
-          // Gán thông báo lỗi vào object
-          newFieldErrors[fieldName] = err.ErrorMessage;
+
+          const fieldName = err.Field
+            .split(".")
+            .pop();
+
+
+          newFieldErrors[fieldName] =
+            err.ErrorMessage;
+
         });
 
-        // Cập nhật state để hiển thị lỗi đỏ dưới input
+
         setFieldErrors(newFieldErrors);
-      } 
-      // Trường hợp C: Lỗi Business logic (Sai mật khẩu, tài khoản bị khoá...)
+
+      }
       else {
-        setGlobalError(responseData.errorMessage || "Login failed. Please check your credentials.");
+
+        setGlobalError(
+          responseData.errorMessage ||
+          "Login failed."
+        );
+
       }
     }
   };
@@ -76,7 +130,7 @@ export default function Login() {
     <div className="login-page">
       <div className="login-card">
         <div className="login-left">
-          
+
           {/* Tiêu đề */}
           <div className="text-center mb-4">
             <div className="logo">MS</div>
@@ -85,7 +139,7 @@ export default function Login() {
           </div>
 
           <form onSubmit={handleSubmit}>
-            
+
             {/* Vùng hiển thị Lỗi Chung (Global Error) */}
             {globalError && (
               <div className="alert alert-danger error-animate-shake">
@@ -127,7 +181,13 @@ export default function Login() {
                   {fieldErrors.Password}
                 </small>
               )}
+              <div className="text-end mt-1">
+                <Link to="/forgot-password" className="text-muted text-decoration-none hover-warning" >Forgot password?</Link>
+              </div>
+
             </div>
+
+
 
             {/* Nút Submit */}
             <button type="submit" className="btn btn-warning login-btn w-100">
@@ -141,7 +201,7 @@ export default function Login() {
                 Register
               </Link>
             </p>
-            
+
           </form>
         </div>
 
@@ -152,7 +212,7 @@ export default function Login() {
           <p>User, Role and Permission management platform.</p>
           <div className="login-banner"></div>
         </div>
-        
+
       </div>
     </div>
   );

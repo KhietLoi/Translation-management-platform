@@ -14,7 +14,7 @@
     background: #fff;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 15px 40px rgba(0,0,0,.15);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, .15);
     animation: show .5s ease;
 }
 
@@ -23,6 +23,7 @@
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -94,6 +95,16 @@
     height: 5px;
     background: #fff;
     margin: 20px 0;
+}
+
+
+.hover-warning {
+    transition: color 0.2s ease-in-out;
+}
+
+.hover-warning:hover {
+    color: #ffc107 !important;
+    /* Mã màu vàng warning của Bootstrap */
 }
 
 @media (max-width:768px) {

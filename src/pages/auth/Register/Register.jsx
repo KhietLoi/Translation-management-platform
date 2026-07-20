@@ -6,33 +6,30 @@ import "./Register.css";
 export default function Register() {
   const navigate = useNavigate();
 
-  // 1. Tách riêng State của các Input để dễ quản lý
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // 2. Tách riêng State quản lý lỗi giống trang Login
   const [fieldErrors, setFieldErrors] = useState({});
   const [globalError, setGlobalError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 3. Reset toàn bộ lỗi cũ
+
     setFieldErrors({});
     setGlobalError("");
 
-    // 4. Validate ở phía Client (Kiểm tra mật khẩu xác nhận)
     if (password !== confirmPassword) {
       setFieldErrors({
         confirmPassword: "Mật khẩu xác nhận không khớp!"
       });
-      return; // Dừng việc gọi API
+      return;
     }
 
     try {
-      // 5. Gọi API Đăng ký
+
       const response = await register({
         username: username,
         email: email,
@@ -41,32 +38,30 @@ export default function Register() {
 
       console.log(response.data);
 
-      // 6. Xử lý thành công
-      alert("Đăng ký thành công!");
-      navigate("/"); // Quay về trang đăng nhập
+      navigate("/checkemail", {
+        state: {
+          email: email
+        }
+      });
 
     } catch (error) {
-      // 7. Xử lý khi thất bại
       const responseData = error.response?.data;
-
-      // Trường hợp A: Mất kết nối hoặc Server sập
       if (!responseData) {
         setGlobalError("Cannot connect to server. Please try again later.");
         return;
       }
 
-      // Trường hợp B: Lỗi Validation từ Server (trả về mảng errors)
+
       if (responseData.errors && Array.isArray(responseData.errors)) {
         const newFieldErrors = {};
 
         responseData.errors.forEach((err) => {
           const fieldName = err.Field.split(".").pop();
-          newFieldErrors[fieldName] = err.ErrorMessage;
+          newFieldErrors[fieldName] = err.ErrorMessage
         });
 
         setFieldErrors(newFieldErrors);
-      } 
-      // Trường hợp C: Lỗi Business chung (VD: Email đã tồn tại)
+      }
       else {
         setGlobalError(responseData.errorMessage || responseData.message || "Đăng ký thất bại.");
       }
@@ -77,7 +72,7 @@ export default function Register() {
     <div className="login-page">
       <div className="login-card">
         <div className="login-left">
-          
+
           <div className="text-center mb-4">
             <div className="logo">MS</div>
             <h3 className="fw-bold mt-3">My Solution</h3>
@@ -85,15 +80,11 @@ export default function Register() {
           </div>
 
           <form onSubmit={handleSubmit}>
-            
-            {/* Vùng hiển thị Lỗi Chung (Global Error) */}
             {globalError && (
               <div className="alert alert-danger error-animate-shake">
                 {globalError}
               </div>
             )}
-
-            {/* Username */}
             <div className="mb-3">
               <label className="form-label">Username</label>
               <input
@@ -167,7 +158,6 @@ export default function Register() {
 
             <p className="text-center mt-3">
               Already have an account?{" "}
-              {/* Dùng Link thay vì thẻ a để không bị reload lại toàn trang */}
               <Link to="/" className="text-warning fw-bold text-decoration-none">
                 Login here
               </Link>
@@ -175,8 +165,6 @@ export default function Register() {
 
           </form>
         </div>
-
-        {/* Banner trang trí bên phải */}
         <div className="login-right">
           <h1>Welcome!</h1>
           <h4>Join MySolution</h4>
