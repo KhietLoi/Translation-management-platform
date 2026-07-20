@@ -1253,6 +1253,7 @@
       },
       "Shared/1.0.0": {
         "dependencies": {
+          "MassTransit": "8.5.10",
           "Newtonsoft.Json": "13.0.4"
         },
         "runtime": {
