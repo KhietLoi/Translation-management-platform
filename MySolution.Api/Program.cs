@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using MySolution.Api.StartupRegistrations;
 using MySolution.Application.ServiceRegistration;
 using MySolution.Infrastructure;
@@ -16,7 +17,8 @@ builder.Services
     .AddCorsLayer(builder.Configuration)
     .AddSwaggerLayer()
     .AddControllersLayer()
-    .AddAuthorizationLayer();
+    .AddAuthorizationLayer()
+    .AddDataProtection().SetApplicationName("MySolution");
 
 var app = builder.Build();
 

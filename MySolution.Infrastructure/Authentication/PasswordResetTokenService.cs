@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
 using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Models;
-using MySolution.Infrastructure.Services;
 using Newtonsoft.Json;
 
 namespace MySolution.Infrastructure.Authentication;
@@ -26,7 +26,6 @@ public class PasswordResetTokenService : IPasswordResetTokenService
                 PasswordVersion = passwordversion,
                 ExpiredAt = DateTime.UtcNow.AddMinutes(_tokenSetting.PasswordResetExpiryMinutes),
             };
-
         var json = JsonConvert.SerializeObject(payload);
         return _protector.Protect(json);
     }

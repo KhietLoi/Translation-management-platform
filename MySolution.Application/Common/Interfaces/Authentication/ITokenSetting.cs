@@ -1,7 +1,7 @@
-﻿namespace MySolution.Application.Common.Interfaces;
+﻿namespace MySolution.Application.Common.Interfaces.Authentication;
 
 public interface ITokenSetting
 {
-    int EmailVerificationExpiryMinutes { get; set; }
-    int PasswordResetExpiryMinutes { get; set; }
+    int EmailVerificationExpiryMinutes { get; }
+    int PasswordResetExpiryMinutes { get; }
 }

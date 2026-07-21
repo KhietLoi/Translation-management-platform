@@ -17,9 +17,8 @@ public class ChangePasswordValidator : AbstractValidator<ChangePasswordCommand>
             .WithMessage("{PropertyName} must contain at least 8 characters," +
                          " including an uppercase letter, a lowercase letter," +
                          " a digit, and a special character");
-        
-        RuleFor(x => x.Payload.ConfirmNewPassword)
-            .Equal(x => x.Payload.NewPassword)
-            .WithMessage("Passwords do not match");
+        RuleFor(x => x.Payload.NewPassword)
+            .NotEqual(x => x.Payload.CurrentPassword)
+            .WithMessage("{PropertyName} must be different from current password");
     }
 }

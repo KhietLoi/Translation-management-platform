@@ -51,9 +51,7 @@ public class AzureBlobService : IAzureBlobService
 
         await foreach (var blobItem in _container.GetBlobsAsync(cancellationToken: cancellationToken))
         {
-            var blobClient =
-                _container.GetBlobClient(blobItem.Name);
-
+            var blobClient = _container.GetBlobClient(blobItem.Name);
             result.Add(new BlobFile
             {
                 FileName = blobItem.Name,

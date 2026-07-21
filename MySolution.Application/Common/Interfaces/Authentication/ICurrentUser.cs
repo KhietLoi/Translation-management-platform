@@ -1,4 +1,4 @@
-﻿namespace MySolution.Application.Common.Interfaces;
+﻿namespace MySolution.Application.Common.Interfaces.Authentication;
 
 public interface ICurrentUser
 {
@@ -6,7 +6,7 @@ public interface ICurrentUser
     string Username { get; } 
     string Email { get;}
     IReadOnlyCollection<string> Roles { get; }
-    IReadOnlyCollection<string> Permissions { get; }
+    /*IReadOnlyCollection<string> Permissions { get; }*/
     bool IsAuthenticated { get; }
     string? Jti {get;}
     DateTime? ExpiredAt { get; }

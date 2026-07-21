@@ -16,9 +16,9 @@ public class ApplicationUrlProvider : IApplicationUrlProvider
     {
         return $"{_frontendOptions.BaseUrl}/verify-email?token={token}";
     }
-
-    public string GetResetPasswordUrl(string resetToken)
+  public string GetResetPasswordUrl(string resetToken)
     {
         return $"{_frontendOptions.BaseUrl}/reset-password?token={resetToken}";
+  
     }
 }

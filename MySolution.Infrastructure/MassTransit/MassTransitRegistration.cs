@@ -55,9 +55,7 @@ public static class MassTransitRegistration
             e=>
             {
                 ConfigureRetry(e);
-
-                e.ConfigureConsumer<SendVerifyEmailConsumer>(
-                    context);
+                e.ConfigureConsumer<SendVerifyEmailConsumer>(context);
             });
 
         cfg.ReceiveEndpoint(
@@ -65,9 +63,7 @@ public static class MassTransitRegistration
             e=>
             {
                 ConfigureRetry(e);
-
-                e.ConfigureConsumer<SendSetupPasswordEmailConsumer>(
-                    context);
+                e.ConfigureConsumer<SendSetupPasswordEmailConsumer>(context);
             });
 
         cfg.ReceiveEndpoint(
@@ -75,8 +71,7 @@ public static class MassTransitRegistration
             e=>
             {
                 ConfigureRetry(e);
-                e.ConfigureConsumer<SendForgotPasswordEmailConsumer>(
-                    context);
+                e.ConfigureConsumer<SendForgotPasswordEmailConsumer>(context);
             });
     }
     

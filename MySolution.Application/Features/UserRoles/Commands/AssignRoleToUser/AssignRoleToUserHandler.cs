@@ -37,9 +37,7 @@ public class AssignRoleToUserHandler : IRequestHandler<AssignRoleToUserCommand, 
         try
         {
             //Check User
-            var user = await _unitOfWork.User
-                .GetByIdAsync(payload.UserId);
-
+            var user = await _unitOfWork.User.GetByIdAsync(payload.UserId);
             if (user == null)
             {
                 response.ErrorMessage = "User not found";
@@ -49,7 +47,6 @@ public class AssignRoleToUserHandler : IRequestHandler<AssignRoleToUserCommand, 
 
             //Check Role
             var role = await _unitOfWork.Role.GetByIdAsync(payload.RoleId);
-
             if (role == null)
             {
                 response.ErrorMessage = "Role not found";

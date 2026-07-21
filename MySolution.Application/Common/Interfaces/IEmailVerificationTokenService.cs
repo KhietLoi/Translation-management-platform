@@ -1,10 +1,9 @@
 ﻿using MySolution.Application.Common.Models;
 
-namespace MySolution.Application.Common.Interfaces.Repositories;
+namespace MySolution.Application.Common.Interfaces;
 
 public interface IEmailVerificationTokenService
 {
-    //Generate Token:
     string GenerateVerificationToken(Guid userid,string email);
     EmailVerifyPayload ValidateToken(string token);
 }

@@ -38,7 +38,6 @@ public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
 
         try
         {
-            
             // Check if the user is authenticated
             if (!_currentUser.IsAuthenticated)
             {

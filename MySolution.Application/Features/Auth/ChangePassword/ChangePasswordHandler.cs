@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 using Shared.Extensions;
 namespace MySolution.Application.Features.Auth.ChangePassword;
@@ -37,13 +38,6 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
 
         try
         {
-            if (!_currentUser.IsAuthenticated)
-            {
-                response.ErrorMessage = "Unauthorized.";
-                response.WithStatus(HttpStatusCode.Unauthorized);
-                return response;
-            }
-            
             var user = await _unitOfWork.User.GetByIdAsync(_currentUser.UserId);
             if (user == null)
             {
@@ -61,18 +55,8 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
                 return response;
             }
             
-            //Check newPassword is same current password:
-            var isSamePassword = _passwordHasher.VerifyPassword(request.Payload.NewPassword, user.PasswordHash);
-            if (isSamePassword)
-            {
-                response.ErrorMessage = "New password must be different from current password.";
-                response.WithStatus(HttpStatusCode.BadRequest);
-                return response;
-            }
-            
             //Hash new password:
             user.PasswordHash = _passwordHasher.HashPassword(request.Payload.NewPassword);
-            
             //Save
             await _unitOfWork.SaveAsync(cancellationToken);
             

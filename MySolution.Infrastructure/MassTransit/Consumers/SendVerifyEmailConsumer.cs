@@ -1,5 +1,6 @@
 ﻿using MassTransit;
 using MySolution.Application.Service;
+using MySolution.Application.Service.MessageBus;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Infrastructure.MassTransit.Consumers;

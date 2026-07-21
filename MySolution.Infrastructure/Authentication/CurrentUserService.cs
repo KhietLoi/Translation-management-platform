@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.Authentication;
 
 namespace MySolution.Infrastructure.Authentication;
 
@@ -45,12 +46,15 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
             .ToList()
         ?? [];
 
+    /*
     public IReadOnlyCollection<string> Permissions =>
+        User?
         User?
             .FindAll("permission")
             .Select(x => x.Value)
             .ToList()
         ?? [];
+        */
     
     public bool IsAuthenticated =>
         User?.Identity?.IsAuthenticated ?? false;

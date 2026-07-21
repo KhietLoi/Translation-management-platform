@@ -4,7 +4,7 @@ using MySolution.Application.Features.Auth.SendSetUpPasswordEmail;
 using MySolution.Application.Features.Auth.SendVerifyEmail;
 using Shared.MassTransit.IntegrationEvents;
 
-namespace MySolution.Application.Service;
+namespace MySolution.Application.Service.MessageBus;
 
 public class MessageBusService : IMessageBusService
 {

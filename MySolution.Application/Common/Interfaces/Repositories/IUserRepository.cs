@@ -51,4 +51,6 @@ public interface IUserRepository : IRepository<User>
     /// <param name="excludeUserId"></param>
     /// <returns></returns>
     Task<bool> ExistsByEmailOrUsernameAsync(string email, string username, Guid excludeUserId);
+    
+    Task<HashSet<string>> GetUserPermissionsAsync(Guid userId);
 }

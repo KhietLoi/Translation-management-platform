@@ -58,10 +58,21 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
         await _transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async ValueTask DisposeAsync()
+    /*public async ValueTask DisposeAsync()
     {
         await _transaction.DisposeAsync().ConfigureAwait(false);
         await _context.DisposeAsync().ConfigureAwait(false);
+        GC.SuppressFinalize(this);
+    }*/
+    public async ValueTask DisposeAsync()
+    {
+        if (_transaction is not null)
+        {
+            await _transaction.DisposeAsync().ConfigureAwait(false);
+        }
+
+        await _context.DisposeAsync().ConfigureAwait(false);
+
         GC.SuppressFinalize(this);
     }
 
