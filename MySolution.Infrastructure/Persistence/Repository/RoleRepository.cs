@@ -19,12 +19,14 @@ public class RoleRepository (AppDbContext context, ILogger logger) : Repository<
 
     public async Task<Role?> GetByNameAsync(string name)
     {
-        return await DbSet.FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
+        return await DbSet
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => EF.Functions.ILike(x.Name, name)); //Use ILike of PostgreSQL
     }
 
     public async Task<bool> ExistsByNameAsync(string name)
     {
-        return await DbSet.FirstOrDefaultAsync(x => x.Name == name) != null;
+        return await DbSet.FirstOrDefaultAsync(x => EF.Functions.ILike(x.Name, name)) != null;
     }
     public async Task<List<Permission>> GetPermissionsAsync(Guid roleId)
     {

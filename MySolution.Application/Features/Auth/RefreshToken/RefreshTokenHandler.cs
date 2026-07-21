@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Application.Features.Auth.RefreshToken;

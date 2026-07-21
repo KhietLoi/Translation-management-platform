@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
 

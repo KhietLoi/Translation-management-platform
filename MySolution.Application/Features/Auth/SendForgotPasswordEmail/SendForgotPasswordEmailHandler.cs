@@ -1,5 +1,7 @@
 ﻿using MediatR;
 using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.Authentication;
+using MySolution.Application.Common.Template;
 using MySolution.Application.Common.Templates;
 using MySolution.Application.Constants;
 
