@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Templates;
-using MySolution.Application.Constants;
 
 namespace MySolution.Application.Features.Auth.SendVerifyEmail;
 
@@ -22,19 +22,18 @@ public class SendVerifyEmailHandler : IRequestHandler<SendVerifyEmailCommand>
     {
         //await Task.Delay(10000, cancellationToken); 
         Console.WriteLine("Got to SendVerifyEmailHandler");
-        
-        Console.WriteLine(
+        /*Console.WriteLine(
             $"Handler executed: {DateTime.Now}");
 
-        throw new Exception("TEST RETRY");
+        throw new Exception("TEST RETRY");*/
 
-        /*var verifyUrl = _applicationUrlProvider.GetVerifyEmailUrl(request.Message.Token);
+        var verifyUrl = _applicationUrlProvider.GetVerifyEmailUrl(request.Message.Token);
         var html = EmailTemplateVerifyRegister.VerifyEmail(
             request.Message.Username,
             verifyUrl,  
             _tokenSettings.EmailVerificationExpiryMinutes
         );
         
-        await _emailService.SendEmailAsync(request.Message.Email, "Verify Your Email", html, cancellationToken);*/
+        await _emailService.SendEmailAsync(request.Message.Email, "Verify Your Email", html, cancellationToken);
     }
 }

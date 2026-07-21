@@ -7,8 +7,8 @@ public class UploadFileCommand : IRequest<UploadFileResponse>
 {
     public UploadFileResquest Payload { get; set; }
 
-    public UploadFileCommand(IFormFile file)
+    public UploadFileCommand(UploadFileResquest payload)
     {
-        Payload = new UploadFileResquest { File = file };
+        Payload = payload;
     }
 }

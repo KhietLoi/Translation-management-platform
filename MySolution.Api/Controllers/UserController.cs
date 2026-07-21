@@ -30,8 +30,7 @@ public class UserController(IMediator mediator) : Controller
     public async Task<IActionResult> GetUsers([FromQuery] GetUsersRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new GetUsersQuery(request), cancellationToken);
-        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data
-        );
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
     /// <summary>

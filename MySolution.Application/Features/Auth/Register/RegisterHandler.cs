@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Constants;
@@ -73,13 +74,11 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
             await _unitOfWork.User.Add(user);
             user.UserRoles.Add(new UserRole
             {
-                //UserId = user.Id,
                 RoleId = role.Id
             });
             await _unitOfWork.SaveAsync(cancellationToken);
             var token = _emailVerificationTokenService.GenerateVerificationToken(user.Id, user.Email);
             //Email
-            _logger.LogInformation("Publishing UserCreatedEvent for {Email}", user.Email);
             await _messageSender.SendMessage<SendVerifyEmailEvent>(
                 new SendVerifyEmailEvent
                 {
@@ -87,8 +86,7 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
                     Username = user.Username,
                     Email = user.Email,
                     Token = token
-                },
-                cancellationToken);
+                }, cancellationToken);
             response.Data = new RegisterResult
             {
                 Id = user.Id,

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Infrastructure.Options;
 
 namespace MySolution.Infrastructure.Services;

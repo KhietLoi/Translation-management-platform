@@ -50,12 +50,14 @@ public class RefreshTokenRepository(AppDbContext context, ILogger logger)
 
     public async Task<int> CleanUpExpiredTokensAsync(int revokedBefore)
     {
+        var now = DateTime.UtcNow;
+        var revokeCutoff = now.AddDays(-revokedBefore);
         return await DbSet
             .Where(x =>
-                x.ExpiredAt < DateTime.UtcNow ||
+                x.ExpiredAt < now ||
                 (
                     x.RevokedAt != null &&
-                    x.RevokedAt < DateTime.UtcNow.AddDays(-revokedBefore)
+                    x.RevokedAt < revokeCutoff
                 )).ExecuteDeleteAsync();
     }
 }
