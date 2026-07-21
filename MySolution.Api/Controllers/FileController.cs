@@ -14,14 +14,14 @@ public class FileController (IMediator mediator) : Controller
     [HttpPost("upload")]
     public async Task<IActionResult> UploadFile(IFormFile file, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new UploadFileCommand(file), cancellationToken);
+        var response = await mediator.Send(new UploadFileCommand(new UploadFileResquest { File = file }), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.BlobUrl);
     }
     
     [HttpDelete("delete")]
     public async Task<IActionResult> DeleteFile(DeleteFileRequest req, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new DeleteFileCommand(req), cancellationToken);
+        var response = await mediator.Send(new DeleteFileCommand(new DeleteFileRequest { FileName = req.FileName }), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Success);
     }
     

@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using MySolution.Domain.Entities;
 
-namespace MySolution.Application.Common.Interfaces;
+namespace MySolution.Application.Common.Interfaces.Authentication;
 
 public interface IJwtService
 {

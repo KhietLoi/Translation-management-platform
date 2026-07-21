@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj": {}
+    "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj": {}
   },
   "projects": {
-    "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj": {
+    "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj",
         "projectName": "MySolution.Domain",
-        "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj",
+        "projectPath": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj",
         "packagesPath": "C:\\Users\\DEV\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\obj\\",
+        "outputPath": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

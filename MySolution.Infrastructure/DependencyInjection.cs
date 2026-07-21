@@ -5,6 +5,7 @@ using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Infrastructure.Authentication;
+using MySolution.Infrastructure.Authorization;
 using MySolution.Infrastructure.BackgroundServices;
 using MySolution.Infrastructure.MassTransit;
 using MySolution.Infrastructure.Options;
@@ -16,15 +17,14 @@ namespace MySolution.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         //db
         services.AddDbContext<AppDbContext>(options =>
         {
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
         });
+        
         //jwt:
         services.AddJwtAuthentication(configuration);
         services.AddCustomServices();
@@ -47,6 +47,7 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddSingleton<ITokenSetting, TokenSetting>();
+        
         //Background Clean RefreshToken
         services.AddHostedService<RefreshTokenCleanupHostedService>();
         services.AddOptions<RefreshTokenCleanupOptions>()
@@ -76,13 +77,21 @@ public static class DependencyInjection
         
         //VerifyEmail:
         services.AddScoped<IEmailVerificationTokenService, EmailVerificationTokenService>();
+        
         //Reset-password:
         services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
+        
         //MassTransit:
         services.AddMassTransitServices(configuration);
+        
         //AzureBlob:
         services.Configure<AzureBlobOptions>(configuration.GetSection(AzureBlobOptions.SectionName));
         services.AddScoped<IAzureBlobService, AzureBlobService>();
+        
+        //Cache
+        services.AddScoped<IPermissionService, PermissionService>();
+        services.AddScoped<IPermissionCacheService, PermissionCacheService>();
+        
         return services;
     }
     public static IServiceCollection AddCustomServices(this IServiceCollection services)

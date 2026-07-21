@@ -84,4 +84,16 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
     {
         return await DbSet.AnyAsync(x => (x.Email == email || x.Username == username) && x.Id != excludeUserId);
     }
+
+    public async Task<HashSet<string>> GetUserPermissionsAsync(Guid userId)
+    {
+        return await Context.Users
+            .AsNoTracking()
+            .Where(x => x.Id == userId)
+            .SelectMany(x => x.UserRoles)
+            .SelectMany(x => x.Role.RolePermissions)
+            .Select(x => x.Permission.Code)
+            .Distinct()
+            .ToHashSetAsync();  
+    }
 }

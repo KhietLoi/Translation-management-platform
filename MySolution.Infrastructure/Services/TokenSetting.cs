@@ -16,12 +16,10 @@ public class TokenSetting : ITokenSetting
     public int EmailVerificationExpiryMinutes
     {
         get => _tokenOptions.EmailVerificationTokenExpireMinutes;
-        set => _tokenOptions.EmailVerificationTokenExpireMinutes = value;
     }
 
     public int PasswordResetExpiryMinutes
     {
         get => _tokenOptions.PasswordResetTokenExpireMinutes;
-        set => _tokenOptions.PasswordResetTokenExpireMinutes = value;
     }
 }

@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Domain.Entities;
 using MySolution.Infrastructure.Options;
 
@@ -105,14 +105,15 @@ public class JwtService : IJwtService
                     ClaimTypes.Role,
                     userRole.Role.Name)));
 
-        // Permissions
+        /*// Permissions
         claims.AddRange(
             user.UserRoles
                 .SelectMany(userRole => userRole.Role.RolePermissions)
                 .Select(rolePermission =>
                     new Claim(
                         "permission",
-                        rolePermission.Permission.Code)));
+                        rolePermission.Permission.Code)));*/
+        
         return claims;
     }
 }

@@ -2,8 +2,8 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.Auth.Login;
 
@@ -82,6 +82,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
+            
             // Generate JWT
             var accessToken = _jwtService.GenerateJwtToken(user);
             // Generate RefreshToken

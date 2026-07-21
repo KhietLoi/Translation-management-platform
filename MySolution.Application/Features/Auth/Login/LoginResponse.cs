@@ -4,7 +4,7 @@ namespace MySolution.Application.Features.Auth.Login;
 /// <summary>
 /// Response for login operation
 /// </summary>
-public class LoginResponse : BaseResponse<LoginResult>
+public class LoginResponse : BaseResponse<LoginResult?>
 {
 }
 public class LoginResult

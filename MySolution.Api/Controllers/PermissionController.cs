@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Authorization;
 using MySolution.Api.Helpers;
@@ -9,8 +8,6 @@ using MySolution.Application.Features.Permission.Commands.DeletePermission;
 using MySolution.Application.Features.Permission.Commands.UpdatePermission;
 using MySolution.Application.Features.Permission.Queries.GetPermissionById;
 using MySolution.Application.Features.Permission.Queries.GetPermissions;
-using MySolution.Application.Features.Roles.Queries.GetRoles;
-using MySolution.Domain.Entities;
 
 namespace MySolution.Api.Controllers;
 

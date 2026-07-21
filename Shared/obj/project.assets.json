@@ -874,11 +874,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj",
+      "projectUniqueName": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj",
       "projectName": "Shared",
-      "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj",
+      "projectPath": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj",
       "packagesPath": "C:\\Users\\DEV\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\obj\\",
+      "outputPath": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -3392,11 +3392,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\MySolution.Application.csproj",
+      "projectUniqueName": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\MySolution.Application.csproj",
       "projectName": "MySolution.Application",
-      "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\MySolution.Application.csproj",
+      "projectPath": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\MySolution.Application.csproj",
       "packagesPath": "C:\\Users\\DEV\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\obj\\",
+      "outputPath": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Application\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -3418,11 +3418,11 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj": {
-              "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj"
+            "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj": {
+              "projectPath": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Domain\\MySolution.Domain.csproj"
             },
-            "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj": {
-              "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj"
+            "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj": {
+              "projectPath": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\Shared\\Shared.csproj"
             }
           }
         }

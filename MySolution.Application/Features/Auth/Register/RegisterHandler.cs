@@ -97,7 +97,6 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.Created);
-            return response;
         }
         catch (Exception ex)
         {

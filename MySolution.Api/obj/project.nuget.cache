@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "usd2Bee9KS8=",
+  "dgSpecHash": "6Jvz46ZVL+c=",
   "success": true,
-  "projectFilePath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
+  "projectFilePath": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\DEV\\.nuget\\packages\\azure.core\\1.55.0\\azure.core.1.55.0.nupkg.sha512",
     "C:\\Users\\DEV\\.nuget\\packages\\azure.storage.blobs\\12.29.1\\azure.storage.blobs.12.29.1.nupkg.sha512",
@@ -107,9 +107,9 @@
       "code": "NU1510",
       "level": "Warning",
       "message": "PackageReference Microsoft.AspNetCore.Authorization will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
-      "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
+      "projectPath": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
+      "filePath": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
       "libraryId": "Microsoft.AspNetCore.Authorization",
       "targetGraphs": [
         "net10.0"
@@ -119,9 +119,9 @@
       "code": "NU1510",
       "level": "Warning",
       "message": "PackageReference System.Diagnostics.DiagnosticSource will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
-      "projectPath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
+      "projectPath": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\Users\\DEV\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
+      "filePath": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
       "libraryId": "System.Diagnostics.DiagnosticSource",
       "targetGraphs": [
         "net10.0"

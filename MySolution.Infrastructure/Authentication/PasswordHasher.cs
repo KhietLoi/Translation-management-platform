@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Domain.Entities;
 
 namespace MySolution.Infrastructure.Authentication;

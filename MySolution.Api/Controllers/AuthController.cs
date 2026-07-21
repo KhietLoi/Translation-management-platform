@@ -24,6 +24,7 @@ namespace MySolution.Api.Controllers;
 public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtoptions) : Controller
 {
     private readonly JwtOptions _jwtOptions = jwtoptions.Value;
+    
     /// <summary>
     /// Register a new user
     /// </summary>
@@ -52,19 +53,17 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtoptions)
             return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
         }
 
-        Response.Cookies.Append("refreshToken", response.Data.RefreshToken,
-            new CookieOptions
+        if (response.Data != null)
+        {
+            Response.Cookies.Append("refreshToken", response.Data.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = false, 
+                Secure = false,
                 SameSite = SameSiteMode.Lax,
                 Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenDays)
             });
-
-        return ResponseHelper.ToResponse(
-            response.StatusCode,
-            response,
-            response.Data);
+        }
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
     /// <summary>
@@ -91,17 +90,20 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtoptions)
                 response);
         }
 
-        Response.Cookies.Append(
-            "refreshToken",
-            response.Data.RefreshToken,
-            new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = false, // localhost
-                SameSite = SameSiteMode.Lax,
-                Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenDays)
-            });
-
+        if (response.Data != null)
+        {
+            Response.Cookies.Append(
+                "refreshToken",
+                response.Data.RefreshToken,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false, // localhost
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenDays)
+                });
+        }
+        
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
@@ -148,14 +150,14 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtoptions)
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new ForgotPasswordCommand(request),cancellationToken);
+        var response = await mediator.Send(new ForgotPasswordCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
 
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new ResetPasswordCommand(request),  cancellationToken);
+        var response = await mediator.Send(new ResetPasswordCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
     

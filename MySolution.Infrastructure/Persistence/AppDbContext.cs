@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using MySolution.Domain.Entities;
 
 namespace MySolution.Infrastructure.Persistence;

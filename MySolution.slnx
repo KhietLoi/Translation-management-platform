@@ -1,11 +1,9 @@
 <Solution>
-  <Folder Name="/tests/">
-    <Project Path="MySolution.Application.UnitTets/MySolution.Application.UnitTets.csproj" />
-  </Folder>
   <Project Path="MySolution.Api/MySolution.Api.csproj" />
   <Project Path="MySolution.Application/MySolution.Application.csproj" />
   <Project Path="MySolution.Domain/MySolution.Domain.csproj" />
   <Project Path="MySolution.Infrastructure/MySolution.Infrastructure.csproj" />
   <Project Path="MySolution.Migration/MySolution.Migration.csproj" />
+  <Project Path="MySolution.UnitTest/MySolution.UnitTest.csproj" />
   <Project Path="Shared/Shared.csproj" />
 </Solution>
