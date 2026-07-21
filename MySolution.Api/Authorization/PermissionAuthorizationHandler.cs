@@ -40,6 +40,10 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
         _logger.LogInformation("HANDLER STEP 2");
         // Check if the user has the required permission
         var permissions = await _permissionService.GetPermissionsAsync(userId);
+        foreach (var permission in permissions)
+        {
+            _logger.LogInformation("PERMISSION = {Permission}", permission);
+        }
         _logger.LogInformation($"{permissions.Count} permissions retrieved for user {userId}");
         _logger.LogInformation("HANDLER STEP 3");
         // Check if the required permission is in the user's permissions
