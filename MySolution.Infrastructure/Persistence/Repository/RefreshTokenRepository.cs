@@ -10,8 +10,7 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 /// </summary>
 /// <param name="context"></param>
 /// <param name="logger"></param>
-public class RefreshTokenRepository(AppDbContext context, ILogger logger)
-    : Repository<RefreshToken>(context, logger), IRefreshTokenRepository
+public class RefreshTokenRepository(AppDbContext context, ILogger logger) : Repository<RefreshToken>(context, logger), IRefreshTokenRepository
 {
 
     public async Task<RefreshToken?> GetByHashAsync(string tokenHash)
@@ -59,5 +58,16 @@ public class RefreshTokenRepository(AppDbContext context, ILogger logger)
                     x.RevokedAt != null &&
                     x.RevokedAt < revokeCutoff
                 )).ExecuteDeleteAsync();
+    }
+
+    public async Task RevokeByJtiAsync(string jti)
+    {
+        var refreshToken = await DbSet.FirstOrDefaultAsync(x => x.Jti == jti && x.RevokedAt == null);
+        if (refreshToken != null)
+        {
+            refreshToken.RevokedAt = DateTime.UtcNow;
+            await Context.SaveChangesAsync();
+        }
+        
     }
 }

@@ -74,6 +74,8 @@ CREATE TABLE IF NOT EXISTS mysolution."RefreshTokens"
     "RevokedAt" TIMESTAMPTZ NULL,
 
     "UserId" UUID NOT NULL,
+    
+    "Jti" VARCHAR(36) NOT NULL,
 
     CONSTRAINT "PK_RefreshTokens"
     PRIMARY KEY ("Id"),
@@ -147,6 +149,9 @@ CREATE INDEX IF NOT EXISTS "IX_RolePermissions_PermissionId"
 
 CREATE INDEX IF NOT EXISTS "IX_RefreshTokens_UserId"
     ON mysolution."RefreshTokens" ("UserId");
+
+CREATE UNIQUE INDEX IF NOT EXISTS "IX_RefreshTokens_Jti"
+    ON mysolution."RefreshTokens" ("Jti");
 
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_RefreshTokens_TokenHash"
     ON mysolution."RefreshTokens" ("TokenHash");

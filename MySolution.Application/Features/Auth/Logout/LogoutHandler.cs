@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 
@@ -38,26 +37,20 @@ public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
 
         try
         {
-            // Check if the user is authenticated
-            if (!_currentUser.IsAuthenticated)
-            {
-                response.ErrorMessage = "Unauthorized.";
-                response.WithStatus(HttpStatusCode.Unauthorized);
-                return response;
-            }
-            
             //Check jti:
-            if (!string.IsNullOrWhiteSpace(_currentUser.Jti) && _currentUser.ExpiredAt.HasValue)
+            var jti = _currentUser.Jti;
+            if (!string.IsNullOrWhiteSpace(jti) && _currentUser.ExpiredAt.HasValue)
             {
                 var ttl = _currentUser.ExpiredAt.Value - DateTime.UtcNow;
                 if (ttl > TimeSpan.Zero)
                 {
-                    await _tokenBlacklistService.BlacklistAsync(_currentUser.Jti, ttl);
+                    await _tokenBlacklistService.BlacklistAsync(jti, ttl);
                 }
+                
             }
             
             // Revoke all refresh tokens of the current user
-            await _unitOfWork.RefreshToken.RevokeAsync(_currentUser.UserId);
+            await _unitOfWork.RefreshToken.RevokeByJtiAsync(jti);
             // Save changes
             await _unitOfWork.SaveAsync(cancellationToken);
             response

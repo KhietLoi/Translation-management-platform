@@ -85,8 +85,10 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                 return response;
             }
             
+            //Create Jti
+            var jti = Guid.CreateVersion7().ToString();
             // Generate JWT
-            var accessToken = _jwtService.GenerateJwtToken(user);
+            var accessToken = _jwtService.GenerateJwtToken(user, jti);
             // Generate RefreshToken
             var refreshToken = _jwtService.GenerateRefreshToken();
             var tokenHash = _hashService.ComputeSha256(refreshToken);
@@ -98,6 +100,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                     UserId = user.Id,
                     TokenHash = tokenHash,
                     CreatedAt = DateTime.UtcNow,
+                    Jti = jti,
                     ExpiredAt = _jwtService.GetRefreshTokenExpirationDate()
                 });
             await _unitOfWork.SaveAsync(cancellationToken);

@@ -21,10 +21,10 @@ public class JwtService : IJwtService
         _jwtOptions =  jwtOptions.Value;
     }
     // Create Access Token
-    public string GenerateJwtToken(User user)
+    public string GenerateJwtToken(User user, string jti)
     {
         ArgumentNullException.ThrowIfNull(user);
-        var claims = BuildClaims(user);
+        var claims = BuildClaims(user, jti);
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey));
         var credentials = new SigningCredentials(key,SecurityAlgorithms.HmacSha256);
         var token = new JwtSecurityToken(
@@ -86,12 +86,12 @@ public class JwtService : IJwtService
     }
 
     // Create Claims from User Entity
-    private static List<Claim> BuildClaims(User user)
+    private static List<Claim> BuildClaims(User user, string jti)
     {
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new(JwtRegisteredClaimNames.Jti, Guid.CreateVersion7().ToString()),
+            new(JwtRegisteredClaimNames.Jti, jti),
             new("security_stamp", user.SecurityStamp),
             //new(JwtRegisteredClaimNames.Email, user.Email),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
