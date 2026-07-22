@@ -1,6 +1,4 @@
-﻿using MySolution.Application.Features.RolePermissions.Commands.AssignPermissionToRole;
-
-namespace MySolution.Application.Common.Interfaces;
+﻿namespace MySolution.Application.Common.Interfaces;
 
 public interface IEmailService
 {

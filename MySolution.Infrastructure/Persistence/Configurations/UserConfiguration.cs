@@ -25,6 +25,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired();
         builder.Property(x => x.IsActive)
             .HasDefaultValue(true);
+        builder.Property(x => x.IsEmailVerified)
+            .HasDefaultValue(false);
+        builder.Property(x => x.SecurityStamp)
+            .IsRequired()
+            .HasMaxLength(256);
         builder.Property(x => x.CreatedAt)
             .HasDefaultValueSql("now()");
         builder.HasIndex(x => x.Email)

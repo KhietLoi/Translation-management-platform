@@ -1,3 +1,3 @@
 ﻿namespace MySolution.Application.Common.Models.RateLimit;
 
-public record RateLimitPolicy();
+public sealed record RateLimitPolicy(string Key, int PermitLimit, TimeSpan Window);

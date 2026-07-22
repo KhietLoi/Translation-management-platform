@@ -2,8 +2,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using FluentValidation;
-using MySolution.Application.Service;
+using MySolution.Application.Common.Behaviors;
+using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Service.MessageBus;
+using MySolution.Application.Service.Scriban;
 using MySolution.Application.Validation;
 
 namespace MySolution.Application.ServiceRegistration;
@@ -26,7 +28,18 @@ public static class DependencyInjection
         
         //Register:
         services.AddScoped<IMessageBusService, MessageBusService>();
+        
+        //Rate Limited:
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+            cfg.AddOpenBehavior(typeof(RateLimitBehavior<,>));
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        });
+        
+        //Scriban
+        services.AddScoped<ITemplateRenderer, ScribanTemplateRenderer>();
+        
         return services;
-
     }
 }

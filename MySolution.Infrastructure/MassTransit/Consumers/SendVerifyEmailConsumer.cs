@@ -1,21 +1,21 @@
 ﻿using MassTransit;
-using MySolution.Application.Service;
-using MySolution.Application.Service.MessageBus;
+using MediatR;
+using MySolution.Application.Features.Auth.SendVerifyEmail;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Infrastructure.MassTransit.Consumers;
 
 public class SendVerifyEmailConsumer : IConsumer<SendVerifyEmailEvent>
 {
-    private readonly IMessageBusService _messageBusService;
+    private readonly IMediator _mediator;
     
-    public SendVerifyEmailConsumer(IMessageBusService messageBusService)
+    public SendVerifyEmailConsumer(IMediator mediator)
     {
-        _messageBusService = messageBusService;
+        _mediator = mediator;
     }
     
     public async Task Consume(ConsumeContext<SendVerifyEmailEvent> context)
     {
-        await _messageBusService.SendVerifyEmailAsync(context.Message, context.CancellationToken);
+        await _mediator.Send(new SendVerifyEmailCommand { Message = context.Message }, context.CancellationToken);
     }
 }
