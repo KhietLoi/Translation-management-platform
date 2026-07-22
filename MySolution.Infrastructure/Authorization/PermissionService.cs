@@ -28,7 +28,7 @@ public class PermissionService : IPermissionService
         }
 
         var permissions = await _unitOfWork.User.GetUserPermissionsAsync(userId);
-        await _cached.SetAsync(userId, permissions, TimeSpan.FromHours(1));
+        await _cached.SetAsync(userId, permissions, TimeSpan.FromHours(1)); // Upgrade ttl -> auto load when permission is update
         _logger.LogInformation("Permissions retrieved from database for user: {UserId}", userId);
 
         return permissions;
