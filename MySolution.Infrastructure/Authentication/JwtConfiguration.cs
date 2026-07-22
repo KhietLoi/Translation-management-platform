@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -30,8 +31,7 @@ public static class JwtConfiguration
 
         var key = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
-        services
-            .AddAuthentication(options =>
+        services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -57,7 +57,6 @@ public static class JwtConfiguration
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ClockSkew = TimeSpan.Zero
                 };
-
                 options.Events = new JwtBearerEvents
                 {
                     OnTokenValidated = async context =>
@@ -65,23 +64,39 @@ public static class JwtConfiguration
                         var blacklistService = context.HttpContext
                             .RequestServices
                             .GetRequiredService<ITokenBlacklistService>();
+                        
                         var jti = context.Principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
                         if (string.IsNullOrWhiteSpace(jti))
                         {
                             context.Fail("Missing JTI");
                             return;
                         }
-
-                        var isBlacklisted =
-                            await blacklistService
-                                .IsBlacklistedAsync(jti);
-
+                      
+                        var userId = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+                        var tokenSecurityStamp = context.Principal?.FindFirst("security_stamp")?.Value;
+                        var isBlacklisted = await blacklistService.IsBlacklistedAsync(jti);
                         if (isBlacklisted)
                         {
                             context.Fail("Token revoked");
+                            return;
+                        }
+                        
+                        var securityService = context.HttpContext
+                            .RequestServices
+                            .GetRequiredService<ISecurityStampService>();
+
+                        var currentStamp =
+                            await securityService.GetSecurityStampAsync(
+                                Guid.Parse(userId!));
+
+                        if (currentStamp != tokenSecurityStamp)
+                        {
+                            context.Fail("Security stamp invalid");
+                            return;
                         }
                     }
                 };
+                
             });
 
         services.AddAuthorization();

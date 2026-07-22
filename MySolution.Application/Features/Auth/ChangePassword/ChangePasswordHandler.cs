@@ -13,19 +13,22 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
 	private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
     private readonly ICurrentUser _currentUser;
+    private readonly ISecurityStampService _tokenSecurityService;
 
     public ChangePasswordHandler
     (
         ILogger<ChangePasswordHandler> logger,
 		IUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
-        ICurrentUser currentUser
+        ICurrentUser currentUser,
+        ISecurityStampService tokenSecurityService
     )
     {
         _logger = logger;
 		_unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
         _currentUser = currentUser;
+        _tokenSecurityService = tokenSecurityService;
     }
 
     #region Implementation of IRequestHandler<in ChangePasswordCommand, ChangePasswordResponse>
@@ -57,8 +60,14 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
             
             //Hash new password:
             user.PasswordHash = _passwordHasher.HashPassword(request.Payload.NewPassword);
+            //Revoke all refresh Token:
+            await _unitOfWork.RefreshToken.RevokeAsync(user.Id);
+            //Create new SecurityStamp to invalidate existing tokens:
+            user.SecurityStamp = Guid.CreateVersion7().ToString();
             //Save
             await _unitOfWork.SaveAsync(cancellationToken);
+            //Update Redis:
+            await _tokenSecurityService.SetSecurityStampAsync(user.Id, user.SecurityStamp);
             
             response
                 .WithSuccess(true)

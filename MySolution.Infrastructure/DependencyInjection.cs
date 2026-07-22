@@ -69,34 +69,28 @@ public static class DependencyInjection
         });
         services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
         //services.AddScoped<ITokenBlacklistService, FakeTokenBlacklistService>();
-        
         //Frontend Url:
         services.AddOptions<FrontendOptions>()
             .Bind(configuration.GetSection(FrontendOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddScoped<IApplicationUrlProvider, ApplicationUrlProvider>();
-        
         //VerifyEmail:
         services.AddScoped<IEmailVerificationTokenService, EmailVerificationTokenService>();
-        
         //Reset-password:
         services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
-        
         //MassTransit:
         services.AddMassTransitServices(configuration);
-        
         //AzureBlob:
         services.Configure<AzureBlobOptions>(configuration.GetSection(AzureBlobOptions.SectionName));
         services.AddScoped<IAzureBlobService, AzureBlobService>();
-        
         //Cache
         services.AddScoped<IPermissionService, PermissionService>();
         services.AddScoped<IPermissionCacheService, PermissionCacheService>();
-        
         //Rate Limited:
         services.AddScoped<IRateLimitService, RedisRateLimitService>();
-        
+        //SecurityTimestamp
+        services.AddScoped<ISecurityStampService, SecurityStampService>();
         return services;
     }
     public static IServiceCollection AddCustomServices(this IServiceCollection services)

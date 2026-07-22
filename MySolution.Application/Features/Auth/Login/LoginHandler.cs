@@ -14,14 +14,15 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtService _jwtService;
     private readonly IHashService _hashService;
-
+    private readonly ISecurityStampService _tokenSecurityService;
     public LoginHandler
     (
         ILogger<LoginHandler> logger,
         IUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
         IJwtService jwtService,
-        IHashService hashService
+        IHashService hashService,
+        ISecurityStampService tokenSecurityService
     )
     {
         _logger = logger;
@@ -29,6 +30,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
         _passwordHasher = passwordHasher;
         _jwtService = jwtService;
         _hashService = hashService;
+        _tokenSecurityService = tokenSecurityService;
     }
 
     public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -99,6 +101,8 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                     ExpiredAt = _jwtService.GetRefreshTokenExpirationDate()
                 });
             await _unitOfWork.SaveAsync(cancellationToken);
+            await _tokenSecurityService.SetSecurityStampAsync(user.Id, user.SecurityStamp);
+            
             response.Data = new LoginResult
             {
                 AccessToken = accessToken,
