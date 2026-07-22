@@ -41,6 +41,7 @@ public class RefreshTokenCleanupHostedService : BackgroundService
             {
                 _logger.LogError(ex, "Error while cleaning refresh tokens.");
             }
+            
             await Task.Delay(TimeSpan.FromHours(_options.IntervalHours), stoppingToken);
         }
     }

@@ -13,7 +13,7 @@ public static class ResponseHelper
                 success = baseResponse.Success,
                 errorMessage = baseResponse.ErrorMessage,
                 errorMessageCode = baseResponse.ErrorMessageCode,
-                data = data
+                data
             })
             { StatusCode = (int)httpStatusCode };
     }
@@ -25,7 +25,7 @@ public static class ResponseHelper
                 success = baseResponse.Success,
                 errorMessage = baseResponse.ErrorMessage,
                 errorMessageCode = baseResponse.ErrorMessageCode,
-                data = data,
+                data,
                 paging = baseResponse.Paging
             })
             { StatusCode = httpStatusCode };

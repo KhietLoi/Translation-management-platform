@@ -1,7 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 
 namespace MySolution.Infrastructure.Authentication;
@@ -17,61 +16,29 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
     {
         get
         {
-            var value = User?
-                .FindFirst(ClaimTypes.NameIdentifier)?
-                .Value;
-
-            return Guid.TryParse(value, out var id)
-                ? id
-                : Guid.Empty;
+            var value = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Guid.TryParse(value, out var id) ? id : Guid.Empty;
         }
     }
     
-    public string Username =>
-        User?   
-            .FindFirst(ClaimTypes.Name)?
-            .Value
-        ?? string.Empty;
+    public string Username => User?.FindFirst(ClaimTypes.Name)?.Value ?? string.Empty;
     
-    public string Email =>
-        User? 
-            .FindFirst(ClaimTypes.Email)?
-            .Value
-        ?? string.Empty;
+    public string Email => User?.FindFirst(ClaimTypes.Email)?.Value ?? string.Empty;
 
     public IReadOnlyCollection<string> Roles =>
         User?
             .FindAll(ClaimTypes.Role)
             .Select(x => x.Value)
-            .ToList()
-        ?? [];
-
-    /*
-    public IReadOnlyCollection<string> Permissions =>
-        User?
-        User?
-            .FindAll("permission")
-            .Select(x => x.Value)
-            .ToList()
-        ?? [];
-        */
+            .ToList() ?? [];
     
-    public bool IsAuthenticated =>
-        User?.Identity?.IsAuthenticated ?? false;
+    public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
 
-    public string? Jti =>
-        User?
-            .FindFirst(JwtRegisteredClaimNames.Jti)?
-            .Value;
+    public string Jti => User?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value ?? string.Empty;
     public DateTime? ExpiredAt
     {
         get
         {
-            var exp =
-                User?
-                    .FindFirst(JwtRegisteredClaimNames.Exp)?
-                    .Value;
-
+            var exp = User?.FindFirst(JwtRegisteredClaimNames.Exp)?.Value;
             if (string.IsNullOrWhiteSpace(exp))
             {
                 return null;

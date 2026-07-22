@@ -17,12 +17,6 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
     
     protected  override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
     {
-        /*// Check if the user is authenticated
-        if (context.User.Identity?.IsAuthenticated != true)
-        {
-            return Task.CompletedTask;
-        }*/
-        Console.WriteLine("HANDLER STEP 1");
         var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier);
         foreach (var claim in context.User.Claims)
         {
@@ -37,15 +31,12 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
             return;
         }
         var userId = Guid.Parse(userIdClaim!.Value);
-        _logger.LogInformation("HANDLER STEP 2");
         // Check if the user has the required permission
         var permissions = await _permissionService.GetPermissionsAsync(userId);
         foreach (var permission in permissions)
         {
             _logger.LogInformation("PERMISSION = {Permission}", permission);
         }
-        _logger.LogInformation($"{permissions.Count} permissions retrieved for user {userId}");
-        _logger.LogInformation("HANDLER STEP 3");
         // Check if the required permission is in the user's permissions
         if (permissions.Contains(requirement.Permission, StringComparer.OrdinalIgnoreCase))
         {

@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
-using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Common.Models;
-using MySolution.Infrastructure.Services;
 using Newtonsoft.Json;
 
 namespace MySolution.Infrastructure.Authentication;
