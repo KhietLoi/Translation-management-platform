@@ -76,8 +76,7 @@ public static class MassTransitRegistration
     }
     
     //Retry RabbitMq:
-    private static void ConfigureRetry(
-        IRabbitMqReceiveEndpointConfigurator endpoint)
+    private static void ConfigureRetry(IRabbitMqReceiveEndpointConfigurator endpoint)
     {
         endpoint.UseMessageRetry(r =>
         {

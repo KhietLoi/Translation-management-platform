@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using StackExchange.Redis;
 
-namespace MySolution.Infrastructure.Services;
+namespace MySolution.Infrastructure.Authorization;
 
 public class PermissionCacheService : IPermissionCacheService
 {

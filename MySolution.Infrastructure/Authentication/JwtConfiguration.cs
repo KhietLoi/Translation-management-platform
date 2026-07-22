@@ -17,7 +17,6 @@ public static class JwtConfiguration
 {
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-   
         // Binds the JWT settings from the configuration.
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
 
@@ -25,9 +24,7 @@ public static class JwtConfiguration
                               .GetSection(JwtOptions.SectionName)
                               .Get<JwtOptions>()
                           ?? throw new InvalidOperationException("JWT configuration is missing.");
-
-        if (string.IsNullOrWhiteSpace(jwtSettings.SecretKey))
-            throw new InvalidOperationException("JWT SecretKey is missing.");
+        if (string.IsNullOrWhiteSpace(jwtSettings.SecretKey)) throw new InvalidOperationException("JWT SecretKey is missing.");
 
         var key = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
@@ -92,11 +89,9 @@ public static class JwtConfiguration
                         if (currentStamp != tokenSecurityStamp)
                         {
                             context.Fail("Security stamp invalid");
-                            return;
                         }
                     }
                 };
-                
             });
 
         services.AddAuthorization();

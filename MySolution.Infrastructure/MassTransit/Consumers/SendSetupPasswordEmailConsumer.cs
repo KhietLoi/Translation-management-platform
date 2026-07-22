@@ -1,7 +1,6 @@
 ﻿using MassTransit;
 using MediatR;
 using MySolution.Application.Features.Auth.SendSetUpPasswordEmail;
-using MySolution.Application.Service.MessageBus;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Infrastructure.MassTransit.Consumers;

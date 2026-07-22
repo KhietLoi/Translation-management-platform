@@ -47,7 +47,6 @@ public class JwtService : IJwtService
     public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(token);
-
         var tokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -56,12 +55,10 @@ public class JwtService : IJwtService
             ValidateIssuerSigningKey = true,
             ValidIssuer = _jwtOptions.Issuer,
             ValidAudience = _jwtOptions.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_jwtOptions.SecretKey))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey))
         };
 
         var principal = _tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
-
         if (securityToken is not JwtSecurityToken jwtToken)
         {
             throw new SecurityTokenException("Invalid JWT token.");
@@ -93,27 +90,12 @@ public class JwtService : IJwtService
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Jti, jti),
             new("security_stamp", user.SecurityStamp),
-            //new(JwtRegisteredClaimNames.Email, user.Email),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, user.Username),
             new(ClaimTypes.Email, user.Email),
         };
-
         // Roles
-        claims.AddRange(
-            user.UserRoles.Select(userRole =>
-                new Claim(
-                    ClaimTypes.Role,
-                    userRole.Role.Name)));
-
-        /*// Permissions
-        claims.AddRange(
-            user.UserRoles
-                .SelectMany(userRole => userRole.Role.RolePermissions)
-                .Select(rolePermission =>
-                    new Claim(
-                        "permission",
-                        rolePermission.Permission.Code)));*/
+        claims.AddRange(user.UserRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole.Role.Name)));
         
         return claims;
     }

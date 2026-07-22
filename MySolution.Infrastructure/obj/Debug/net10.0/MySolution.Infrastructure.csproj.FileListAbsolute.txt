@@ -38,6 +38,12 @@ C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastru
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\obj\Debug\net10.0\refint\MySolution.Infrastructure.dll
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\obj\Debug\net10.0\MySolution.Infrastructure.pdb
 C:\Users\DEV\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\obj\Debug\net10.0\ref\MySolution.Infrastructure.dll
+C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\Common\Template\EmailTemplateVerifyRegister.cs
+C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\Common\Template\ForgotPassword.html
+C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\Common\Template\ResetPasswordTemplate.cs
+C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\Common\Template\SetUpPassword.html
+C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\Common\Template\SetupPasswordTemplate.cs
+C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\Common\Template\VerifyEmail.html
 C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\MySolution.Infrastructure.deps.json
 C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\MySolution.Infrastructure.dll
 C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\MySolution.Infrastructure.pdb
@@ -58,9 +64,3 @@ C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\My
 C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\obj\Debug\net10.0\refint\MySolution.Infrastructure.dll
 C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\obj\Debug\net10.0\MySolution.Infrastructure.pdb
 C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\obj\Debug\net10.0\ref\MySolution.Infrastructure.dll
-C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\Common\Template\EmailTemplateVerifyRegister.cs
-C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\Common\Template\ResetPasswordTemplate.cs
-C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\Common\Template\SetupPasswordTemplate.cs
-C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\Common\Template\VerifyEmail.html
-C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\Common\Template\ForgotPassword.html
-C:\Users\DEV\OneDrive - Default Directory\Desktop\Intern_Doc\Project\Project1\MySolution\MySolution.Infrastructure\bin\Debug\net10.0\Common\Template\SetUpPassword.html

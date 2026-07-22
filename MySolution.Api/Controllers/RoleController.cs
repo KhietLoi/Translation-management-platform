@@ -40,7 +40,7 @@ public class RoleController(IMediator mediator) : Controller
     [Permission(PermissionConstants.Role.Update)]
     public async Task<IActionResult> UpdateRole(Guid id, [FromBody] UpdateRoleRequest request, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send( new UpdateRoleCommand(id, request), cancellationToken);
+        var response = await mediator.Send(new UpdateRoleCommand(id, request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response,response.Data);
     }
     
@@ -68,7 +68,7 @@ public class RoleController(IMediator mediator) : Controller
     [Permission(PermissionConstants.Role.View)]
     public async Task<IActionResult> GetRoles([FromQuery] GetRolesRequest request, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send( new GetRolesQuery(request), cancellationToken);
+        var response = await mediator.Send(new GetRolesQuery(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     

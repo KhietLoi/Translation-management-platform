@@ -20,7 +20,6 @@ public class PermissionPolicyProvider : DefaultAuthorizationPolicyProvider
         }
 
         var permission = policyName[PolicyPrefix.Length..];
-
         return new AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()
             .AddRequirements(

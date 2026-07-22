@@ -29,8 +29,7 @@ public class PasswordResetTokenService : IPasswordResetTokenService
         var json = JsonConvert.SerializeObject(payload);
         return _protector.Protect(json);
     }
-
-
+    
     public PasswordResetPayload ValidateToken(string token)
     {
         var json = _protector.Unprotect(token);
