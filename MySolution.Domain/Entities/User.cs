@@ -12,6 +12,7 @@ public class User
     public bool IsActive { get; set; } = true;
     public bool IsEmailVerified { get; set; }
     public int PasswordVersion { get; set; } = 1;
+    public string SecurityStamp { get; set; } = Guid.CreateVersion7().ToString();
     public DateTime CreatedAt { get; set; } 
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();

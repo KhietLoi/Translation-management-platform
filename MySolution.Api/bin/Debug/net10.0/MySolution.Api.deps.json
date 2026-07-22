@@ -763,6 +763,14 @@
           }
         }
       },
+      "Scriban/7.2.5": {
+        "runtime": {
+          "lib/net8.0/Scriban.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.2.5.0"
+          }
+        }
+      },
       "SendGrid/9.29.3": {
         "dependencies": {
           "Newtonsoft.Json": "13.0.4",
@@ -1212,6 +1220,7 @@
           "Microsoft.EntityFrameworkCore": "10.0.9",
           "Microsoft.EntityFrameworkCore.Relational": "10.0.9",
           "MySolution.Domain": "1.0.0",
+          "Scriban": "7.2.5",
           "Shared": "1.0.0"
         },
         "runtime": {
@@ -1606,6 +1615,13 @@
       "sha512": "sha512-68slEMyRTUNLc75DruEDsEohFmFfNwkHLLtwQ46bobF+8Tl+UXMKM1kM87ihhKy6JdAqy1RrvAfvBWeLmcY9Gg==",
       "path": "respite/3.0.17",
       "hashPath": "respite.3.0.17.nupkg.sha512"
+    },
+    "Scriban/7.2.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-6HDyv0P6PVdx/prWM3Aw0QHAT/DCpkBxOovZ2iPIH4L4ZvJ13JNYJgyUI+xJ5K2agXreYTBe23AL5ZQNTqJQvA==",
+      "path": "scriban/7.2.5",
+      "hashPath": "scriban.7.2.5.nupkg.sha512"
     },
     "SendGrid/9.29.3": {
       "type": "package",

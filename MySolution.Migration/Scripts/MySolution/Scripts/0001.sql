@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS mysolution."Users"
 
     "IsActive" BOOLEAN NOT NULL DEFAULT TRUE,
     
+    "SecurityStamp" VARCHAR(256) NOT NULL DEFAULT gen_random_uuid()::text,
+    
     "IsEmailVerified" BOOLEAN NOT NULL DEFAULT FALSE,
 
     "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),

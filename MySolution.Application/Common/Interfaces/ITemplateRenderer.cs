@@ -1,6 +1,6 @@
 ﻿namespace MySolution.Application.Common.Interfaces;
 
-public interface ITemplateRender
+public interface ITemplateRenderer
 {
     Task<string> RenderAsync(string templateName, object model, CancellationToken cancellationToken = default);
 }

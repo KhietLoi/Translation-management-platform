@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "6Jvz46ZVL+c=",
+  "dgSpecHash": "iRiwH6eOABE=",
   "success": true,
   "projectFilePath": "C:\\Users\\DEV\\OneDrive - Default Directory\\Desktop\\Intern_Doc\\Project\\Project1\\MySolution\\MySolution.Api\\MySolution.Api.csproj",
   "expectedPackageFiles": [
@@ -58,6 +58,7 @@
     "C:\\Users\\DEV\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\10.0.2\\npgsql.entityframeworkcore.postgresql.10.0.2.nupkg.sha512",
     "C:\\Users\\DEV\\.nuget\\packages\\rabbitmq.client\\7.2.1\\rabbitmq.client.7.2.1.nupkg.sha512",
     "C:\\Users\\DEV\\.nuget\\packages\\respite\\3.0.17\\respite.3.0.17.nupkg.sha512",
+    "C:\\Users\\DEV\\.nuget\\packages\\scriban\\7.2.5\\scriban.7.2.5.nupkg.sha512",
     "C:\\Users\\DEV\\.nuget\\packages\\sendgrid\\9.29.3\\sendgrid.9.29.3.nupkg.sha512",
     "C:\\Users\\DEV\\.nuget\\packages\\serilog\\4.4.0\\serilog.4.4.0.nupkg.sha512",
     "C:\\Users\\DEV\\.nuget\\packages\\serilog.aspnetcore\\10.0.0\\serilog.aspnetcore.10.0.0.nupkg.sha512",

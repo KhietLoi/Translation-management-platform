@@ -1,5 +1,6 @@
 ﻿using MassTransit;
-using MySolution.Application.Service;
+using MediatR;
+using MySolution.Application.Features.Auth.SendSetUpPasswordEmail;
 using MySolution.Application.Service.MessageBus;
 using Shared.MassTransit.IntegrationEvents;
 
@@ -7,14 +8,15 @@ namespace MySolution.Infrastructure.MassTransit.Consumers;
 
 public class SendSetupPasswordEmailConsumer : IConsumer<SendSetUpPasswordEmailEvent>
 {
-    private readonly IMessageBusService _messageBusService;
+    private readonly IMediator _mediator;
     
-    public SendSetupPasswordEmailConsumer(IMessageBusService messageBusService)
+    public SendSetupPasswordEmailConsumer(IMediator mediator)
     {
-        _messageBusService = messageBusService;
+        _mediator = mediator;
     }
+    
     public async Task Consume(ConsumeContext<SendSetUpPasswordEmailEvent> context)
     {
-        await _messageBusService.SendSetupPasswordEmailAsync(context.Message, context.CancellationToken);
+        await _mediator.Send(new SendSetUpPasswordEmailCommand { Message = context.Message }, context.CancellationToken);
     }
 }

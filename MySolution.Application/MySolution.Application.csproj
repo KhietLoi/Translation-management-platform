@@ -12,8 +12,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Features\Admin\" />
       <Folder Include="Features\RequestLog\Commands\CreateRequestLog\" />
-      <Folder Include="Features\TestFile\Query\" />
+      <Folder Include="Features\User\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -29,6 +30,12 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
       <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.9" />
+      <PackageReference Include="Scriban" Version="7.2.5" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="Common\Template\**\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 </Project>

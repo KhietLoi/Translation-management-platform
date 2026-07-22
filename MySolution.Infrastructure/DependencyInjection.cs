@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MySolution.Application.Common.Behaviors;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
+using MySolution.Application.Common.Interfaces.RateLimit;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Infrastructure.Authentication;
 using MySolution.Infrastructure.Authorization;
@@ -91,6 +93,9 @@ public static class DependencyInjection
         //Cache
         services.AddScoped<IPermissionService, PermissionService>();
         services.AddScoped<IPermissionCacheService, PermissionCacheService>();
+        
+        //Rate Limited:
+        services.AddScoped<IRateLimitService, RedisRateLimitService>();
         
         return services;
     }

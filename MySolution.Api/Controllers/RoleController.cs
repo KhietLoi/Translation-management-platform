@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Authorization;
 using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
-using MySolution.Application.Features.RolePermissions.Commands.AssignPermissionToRole;
-using MySolution.Application.Features.RolePermissions.Commands.RemovePermissionFromRole;
 using MySolution.Application.Features.Roles.Commands.CreateRole;
 using MySolution.Application.Features.Roles.Commands.DeleteRole;
 using MySolution.Application.Features.Roles.Commands.UpdateRole;
@@ -88,35 +86,7 @@ public class RoleController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    /// <summary>
-    /// Assign a permission to a role
-    /// </summary>
-    /// <param name="request"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    [HttpPost("assign-permission")]
-    [Permission(PermissionConstants.Role.Create)]
-    public async Task<IActionResult> AssignPermissionToRole([FromBody] AssignPermissionToRoleRequest request,CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new AssignPermissionToRoleCommand(request), cancellationToken);
-        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
-    }
-
-    /// <summary>
-    /// Remove a permission from a role
-    /// </summary>
-    /// <param name="roleId"></param>
-    /// <param name="permissionId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    [HttpDelete("delete-permission")]
-    [Permission(PermissionConstants.Role.Delete)]
-    public async Task<IActionResult> RemovePermissionFromRole(Guid roleId, Guid permissionId, CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new RemovePermissionFromRoleCommand(roleId, permissionId), cancellationToken);
-        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
-    }
-    
+   
     [HttpPut("permissions")]
     [Permission(PermissionConstants.Role.Update)]
     public async Task<IActionResult> UpdateRolePermissions([FromBody] UpdateRolePermissionsRequest request, CancellationToken cancellationToken)

@@ -1,6 +1,50 @@
-﻿namespace MySolution.Infrastructure.Services;
+﻿using Microsoft.Extensions.Options;
+using MySolution.Application.Common.Interfaces.RateLimit;
+using MySolution.Application.Common.Models.RateLimit;
+using MySolution.Infrastructure.Options;
+using StackExchange.Redis;
+namespace MySolution.Infrastructure.Services;
 
-public class RedisRateLimitService
+public class RedisRateLimitService : IRateLimitService
 {
-    
+    private readonly IDatabase _database;
+    private readonly RateLimitOptions _redisOptions;
+    public RedisRateLimitService(IConnectionMultiplexer redis, IOptions<RateLimitOptions> options)
+    {
+        _database = redis.GetDatabase();
+        _redisOptions = options.Value;
+    }
+    public async Task<RateLimitResult> CheckAsync(RateLimitPolicy policy, CancellationToken cancellationToken = default)
+    {
+        // Time window:
+        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var windowStart = now - (long)policy.Window.TotalSeconds;
+        await _database.SortedSetRemoveRangeByScoreAsync(policy.Key, double.NegativeInfinity, windowStart);
+        var count = await _database.SortedSetLengthAsync(policy.Key);
+        //Reject
+        if (count >= policy.PermitLimit)
+        {
+            return new RateLimitResult(
+                Allowed: false,
+                RemainingRequests: 0,
+                RetryAfter: DateTimeOffset.UtcNow.Add(policy.Window));
+        }
+        
+        await _database.SortedSetAddAsync(policy.Key, Guid.CreateVersion7().ToString(), now);
+        await _database.KeyExpireAsync(policy.Key, policy.Window);
+        return new RateLimitResult(
+            Allowed: true,
+            RemainingRequests: policy.PermitLimit - (int)count - 1,
+            RetryAfter: null);
+    }
+
+    public int GetPermitLimit()
+    {
+        return _redisOptions.PermitLimit;
+    }
+
+    public TimeSpan GetPermitWindow()
+    {
+        return TimeSpan.FromMinutes(_redisOptions.PermitWindow);
+    }
 }
