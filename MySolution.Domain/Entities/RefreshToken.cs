@@ -11,6 +11,7 @@ public class RefreshToken
     public DateTime? RevokedAt { get; set; }
     public Guid UserId { get; set; }
     public User User { get; set; } = null!;
+    public string Jti { get; set; } = null!;
     
     public bool IsExpired => ExpiredAt <= DateTime.UtcNow;
     public bool IsActive => RevokedAt == null && !IsExpired;

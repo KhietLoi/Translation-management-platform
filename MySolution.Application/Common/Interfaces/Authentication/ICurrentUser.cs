@@ -8,6 +8,6 @@ public interface ICurrentUser
     IReadOnlyCollection<string> Roles { get; }
     /*IReadOnlyCollection<string> Permissions { get; }*/
     bool IsAuthenticated { get; }
-    string? Jti {get;}
+    string Jti {get;}
     DateTime? ExpiredAt { get; }
 }

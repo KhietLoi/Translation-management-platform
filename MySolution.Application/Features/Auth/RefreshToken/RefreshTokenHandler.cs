@@ -59,10 +59,11 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-
+            
+            // Create jti
+            var jti = Guid.CreateVersion7().ToString();
             // Generate a new access token
-            var accessToken = _jwtService.GenerateJwtToken(user);
-
+            var accessToken = _jwtService.GenerateJwtToken(user, jti);
             // Generate a new refresh token
             var newRefreshToken = _jwtService.GenerateRefreshToken();
             var newHash = _hashService.ComputeSha256(newRefreshToken);
@@ -77,6 +78,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
                     UserId = user.Id,
                     TokenHash = newHash,
                     CreatedAt = DateTime.UtcNow,
+                    Jti = jti,
                     ExpiredAt = _jwtService.GetRefreshTokenExpirationDate()
                 });
 
