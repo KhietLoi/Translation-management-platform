@@ -4,5 +4,9 @@ namespace MySolution.Application.Features.User.UserProfile.Commands.UpdateProfil
 
 public class UpdateProfileRequest 
 {
-    public 
+    public string FullName { get; set; } = string.Empty;
+    public DateOnly  BirthDate { get; set; } 
+    public string PhoneNumber { get; set; } = string.Empty;
+    public string? AvatarBlobName { get; set; } = string.Empty;
+    public string? Address { get; set; } 
 }

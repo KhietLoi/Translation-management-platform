@@ -24,21 +24,58 @@ public class UpdateProfileHandler : IRequestHandler<UpdateProfileCommand, Update
 
     public async Task<UpdateProfileResponse> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
     {
+        var payload = request.Payload;
         var functionName = $"{nameof(UpdateProfileHandler)} =>";
         _logger.LogInformation(functionName);
         var response = new UpdateProfileResponse();
 
         try
         {
-
-            response.Ok();
+            var userProfile = await _unitOfWork.UserProfile.GetByIdAsync(request.Id);
+            if (userProfile is null)
+            {
+                response.ErrorMessage = "Profile not found";
+                response.WithStatus(HttpStatusCode.NotFound);
+                return response;
+            }
+            //Check phone:
+            var existingPhoneNumber = await _unitOfWork.UserProfile.IsPhoneNumberExistsAsync(payload.PhoneNumber, request.Id);
+            if (existingPhoneNumber)
+            {
+                response.ErrorMessage = "Phone number already exists";
+                response.WithStatus(HttpStatusCode.Conflict);
+                return response;
+            }
+            
+            //Update:
+            userProfile.PhoneNumber = payload.PhoneNumber;
+            userProfile.FullName =  payload.FullName;
+            userProfile.BirthDate = payload.BirthDate;
+            userProfile.AvatarBlobName =  payload.AvatarBlobName;
+            userProfile.UpdatedAt = new DateTime();
+            
+            await _unitOfWork.SaveAsync(cancellationToken);
+            response.Data = new UpdateData
+            {
+                UserId = request.Id,
+                FullName = userProfile.FullName,
+                PhoneNumber = userProfile.PhoneNumber,
+                AvatarBlobName = userProfile.AvatarBlobName,
+                Address = userProfile.Address,
+                UpdatedAt = userProfile.UpdatedAt
+            };
+            
+            response
+                .WithSuccess(true)
+                .WithStatus(HttpStatusCode.OK);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            exception.LogError(_logger, functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
-
+        
         return response;
     }
 
