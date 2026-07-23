@@ -14,7 +14,7 @@
     <ItemGroup>
         <Folder Include="Features\Admin\"/>
         <Folder Include="Features\RequestLog\Commands\CreateRequestLog\"/>
-        <Folder Include="Features\User\UserProfile\Queries\GetProfile\" />
+        <Folder Include="Features\User\UserProfile\Queries\" />
     </ItemGroup>
 
     <ItemGroup>
