@@ -1,4 +1,4 @@
-﻿namespace MySolution.Application.Features.Permission.Commands.CreatePermission;
+﻿namespace MySolution.Application.Features.Admin.Permission.Commands.CreatePermission;
 
 /// <summary>
 ///     Represents a request to create a new permission with a unique code and an optional description.

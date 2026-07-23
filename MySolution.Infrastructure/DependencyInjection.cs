@@ -33,13 +33,7 @@ public static class DependencyInjection
             .Bind(configuration.GetSection(JwtOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-
-        //Mail service:
-        services.AddOptions<SendGridOptions>()
-            .Bind(configuration.GetSection(SendGridOptions.SectionName))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-        services.AddScoped<IEmailService, SendGridEmailService>();
+        
         services.AddScoped<IHashService, HashService>();
 
         //Token Options: (Use for Token email)

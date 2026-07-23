@@ -1,6 +1,6 @@
 ﻿using MySolution.Application.Common.Models;
 
-namespace MySolution.Application.Features.Permission.Commands.CreatePermission;
+namespace MySolution.Application.Features.Admin.Permission.Commands.CreatePermission;
 
 /// <summary>
 ///     Response class for the create permission operation.
