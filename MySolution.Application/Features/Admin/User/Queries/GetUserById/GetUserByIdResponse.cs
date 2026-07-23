@@ -2,9 +2,10 @@
 
 namespace MySolution.Application.Features.User.Queries.GetUserById;
 
-public class GetUserByIdResponse : BaseResponse <GetUserByIdData>
+public class GetUserByIdResponse : BaseResponse<GetUserByIdData>
 {
 }
+
 public class GetUserByIdData
 {
     public string Username { get; set; } = string.Empty;
@@ -17,9 +18,9 @@ public class GetUserByIdData
 
 public class RoleData
 {
-    public Guid RoleId { get; set; } 
+    public Guid RoleId { get; set; }
     public string RoleName { get; set; } = string.Empty;
-    public string? Description { get; set; } 
+    public string? Description { get; set; }
 }
 
 public class PermissionData

@@ -6,13 +6,13 @@ using MySolution.Domain.Entities;
 namespace MySolution.Infrastructure.Persistence.Repository;
 
 /// <summary>
-/// Repository for managing refresh tokens in the database.
+///     Repository for managing refresh tokens in the database.
 /// </summary>
 /// <param name="context"></param>
 /// <param name="logger"></param>
-public class RefreshTokenRepository(AppDbContext context, ILogger logger) : Repository<RefreshToken>(context, logger), IRefreshTokenRepository
+public class RefreshTokenRepository(AppDbContext context, ILogger logger)
+    : Repository<RefreshToken>(context, logger), IRefreshTokenRepository
 {
-
     public async Task<RefreshToken?> GetByHashAsync(string tokenHash)
     {
         return await DbSet.FirstOrDefaultAsync(x => x.TokenHash == tokenHash);
@@ -32,7 +32,6 @@ public class RefreshTokenRepository(AppDbContext context, ILogger logger) : Repo
             .AsNoTracking()
             .Where(x => x.UserId == userId && x.RevokedAt == null && x.ExpiredAt > DateTime.UtcNow)
             .ToListAsync();
-
     }
 
     public virtual async Task RevokeAsync(Guid userId)
@@ -68,6 +67,5 @@ public class RefreshTokenRepository(AppDbContext context, ILogger logger) : Repo
             refreshToken.RevokedAt = DateTime.UtcNow;
             await Context.SaveChangesAsync();
         }
-        
     }
 }

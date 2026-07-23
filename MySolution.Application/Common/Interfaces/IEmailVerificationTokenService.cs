@@ -4,6 +4,6 @@ namespace MySolution.Application.Common.Interfaces;
 
 public interface IEmailVerificationTokenService
 {
-    string GenerateVerificationToken(Guid userid,string email);
+    string GenerateVerificationToken(Guid userid, string email);
     EmailVerifyPayload ValidateToken(string token);
 }

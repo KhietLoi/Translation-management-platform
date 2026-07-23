@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
@@ -7,11 +6,11 @@ using MySolution.Domain.Entities;
 namespace MySolution.Infrastructure.Persistence.Repository;
 
 /// <summary>
-/// Represents a repository for managing User entities in the database.
+///     Represents a repository for managing User entities in the database.
 /// </summary>
 /// <param name="context"></param>
 /// <param name="logger"></param>
-public class UserRepository (AppDbContext context, ILogger logger) : Repository<User>(context, logger), IUserRepository
+public class UserRepository(AppDbContext context, ILogger logger) : Repository<User>(context, logger), IUserRepository
 {
     public async Task<User?> GetByIdAsync(Guid id)
     {
@@ -21,11 +20,11 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
     public virtual async Task<User?> GetByEmailAsync(string email)
     {
         return await DbSet
-            .AsNoTracking() 
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Email == email);
     }
-    
-    public async Task <bool> ExistsByEmailOrUsernameAsync(string email, string username)
+
+    public async Task<bool> ExistsByEmailOrUsernameAsync(string email, string username)
     {
         return await DbSet.AnyAsync(x => x.Email == email || x.Username == username);
     }
@@ -58,7 +57,7 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
             .ThenInclude(x => x.RolePermissions)
             .ThenInclude(x => x.Permission)
             .FirstOrDefaultAsync(x => x.Username == username);*/
-        
+
         return await DbSet
             .AsSplitQuery()
             .Include(x => x.UserRoles)
@@ -66,7 +65,6 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
             .ThenInclude(x => x.RolePermissions)
             .ThenInclude(x => x.Permission)
             .FirstOrDefaultAsync(x => x.Username == username);
-        
     }
 
     public async Task<User?> GetUserWithRolesAsync(Guid userId)
@@ -79,8 +77,8 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
             .ThenInclude(x => x.Permission)
             .FirstOrDefaultAsync(x => x.Id == userId);
     }
-    
-    public async Task <bool>  ExistsByEmailOrUsernameAsync(string email, string username, Guid excludeUserId)
+
+    public async Task<bool> ExistsByEmailOrUsernameAsync(string email, string username, Guid excludeUserId)
     {
         return await DbSet.AnyAsync(x => (x.Email == email || x.Username == username) && x.Id != excludeUserId);
     }
@@ -94,6 +92,6 @@ public class UserRepository (AppDbContext context, ILogger logger) : Repository<
             .SelectMany(x => x.Role.RolePermissions)
             .Select(x => x.Permission.Code)
             .Distinct()
-            .ToHashSetAsync();  
+            .ToHashSetAsync();
     }
 }

@@ -11,26 +11,28 @@ using MySolution.Application.Features.Roles.Queries.GetRoleById;
 using MySolution.Application.Features.Roles.Queries.GetRoles;
 
 namespace MySolution.Api.Controllers;
-[Route("api/[controller]") ]
+
+[Route("api/[controller]")]
 [ApiController]
 public class RoleController(IMediator mediator) : Controller
 {
     /// <summary>
-    /// Create a new role
+    ///     Create a new role
     /// </summary>
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost]
     [Permission(PermissionConstants.Role.Create)]
-    public async Task<IActionResult> CreateRole([FromBody] CreateRoleRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateRole([FromBody] CreateRoleRequest request,
+        CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new CreateRoleCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-    
+
     /// <summary>
-    /// Update an existing role
+    ///     Update an existing role
     /// </summary>
     /// <param name="id"></param>
     /// <param name="request"></param>
@@ -38,14 +40,15 @@ public class RoleController(IMediator mediator) : Controller
     /// <returns></returns>
     [HttpPut("{id:guid}")]
     [Permission(PermissionConstants.Role.Update)]
-    public async Task<IActionResult> UpdateRole(Guid id, [FromBody] UpdateRoleRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateRole(Guid id, [FromBody] UpdateRoleRequest request,
+        CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new UpdateRoleCommand(id, request), cancellationToken);
-        return ResponseHelper.ToResponse(response.StatusCode, response,response.Data);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-    
+
     /// <summary>
-    /// Delete a role by its ID
+    ///     Delete a role by its ID
     /// </summary>
     /// <param name="id"></param>
     /// <param name="cancellationToken"></param>
@@ -57,9 +60,9 @@ public class RoleController(IMediator mediator) : Controller
         var response = await mediator.Send(new DeleteRoleCommand(id), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-    
+
     /// <summary>
-    /// Get all roles with optional filtering and pagination
+    ///     Get all roles with optional filtering and pagination
     /// </summary>
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
@@ -71,9 +74,9 @@ public class RoleController(IMediator mediator) : Controller
         var response = await mediator.Send(new GetRolesQuery(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-    
+
     /// <summary>
-    /// Get a role by its ID
+    ///     Get a role by its ID
     /// </summary>
     /// <param name="id"></param>
     /// <param name="cancellationToken"></param>
@@ -85,11 +88,12 @@ public class RoleController(IMediator mediator) : Controller
         var response = await mediator.Send(new GetRoleByIdQuery(id), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-    
-   
+
+
     [HttpPut("permissions")]
     [Permission(PermissionConstants.Role.Update)]
-    public async Task<IActionResult> UpdateRolePermissions([FromBody] UpdateRolePermissionsRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateRolePermissions([FromBody] UpdateRolePermissionsRequest request,
+        CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new UpdateRolePermissionsCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);

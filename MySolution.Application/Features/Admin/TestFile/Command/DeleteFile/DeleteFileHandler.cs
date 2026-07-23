@@ -2,23 +2,23 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
-using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
+using MySolution.Application.Features.Admin.TestFile.Command.DeleteFile;
+
 namespace MySolution.Application.Features.TestFile.Command.DeleteFile;
 
 public class DeleteFileHandler : IRequestHandler<DeleteFileCommand, DeleteFileResponse>
 {
+    private readonly IAzureBlobService _azureBlobService;
     private readonly ILogger<DeleteFileHandler> _logger;
-	private readonly IAzureBlobService _azureBlobService;
 
     public DeleteFileHandler
     (
         ILogger<DeleteFileHandler> logger,
-		IAzureBlobService azureBlobService
+        IAzureBlobService azureBlobService
     )
     {
         _logger = logger;
-		_azureBlobService = azureBlobService;
+        _azureBlobService = azureBlobService;
     }
 
     #region Implementation of IRequestHandler<in DeleteFileCommand, DeleteFileResponse>
@@ -30,7 +30,7 @@ public class DeleteFileHandler : IRequestHandler<DeleteFileCommand, DeleteFileRe
         var response = new DeleteFileResponse();
 
         try
-        {   
+        {
             var deleted = await _azureBlobService.DeleteFileAsync(
                 request.Payload.FileName,
                 cancellationToken);

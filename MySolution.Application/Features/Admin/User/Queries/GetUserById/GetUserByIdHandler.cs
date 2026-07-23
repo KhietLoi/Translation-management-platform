@@ -6,17 +6,19 @@ using MySolution.Application.Common.Interfaces.Repositories;
 namespace MySolution.Application.Features.User.Queries.GetUserById;
 
 /// <summary>
-/// Handler for retrieving a user by their ID.
+///     Handler for retrieving a user by their ID.
 /// </summary>
-public class GetUserByIdHandler :IRequestHandler<GetUserByIdQuery,GetUserByIdResponse>
+public class GetUserByIdHandler : IRequestHandler<GetUserByIdQuery, GetUserByIdResponse>
 {
-    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<GetUserByIdHandler> _logger;
-    public GetUserByIdHandler(IUnitOfWork unitOfWork,  ILogger<GetUserByIdHandler> logger)
+    private readonly IUnitOfWork _unitOfWork;
+
+    public GetUserByIdHandler(IUnitOfWork unitOfWork, ILogger<GetUserByIdHandler> logger)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
+
     public async Task<GetUserByIdResponse> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
     {
         var functionName = $"{nameof(GetUserByIdHandler)}";
@@ -68,9 +70,9 @@ public class GetUserByIdHandler :IRequestHandler<GetUserByIdQuery,GetUserByIdRes
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = "An unexpected error occurred.";
-            response.WithStatus(HttpStatusCode.InternalServerError); 
+            response.WithStatus(HttpStatusCode.InternalServerError);
         }
-        
+
         return response;
     }
 }

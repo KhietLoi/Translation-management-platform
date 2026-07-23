@@ -9,12 +9,13 @@ namespace MySolution.Application.Features.Auth.Login;
 
 public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
 {
-    private readonly ILogger<LoginHandler> _logger;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly IJwtService _jwtService;
     private readonly IHashService _hashService;
+    private readonly IJwtService _jwtService;
+    private readonly ILogger<LoginHandler> _logger;
+    private readonly IPasswordHasher _passwordHasher;
     private readonly ISecurityStampService _tokenSecurityService;
+    private readonly IUnitOfWork _unitOfWork;
+
     public LoginHandler
     (
         ILogger<LoginHandler> logger,
@@ -70,7 +71,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-            
+
             //Check IsEmailVerified
             if (!user.IsEmailVerified)
             {
@@ -84,7 +85,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-            
+
             //Create Jti
             var jti = Guid.CreateVersion7().ToString();
             // Generate JWT
@@ -105,7 +106,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                 });
             await _unitOfWork.SaveAsync(cancellationToken);
             await _tokenSecurityService.SetSecurityStampAsync(user.Id, user.SecurityStamp);
-            
+
             response.Data = new LoginResult
             {
                 AccessToken = accessToken,

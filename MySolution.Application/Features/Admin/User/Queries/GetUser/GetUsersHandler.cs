@@ -8,43 +8,41 @@ using MySolution.Application.Common.Models;
 namespace MySolution.Application.Features.User.Queries.GetUser;
 
 /// <summary>
-/// Handler for processing the GetUsersQuery
+///     Handler for processing the GetUsersQuery
 /// </summary>
 public class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersResponse>
 {
     private readonly ILogger<GetUsersHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
 
-    public GetUsersHandler (ILogger<GetUsersHandler> logger, IUnitOfWork unitOfWork)
+    public GetUsersHandler(ILogger<GetUsersHandler> logger, IUnitOfWork unitOfWork)
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
     }
- 
+
     public async Task<GetUsersResponse> Handle(GetUsersQuery request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
         var functionName = $"{nameof(GetUsersHandler)}";
         _logger.LogInformation(functionName);
         var response = new GetUsersResponse();
-        
+
         try
         {
             var query = _unitOfWork.User.GetAll().AsNoTracking();
             if (!string.IsNullOrWhiteSpace(payload.Search))
-            {
                 query = query.Where(x =>
                     x.Username.Contains(payload.Search) ||
                     x.Email.Contains(payload.Search));
-            }
-            
+
             var totalItem = await query.CountAsync(cancellationToken);
             var users = await query
                 .OrderBy(x => x.Username)
                 .Skip((payload.Page - 1) * payload.Limit)
                 .Take(payload.Limit)
                 .ToListAsync(cancellationToken);
-            
+
             response.Data = new GetUsersResult
             {
                 Users = users.Select(x => new GetUsersData
@@ -74,7 +72,7 @@ public class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersResponse>
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
-        
+
         return response;
     }
 }

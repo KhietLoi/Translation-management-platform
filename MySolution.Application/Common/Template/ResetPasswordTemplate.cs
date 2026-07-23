@@ -6,7 +6,8 @@ public class ResetPasswordTemplate
         string userName,
         string resetUrl,
         int passwordResetExpiryMinutes,
-        string logoUrl = "https://wmtstorageaccdevsa.blob.core.windows.net/documents/019f82a5-9ee7-7e76-975b-fbdd3263c688.jpg") // Thay bằng URL logo thật của bạn
+        string logoUrl =
+            "https://wmtstorageaccdevsa.blob.core.windows.net/documents/019f82a5-9ee7-7e76-975b-fbdd3263c688.jpg") // Thay bằng URL logo thật của bạn
     {
         return $"""
                 <!DOCTYPE html>
@@ -70,7 +71,7 @@ public class ResetPasswordTemplate
                                 <p style="font-size: 12px; color: #888888; margin: 0; line-height: 1.5;">
                                     If you didn't request a password reset, you can safely ignore this email.<br>
                                     Your password will not change until you access the link above and create a new one.<br><br>
-                                    &copy; {System.DateTime.Now.Year} MySolution. All rights reserved.
+                                    &copy; {DateTime.Now.Year} MySolution. All rights reserved.
                                 </p>
                             </td>
                         </tr>

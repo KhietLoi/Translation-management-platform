@@ -11,8 +11,8 @@ public class CrytographyHelper
 
         public static string EncryptStringToBytes_Aes(string plainText, string key)
         {
-            byte[] keyInbytes = Encoding.UTF8.GetBytes(key);
-            byte[] IVInBytes = Encoding.UTF8.GetBytes(Reverse(key));
+            var keyInbytes = Encoding.UTF8.GetBytes(key);
+            var IVInBytes = Encoding.UTF8.GetBytes(Reverse(key));
 
             // Check arguments.
             if (plainText == null || plainText.Length <= 0)
@@ -26,7 +26,7 @@ public class CrytographyHelper
 
             // Create an Aes object
             // with the specified key and IV.
-            using (Aes aesAlg = Aes.Create())
+            using (var aesAlg = Aes.Create())
             {
                 aesAlg.Key = keyInbytes;
                 aesAlg.IV = IVInBytes;
@@ -34,7 +34,7 @@ public class CrytographyHelper
                 aesAlg.Padding = PaddingMode.PKCS7;
 
                 // Create an encryptor to perform the stream transform.
-                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+                var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
                 // Create the streams used for encryption.
                 using MemoryStream msEncrypt = new();
@@ -54,8 +54,8 @@ public class CrytographyHelper
 
         public static string DecryptStringFromBytes_Aes(string cipherText, string key)
         {
-            byte[] keyInbytes = Encoding.UTF8.GetBytes(key);
-            byte[] IVInBytes = Encoding.UTF8.GetBytes(Reverse(key));
+            var keyInbytes = Encoding.UTF8.GetBytes(key);
+            var IVInBytes = Encoding.UTF8.GetBytes(Reverse(key));
 
             // Check arguments.
             if (cipherText == null || cipherText.Length <= 0)
@@ -67,7 +67,7 @@ public class CrytographyHelper
 
             string plaintext = null;
 
-            using (Aes aesAlg = Aes.Create())
+            using (var aesAlg = Aes.Create())
             {
                 aesAlg.Key = keyInbytes;
                 aesAlg.IV = IVInBytes;
@@ -75,7 +75,7 @@ public class CrytographyHelper
                 aesAlg.Padding = PaddingMode.PKCS7;
 
                 // Create a decryptor to perform the stream transform.
-                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+                var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
                 // Create the streams used for decryption.
                 using MemoryStream msDecrypt = new(Convert.FromBase64String(cipherText));
@@ -92,7 +92,7 @@ public class CrytographyHelper
 
         private static string Reverse(string s)
         {
-            char[] charArray = s.ToCharArray();
+            var charArray = s.ToCharArray();
             Array.Reverse(charArray);
             return new string(charArray);
         }
@@ -128,10 +128,7 @@ public class CrytographyHelper
             var randomBytes = RandomNumberGenerator.GetBytes(size);
             var sb = new StringBuilder(size * 2);
 
-            foreach (var b in randomBytes)
-            {
-                sb.Append(Base62Chars[b % Base62Chars.Length]);
-            }
+            foreach (var b in randomBytes) sb.Append(Base62Chars[b % Base62Chars.Length]);
 
             return prefix + sb;
         }

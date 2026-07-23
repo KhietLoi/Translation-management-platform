@@ -1,6 +1,7 @@
 ﻿namespace MySolution.Domain.Entities;
+
 /// <summary>
-/// Represents a refresh token used for authentication and authorization purposes.
+///     Represents a refresh token used for authentication and authorization purposes.
 /// </summary>
 public class RefreshToken
 {
@@ -12,7 +13,7 @@ public class RefreshToken
     public Guid UserId { get; set; }
     public User User { get; set; } = null!;
     public string Jti { get; set; } = null!;
-    
+
     public bool IsExpired => ExpiredAt <= DateTime.UtcNow;
     public bool IsActive => RevokedAt == null && !IsExpired;
 }

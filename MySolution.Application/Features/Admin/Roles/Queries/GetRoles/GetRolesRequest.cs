@@ -1,7 +1,7 @@
 ﻿namespace MySolution.Application.Features.Roles.Queries.GetRoles;
 
 /// <summary>
-/// Request model for retrieving roles with pagination and optional search criteria.
+///     Request model for retrieving roles with pagination and optional search criteria.
 /// </summary>
 public class GetRolesRequest
 {

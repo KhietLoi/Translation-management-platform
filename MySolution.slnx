@@ -1,9 +1,16 @@
 <Solution>
-  <Project Path="MySolution.Api/MySolution.Api.csproj" />
-  <Project Path="MySolution.Application/MySolution.Application.csproj" />
-  <Project Path="MySolution.Domain/MySolution.Domain.csproj" />
-  <Project Path="MySolution.Infrastructure/MySolution.Infrastructure.csproj" />
+  <Folder Name="/Services/" />
+  <Folder Name="/Services/Auth/">
+    <Project Path="MySolution.Api/MySolution.Api.csproj" />
+    <Project Path="MySolution.Application/MySolution.Application.csproj" />
+    <Project Path="MySolution.Domain/MySolution.Domain.csproj" />
+    <Project Path="MySolution.Infrastructure/MySolution.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Services/Email/">
+    <Project Path="MySolution.Email.Api/MySolution.Email.Api.csproj" />
+    <Project Path="MySolution.Email.Application/MySolution.Email.Application.csproj" />
+    <Project Path="MySolution.Email.Infrastructure/MySolution.Email.Infrastructure.csproj" />
+  </Folder>
   <Project Path="MySolution.Migration/MySolution.Migration.csproj" />
-  <Project Path="MySolution.UnitTest/MySolution.UnitTest.csproj" />
   <Project Path="Shared/Shared.csproj" />
 </Solution>

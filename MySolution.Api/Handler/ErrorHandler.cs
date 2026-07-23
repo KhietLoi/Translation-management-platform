@@ -10,6 +10,7 @@ public class ErrorHandler
     public string errorMessageCode { get; set; }
     public List<ValidationError> errors { get; set; }
     public object data { get; set; }
+
     public override string ToString()
     {
         return JsonConvert.SerializeObject(this);

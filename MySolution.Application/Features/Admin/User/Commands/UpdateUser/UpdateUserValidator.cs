@@ -2,7 +2,7 @@
 
 namespace MySolution.Application.Features.User.Commands.UpdateUser;
 
-public class UpdateUserValidator 
+public class UpdateUserValidator
     : AbstractValidator<UpdateUserCommand>
 {
     public UpdateUserValidator()

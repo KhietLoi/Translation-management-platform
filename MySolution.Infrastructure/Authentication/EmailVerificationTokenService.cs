@@ -16,8 +16,8 @@ public class EmailVerificationTokenService : IEmailVerificationTokenService
         _protector = dataProtectionProvider.CreateProtector(nameof(EmailVerifyPayload));
         _tokenSetting = tokenSetting;
     }
-    
-    public string GenerateVerificationToken(Guid userid,string email)
+
+    public string GenerateVerificationToken(Guid userid, string email)
     {
         var payload = new EmailVerifyPayload
         {
@@ -34,11 +34,8 @@ public class EmailVerificationTokenService : IEmailVerificationTokenService
     {
         var json = _protector.Unprotect(token);
         var payload = JsonConvert.DeserializeObject<EmailVerifyPayload>(json);
-        if (payload == null)
-        {
-            throw new InvalidOperationException("Invalid verification token.");
-        }
-        
+        if (payload == null) throw new InvalidOperationException("Invalid verification token.");
+
         return payload;
     }
 }

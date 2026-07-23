@@ -8,8 +8,8 @@ namespace MySolution.Api.Middlewares;
 
 public class ExceptionMiddleware
 {
-    private readonly RequestDelegate _next;
     public static readonly string INTERNAL_SERVER_ERROR = "Internal server error";
+    private readonly RequestDelegate _next;
 
     public ExceptionMiddleware(RequestDelegate next)
     {
@@ -145,7 +145,7 @@ public class ExceptionMiddleware
             _ => exception.Message
         };
 
-        await context.Response.WriteAsync(new ErrorHandler()
+        await context.Response.WriteAsync(new ErrorHandler
         {
             success = false,
             data = null,

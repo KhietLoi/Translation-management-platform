@@ -3,7 +3,7 @@
 namespace MySolution.Application.Features.Roles.Queries.GetRoles;
 
 /// <summary>
-/// Validator for the GetRolesQuery
+///     Validator for the GetRolesQuery
 /// </summary>
 public class GetRolesValidator : AbstractValidator<GetRolesQuery>
 {

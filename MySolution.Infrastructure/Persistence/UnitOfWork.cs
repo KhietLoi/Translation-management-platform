@@ -8,21 +8,44 @@ namespace MySolution.Infrastructure.Persistence;
 public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
 {
     private readonly AppDbContext _context;
-    private IDbContextTransaction _transaction;
     private readonly ILogger _logger;
+    private IDbContextTransaction _transaction;
+
     public UnitOfWork(AppDbContext context, ILoggerFactory loggerFactory)
     {
         _context = context;
         _logger = loggerFactory.CreateLogger("UnitOfWork");
-        
+
         User = new UserRepository(_context, _logger);
         Role = new RoleRepository(_context, _logger);
         Permission = new PermissionRepository(_context, _logger);
         RefreshToken = new RefreshTokenRepository(_context, _logger);
         UserRole = new UserRoleRepository(_context, _logger);
         RolePermission = new RolePermissionRepository(_context, _logger);
-        
     }
+
+    /*public async ValueTask DisposeAsync()
+    {
+        await _transaction.DisposeAsync().ConfigureAwait(false);
+        await _context.DisposeAsync().ConfigureAwait(false);
+        GC.SuppressFinalize(this);
+    }*/
+    public async ValueTask DisposeAsync()
+    {
+        if (_transaction is not null) await _transaction.DisposeAsync().ConfigureAwait(false);
+
+        await _context.DisposeAsync().ConfigureAwait(false);
+
+        GC.SuppressFinalize(this);
+    }
+
+    public void Dispose()
+    {
+        _transaction?.Dispose();
+        _context.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
     public IUserRepository User { get; }
     public IRoleRepository Role { get; }
     public IPermissionRepository Permission { get; }
@@ -56,30 +79,5 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
     public async Task RollbackAsync(CancellationToken cancellationToken = default)
     {
         await _transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-    }
-
-    /*public async ValueTask DisposeAsync()
-    {
-        await _transaction.DisposeAsync().ConfigureAwait(false);
-        await _context.DisposeAsync().ConfigureAwait(false);
-        GC.SuppressFinalize(this);
-    }*/
-    public async ValueTask DisposeAsync()
-    {
-        if (_transaction is not null)
-        {
-            await _transaction.DisposeAsync().ConfigureAwait(false);
-        }
-
-        await _context.DisposeAsync().ConfigureAwait(false);
-
-        GC.SuppressFinalize(this);
-    }
-
-    public void Dispose()
-    {
-        _transaction?.Dispose();
-        _context.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

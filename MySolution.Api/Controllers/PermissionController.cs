@@ -11,26 +11,27 @@ using MySolution.Application.Features.Permission.Queries.GetPermissions;
 
 namespace MySolution.Api.Controllers;
 
-[Route("api/[controller]") ]
+[Route("api/[controller]")]
 [ApiController]
-public class PermissionController (IMediator mediator) : Controller
+public class PermissionController(IMediator mediator) : Controller
 {
     /// <summary>
-    /// Create a new permission
+    ///     Create a new permission
     /// </summary>
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost]
     [Permission(PermissionConstants.Permission.Create)]
-    public async Task<IActionResult> CreatePermission([FromBody] CreatePermissionRequest request,CancellationToken cancellationToken)
+    public async Task<IActionResult> CreatePermission([FromBody] CreatePermissionRequest request,
+        CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new CreatePermissionCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
     /// <summary>
-    /// Update an existing permission
+    ///     Update an existing permission
     /// </summary>
     /// <param name="id"></param>
     /// <param name="request"></param>
@@ -45,12 +46,12 @@ public class PermissionController (IMediator mediator) : Controller
         CancellationToken cancellationToken
     )
     {
-        var response = await mediator.Send(new UpdatePermissionCommand(id,request), cancellationToken);
+        var response = await mediator.Send(new UpdatePermissionCommand(id, request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
     /// <summary>
-    /// Delete a permission by its ID
+    ///     Delete a permission by its ID
     /// </summary>
     /// <param name="id"></param>
     /// <param name="cancellationToken"></param>
@@ -62,23 +63,24 @@ public class PermissionController (IMediator mediator) : Controller
         var response = await mediator.Send(new DeletePermissionCommand(id), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-    
+
     /// <summary>
-    /// Get all permissions with optional filtering and pagination
+    ///     Get all permissions with optional filtering and pagination
     /// </summary>
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet]
     [Permission(PermissionConstants.Permission.View)]
-    public async Task<IActionResult> GetPermissions([FromQuery] GetPermissionsRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetPermissions([FromQuery] GetPermissionsRequest request,
+        CancellationToken cancellationToken)
     {
-        var response = await mediator.Send( new GetPermissionsQuery(request), cancellationToken);
+        var response = await mediator.Send(new GetPermissionsQuery(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
     /// <summary>
-    /// Get a permission by its ID
+    ///     Get a permission by its ID
     /// </summary>
     /// <param name="id"></param>
     /// <param name="cancellationToken"></param>

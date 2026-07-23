@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Infrastructure.Options;
 using SendGrid;
@@ -11,7 +10,8 @@ public class SendGridEmailService(IOptions<SendGridOptions> options) : IEmailSer
 {
     private readonly SendGridOptions _options = options.Value;
 
-    public async Task SendEmailAsync(string toEmail, string subject, string htmlContent, CancellationToken cancellationToken = default)
+    public async Task SendEmailAsync(string toEmail, string subject, string htmlContent,
+        CancellationToken cancellationToken = default)
     {
         //Client
         var client = new SendGridClient(_options.ApiKey);
@@ -20,14 +20,13 @@ public class SendGridEmailService(IOptions<SendGridOptions> options) : IEmailSer
         //Destination:
         var destination = new EmailAddress(toEmail);
         //Message:
-        var message = MailHelper.CreateSingleEmail(fromInfor,destination,subject,"",htmlContent);
+        var message = MailHelper.CreateSingleEmail(fromInfor, destination, subject, "", htmlContent);
         //response:
-        var response = await client.SendEmailAsync(message,  cancellationToken);
+        var response = await client.SendEmailAsync(message, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             var body = await response.Body.ReadAsStringAsync();
             throw new Exception($"SendGrid Error: {body}");
         }
-        
     }
 }

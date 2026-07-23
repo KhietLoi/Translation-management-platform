@@ -2,4 +2,4 @@
 
 public class MessageBusService : IMessageBusService
 {
-}       
+}

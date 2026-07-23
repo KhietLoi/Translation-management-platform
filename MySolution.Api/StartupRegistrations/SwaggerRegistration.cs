@@ -1,5 +1,4 @@
-﻿using Microsoft.OpenApi;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 
 namespace MySolution.Api.StartupRegistrations;
 

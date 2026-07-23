@@ -9,7 +9,7 @@ using MySolution.Application.Features.User.Queries.GetUser;
 namespace MySolution.Application.Features.Roles.Queries.GetRoles;
 
 /// <summary>
-/// Handler for processing the GetRolesQuery,
+///     Handler for processing the GetRolesQuery,
 /// </summary>
 public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
 {
@@ -32,11 +32,9 @@ public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
         {
             var query = _unitOfWork.Role.GetAll().AsNoTracking();
             if (!string.IsNullOrWhiteSpace(payload.Search))
-            {
                 query = query.Where(x =>
                     x.Name.Contains(payload.Search) ||
                     (x.Description != null && x.Description.Contains(payload.Search)));
-            }
 
             var totalItem = await query.CountAsync(cancellationToken);
             var roles = await query
@@ -52,7 +50,7 @@ public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
                     Name = x.Name,
                     Description = x.Description
                 }).ToList(),
-                
+
                 Paging = new PagingInfo
                 {
                     Page = payload.Page,
@@ -69,9 +67,9 @@ public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = "An unexpected error occurred.";
-            response.WithStatus(HttpStatusCode.InternalServerError); 
+            response.WithStatus(HttpStatusCode.InternalServerError);
         }
-        
+
         return response;
     }
 }

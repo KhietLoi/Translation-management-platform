@@ -1,6 +1,6 @@
-﻿namespace MySolution.Application.Features.TestFile.Command.DeleteFile;
+﻿namespace MySolution.Application.Features.Admin.TestFile.Command.DeleteFile;
 
 public class DeleteFileRequest
 {
-    public string FileName { get; set; }
+    public string FileName { get; set; } = null!;
 }

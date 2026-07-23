@@ -11,20 +11,20 @@ namespace MySolution.Application.Features.Auth.ForgotPassword;
 public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, ForgotPasswordResponse>
 {
     private readonly ILogger<ForgotPasswordHandler> _logger;
-	private readonly IUnitOfWork _unitOfWork;
-    private readonly IPasswordResetTokenService _tokenService;
     private readonly IMessageSender _messageSender;
+    private readonly IPasswordResetTokenService _tokenService;
+    private readonly IUnitOfWork _unitOfWork;
 
     public ForgotPasswordHandler
     (
         ILogger<ForgotPasswordHandler> logger,
-		IUnitOfWork unitOfWork,
+        IUnitOfWork unitOfWork,
         IPasswordResetTokenService tokenService,
         IMessageSender messageSender
     )
     {
         _logger = logger;
-		_unitOfWork = unitOfWork;
+        _unitOfWork = unitOfWork;
         _tokenService = tokenService;
         _messageSender = messageSender;
     }
@@ -47,7 +47,7 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-            
+
             var resetToken = _tokenService.GenerateResetToken(user.Id, user.Email, user.Username, user.PasswordVersion);
             //SendEmail
             await _messageSender.SendMessage<SendForgotPasswordEmailEvent>(
@@ -58,7 +58,7 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
                     Username = user.Username,
                     Token = resetToken
                 }, cancellationToken);
-            
+
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
@@ -72,5 +72,6 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
 
         return response;
     }
+
     #endregion
 }

@@ -1,8 +1,6 @@
 ﻿using MediatR;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
-using MySolution.Application.Common.Template;
-
 
 namespace MySolution.Application.Features.Auth.SendForgotPasswordEmail;
 
@@ -10,8 +8,8 @@ public class SendForgotPasswordEmailHandler : IRequestHandler<SendForgotPassword
 {
     private readonly IApplicationUrlProvider _applicationUrlProvider;
     private readonly IEmailService _emailService;
-    private readonly ITokenSetting _tokenSettings;
     private readonly ITemplateRenderer _templateRenderer;
+    private readonly ITokenSetting _tokenSettings;
 
     public SendForgotPasswordEmailHandler
     (
@@ -26,9 +24,10 @@ public class SendForgotPasswordEmailHandler : IRequestHandler<SendForgotPassword
         _tokenSettings = tokenSetting;
         _templateRenderer = templateRenderer;
     }
+
     public async Task Handle(SendForgotPasswordEmailCommand request, CancellationToken cancellationToken)
     {
-        var resetUrl = _applicationUrlProvider.GetResetPasswordUrl(Uri.EscapeDataString((request.Message.Token)));
+        var resetUrl = _applicationUrlProvider.GetResetPasswordUrl(Uri.EscapeDataString(request.Message.Token));
         var html = await _templateRenderer.RenderAsync(
             "ForgotPassword.html",
             new

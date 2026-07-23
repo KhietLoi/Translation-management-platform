@@ -1,7 +1,7 @@
 ﻿namespace MySolution.Domain.Entities;
 
 /// <summary>
-/// Represents the many-to-many relationship between roles and permissions.
+///     Represents the many-to-many relationship between roles and permissions.
 /// </summary>
 public class RolePermission
 {

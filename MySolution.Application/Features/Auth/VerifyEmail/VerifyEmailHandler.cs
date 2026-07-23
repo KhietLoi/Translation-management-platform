@@ -8,10 +8,10 @@ namespace MySolution.Application.Features.Auth.VerifyEmail;
 
 public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmailResponse>
 {
+    private readonly IEmailVerificationTokenService _emailVerificationTokenService;
 
     private readonly ILogger<VerifyEmailHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IEmailVerificationTokenService _emailVerificationTokenService;
 
     public VerifyEmailHandler
     (
@@ -40,7 +40,7 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-            
+
             var user = _unitOfWork.User.GetByIdAsync(payload.UserId).Result;
             if (user == null)
             {
@@ -55,10 +55,10 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-            
+
             user.IsEmailVerified = true;
             await _unitOfWork.SaveAsync(cancellationToken);
-         
+
             response.Data = new VerifyEmailData
             {
                 Email = user.Email
@@ -74,7 +74,7 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
-        
+
         return response;
     }
 }

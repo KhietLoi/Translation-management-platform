@@ -3,13 +3,14 @@
 namespace MySolution.Application.Features.Roles.Commands.DeleteRole;
 
 /// <summary>
-/// Command to delete a role by its ID.
+///     Command to delete a role by its ID.
 /// </summary>
-public class DeleteRoleCommand : IRequest <DeleteRoleResponse>
+public class DeleteRoleCommand : IRequest<DeleteRoleResponse>
 {
-    public Guid Id { get; set; }
-    public  DeleteRoleCommand(Guid id)
+    public DeleteRoleCommand(Guid id)
     {
         Id = id;
     }
+
+    public Guid Id { get; set; }
 }

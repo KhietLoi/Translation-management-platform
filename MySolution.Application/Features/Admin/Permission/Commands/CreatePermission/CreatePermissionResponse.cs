@@ -3,14 +3,15 @@
 namespace MySolution.Application.Features.Permission.Commands.CreatePermission;
 
 /// <summary>
-/// Response class for the create permission operation.
+///     Response class for the create permission operation.
 /// </summary>
-public class CreatePermissionResponse : BaseResponse <CreatePermissionData>
+public class CreatePermissionResponse : BaseResponse<CreatePermissionData>
 {
 }
+
 public class CreatePermissionData
 {
     public string Code { get; set; } = string.Empty;
-    public string? Description { get; set; } 
+    public string? Description { get; set; }
     public DateTime CreatedAt { get; set; }
 }

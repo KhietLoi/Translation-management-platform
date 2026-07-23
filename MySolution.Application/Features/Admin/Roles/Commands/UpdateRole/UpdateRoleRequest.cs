@@ -1,7 +1,7 @@
 ﻿namespace MySolution.Application.Features.Roles.Commands.UpdateRole;
 
 /// <summary>
-/// Request model for updating a role
+///     Request model for updating a role
 /// </summary>
 public class UpdateRoleRequest
 {

@@ -5,9 +5,9 @@ using MySolution.Domain.Entities;
 namespace MySolution.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// Configures the entity type for the Permission entity.
+///     Configures the entity type for the Permission entity.
 /// </summary>
-public class PermissionConfiguration: IEntityTypeConfiguration<Permission>
+public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
 {
     public void Configure(EntityTypeBuilder<Permission> builder)
     {

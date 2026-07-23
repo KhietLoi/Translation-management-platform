@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MySolution.Application.Common.Behaviors;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.RateLimit;
@@ -26,7 +25,7 @@ public static class DependencyInjection
         {
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
         });
-        
+
         //jwt:
         services.AddJwtAuthentication(configuration);
         services.AddCustomServices();
@@ -34,7 +33,7 @@ public static class DependencyInjection
             .Bind(configuration.GetSection(JwtOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        
+
         //Mail service:
         services.AddOptions<SendGridOptions>()
             .Bind(configuration.GetSection(SendGridOptions.SectionName))
@@ -42,21 +41,21 @@ public static class DependencyInjection
             .ValidateOnStart();
         services.AddScoped<IEmailService, SendGridEmailService>();
         services.AddScoped<IHashService, HashService>();
-        
+
         //Token Options: (Use for Token email)
         services.AddOptions<TokenOptions>()
             .Bind(configuration.GetSection(TokenOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddSingleton<ITokenSetting, TokenSetting>();
-        
+
         //Background Clean RefreshToken
         services.AddHostedService<RefreshTokenCleanupHostedService>();
         services.AddOptions<RefreshTokenCleanupOptions>()
             .Bind(configuration.GetSection(RefreshTokenCleanupOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        
+
         //Redis
         services.Configure<RedisOptions>(configuration.GetSection(RedisOptions.SectionName));
         var redisOptions = configuration
@@ -93,6 +92,7 @@ public static class DependencyInjection
         services.AddScoped<ISecurityStampService, SecurityStampService>();
         return services;
     }
+
     public static IServiceCollection AddCustomServices(this IServiceCollection services)
     {
         //HttpContext
@@ -101,7 +101,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ICurrentUser, CurrentUserService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        
+
         return services;
     }
 }

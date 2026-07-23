@@ -1,31 +1,31 @@
 ﻿using System.Net;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 using Shared.Extensions;
+
 namespace MySolution.Application.Features.Auth.ChangePassword;
 
 public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, ChangePasswordResponse>
 {
-    private readonly ILogger<ChangePasswordHandler> _logger;
-	private readonly IUnitOfWork _unitOfWork;
-    private readonly IPasswordHasher _passwordHasher;
     private readonly ICurrentUser _currentUser;
+    private readonly ILogger<ChangePasswordHandler> _logger;
+    private readonly IPasswordHasher _passwordHasher;
     private readonly ISecurityStampService _tokenSecurityService;
+    private readonly IUnitOfWork _unitOfWork;
 
     public ChangePasswordHandler
     (
         ILogger<ChangePasswordHandler> logger,
-		IUnitOfWork unitOfWork,
+        IUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
         ICurrentUser currentUser,
         ISecurityStampService tokenSecurityService
     )
     {
         _logger = logger;
-		_unitOfWork = unitOfWork;
+        _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
         _currentUser = currentUser;
         _tokenSecurityService = tokenSecurityService;
@@ -48,16 +48,17 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-            
+
             //Verify current password:
-            var isCurrentPasswordValid = _passwordHasher.VerifyPassword(request.Payload.CurrentPassword, user.PasswordHash);
+            var isCurrentPasswordValid =
+                _passwordHasher.VerifyPassword(request.Payload.CurrentPassword, user.PasswordHash);
             if (!isCurrentPasswordValid)
             {
                 response.ErrorMessage = "Current password is incorrect.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-            
+
             //Hash new password:
             user.PasswordHash = _passwordHasher.HashPassword(request.Payload.NewPassword);
             //Revoke all refresh Token:
@@ -68,7 +69,7 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
             await _unitOfWork.SaveAsync(cancellationToken);
             //Update Redis:
             await _tokenSecurityService.SetSecurityStampAsync(user.Id, user.SecurityStamp);
-            
+
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
@@ -81,5 +82,6 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
 
         return response;
     }
+
     #endregion
 }

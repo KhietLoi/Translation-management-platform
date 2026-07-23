@@ -5,7 +5,7 @@ using MySolution.Domain.Entities;
 namespace MySolution.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// Represents the configuration for the Role entity in the database context.
+///     Represents the configuration for the Role entity in the database context.
 /// </summary>
 public class RoleConfiguration : IEntityTypeConfiguration<Role>
 {

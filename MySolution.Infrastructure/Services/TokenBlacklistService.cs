@@ -11,13 +11,14 @@ public class TokenBlacklistService : ITokenBlacklistService
     {
         _database = connectionMultiplexer.GetDatabase();
     }
+
     public async Task BlacklistAsync(string jti, TimeSpan ttl)
     {
-        await _database.StringSetAsync($"blacklist:{jti}","1", ttl);
+        await _database.StringSetAsync($"blacklist:{jti}", "1", ttl);
     }
 
     public async Task<bool> IsBlacklistedAsync(string jti)
     {
-       return await _database.KeyExistsAsync($"blacklist:{jti}");
+        return await _database.KeyExistsAsync($"blacklist:{jti}");
     }
 }

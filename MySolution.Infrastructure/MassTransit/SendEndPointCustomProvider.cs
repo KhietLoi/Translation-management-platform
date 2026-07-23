@@ -6,9 +6,9 @@ namespace MySolution.Infrastructure.MassTransit;
 
 public class SendEndPointCustomProvider : IMessageSender
 {
-    
     private readonly IBusControl _busControl;
     private readonly ILogger<SendEndPointCustomProvider> _logger;
+
     public SendEndPointCustomProvider(IBusControl busControl, ILogger<SendEndPointCustomProvider> logger)
     {
         _busControl = busControl;
@@ -22,9 +22,10 @@ public class SendEndPointCustomProvider : IMessageSender
             var formatter = new KebabCaseEndpointNameFormatter(false);
             var queueName = formatter.SanitizeName(typeof(T).Name);
             _logger.LogInformation("Sending message to queue: {QueueName}", queueName);
-            var endpoint = await _busControl.GetSendEndpoint(new Uri($"queue:{queueName}")); 
+            var endpoint = await _busControl.GetSendEndpoint(new Uri($"queue:{queueName}"));
             await endpoint.Send<T>(eventModel, cancellationToken);
-        }catch(Exception ex)
+        }
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while sending message");
             throw;

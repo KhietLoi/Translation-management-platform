@@ -2,17 +2,16 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Features.Roles.Queries.GetRoleById;
 
 namespace MySolution.Application.Features.Permission.Queries.GetPermissionById;
 
 /// <summary>
-/// Handler for the GetPermissionByIdQuery, responsible for retrieving a permission by its ID.
+///     Handler for the GetPermissionByIdQuery, responsible for retrieving a permission by its ID.
 /// </summary>
 public class GetPermissionByIdHandler : IRequestHandler<GetPermissionByIdQuery, GetPermissionByIdResponse>
 {
-    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<GetPermissionByIdHandler> _logger;
+    private readonly IUnitOfWork _unitOfWork;
 
     public GetPermissionByIdHandler(IUnitOfWork unitOfWork, ILogger<GetPermissionByIdHandler> logger)
     {
@@ -20,7 +19,8 @@ public class GetPermissionByIdHandler : IRequestHandler<GetPermissionByIdQuery, 
         _logger = logger;
     }
 
-    public async Task<GetPermissionByIdResponse> Handle(GetPermissionByIdQuery request, CancellationToken cancellationToken)
+    public async Task<GetPermissionByIdResponse> Handle(GetPermissionByIdQuery request,
+        CancellationToken cancellationToken)
     {
         var functionName = $"{nameof(GetPermissionByIdHandler)}";
         _logger.LogInformation(functionName);
@@ -36,7 +36,7 @@ public class GetPermissionByIdHandler : IRequestHandler<GetPermissionByIdQuery, 
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-            
+
             response.Data = new GetPermissionByIdData
             {
                 Id = permission.Id,
@@ -55,7 +55,7 @@ public class GetPermissionByIdHandler : IRequestHandler<GetPermissionByIdQuery, 
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
-        
+
         return response;
     }
 }

@@ -1,5 +1,5 @@
-﻿using Scriban;
-using MySolution.Application.Common.Interfaces;
+﻿using MySolution.Application.Common.Interfaces;
+using Scriban;
 
 namespace MySolution.Application.Service.Scriban;
 
@@ -20,10 +20,7 @@ public class ScribanTemplateRenderer : ITemplateRenderer
 
         var template = Template.Parse(content);
 
-        if (template.HasErrors)
-        {
-            throw new Exception(string.Join(Environment.NewLine, template.Messages));
-        }
+        if (template.HasErrors) throw new Exception(string.Join(Environment.NewLine, template.Messages));
 
         return template.Render(model);
     }

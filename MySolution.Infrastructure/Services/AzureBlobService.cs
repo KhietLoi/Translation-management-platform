@@ -20,7 +20,7 @@ public class AzureBlobService : IAzureBlobService
     {
         await _container.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
         var blobClient = _container.GetBlobClient(fileName);
-        await blobClient.UploadAsync(stream, overwrite: true, cancellationToken);
+        await blobClient.UploadAsync(stream, true, cancellationToken);
         return blobClient.Uri.ToString();
     }
 
@@ -34,7 +34,7 @@ public class AzureBlobService : IAzureBlobService
     public async Task<Stream?> DownloadFileAsync(string fileName, CancellationToken cancellationToken)
     {
         var blobClient = _container.GetBlobClient(fileName);
-        var response = await blobClient.DownloadContentAsync(cancellationToken: cancellationToken);
+        var response = await blobClient.DownloadContentAsync(cancellationToken);
         return response.Value.Content.ToStream();
     }
 
@@ -61,7 +61,7 @@ public class AzureBlobService : IAzureBlobService
                 LastModified = blobItem.Properties.LastModified
             });
         }
+
         return result;
     }
-
 }

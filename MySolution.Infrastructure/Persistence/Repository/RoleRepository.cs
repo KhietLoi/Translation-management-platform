@@ -6,11 +6,11 @@ using MySolution.Domain.Entities;
 namespace MySolution.Infrastructure.Persistence.Repository;
 
 /// <summary>
-/// Represents the repository for managing Role entities in the database context.
+///     Represents the repository for managing Role entities in the database context.
 /// </summary>
 /// <param name="context"></param>
 /// <param name="logger"></param>
-public class RoleRepository (AppDbContext context, ILogger logger) : Repository<Role>(context, logger), IRoleRepository
+public class RoleRepository(AppDbContext context, ILogger logger) : Repository<Role>(context, logger), IRoleRepository
 {
     public async Task<Role?> GetByIdAsync(Guid id)
     {
@@ -28,6 +28,7 @@ public class RoleRepository (AppDbContext context, ILogger logger) : Repository<
     {
         return await DbSet.FirstOrDefaultAsync(x => EF.Functions.ILike(x.Name, name)) != null;
     }
+
     public async Task<List<Permission>> GetPermissionsAsync(Guid roleId)
     {
         return await Context.RolePermissions

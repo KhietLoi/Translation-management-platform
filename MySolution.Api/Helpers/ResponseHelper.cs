@@ -17,7 +17,7 @@ public static class ResponseHelper
             })
             { StatusCode = (int)httpStatusCode };
     }
-    
+
     public static ObjectResult ToPaginationResponse(int httpStatusCode, BaseResponse baseResponse, object? data = null)
     {
         return new ObjectResult(new

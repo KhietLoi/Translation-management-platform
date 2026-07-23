@@ -2,9 +2,7 @@ using Microsoft.AspNetCore.DataProtection;
 using MySolution.Api.StartupRegistrations;
 using MySolution.Application.ServiceRegistration;
 using MySolution.Infrastructure;
-using MySolution.Infrastructure.Authentication;
 using Serilog;
-
 
 var builder = WebApplication.CreateBuilder(args);
 //1. Logging:
@@ -39,8 +37,5 @@ app.InitLocalization();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapGet("/", () =>
-{
-    return Results.Redirect("/swagger");
-});
+app.MapGet("/", () => { return Results.Redirect("/swagger"); });
 app.Run();

@@ -13,22 +13,27 @@ public class PagingInfo
 
 public class BaseResponse
 {
-    public HttpStatusCode StatusCode { get; set; }
-    public bool Success { get; set; }
-    public string? ErrorMessage { get; set; }
-    public string? ErrorMessageCode { get; set; }
-    public PagingInfo? Paging { get; set; }
-
     public BaseResponse()
     {
         Success = false;
         StatusCode = HttpStatusCode.InternalServerError;
     }
 
-    public static BaseResponse Ok() => new() { Success = true };
+    public HttpStatusCode StatusCode { get; set; }
+    public bool Success { get; set; }
+    public string? ErrorMessage { get; set; }
+    public string? ErrorMessageCode { get; set; }
+    public PagingInfo? Paging { get; set; }
+
+    public static BaseResponse Ok()
+    {
+        return new BaseResponse { Success = true };
+    }
 
     public static BaseResponse Fail(string message, string? code = null)
-        => new() { Success = false, ErrorMessage = message, ErrorMessageCode = code };
+    {
+        return new BaseResponse { Success = false, ErrorMessage = message, ErrorMessageCode = code };
+    }
 
     public BaseResponse WithMessage(Enum status)
     {
@@ -36,7 +41,7 @@ public class BaseResponse
         ErrorMessageCode = status.Code();
         return this;
     }
-    
+
     public BaseResponse WithSuccess(bool success)
     {
         Success = success;
@@ -59,20 +64,24 @@ public class BaseResponse<T> : BaseResponse
         Data = data;
         return this;
     }
-    
+
     public static BaseResponse<T> Ok(T data, PagingInfo? paging = null)
-        => new()
+    {
+        return new BaseResponse<T>
         {
             Success = true,
             Data = data,
             Paging = paging
         };
+    }
 
     public new static BaseResponse<T> Fail(string message, string? code = null)
-        => new()
+    {
+        return new BaseResponse<T>
         {
             Success = false,
             ErrorMessage = message,
             ErrorMessageCode = code
         };
+    }
 }

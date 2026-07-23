@@ -4,18 +4,18 @@ using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
-
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.Auth.ResendVerificationEmail;
 
-public class ResendVerificationEmailHandler : IRequestHandler<ResendVerificationEmailCommand, ResendVerificationEmailResponse>
+public class
+    ResendVerificationEmailHandler : IRequestHandler<ResendVerificationEmailCommand, ResendVerificationEmailResponse>
 {
-    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ResendVerificationEmailHandler> _logger;
-    private readonly IEmailVerificationTokenService  _tokenService;
     private readonly IMessageSender _messageSender;
-    
+    private readonly IEmailVerificationTokenService _tokenService;
+    private readonly IUnitOfWork _unitOfWork;
+
     public ResendVerificationEmailHandler
     (
         IUnitOfWork unitOfWork,
@@ -29,8 +29,9 @@ public class ResendVerificationEmailHandler : IRequestHandler<ResendVerification
         _tokenService = tokenService;
         _messageSender = messageSender;
     }
-    
-    public async Task<ResendVerificationEmailResponse> Handle(ResendVerificationEmailCommand request, CancellationToken cancellationToken)
+
+    public async Task<ResendVerificationEmailResponse> Handle(ResendVerificationEmailCommand request,
+        CancellationToken cancellationToken)
     {
         var response = new ResendVerificationEmailResponse();
 
@@ -60,7 +61,7 @@ public class ResendVerificationEmailHandler : IRequestHandler<ResendVerification
                     Email = user.Email,
                     Token = token
                 }, cancellationToken);
-            
+
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
@@ -71,7 +72,7 @@ public class ResendVerificationEmailHandler : IRequestHandler<ResendVerification
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
-        
+
         return response;
     }
 }

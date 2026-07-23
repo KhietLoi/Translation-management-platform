@@ -20,16 +20,16 @@ public class PasswordResetTokenService : IPasswordResetTokenService
     public string GenerateResetToken(Guid userId, string email, string username, int passwordversion)
     {
         var payload = new PasswordResetPayload
-            {
-                UserId = userId,
-                Email = email,
-                PasswordVersion = passwordversion,
-                ExpiredAt = DateTime.UtcNow.AddMinutes(_tokenSetting.PasswordResetExpiryMinutes),
-            };
+        {
+            UserId = userId,
+            Email = email,
+            PasswordVersion = passwordversion,
+            ExpiredAt = DateTime.UtcNow.AddMinutes(_tokenSetting.PasswordResetExpiryMinutes)
+        };
         var json = JsonConvert.SerializeObject(payload);
         return _protector.Protect(json);
     }
-    
+
     public PasswordResetPayload ValidateToken(string token)
     {
         var json = _protector.Unprotect(token);

@@ -6,6 +6,7 @@ public interface IPasswordResetTokenService
 {
     //Generate:
     string GenerateResetToken(Guid userId, string email, string username, int passwordversion);
+
     //Validate
     PasswordResetPayload ValidateToken(string token);
 }

@@ -9,10 +9,10 @@ using MySolution.Application.Features.User.Queries.GetUser;
 namespace MySolution.Application.Features.Permission.Queries.GetPermissions;
 
 /// <summary>
-/// Handler for processing the GetPermissionsQuery,
-/// which retrieves a list of permissions based on the provided search criteria and pagination parameters.
+///     Handler for processing the GetPermissionsQuery,
+///     which retrieves a list of permissions based on the provided search criteria and pagination parameters.
 /// </summary>
-public class GetPermissionsHandler : IRequestHandler <GetPermissionsQuery,GetPermissionsResponse>
+public class GetPermissionsHandler : IRequestHandler<GetPermissionsQuery, GetPermissionsResponse>
 {
     private readonly ILogger<GetUsersHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
@@ -34,13 +34,11 @@ public class GetPermissionsHandler : IRequestHandler <GetPermissionsQuery,GetPer
         {
             var query = _unitOfWork.Permission.GetAll().AsNoTracking();
             if (!string.IsNullOrWhiteSpace(payload.Search))
-            {
                 query = query.Where(x =>
                     x.Code.Contains(payload.Search) ||
                     (x.Description != null &&
                      x.Description.Contains(payload.Search)));
-            }
-            
+
             var totalItem = await query.CountAsync(cancellationToken);
             var permissions = await query
                 .OrderBy(x => x.Code)
@@ -73,7 +71,7 @@ public class GetPermissionsHandler : IRequestHandler <GetPermissionsQuery,GetPer
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
-        
+
         return response;
     }
 }

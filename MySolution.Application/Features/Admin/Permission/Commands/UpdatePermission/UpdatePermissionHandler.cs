@@ -6,12 +6,12 @@ using MySolution.Application.Common.Interfaces.Repositories;
 namespace MySolution.Application.Features.Permission.Commands.UpdatePermission;
 
 /// <summary>
-/// Handler for updating a permission.
+///     Handler for updating a permission.
 /// </summary>
 public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, UpdatePermissionResponse>
 {
-    private IUnitOfWork _unitOfWork;
-    private ILogger<UpdatePermissionHandler> _logger;
+    private readonly ILogger<UpdatePermissionHandler> _logger;
+    private readonly IUnitOfWork _unitOfWork;
 
     public UpdatePermissionHandler
     (
@@ -22,7 +22,9 @@ public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, 
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
-    public async Task<UpdatePermissionResponse> Handle(UpdatePermissionCommand request, CancellationToken cancellationToken)
+
+    public async Task<UpdatePermissionResponse> Handle(UpdatePermissionCommand request,
+        CancellationToken cancellationToken)
     {
         var payload = request.Payload;
         var functionName = $"{nameof(UpdatePermissionHandler)} =>";
@@ -39,18 +41,18 @@ public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, 
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-            
+
             // Check if code exists:
-            var  existingPermission = await _unitOfWork.Permission.GetPermissionByCodeAsync(payload.Code);
+            var existingPermission = await _unitOfWork.Permission.GetPermissionByCodeAsync(payload.Code);
             if (existingPermission != null && existingPermission.Id != permission.Id)
             {
                 response.ErrorMessage = "Permission code already exists.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-            
+
             //Update
-            permission.Code =payload.Code;
+            permission.Code = payload.Code;
             permission.Description = payload.Description;
             permission.UpdatedAt = DateTime.UtcNow;
             //Save
@@ -73,7 +75,7 @@ public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, 
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
-        
+
         return response;
     }
 }

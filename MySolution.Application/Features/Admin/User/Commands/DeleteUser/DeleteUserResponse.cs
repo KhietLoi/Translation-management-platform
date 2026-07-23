@@ -3,11 +3,12 @@
 namespace MySolution.Application.Features.User.Commands.DeleteUser;
 
 /// <summary>
-/// Response class for the delete user operation.
+///     Response class for the delete user operation.
 /// </summary>
-public class DeleteUserResponse : BaseResponse <DeleteUserData>
+public class DeleteUserResponse : BaseResponse<DeleteUserData>
 {
 }
+
 public class DeleteUserData
 {
     public Guid Id { get; set; }
