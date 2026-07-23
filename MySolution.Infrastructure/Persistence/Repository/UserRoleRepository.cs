@@ -10,8 +10,7 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 /// </summary>
 /// <param name="context"></param>
 /// <param name="logger"></param>
-public class UserRoleRepository(AppDbContext context, ILogger logger)
-    : Repository<UserRole>(context, logger), IUserRoleRepository
+public class UserRoleRepository(AppDbContext context, ILogger logger) : Repository<UserRole>(context, logger), IUserRoleRepository
 {
     public async Task<UserRole?> GetAsync(Guid userId, Guid roleId)
     {
