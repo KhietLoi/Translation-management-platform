@@ -3,7 +3,7 @@
 namespace MySolution.Application.Features.User.Commands.CreateUser;
 
 /// <summary>
-/// Command to create a new user
+///     Command to create a new user
 /// </summary>
 /// <param name="payload"></param>
 public class CreateUserCommand(CreateUserRequest payload) : IRequest<CreateUserResponse>

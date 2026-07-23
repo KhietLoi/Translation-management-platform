@@ -2,20 +2,19 @@
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 
-
 namespace MySolution.Application.Features.Auth.SendSetUpPasswordEmail;
 
 public class SendSetUpPasswordEmailHandler : IRequestHandler<SendSetUpPasswordEmailCommand>
 {
     private readonly IApplicationUrlProvider _applicationUrlProvider;
     private readonly IEmailService _emailService;
-    private readonly ITokenSetting _tokenSettings;
     private readonly ITemplateRenderer _templateRenderer;
+    private readonly ITokenSetting _tokenSettings;
 
     public SendSetUpPasswordEmailHandler
     (
-        IEmailService emailService, 
-        IApplicationUrlProvider applicationUrlProvider, 
+        IEmailService emailService,
+        IApplicationUrlProvider applicationUrlProvider,
         ITokenSetting tokenSetting,
         ITemplateRenderer templateRenderer
     )
@@ -39,7 +38,7 @@ public class SendSetUpPasswordEmailHandler : IRequestHandler<SendSetUpPasswordEm
                 logo_url = "https://wmtstorageaccdevsa.blob.core.windows.net/documents/logo.png",
                 year = DateTime.Now.Year
             }, cancellationToken);
-        
+
         await _emailService.SendEmailAsync(request.Message.Email, "Set Up Your Password", html, cancellationToken);
     }
 }

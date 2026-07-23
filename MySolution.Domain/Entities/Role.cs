@@ -1,7 +1,7 @@
 ﻿namespace MySolution.Domain.Entities;
 
 /// <summary>
-/// Represents a role in the system, which can be assigned to users and associated with permissions.
+///     Represents a role in the system, which can be assigned to users and associated with permissions.
 /// </summary>
 public class Role
 {

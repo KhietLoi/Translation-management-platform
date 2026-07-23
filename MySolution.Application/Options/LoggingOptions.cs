@@ -8,6 +8,7 @@ public class LoggingOptions
     public Elk? Elk { get; set; } = default;
     public MicrosoftTeams? MicrosoftTeams { get; set; } = default;
 }
+
 public class Seq
 {
     public bool Enabled { get; set; }

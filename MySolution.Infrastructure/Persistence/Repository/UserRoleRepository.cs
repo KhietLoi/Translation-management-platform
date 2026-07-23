@@ -6,11 +6,12 @@ using MySolution.Domain.Entities;
 namespace MySolution.Infrastructure.Persistence.Repository;
 
 /// <summary>
-/// Represents the repository for managing UserRole entities in the database.
+///     Represents the repository for managing UserRole entities in the database.
 /// </summary>
 /// <param name="context"></param>
 /// <param name="logger"></param>
-public class UserRoleRepository (AppDbContext context, ILogger logger) : Repository<UserRole> (context, logger), IUserRoleRepository
+public class UserRoleRepository(AppDbContext context, ILogger logger)
+    : Repository<UserRole>(context, logger), IUserRoleRepository
 {
     public async Task<UserRole?> GetAsync(Guid userId, Guid roleId)
     {

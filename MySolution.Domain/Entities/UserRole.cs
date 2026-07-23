@@ -1,7 +1,7 @@
 ﻿namespace MySolution.Domain.Entities;
 
 /// <summary>
-/// Represents the association between a user and a role in the system
+///     Represents the association between a user and a role in the system
 /// </summary>
 public class UserRole
 {

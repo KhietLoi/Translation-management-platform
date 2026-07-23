@@ -9,10 +9,11 @@ namespace MySolution.Application.Features.Auth.RefreshToken;
 
 public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshTokenResponse>
 {
+    private readonly IHashService _hashService;
+    private readonly IJwtService _jwtService;
     private readonly ILogger<RefreshTokenHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IJwtService _jwtService;
-    private  readonly IHashService _hashService;
+
     public RefreshTokenHandler
     (
         ILogger<RefreshTokenHandler> logger,
@@ -24,9 +25,10 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
         _logger = logger;
         _unitOfWork = unitOfWork;
         _jwtService = jwtService;
-        _hashService =  hashService;
+        _hashService = hashService;
     }
-   public async Task<RefreshTokenResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
+
+    public async Task<RefreshTokenResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
         var functionName = $"{nameof(RefreshTokenHandler)} =>";
@@ -43,7 +45,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
                 response.WithStatus(HttpStatusCode.Unauthorized);
                 return response;
             }
-            
+
             // Check whether the refresh token has been revoked
             if (!refreshToken.IsActive)
             {
@@ -51,7 +53,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
                 response.WithStatus(HttpStatusCode.Unauthorized);
                 return response;
             }
-            
+
             var user = await _unitOfWork.User.GetUserWithRolesAsync(refreshToken.UserId);
             if (user is null)
             {
@@ -59,7 +61,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-            
+
             // Create jti
             var jti = Guid.CreateVersion7().ToString();
             // Generate a new access token
@@ -68,8 +70,8 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             var newRefreshToken = _jwtService.GenerateRefreshToken();
             var newHash = _hashService.ComputeSha256(newRefreshToken);
             // Revoke the current refresh token
-            refreshToken.RevokedAt =  DateTime.UtcNow;
-      
+            refreshToken.RevokedAt = DateTime.UtcNow;
+
             // Store the newly generated refresh token
             await _unitOfWork.RefreshToken.Add(
                 new Domain.Entities.RefreshToken
@@ -98,7 +100,8 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
 
-            _logger.LogInformation("{FunctionName} Refresh token generated successfully for UserId: {UserId}", functionName, user.Id);
+            _logger.LogInformation("{FunctionName} Refresh token generated successfully for UserId: {UserId}",
+                functionName, user.Id);
         }
         catch (Exception ex)
         {
@@ -106,7 +109,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
-        
+
         return response;
     }
 }

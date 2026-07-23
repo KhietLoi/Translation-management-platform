@@ -8,12 +8,12 @@ using MySolution.Domain.Entities;
 namespace MySolution.Application.Features.Roles.Commands.UpdateRolePermissions;
 
 /// <summary>
-/// Handler for updating role permissions.
+///     Handler for updating role permissions.
 /// </summary>
 public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermissionsCommand, UpdateRolePermissionsResponse>
 {
-    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateRolePermissionsHandler> _logger;
+    private readonly IUnitOfWork _unitOfWork;
 
     public UpdateRolePermissionsHandler(IUnitOfWork unitOfWork, ILogger<UpdateRolePermissionsHandler> logger)
     {
@@ -21,7 +21,8 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
         _logger = logger;
     }
 
-    public async Task<UpdateRolePermissionsResponse> Handle(UpdateRolePermissionsCommand request, CancellationToken cancellationToken)
+    public async Task<UpdateRolePermissionsResponse> Handle(UpdateRolePermissionsCommand request,
+        CancellationToken cancellationToken)
     {
         var payload = request.Payload;
         var functionName = $"{nameof(UpdateRolePermissionsHandler)}";
@@ -39,7 +40,7 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
 
                 return response;
             }
-            
+
             var currentRolePermissions = await _unitOfWork.RolePermission.GetByRoleIdAsync(payload.RoleId);
             var currentPermissionIds = currentRolePermissions.Select(x => x.PermissionId).ToHashSet();
             var newPermissionIds = payload.PermissionIds.Distinct().ToHashSet();
@@ -86,13 +87,11 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
                 await _unitOfWork.RolePermission
                     .AddRange(entities);
             }
-            
+
             // Remove permissions
             if (rolePermissionsToRemove.Count > 0)
-            {
                 _unitOfWork.RolePermission
                     .DeleteRange(rolePermissionsToRemove);
-            }
 
             await _unitOfWork.SaveAsync(cancellationToken);
             var updatedPermissions =
@@ -109,7 +108,7 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
                         updatedPermissions
                             .Select(x =>
                                 new PermissionData
-                                { 
+                                {
                                     PermissionId = x.Permission!.Id,
                                     PermissionCode = x.Permission.Code,
                                     PermissionDescription = x.Permission.Description

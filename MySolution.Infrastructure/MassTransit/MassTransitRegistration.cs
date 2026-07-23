@@ -20,7 +20,7 @@ public static class MassTransitRegistration
         var rabbitMqOptions = configuration
             .GetSection(RabbitMqOptions.SectionName)
             .Get<RabbitMqOptions>() ?? throw new InvalidOperationException("RabbitMQ configuration missing");
-        
+
         services.AddMassTransit(x =>
         {
             x.AddConsumer<SendVerifyEmailConsumer>();
@@ -42,7 +42,7 @@ public static class MassTransitRegistration
             });
         });
         services.AddScoped<IMessageSender, SendEndPointCustomProvider>();
-        
+
         return services;
     }
 
@@ -52,7 +52,7 @@ public static class MassTransitRegistration
     {
         cfg.ReceiveEndpoint(
             QueueNameHelper.Get<SendVerifyEmailEvent>(),
-            e=>
+            e =>
             {
                 ConfigureRetry(e);
                 e.ConfigureConsumer<SendVerifyEmailConsumer>(context);
@@ -60,7 +60,7 @@ public static class MassTransitRegistration
 
         cfg.ReceiveEndpoint(
             QueueNameHelper.Get<SendSetUpPasswordEmailEvent>(),
-            e=>
+            e =>
             {
                 ConfigureRetry(e);
                 e.ConfigureConsumer<SendSetupPasswordEmailConsumer>(context);
@@ -68,24 +68,23 @@ public static class MassTransitRegistration
 
         cfg.ReceiveEndpoint(
             QueueNameHelper.Get<SendForgotPasswordEmailEvent>(),
-            e=>
+            e =>
             {
                 ConfigureRetry(e);
                 e.ConfigureConsumer<SendForgotPasswordEmailConsumer>(context);
             });
     }
-    
+
     //Retry RabbitMq:
     private static void ConfigureRetry(IRabbitMqReceiveEndpointConfigurator endpoint)
     {
         endpoint.UseMessageRetry(r =>
         {
             r.Interval(
-                retryCount: 3,
-                interval: TimeSpan.FromSeconds(5));
+                3,
+                TimeSpan.FromSeconds(5));
         });
 
         endpoint.ConcurrentMessageLimit = 5;
     }
-    }
-    
+}

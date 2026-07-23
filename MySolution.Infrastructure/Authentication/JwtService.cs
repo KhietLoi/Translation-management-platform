@@ -10,30 +10,30 @@ using MySolution.Infrastructure.Options;
 
 namespace MySolution.Infrastructure.Authentication;
 
-
 public class JwtService : IJwtService
 {
-    private readonly JwtOptions _jwtOptions ;
+    private readonly JwtOptions _jwtOptions;
     private readonly JwtSecurityTokenHandler _tokenHandler = new();
 
     public JwtService(IOptions<JwtOptions> jwtOptions)
     {
-        _jwtOptions =  jwtOptions.Value;
+        _jwtOptions = jwtOptions.Value;
     }
+
     // Create Access Token
     public string GenerateJwtToken(User user, string jti)
     {
         ArgumentNullException.ThrowIfNull(user);
         var claims = BuildClaims(user, jti);
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey));
-        var credentials = new SigningCredentials(key,SecurityAlgorithms.HmacSha256);
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var token = new JwtSecurityToken(
-            issuer: _jwtOptions.Issuer,
-            audience: _jwtOptions.Audience,
-            claims: claims,
-            notBefore: DateTime.UtcNow,
-            expires: DateTime.UtcNow.AddMinutes(_jwtOptions.ExpireMinutes),
-            signingCredentials: credentials);
+            _jwtOptions.Issuer,
+            _jwtOptions.Audience,
+            claims,
+            DateTime.UtcNow,
+            DateTime.UtcNow.AddMinutes(_jwtOptions.ExpireMinutes),
+            credentials);
         return _tokenHandler.WriteToken(token);
     }
 
@@ -43,6 +43,7 @@ public class JwtService : IJwtService
         return Convert.ToBase64String(
             RandomNumberGenerator.GetBytes(64));
     }
+
     // Validate Token and Get ClaimsPrincipal from Expired Token
     public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
     {
@@ -59,15 +60,10 @@ public class JwtService : IJwtService
         };
 
         var principal = _tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
-        if (securityToken is not JwtSecurityToken jwtToken)
-        {
-            throw new SecurityTokenException("Invalid JWT token.");
-        }
+        if (securityToken is not JwtSecurityToken jwtToken) throw new SecurityTokenException("Invalid JWT token.");
 
         if (!jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.OrdinalIgnoreCase))
-        {
             throw new SecurityTokenException("Invalid signing algorithm.");
-        }
 
         return principal;
     }
@@ -92,11 +88,11 @@ public class JwtService : IJwtService
             new("security_stamp", user.SecurityStamp),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, user.Username),
-            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Email, user.Email)
         };
         // Roles
         claims.AddRange(user.UserRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole.Role.Name)));
-        
+
         return claims;
     }
 }

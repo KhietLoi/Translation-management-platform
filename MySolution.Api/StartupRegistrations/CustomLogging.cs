@@ -7,14 +7,15 @@ using Serilog.Formatting.Json;
 using Serilog.Sinks.Elasticsearch;
 using Serilog.Sinks.SystemConsole.Themes;
 using Shared.Extensions;
+
 namespace MySolution.Api.StartupRegistrations;
-        
+
 public static class CustomLogging
 {
     public static IHostBuilder UseLogging(this IHostBuilder hostBuilder)
     {
         hostBuilder.UseSerilog((context, loggerConfiguration) =>
-        {   
+        {
             var appOptions = context.Configuration.GetOptions<AppOptions>(AppOptions.OptionName);
             var loggingOptions = context.Configuration.GetOptions<LoggingOptions>(LoggingOptions.OptionName);
             var applicationName = appOptions.Name;
@@ -33,46 +34,39 @@ public static class CustomLogging
 
         return hostBuilder;
     }
-    
-    private static void Configure(LoggerConfiguration loggerConfiguration, string environmentName, LoggingOptions loggingOptions, string applicationName)
+
+    private static void Configure(LoggerConfiguration loggerConfiguration, string environmentName,
+        LoggingOptions loggingOptions, string applicationName)
     {
         var title = $"[{applicationName}_{environmentName}] {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss.fff}";
         var elk = loggingOptions.Elk;
         if (elk.Enabled)
-        {
             loggerConfiguration.WriteTo.Elasticsearch(ConfigureElasticSink(elk.ElasticSearchUrl, environmentName));
-        }
 
         var seq = loggingOptions.Seq;
-        if (seq.Enabled)
-        {
-            loggerConfiguration.WriteTo.Seq(seq.Url, apiKey: seq.ApiKey);
-        }
+        if (seq.Enabled) loggerConfiguration.WriteTo.Seq(seq.Url, apiKey: seq.ApiKey);
 
         var teams = loggingOptions.MicrosoftTeams;
         if (teams.Enabled)
-        {
-            loggerConfiguration.WriteTo.MicrosoftTeams(teams.WebHookUri, title: title, batchSizeLimit: teams.BatchSizeLimit, period: TimeSpan.FromSeconds(teams.Period), restrictedToMinimumLevel: LogEventLevel.Error);
-        }
+            loggerConfiguration.WriteTo.MicrosoftTeams(teams.WebHookUri, title, teams.BatchSizeLimit,
+                TimeSpan.FromSeconds(teams.Period), restrictedToMinimumLevel: LogEventLevel.Error);
 
         if (teams.EnabledCriticalLevel)
-        {
-            loggerConfiguration.WriteTo.MicrosoftTeams(teams.WebHookUriCriticalLevel, title: title, batchSizeLimit: teams.BatchSizeLimit, restrictedToMinimumLevel: LogEventLevel.Fatal);
-        }
+            loggerConfiguration.WriteTo.MicrosoftTeams(teams.WebHookUriCriticalLevel, title, teams.BatchSizeLimit,
+                restrictedToMinimumLevel: LogEventLevel.Fatal);
 
         if (loggingOptions.ConsoleEnabled)
         {
             if (environmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))
-            {
-                loggerConfiguration.WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] [{Properties:j}] {ExceptionEvent} {Message:lj}{NewLine}{Exception}", theme: AnsiConsoleTheme.Code);
-            }
+                loggerConfiguration.WriteTo.Console(
+                    outputTemplate:
+                    "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] [{Properties:j}] {ExceptionEvent} {Message:lj}{NewLine}{Exception}",
+                    theme: AnsiConsoleTheme.Code);
             else
-            {
-                loggerConfiguration.WriteTo.Console(new RenderedCompactJsonFormatter(new JsonValueFormatter(typeTagName: null)));
-            }
+                loggerConfiguration.WriteTo.Console(new RenderedCompactJsonFormatter(new JsonValueFormatter(null)));
         }
     }
-    
+
     private static ElasticsearchSinkOptions ConfigureElasticSink(string elasticSearchUrl, string environment)
     {
         var options = new ElasticsearchSinkOptions(new Uri(elasticSearchUrl))
@@ -86,7 +80,8 @@ public static class CustomLogging
             RegisterTemplateFailure = RegisterTemplateRecovery.IndexAnyway,
             TypeName = null,
             BatchAction = ElasticOpType.Create,
-            FailureCallback = (logEvent, ex) => Console.WriteLine("Unable to submit event " + logEvent.MessageTemplate + " Error: " + ex.Message),
+            FailureCallback = (logEvent, ex) =>
+                Console.WriteLine("Unable to submit event " + logEvent.MessageTemplate + " Error: " + ex.Message),
             EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog | EmitEventFailureHandling.RaiseCallback
         };
 

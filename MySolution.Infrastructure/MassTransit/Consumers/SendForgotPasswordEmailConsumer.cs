@@ -5,7 +5,7 @@ using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Infrastructure.MassTransit.Consumers;
 
-public class SendForgotPasswordEmailConsumer : IConsumer <SendForgotPasswordEmailEvent>
+public class SendForgotPasswordEmailConsumer : IConsumer<SendForgotPasswordEmailEvent>
 {
     private readonly IMediator _mediator;
 
@@ -16,6 +16,7 @@ public class SendForgotPasswordEmailConsumer : IConsumer <SendForgotPasswordEmai
 
     public async Task Consume(ConsumeContext<SendForgotPasswordEmailEvent> context)
     {
-        await _mediator.Send(new SendForgotPasswordEmailCommand { Message = context.Message }, context.CancellationToken);
+        await _mediator.Send(new SendForgotPasswordEmailCommand { Message = context.Message },
+            context.CancellationToken);
     }
 }

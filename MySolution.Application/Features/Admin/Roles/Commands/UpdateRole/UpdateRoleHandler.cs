@@ -1,13 +1,12 @@
 ﻿using System.Net;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Application.Features.Roles.Commands.UpdateRole;
 
 /// <summary>
-/// Handler for updating a role.
+///     Handler for updating a role.
 /// </summary>
 public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleResponse>
 {
@@ -22,7 +21,7 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
         _logger = logger;
         _unitOfWork = unitOfWork;
     }
-    
+
     public async Task<UpdateRoleResponse> Handle(UpdateRoleCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
@@ -40,6 +39,7 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
+
             // Check role name already exists
             var existingRole = await _unitOfWork.Role.GetByNameAsync(payload.Name);
             if (existingRole != null && existingRole.Id != role.Id)
@@ -70,7 +70,7 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
-        
+
         return response;
     }
 }

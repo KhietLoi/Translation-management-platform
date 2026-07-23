@@ -2,6 +2,6 @@
 
 public class UpdateRolePermissionsRequest
 {
-    public Guid RoleId  { get; set; }
+    public Guid RoleId { get; set; }
     public List<Guid> PermissionIds { get; set; } = [];
 }

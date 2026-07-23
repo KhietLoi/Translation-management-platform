@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MySolution.Application.Common.Interfaces.Repositories;
+
 /// <summary>
-/// Unit of Work interface for managing repositories and transactions
+///     Unit of Work interface for managing repositories and transactions
 /// </summary>
 public interface IUnitOfWork
 {
@@ -12,7 +13,7 @@ public interface IUnitOfWork
     IRefreshTokenRepository RefreshToken { get; }
     IUserRoleRepository UserRole { get; }
     IRolePermissionRepository RolePermission { get; }
-    
+
     Task SaveAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> OpenTransactionAsync(CancellationToken cancellationToken = default);
     Task CommitAsync(CancellationToken cancellationToken = default);

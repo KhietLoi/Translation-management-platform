@@ -10,8 +10,7 @@ public static class AuthorizationExtensions
         services.AddAuthorization();
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
         services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
-        
+
         return services;
     }
-    
 }

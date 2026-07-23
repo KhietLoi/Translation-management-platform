@@ -6,6 +6,7 @@ namespace MySolution.Application.Features.Roles.Commands.UpdateRolePermissions;
 public class UpdateRolePermissionsResponse : BaseResponse<UpdateRolePermissionsData>
 {
 }
+
 public class UpdateRolePermissionsData
 {
     public Guid RoleId { get; init; }

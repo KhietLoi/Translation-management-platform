@@ -1,14 +1,10 @@
 ﻿namespace MySolution.Application.Validation;
 
 /// <summary>
-/// Đại diện cho một lỗi Validation
+///     Đại diện cho một lỗi Validation
 /// </summary>
 public class ValidationError
 {
-    public string? Field { get; set; }
-    public string? ErrorMessage { get; set; }
-    public string? ErrorMessageCode { get; set; }
-
     public ValidationError()
     {
     }
@@ -19,4 +15,8 @@ public class ValidationError
         ErrorMessage = errorMessage;
         ErrorMessageCode = errorMessageCode;
     }
+
+    public string? Field { get; set; }
+    public string? ErrorMessage { get; set; }
+    public string? ErrorMessageCode { get; set; }
 }

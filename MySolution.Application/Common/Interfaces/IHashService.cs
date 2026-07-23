@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-namespace MySolution.Application.Common.Interfaces;
+﻿namespace MySolution.Application.Common.Interfaces;
 
 public interface IHashService
 {

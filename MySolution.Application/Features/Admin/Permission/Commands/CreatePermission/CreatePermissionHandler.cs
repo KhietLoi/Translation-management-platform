@@ -6,12 +6,12 @@ using MySolution.Application.Common.Interfaces.Repositories;
 namespace MySolution.Application.Features.Permission.Commands.CreatePermission;
 
 /// <summary>
-/// Handler for creating a new permission.
+///     Handler for creating a new permission.
 /// </summary>
 public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, CreatePermissionResponse>
 {
-    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CreatePermissionHandler> _logger;
+    private readonly IUnitOfWork _unitOfWork;
 
     public CreatePermissionHandler
     (
@@ -22,7 +22,9 @@ public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, 
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
-    public async Task<CreatePermissionResponse> Handle(CreatePermissionCommand request, CancellationToken cancellationToken)
+
+    public async Task<CreatePermissionResponse> Handle(CreatePermissionCommand request,
+        CancellationToken cancellationToken)
     {
         var payload = request.Payload;
         var functionName = $"{nameof(CreatePermissionHandler)} =>";
@@ -38,7 +40,7 @@ public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, 
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-            
+
             //Create Permission
             var permission = new Domain.Entities.Permission
             {
@@ -47,7 +49,7 @@ public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, 
                 Description = payload.Description,
                 CreatedAt = DateTime.UtcNow
             };
-            
+
             //Save
             await _unitOfWork.Permission.Add(permission);
             await _unitOfWork.SaveAsync(cancellationToken);
@@ -66,9 +68,9 @@ public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, 
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = "An unexpected error occurred.";
-            response.WithStatus(HttpStatusCode.InternalServerError);    
+            response.WithStatus(HttpStatusCode.InternalServerError);
         }
-        
+
         return response;
     }
 }

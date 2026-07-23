@@ -7,30 +7,30 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MySolution.Domain\MySolution.Domain.csproj" />
-      <ProjectReference Include="..\Shared\Shared.csproj" />
+        <ProjectReference Include="..\MySolution.Domain\MySolution.Domain.csproj"/>
+        <ProjectReference Include="..\Shared\Shared.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Features\Admin\" />
-      <Folder Include="Features\RequestLog\Commands\CreateRequestLog\" />
-      <Folder Include="Features\User\" />
+        <Folder Include="Features\Admin\"/>
+        <Folder Include="Features\RequestLog\Commands\CreateRequestLog\"/>
+        <Folder Include="Features\User\"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="FluentValidation" Version="12.1.1" />
-      <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
-      <PackageReference Include="MassTransit.Abstractions" Version="8.5.10" />
-      <PackageReference Include="MediatR" Version="14.2.0" />
-      <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.0" />
-      <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.9" />
-      <PackageReference Include="Scriban" Version="7.2.5" />
+        <PackageReference Include="FluentValidation" Version="12.1.1"/>
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1"/>
+        <PackageReference Include="MassTransit.Abstractions" Version="8.5.10"/>
+        <PackageReference Include="MediatR" Version="14.2.0"/>
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.9"/>
+        <PackageReference Include="Scriban" Version="7.2.5"/>
     </ItemGroup>
     <ItemGroup>
         <Content Include="Common\Template\**\*">

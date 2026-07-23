@@ -3,11 +3,12 @@
 namespace MySolution.Application.Features.Permission.Commands.UpdatePermission;
 
 /// <summary>
-/// Response class for the update permission operation.
+///     Response class for the update permission operation.
 /// </summary>
-public class UpdatePermissionResponse : BaseResponse <UpdatePermissionData>
+public class UpdatePermissionResponse : BaseResponse<UpdatePermissionData>
 {
 }
+
 public class UpdatePermissionData
 {
     public Guid Id { get; set; }

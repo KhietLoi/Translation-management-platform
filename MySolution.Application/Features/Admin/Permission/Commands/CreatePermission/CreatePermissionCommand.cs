@@ -3,14 +3,14 @@
 namespace MySolution.Application.Features.Permission.Commands.CreatePermission;
 
 /// <summary>
-/// Command to create a new permission
+///     Command to create a new permission
 /// </summary>
-public class CreatePermissionCommand : IRequest <CreatePermissionResponse>
+public class CreatePermissionCommand : IRequest<CreatePermissionResponse>
 {
-    public CreatePermissionRequest Payload { get; set; }
-    
     public CreatePermissionCommand(CreatePermissionRequest payload)
     {
         Payload = payload;
     }
+
+    public CreatePermissionRequest Payload { get; set; }
 }

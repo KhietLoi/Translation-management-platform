@@ -1,8 +1,9 @@
 ﻿using FluentValidation;
 
 namespace MySolution.Application.Features.Auth.Login;
+
 /// <summary>
-/// Validator for the LoginCommand
+///     Validator for the LoginCommand
 /// </summary>
 public class LoginValidator : AbstractValidator<LoginCommand>
 {

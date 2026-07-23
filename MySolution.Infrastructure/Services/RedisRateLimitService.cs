@@ -3,17 +3,20 @@ using MySolution.Application.Common.Interfaces.RateLimit;
 using MySolution.Application.Common.Models.RateLimit;
 using MySolution.Infrastructure.Options;
 using StackExchange.Redis;
+
 namespace MySolution.Infrastructure.Services;
 
 public class RedisRateLimitService : IRateLimitService
 {
     private readonly IDatabase _database;
     private readonly RateLimitOptions _redisOptions;
+
     public RedisRateLimitService(IConnectionMultiplexer redis, IOptions<RateLimitOptions> options)
     {
         _database = redis.GetDatabase();
         _redisOptions = options.Value;
     }
+
     public async Task<RateLimitResult> CheckAsync(RateLimitPolicy policy, CancellationToken cancellationToken = default)
     {
         // Time window:
@@ -23,19 +26,17 @@ public class RedisRateLimitService : IRateLimitService
         var count = await _database.SortedSetLengthAsync(policy.Key);
         //Reject
         if (count >= policy.PermitLimit)
-        {
             return new RateLimitResult(
-                Allowed: false,
-                RemainingRequests: 0,
-                RetryAfter: DateTimeOffset.UtcNow.Add(policy.Window));
-        }
-        
+                false,
+                0,
+                DateTimeOffset.UtcNow.Add(policy.Window));
+
         await _database.SortedSetAddAsync(policy.Key, Guid.CreateVersion7().ToString(), now);
         await _database.KeyExpireAsync(policy.Key, policy.Window);
         return new RateLimitResult(
-            Allowed: true,
-            RemainingRequests: policy.PermitLimit - (int)count - 1,
-            RetryAfter: null);
+            true,
+            policy.PermitLimit - (int)count - 1,
+            null);
     }
 
     public int GetPermitLimit()

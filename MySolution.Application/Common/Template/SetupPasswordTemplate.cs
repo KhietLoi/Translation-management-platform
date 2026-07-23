@@ -6,7 +6,8 @@ public class SetupPasswordTemplate
         string userName,
         string setupUrl,
         int passwordResetExpiryMinutes,
-        string logoUrl = "https://wmtstorageaccdevsa.blob.core.windows.net/documents/019f82a5-9ee7-7e76-975b-fbdd3263c688.jpg") // Thay bằng URL logo thật của bạn
+        string logoUrl =
+            "https://wmtstorageaccdevsa.blob.core.windows.net/documents/019f82a5-9ee7-7e76-975b-fbdd3263c688.jpg") // Thay bằng URL logo thật của bạn
     {
         return $"""
                 <!DOCTYPE html>
@@ -69,7 +70,7 @@ public class SetupPasswordTemplate
                                 </div>
                                 <p style="font-size: 12px; color: #888888; margin: 0; line-height: 1.5;">
                                     If you believe this email was sent to you in error, please contact your administrator.<br>
-                                    &copy; {System.DateTime.Now.Year} MySolution. All rights reserved.
+                                    &copy; {DateTime.Now.Year} MySolution. All rights reserved.
                                 </p>
                             </td>
                         </tr>

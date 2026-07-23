@@ -6,25 +6,26 @@ using MySolution.Application.Common.Interfaces.Repositories;
 namespace MySolution.Application.Features.Permission.Commands.DeletePermission;
 
 /// <summary>
-/// Handler for deleting a permission.
+///     Handler for deleting a permission.
 /// </summary>
 public class DeletePermissionHandler : IRequestHandler<DeletePermissionCommand, DeletePermissionResponse>
 {
-    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DeletePermissionHandler> _logger;
+    private readonly IUnitOfWork _unitOfWork;
 
     public DeletePermissionHandler(IUnitOfWork unitOfWork, ILogger<DeletePermissionHandler> logger)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
-    
-    public async Task<DeletePermissionResponse> Handle(DeletePermissionCommand request, CancellationToken cancellationToken)
+
+    public async Task<DeletePermissionResponse> Handle(DeletePermissionCommand request,
+        CancellationToken cancellationToken)
     {
         var functionName = $"{nameof(DeletePermissionHandler)}";
         _logger.LogInformation(functionName);
         var response = new DeletePermissionResponse();
-        
+
         try
         {
             // Get permission by Id
@@ -36,7 +37,7 @@ public class DeletePermissionHandler : IRequestHandler<DeletePermissionCommand, 
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-            
+
             // Delete
             _unitOfWork.Permission.Delete(permission);
             // Save
@@ -58,7 +59,7 @@ public class DeletePermissionHandler : IRequestHandler<DeletePermissionCommand, 
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
-        
+
         return response;
     }
 }

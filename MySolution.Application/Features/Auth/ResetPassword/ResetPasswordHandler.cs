@@ -5,19 +5,20 @@ using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 using Shared.Extensions;
+
 namespace MySolution.Application.Features.Auth.ResetPassword;
 
 public class ResetPasswordHandler : IRequestHandler<ResetPasswordCommand, ResetPasswordResponse>
 {
     private readonly ILogger<ResetPasswordHandler> _logger;
-	private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
-    private readonly IPasswordResetTokenService  _tokenService;
+    private readonly IPasswordResetTokenService _tokenService;
+    private readonly IUnitOfWork _unitOfWork;
 
     public ResetPasswordHandler
     (
         ILogger<ResetPasswordHandler> logger,
-		IUnitOfWork unitOfWork,
+        IUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
         IPasswordResetTokenService tokenService
     )
@@ -32,7 +33,7 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordCommand, ResetP
 
     public async Task<ResetPasswordResponse> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
     {
-        var payload =  request.Payload;
+        var payload = request.Payload;
         var functionName = $"{nameof(ResetPasswordHandler)} =>";
         _logger.LogInformation(functionName);
         var response = new ResetPasswordResponse();
@@ -46,15 +47,15 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordCommand, ResetP
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-            
+
             var user = _unitOfWork.User.GetByIdAsync(tokenPayload.UserId).Result;
             if (user == null)
             {
-                response.ErrorMessage= "User not found.";
+                response.ErrorMessage = "User not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-            
+
             //Check passwordversion:
             if (tokenPayload.PasswordVersion != user.PasswordVersion)
             {
@@ -62,13 +63,10 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordCommand, ResetP
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-            
+
             //Change Password:
             user.PasswordHash = _passwordHasher.HashPassword(payload.NewPassword);
-            if (!user.IsActive)
-            {
-                user.IsActive = true;
-            }
+            if (!user.IsActive) user.IsActive = true;
             user.PasswordVersion++;
             await _unitOfWork.SaveAsync(cancellationToken);
             response

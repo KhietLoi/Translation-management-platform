@@ -3,11 +3,12 @@
 namespace MySolution.Application.Features.Roles.Commands.CreateRole;
 
 /// <summary>
-/// Response class for the create role operation.
+///     Response class for the create role operation.
 /// </summary>
-public class CreateRoleResponse : BaseResponse <CreateRoleData>
+public class CreateRoleResponse : BaseResponse<CreateRoleData>
 {
 }
+
 public class CreateRoleData
 {
     public Guid RoleId { get; set; }

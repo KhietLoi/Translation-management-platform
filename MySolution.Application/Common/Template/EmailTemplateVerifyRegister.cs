@@ -6,7 +6,8 @@ public static class EmailTemplateVerifyRegister
         string userName,
         string verifyUrl,
         int emailVerificationExpiryMinutes,
-        string logoUrl = "https://wmtstorageaccdevsa.blob.core.windows.net/documents/019f82a5-9ee7-7e76-975b-fbdd3263c688.jpg") 
+        string logoUrl =
+            "https://wmtstorageaccdevsa.blob.core.windows.net/documents/019f82a5-9ee7-7e76-975b-fbdd3263c688.jpg")
     {
         return $"""
                 <!DOCTYPE html>
@@ -65,7 +66,7 @@ public static class EmailTemplateVerifyRegister
 
                                 <p style="font-size: 12px; color: #888888; margin: 0; line-height: 1.5;">
                                     If you didn't request this email, you can safely ignore it.<br>
-                                    &copy; {System.DateTime.Now.Year} MySolution. All rights reserved.
+                                    &copy; {DateTime.Now.Year} MySolution. All rights reserved.
                                 </p>
                             </td>
                         </tr>

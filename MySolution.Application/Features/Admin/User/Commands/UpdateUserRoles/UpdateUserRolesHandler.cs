@@ -6,11 +6,11 @@ using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.User.Commands.UpdateUserRoles;
 
-
 public class UpdateUserRolesHandler : IRequestHandler<UpdateUserRolesCommand, UpdateUserRolesResponse>
 {
-    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateUserRolesHandler> _logger;
+    private readonly IUnitOfWork _unitOfWork;
+
     public UpdateUserRolesHandler(
         IUnitOfWork unitOfWork,
         ILogger<UpdateUserRolesHandler> logger)
@@ -18,25 +18,26 @@ public class UpdateUserRolesHandler : IRequestHandler<UpdateUserRolesCommand, Up
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
-    
-    public async Task<UpdateUserRolesResponse> Handle(UpdateUserRolesCommand request, CancellationToken cancellationToken)
+
+    public async Task<UpdateUserRolesResponse> Handle(UpdateUserRolesCommand request,
+        CancellationToken cancellationToken)
     {
         var payload = request.Payload;
         var functionName = $"{nameof(UpdateUserRolesHandler)} =>";
         _logger.LogInformation(functionName);
         var response = new UpdateUserRolesResponse();
-        
+
         try
         {
             // Check user exists
             var user = await _unitOfWork.User.GetByIdAsync(payload.UserId);
-            if(user is null)
+            if (user is null)
             {
                 response.ErrorMessage = "User not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-            
+
             // Current roles
             var currentUserRoles = await _unitOfWork.UserRole.GetByUserIdAsync(payload.UserId);
             var currentRoleIds = currentUserRoles.Select(x => x.RoleId).ToHashSet();
@@ -62,7 +63,7 @@ public class UpdateUserRolesHandler : IRequestHandler<UpdateUserRolesCommand, Up
                     response.WithStatus(HttpStatusCode.BadRequest);
                     return response;
                 }
-                
+
                 var entities =
                     roles.Select(x =>
                             new UserRole
@@ -73,14 +74,12 @@ public class UpdateUserRolesHandler : IRequestHandler<UpdateUserRolesCommand, Up
                         .ToList();
                 await _unitOfWork.UserRole.AddRange(entities);
             }
-            
+
             // Remove roles
-            if(userRolesToRemove.Count > 0)
-            {
+            if (userRolesToRemove.Count > 0)
                 _unitOfWork.UserRole
                     .DeleteRange(userRolesToRemove);
-            }
-            
+
             await _unitOfWork.SaveAsync(cancellationToken);
             // Get updated roles
             var updatedRoles = await _unitOfWork.UserRole.GetByUserIdWithRoleAsync(payload.UserId);
@@ -105,12 +104,13 @@ public class UpdateUserRolesHandler : IRequestHandler<UpdateUserRolesCommand, Up
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
+
         return response;
     }
 }

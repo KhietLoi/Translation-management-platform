@@ -3,12 +3,10 @@
 namespace MySolution.Application.Validation;
 
 /// <summary>
-/// Base Exception của hệ thống
+///     Base Exception của hệ thống
 /// </summary>
 public class ExceptionError : Exception
 {
-    public string Code { get; }
-
     public ExceptionError(Exception innerException, string code, string message) : base(message, innerException)
     {
         Code = code;
@@ -25,4 +23,6 @@ public class ExceptionError : Exception
     protected ExceptionError(SerializationInfo info, StreamingContext context) : base(info, context)
     {
     }
+
+    public string Code { get; }
 }

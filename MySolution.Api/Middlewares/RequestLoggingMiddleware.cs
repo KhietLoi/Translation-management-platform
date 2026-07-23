@@ -2,15 +2,14 @@
 using System.Text;
 using MediatR;
 using MySolution.Api.Attributes;
-using Shared.Helpers;
 
 namespace MySolution.Api.Middlewares;
 
 public class RequestLoggingMiddleware
 {
-       private readonly RequestDelegate _next;
-    private readonly IMediator _mediator;
     private readonly ILogger<RequestLoggingMiddleware> _logger;
+    private readonly IMediator _mediator;
+    private readonly RequestDelegate _next;
 
     public RequestLoggingMiddleware(
         RequestDelegate next,
@@ -31,7 +30,7 @@ public class RequestLoggingMiddleware
             await _next(context);
             return;
         }
-        
+
         var sw = Stopwatch.StartNew();
         var requestId = Guid.CreateVersion7();
 

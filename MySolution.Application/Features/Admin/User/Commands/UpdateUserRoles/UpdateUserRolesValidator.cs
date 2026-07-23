@@ -2,8 +2,7 @@
 
 namespace MySolution.Application.Features.User.Commands.UpdateUserRoles;
 
-
-public class UpdateUserRolesValidator 
+public class UpdateUserRolesValidator
     : AbstractValidator<UpdateUserRolesRequest>
 {
     public UpdateUserRolesValidator()

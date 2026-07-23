@@ -1,16 +1,15 @@
 ﻿using MediatR;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
-using MySolution.Application.Common.Templates;
 
 namespace MySolution.Application.Features.Auth.SendVerifyEmail;
 
 public class SendVerifyEmailHandler : IRequestHandler<SendVerifyEmailCommand>
 {
-    private readonly IEmailService _emailService;
     private readonly IApplicationUrlProvider _applicationUrlProvider;
-    private readonly ITokenSetting _tokenSettings;
+    private readonly IEmailService _emailService;
     private readonly ITemplateRenderer _templateRenderer;
+    private readonly ITokenSetting _tokenSettings;
 
     public SendVerifyEmailHandler
     (
@@ -38,7 +37,7 @@ public class SendVerifyEmailHandler : IRequestHandler<SendVerifyEmailCommand>
         var verifyUrl = _applicationUrlProvider.GetVerifyEmailUrl(request.Message.Token);
         /*var html = EmailTemplateVerifyRegister.VerifyEmail(
             request.Message.Username,
-            verifyUrl,  
+            verifyUrl,
             _tokenSettings.EmailVerificationExpiryMinutes
         );*/
         var html =
@@ -49,11 +48,12 @@ public class SendVerifyEmailHandler : IRequestHandler<SendVerifyEmailCommand>
                     user_name = request.Message.Username,
                     verify_url = verifyUrl,
                     expiry_minutes = _tokenSettings.EmailVerificationExpiryMinutes,
-                    logo_url = "https://wmtstorageaccdevsa.blob.core.windows.net/documents/019f82a5-9ee7-7e76-975b-fbdd3263c688.jpg",
+                    logo_url =
+                        "https://wmtstorageaccdevsa.blob.core.windows.net/documents/019f82a5-9ee7-7e76-975b-fbdd3263c688.jpg",
                     year = DateTime.Now.Year
                 },
                 cancellationToken);
-        
+
         await _emailService.SendEmailAsync(request.Message.Email, "Verify Your Email", html, cancellationToken);
     }
 }

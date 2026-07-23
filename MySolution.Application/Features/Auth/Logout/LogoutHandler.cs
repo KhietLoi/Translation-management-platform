@@ -7,15 +7,17 @@ using MySolution.Application.Common.Interfaces.Repositories;
 namespace MySolution.Application.Features.Auth.Logout;
 
 /// <summary>
-/// Handler for processing logout requests.
-/// It revokes all refresh tokens associated with the current user and returns a response indicating the success or failure of the operation.
+///     Handler for processing logout requests.
+///     It revokes all refresh tokens associated with the current user and returns a response indicating the success or
+///     failure of the operation.
 /// </summary>
 public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
 {
-    private readonly ILogger<LogoutHandler> _logger;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUser _currentUser;
+    private readonly ILogger<LogoutHandler> _logger;
     private readonly ITokenBlacklistService _tokenBlacklistService;
+    private readonly IUnitOfWork _unitOfWork;
+
     public LogoutHandler
     (
         ILogger<LogoutHandler> logger,
@@ -29,6 +31,7 @@ public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
         _currentUser = currentUser;
         _tokenBlacklistService = tokenBlacklistService;
     }
+
     public async Task<LogoutResponse> Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
         var functionName = $"{nameof(LogoutHandler)}";
@@ -42,13 +45,9 @@ public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
             if (!string.IsNullOrWhiteSpace(jti) && _currentUser.ExpiredAt.HasValue)
             {
                 var ttl = _currentUser.ExpiredAt.Value - DateTime.UtcNow;
-                if (ttl > TimeSpan.Zero)
-                {
-                    await _tokenBlacklistService.BlacklistAsync(jti, ttl);
-                }
-                
+                if (ttl > TimeSpan.Zero) await _tokenBlacklistService.BlacklistAsync(jti, ttl);
             }
-            
+
             // Revoke all refresh tokens of the current user
             await _unitOfWork.RefreshToken.RevokeByJtiAsync(jti);
             // Save changes
@@ -56,7 +55,8 @@ public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-            _logger.LogInformation("{FunctionName} User {UserId} logged out successfully.", functionName, _currentUser.UserId);
+            _logger.LogInformation("{FunctionName} User {UserId} logged out successfully.", functionName,
+                _currentUser.UserId);
         }
         catch (Exception ex)
         {
@@ -64,7 +64,7 @@ public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
-        
+
         return response;
     }
 }

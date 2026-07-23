@@ -3,7 +3,7 @@
 namespace MySolution.Application.Features.Roles.Queries.GetRoleById;
 
 /// <summary>
-/// Response class for the get role by ID operation.
+///     Response class for the get role by ID operation.
 /// </summary>
 public class GetRoleByIdResponse : BaseResponse<GetRoleByIdData>
 {

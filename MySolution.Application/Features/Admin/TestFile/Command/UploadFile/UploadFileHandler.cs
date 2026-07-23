@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
-using MySolution.Application.Features.User.Commands.CreateUser;
 
 namespace MySolution.Application.Features.TestFile.Command.UploadFile;
 
@@ -10,11 +9,13 @@ public class UploadFileHandler : IRequestHandler<UploadFileCommand, UploadFileRe
 {
     private readonly IAzureBlobService _azureBlobService;
     private readonly ILogger<UploadFileHandler> _logger;
+
     public UploadFileHandler(IAzureBlobService azureBlobService, ILogger<UploadFileHandler> logger)
     {
         _azureBlobService = azureBlobService;
         _logger = logger;
     }
+
     public async Task<UploadFileResponse> Handle(UploadFileCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
@@ -26,7 +27,8 @@ public class UploadFileHandler : IRequestHandler<UploadFileCommand, UploadFileRe
         {
             var extension = Path.GetExtension(payload.File.FileName);
             var fileName = $"{Guid.CreateVersion7()}{extension}";
-            var blobUrl = await _azureBlobService.UploadFileAsync(payload.File.OpenReadStream(), fileName, cancellationToken);
+            var blobUrl =
+                await _azureBlobService.UploadFileAsync(payload.File.OpenReadStream(), fileName, cancellationToken);
             response.BlobUrl = blobUrl;
             response
                 .WithSuccess(true)
@@ -38,6 +40,7 @@ public class UploadFileHandler : IRequestHandler<UploadFileCommand, UploadFileRe
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
-       return response;
+
+        return response;
     }
 }

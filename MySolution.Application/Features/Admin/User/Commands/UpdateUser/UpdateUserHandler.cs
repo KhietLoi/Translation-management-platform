@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
@@ -10,13 +9,13 @@ using MySolution.Domain.Entities;
 namespace MySolution.Application.Features.User.Commands.UpdateUser;
 
 /// <summary>
-/// Handler for updating a user.
+///     Handler for updating a user.
 /// </summary>
 public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserResponse>
 {
     private readonly ILogger<UpdateUserHandler> _logger;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IUnitOfWork _unitOfWork;
 
     public UpdateUserHandler(
         ILogger<UpdateUserHandler> logger,
@@ -30,8 +29,8 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
 
     public async Task<UpdateUserResponse> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-        var payload =  request.Payload;
-        var functionName =  $"{nameof(UpdateUserHandler)}";
+        var payload = request.Payload;
+        var functionName = $"{nameof(UpdateUserHandler)}";
         _logger.LogInformation(functionName);
         var response = new UpdateUserResponse();
 
@@ -45,7 +44,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-            
+
             if (await _unitOfWork.User.ExistsByEmailOrUsernameAsync(payload.Email, payload.Username, request.Id))
             {
                 response.ErrorMessage = "Username or email already exists.";
@@ -68,14 +67,12 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
             user.IsActive = payload.IsActive;
             user.UserRoles.Clear();
             foreach (var role in roles)
-            {
                 user.UserRoles.Add(new UserRole
                 {
                     UserId = user.Id,
                     RoleId = role.Id
                 });
-            }
-            
+
             await _unitOfWork.SaveAsync(cancellationToken);
             response.Data = new UpdateUserData
             {
@@ -94,7 +91,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
-        
+
         return response;
     }
 }
