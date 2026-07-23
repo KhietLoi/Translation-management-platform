@@ -14,10 +14,6 @@
     <ItemGroup>
         <Folder Include="Features\Admin\"/>
         <Folder Include="Features\RequestLog\Commands\CreateRequestLog\"/>
-        <Folder Include="Features\User\UserProfile\Commands\DeleteAvatar\" />
-        <Folder Include="Features\User\UserProfile\Commands\RemovePhoneNumber\" />
-        <Folder Include="Features\User\UserProfile\Commands\UploadAvatar\" />
-        <Folder Include="Features\User\UserProfile\Queries\GetAvatar\" />
         <Folder Include="Features\User\UserProfile\Queries\GetProfile\" />
     </ItemGroup>
 

@@ -1,6 +1,8 @@
-﻿namespace MySolution.Application.Features.User.UserProfile.Commands.UpdateProfile;
+﻿using MediatR;
 
-public class UpdateProfileRequest
+namespace MySolution.Application.Features.User.UserProfile.Commands.UpdateProfile;
+
+public class UpdateProfileRequest 
 {
-
+    public 
 }

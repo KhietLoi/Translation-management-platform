@@ -76,6 +76,22 @@ VALUES
      TRUE
     )
 ON CONFLICT DO NOTHING;
+-- USER PROFILE:
+INSERT INTO mysolution."UserProfiles"
+(
+    "UserId",
+    "FullName",
+    "CreatedAt",
+    "UpdatedAt"
+)
+VALUES
+    (
+        'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+        'System Administrator',
+        NOW(),
+        NOW()
+    )
+ON CONFLICT DO NOTHING;
 
 -- USER ROLE
 INSERT INTO mysolution."UserRoles"
