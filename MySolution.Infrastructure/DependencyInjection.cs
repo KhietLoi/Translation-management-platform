@@ -33,7 +33,6 @@ public static class DependencyInjection
             .Bind(configuration.GetSection(JwtOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        
         services.AddScoped<IHashService, HashService>();
 
         //Token Options: (Use for Token email)
@@ -84,6 +83,7 @@ public static class DependencyInjection
         services.AddScoped<IRateLimitService, RedisRateLimitService>();
         //SecurityTimestamp
         services.AddScoped<ISecurityStampService, SecurityStampService>();
+        
         return services;
     }
 
