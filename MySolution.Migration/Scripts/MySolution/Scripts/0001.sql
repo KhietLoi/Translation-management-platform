@@ -26,6 +26,34 @@ CREATE TABLE IF NOT EXISTS mysolution."Users"
     PRIMARY KEY ("Id")
 );
 
+-- UserProfile:
+CREATE TABLE IF NOT EXISTS mysolution."UserProfiles"
+(
+    "UserId" UUID NOT NULL,
+
+    "FullName" VARCHAR(100),
+
+    "BirthDate" DATE,
+
+    "PhoneNumber" VARCHAR(20),
+
+    "AvatarBlobName" VARCHAR(300),
+
+    "Address" VARCHAR(255),
+
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT "PK_UserProfiles"
+    PRIMARY KEY ("UserId"),
+
+    CONSTRAINT "FK_UserProfiles_Users_UserId"
+    FOREIGN KEY ("UserId")
+    REFERENCES mysolution."Users" ("Id")
+    ON DELETE CASCADE
+);
+
 -- Roles
 CREATE TABLE IF NOT EXISTS mysolution."Roles"
 (
@@ -161,5 +189,9 @@ CREATE INDEX IF NOT EXISTS "IX_RefreshTokens_ExpiredAt"
 
 CREATE INDEX IF NOT EXISTS "IX_RefreshTokens_RevokedAt"
     ON mysolution."RefreshTokens" ("RevokedAt");
+
+CREATE UNIQUE INDEX IF NOT EXISTS "IX_UserProfiles_PhoneNumber"
+    ON mysolution."UserProfiles" ("PhoneNumber")
+    WHERE "PhoneNumber" IS NOT NULL;
 
 
