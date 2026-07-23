@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MySolution.Application.Features.Permission.Commands.CreatePermission;
+namespace MySolution.Application.Features.Admin.Permission.Commands.CreatePermission;
 
 /// <summary>
 ///     Command to create a new permission

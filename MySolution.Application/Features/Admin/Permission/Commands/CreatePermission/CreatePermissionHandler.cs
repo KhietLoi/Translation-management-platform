@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
-namespace MySolution.Application.Features.Permission.Commands.CreatePermission;
+namespace MySolution.Application.Features.Admin.Permission.Commands.CreatePermission;
 
 /// <summary>
 ///     Handler for creating a new permission.

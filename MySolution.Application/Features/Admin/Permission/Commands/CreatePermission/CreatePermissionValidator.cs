@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace MySolution.Application.Features.Permission.Commands.CreatePermission;
+namespace MySolution.Application.Features.Admin.Permission.Commands.CreatePermission;
 
 /// <summary>
 ///     Validator for the CreatePermissionCommand, ensuring that the required fields are not empty and meet length
