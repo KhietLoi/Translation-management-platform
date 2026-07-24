@@ -88,8 +88,7 @@ public class RoleController(IMediator mediator) : Controller
         var response = await mediator.Send(new GetRoleByIdQuery(id), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-
-
+    
     [HttpPut("permissions")]
     [Permission(PermissionConstants.Role.Update)]
     public async Task<IActionResult> UpdateRolePermissions([FromBody] UpdateRolePermissionsRequest request,

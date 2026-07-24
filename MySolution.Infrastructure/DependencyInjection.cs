@@ -81,6 +81,8 @@ public static class DependencyInjection
         services.AddScoped<IPermissionCacheService, PermissionCacheService>();
         //Rate Limited:
         services.AddScoped<IRateLimitService, RedisRateLimitService>();
+        services.AddScoped<IRateLimitPolicyProvider, RateLimitPolicyProvider>();
+        services.Configure<RateLimitOptions>(configuration.GetSection(RateLimitOptions.SectionName));
         //SecurityTimestamp
         services.AddScoped<ISecurityStampService, SecurityStampService>();
         
@@ -95,6 +97,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ICurrentUser, CurrentUserService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IAuthCookieService,  AuthCookieService>();
 
         return services;
     }

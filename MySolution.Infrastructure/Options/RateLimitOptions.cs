@@ -2,7 +2,15 @@
 
 public class RateLimitOptions
 {
-    public const string PolicyKey = "RateLimitPolicy";
+    public const string SectionName = "RateLimit";
+    public Dictionary<string, RateLimitRule> Policies
+    {
+        get;
+        init;
+    } = new();
+}
+public sealed class RateLimitRule
+{
     public int PermitLimit { get; init; }
-    public int PermitWindow { get; init; }
+    public int PermitWindowMinutes { get; init; }
 }

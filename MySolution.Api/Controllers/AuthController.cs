@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using MySolution.Api.Helpers;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Features.Auth.ChangePassword;
 using MySolution.Application.Features.Auth.ForgotPassword;
 using MySolution.Application.Features.Auth.Login;
@@ -12,18 +12,13 @@ using MySolution.Application.Features.Auth.Register;
 using MySolution.Application.Features.Auth.ResendVerificationEmail;
 using MySolution.Application.Features.Auth.ResetPassword;
 using MySolution.Application.Features.Auth.VerifyEmail;
-using MySolution.Infrastructure.Options;
-using LoginRequest = MySolution.Application.Features.Auth.Login.LoginRequest;
-using RegisterRequest = MySolution.Application.Features.Auth.Register.RegisterRequest;
 
 namespace MySolution.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtoptions) : Controller
+public class AuthController(IMediator mediator,  IAuthCookieService cookieService) : Controller
 {
-    private readonly JwtOptions _jwtOptions = jwtoptions.Value;
-
     /// <summary>
     ///     Register a new user
     /// </summary>
@@ -47,16 +42,16 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtoptions)
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new LoginCommand(request), cancellationToken);
-        if (!response.Success) return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+        if (!response.Success)
+        {
+            return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+        }
 
         if (response.Data != null)
-            Response.Cookies.Append("refreshToken", response.Data.RefreshToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = false,
-                SameSite = SameSiteMode.Lax,
-                Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenDays)
-            });
+        {
+            cookieService.SetRefreshToken(response.Data.RefreshToken);
+        }
+        
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
@@ -68,32 +63,25 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtoptions)
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken(CancellationToken cancellationToken)
     {
-        var refreshToken = Request.Cookies["refreshToken"];
-        if (string.IsNullOrWhiteSpace(refreshToken)) return Unauthorized("Refresh token is missing.");
+        var refreshToken = cookieService.GetRefreshToken();
+        if (string.IsNullOrWhiteSpace(refreshToken))
+        {
+            return Unauthorized("Refresh token is missing.");
+        }
 
         var response =
             await mediator.Send(new RefreshTokenCommand(new RefreshTokenRequest { RefreshToken = refreshToken }),
                 cancellationToken);
         if (!response.Success)
         {
-            Response.Cookies.Delete("refreshToken");
-
-            return ResponseHelper.ToResponse(
-                response.StatusCode,
-                response);
+            cookieService.RemoveRefreshToken();
+            return ResponseHelper.ToResponse(response.StatusCode, response);
         }
 
         if (response.Data != null)
-            Response.Cookies.Append(
-                "refreshToken",
-                response.Data.RefreshToken,
-                new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = false, // localhost
-                    SameSite = SameSiteMode.Lax,
-                    Expires = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenDays)
-                });
+        {
+            cookieService.SetRefreshToken(response.Data.RefreshToken);
+        }
 
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
@@ -108,6 +96,7 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtoptions)
     public async Task<IActionResult> Logout(CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new LogoutCommand(), cancellationToken);
+        cookieService.RemoveRefreshToken();
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
 
@@ -117,6 +106,10 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtoptions)
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new ChangePasswordCommand(request), cancellationToken);
+        if (response.Success)
+        {
+            cookieService.RemoveRefreshToken();
+        }
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
 

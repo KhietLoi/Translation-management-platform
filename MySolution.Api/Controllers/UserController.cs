@@ -52,8 +52,7 @@ public class UserController(IMediator mediator) : Controller
     /// <returns></returns>
     [HttpPost]
     [Permission(PermissionConstants.User.Create)]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new CreateUserCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
@@ -68,8 +67,7 @@ public class UserController(IMediator mediator) : Controller
     /// <returns></returns>
     [HttpPut("{id:guid}")]
     [Permission(PermissionConstants.User.Update)]
-    public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new UpdateUserCommand(id, request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
@@ -91,8 +89,7 @@ public class UserController(IMediator mediator) : Controller
 
     [HttpPut("roles")]
     [Permission(PermissionConstants.User.Update)]
-    public async Task<IActionResult> UpdateUserRoles([FromBody] UpdateUserRolesRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateUserRoles([FromBody] UpdateUserRolesRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new UpdateUserRolesCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
