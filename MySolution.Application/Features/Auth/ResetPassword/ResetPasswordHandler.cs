@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Domain.Enums;
 using Shared.Extensions;
 
 namespace MySolution.Application.Features.Auth.ResetPassword;
@@ -66,7 +67,10 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordCommand, ResetP
 
             //Change Password:
             user.PasswordHash = _passwordHasher.HashPassword(payload.NewPassword);
-            if (!user.IsActive) user.IsActive = true;
+            if (user.Status == UserStatus.NonActive)
+            {
+                user.Status = UserStatus.Active;
+            }
             user.PasswordVersion++;
             await _unitOfWork.SaveAsync(cancellationToken);
             response

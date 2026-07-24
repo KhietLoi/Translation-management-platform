@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Features.Auth.Login;
 
@@ -53,16 +54,23 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                 return response;
             }
 
-            // Check account status
-            if (!user.IsActive)
+            // Check account Active
+            if (user.Status == UserStatus.NonActive)
             {
                 _logger.LogWarning("{FunctionName} User inactive: {Username}", functionName, payload.Username);
-                response.ErrorMessage = "Account is locked.";
+                response.ErrorMessage = "Account is not active.";
                 response.WithStatus(HttpStatusCode.Forbidden);
                 return response;
             }
+            // Check account is blocked
+            if (user.Status == UserStatus.Blocked)
+            {
+                response.ErrorMessage = "Account is blocked.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
 
-            // Check Password
+            // Check Invalid
             var verify = _passwordHasher.VerifyPassword(payload.Password, user.PasswordHash);
             if (!verify)
             {
@@ -83,6 +91,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                     IsEmailVerified = false
                 };
                 response.WithStatus(HttpStatusCode.BadRequest);
+                
                 return response;
             }
 

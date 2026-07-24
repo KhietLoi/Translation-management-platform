@@ -1,4 +1,5 @@
 ﻿using MySolution.Application.Common.Models;
+using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Features.User.Queries.GetUserById;
 
@@ -10,7 +11,7 @@ public class GetUserByIdData
 {
     public string Username { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
-    public bool IsActive { get; set; }
+    public UserStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public List<RoleData> Roles { get; set; } = [];
     public List<PermissionData> Permissions { get; set; } = [];

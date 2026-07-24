@@ -7,6 +7,7 @@ using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Constants;
 using MySolution.Domain.Entities;
+using MySolution.Domain.Enums;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.Auth.Register;
@@ -68,7 +69,7 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
                 Username = payload.Username,
                 Email = payload.Email,
                 PasswordHash = _passwordHasher.HashPassword(payload.Password),
-                IsActive = true,
+                Status = UserStatus.Active,
                 CreatedAt = DateTime.UtcNow
             };
             await _unitOfWork.User.Add(user);
@@ -107,4 +108,5 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
 
         return response;
     }
+    
 }

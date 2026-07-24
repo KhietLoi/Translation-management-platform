@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Authorization;
 using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
+using MySolution.Application.Features.Admin.User.Commands.UpdateUser;
 using MySolution.Application.Features.User.Commands.CreateUser;
 using MySolution.Application.Features.User.Commands.DeleteUser;
 using MySolution.Application.Features.User.Commands.UpdateUser;

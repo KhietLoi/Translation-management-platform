@@ -4,9 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Application.Features.User.Commands.UpdateUser;
 using MySolution.Domain.Entities;
 
-namespace MySolution.Application.Features.User.Commands.UpdateUser;
+namespace MySolution.Application.Features.Admin.User.Commands.UpdateUser;
 
 /// <summary>
 ///     Handler for updating a user.
@@ -36,8 +37,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
 
         try
         {
-            var user = await _unitOfWork.User
-                .GetUserWithRolesAsync(request.Id);
+            var user = await _unitOfWork.User.GetUserWithRolesAsync(request.Id);
             if (user == null)
             {
                 response.ErrorMessage = "User not found.";
@@ -64,7 +64,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
 
             user.Username = payload.Username;
             user.Email = payload.Email;
-            user.IsActive = payload.IsActive;
+            user.Status = payload.Status;
             user.UserRoles.Clear();
             foreach (var role in roles)
                 user.UserRoles.Add(new UserRole
@@ -79,7 +79,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                IsActive = user.IsActive
+                Status = user.Status,
             };
             response
                 .WithSuccess(true)

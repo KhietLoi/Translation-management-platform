@@ -1,4 +1,5 @@
 ﻿using MySolution.Application.Common.Models;
+using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Features.User.Queries.GetUser;
 
@@ -21,6 +22,6 @@ public class GetUsersData
     public Guid Id { get; set; }
     public string Username { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
-    public bool IsActive { get; set; }
+    public UserStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
 }
