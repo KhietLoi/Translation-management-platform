@@ -9,7 +9,7 @@ public class UserProfileRepository (AppDbContext context, ILogger logger) : Repo
 {
     public async Task<UserProfile?> GetByIdAsync(Guid userId)
     {
-        return await DbSet.FirstOrDefaultAsync(x => x.UserId == userId);
+        return await DbSet.FindAsync(userId);
     }
 
     public async Task<bool> IsPhoneNumberExistsAsync(string phoneNumber, Guid? excludeUserId = null)

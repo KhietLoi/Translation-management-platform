@@ -8,8 +8,7 @@ using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.Auth.ResendVerificationEmail;
 
-public class
-    ResendVerificationEmailHandler : IRequestHandler<ResendVerificationEmailCommand, ResendVerificationEmailResponse>
+public class ResendVerificationEmailHandler : IRequestHandler<ResendVerificationEmailCommand, ResendVerificationEmailResponse>
 {
     private readonly ILogger<ResendVerificationEmailHandler> _logger;
     private readonly IMessageSender _messageSender;
@@ -30,8 +29,7 @@ public class
         _messageSender = messageSender;
     }
 
-    public async Task<ResendVerificationEmailResponse> Handle(ResendVerificationEmailCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ResendVerificationEmailResponse> Handle(ResendVerificationEmailCommand request, CancellationToken cancellationToken)
     {
         var response = new ResendVerificationEmailResponse();
 

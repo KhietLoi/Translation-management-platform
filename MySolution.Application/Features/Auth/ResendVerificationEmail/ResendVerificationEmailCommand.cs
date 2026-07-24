@@ -13,11 +13,7 @@ public class ResendVerificationEmailCommand : IRequest<ResendVerificationEmailRe
 
     public ResendVerificationEmailRequest Payload { get; }
 
-    public RateLimitPolicy GetRateLimitPolicy()
-    {
-        return new RateLimitPolicy($"resend-email:{Payload.Email}",
-            3,
-            TimeSpan.FromMinutes(10)
-        );
-    }
+
+    public string PolicyName => "ResendEmail";
+    public string RateLimitKey => $"resend-email:{Payload.Email}";
 }
