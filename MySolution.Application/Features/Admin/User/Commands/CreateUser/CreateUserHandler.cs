@@ -6,10 +6,12 @@ using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Application.Features.User.Commands.CreateUser;
 using MySolution.Domain.Entities;
+using MySolution.Domain.Enums;
 using Shared.MassTransit.IntegrationEvents;
 
-namespace MySolution.Application.Features.User.Commands.CreateUser;
+namespace MySolution.Application.Features.Admin.User.Commands.CreateUser;
 
 /// <summary>
 ///     Handler for creating a new user.
@@ -75,7 +77,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
                 Email = payload.Email,
                 PasswordHash = passwordTemp,
                 IsEmailVerified = true,
-                IsActive = false,
+                Status = UserStatus.NonActive,
                 CreatedAt = DateTime.UtcNow
             };
             //Add User
@@ -100,12 +102,13 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
                     Email = user.Email,
                     Token = token
                 }, cancellationToken);
+            
             response.Data = new CreateUserData
             {
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                IsActive = user.IsActive
+                IsActive = user.Status == UserStatus.NonActive
             };
             response
                 .WithSuccess(true)

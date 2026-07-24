@@ -4,8 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Common.Models;
+using MySolution.Application.Features.User.Queries.GetUser;
 
-namespace MySolution.Application.Features.User.Queries.GetUser;
+namespace MySolution.Application.Features.Admin.User.Queries.GetUser;
 
 /// <summary>
 ///     Handler for processing the GetUsersQuery
@@ -50,7 +51,7 @@ public class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersResponse>
                     Id = x.Id,
                     Username = x.Username,
                     Email = x.Email,
-                    IsActive = x.IsActive,
+                    Status = x.Status,
                     CreatedAt = x.CreatedAt
                 }).ToList(),
                 Paging = new PagingInfo

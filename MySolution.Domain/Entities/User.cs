@@ -1,4 +1,6 @@
-﻿namespace MySolution.Domain.Entities;
+﻿using MySolution.Domain.Enums;
+
+namespace MySolution.Domain.Entities;
 
 /// <summary>
 ///     Represents a user in the system
@@ -9,7 +11,7 @@ public class User
     public string Username { get; set; } = null!;
     public string Email { get; set; } = null!;
     public string PasswordHash { get; set; } = string.Empty;
-    public bool IsActive { get; set; } = true;
+    public UserStatus Status { get; set; } = UserStatus.NonActive;
     public bool IsEmailVerified { get; set; }
     public int PasswordVersion { get; set; } = 1;
     public string SecurityStamp { get; set; } = Guid.CreateVersion7().ToString();

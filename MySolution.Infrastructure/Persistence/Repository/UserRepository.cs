@@ -51,13 +51,6 @@ public class UserRepository(AppDbContext context, ILogger logger) : Repository<U
 
     public async Task<User?> GetUserWithRolesAsync(string username)
     {
-        /*return await DbSet
-            .Include(x => x.UserRoles)
-            .ThenInclude(x => x.Role)
-            .ThenInclude(x => x.RolePermissions)
-            .ThenInclude(x => x.Permission)
-            .FirstOrDefaultAsync(x => x.Username == username);*/
-
         return await DbSet
             .AsSplitQuery()
             .Include(x => x.UserRoles)

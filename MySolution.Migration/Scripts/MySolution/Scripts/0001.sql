@@ -13,9 +13,9 @@ CREATE TABLE IF NOT EXISTS mysolution."Users"
     "PasswordHash" TEXT NOT NULL,
     
     "PasswordVersion" INT NOT NULL DEFAULT 1,
-
-    "IsActive" BOOLEAN NOT NULL DEFAULT TRUE,
     
+    "Status" INT NOT NULL DEFAULT 0,
+
     "SecurityStamp" VARCHAR(256) NOT NULL DEFAULT gen_random_uuid()::text,
     
     "IsEmailVerified" BOOLEAN NOT NULL DEFAULT FALSE,

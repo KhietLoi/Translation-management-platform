@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MySolution.Domain.Entities;
+using MySolution.Domain.Enums;
 
 namespace MySolution.Infrastructure.Persistence.Configurations;
 
@@ -23,15 +24,15 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(256);
         builder.Property(x => x.PasswordHash)
             .IsRequired();
-        builder.Property(x => x.IsActive)
-            .HasDefaultValue(true);
+        builder.Property(x => x.Status)
+            .HasDefaultValue(UserStatus.NonActive);
         builder.Property(x => x.IsEmailVerified)
             .HasDefaultValue(false);
         builder.Property(x => x.SecurityStamp)
             .IsRequired()
             .HasMaxLength(256);
         builder.Property(x => x.CreatedAt)
-            .HasDefaultValueSql("now()");
+            .HasDefaultValueSql("DateTimeNow()");
         builder.HasIndex(x => x.Email)
             .IsUnique();
         builder.HasIndex(x => x.Username)

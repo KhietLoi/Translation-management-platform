@@ -60,7 +60,7 @@ INSERT INTO mysolution."Users"
     "Email",
     "PasswordHash",
     "PasswordVersion",
-    "IsActive",
+    "Status",
     "CreatedAt",
     "IsEmailVerified"
 )
@@ -71,7 +71,7 @@ VALUES
         'admin@gmail.com',
         'AQAAAAIAAYagAAAAEDJZPvgqHdLIqrE3FCcpVszs8kbdPi1ELbwAIFVvvecfgPqBISyzB5qyu51oeFqvGw==',
      1,
-        TRUE,
+        1,
         NOW(),
      TRUE
     )

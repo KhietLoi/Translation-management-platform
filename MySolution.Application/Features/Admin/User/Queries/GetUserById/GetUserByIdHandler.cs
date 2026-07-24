@@ -39,7 +39,7 @@ public class GetUserByIdHandler : IRequestHandler<GetUserByIdQuery, GetUserByIdR
             {
                 Username = user.Username,
                 Email = user.Email,
-                IsActive = user.IsActive,
+                Status =  user.Status,
                 CreatedAt = user.CreatedAt,
                 Roles = user.UserRoles
                     .Select(x => new RoleData
