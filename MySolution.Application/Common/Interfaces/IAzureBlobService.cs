@@ -9,4 +9,5 @@ public interface IAzureBlobService
     Task<Stream?> DownloadFileAsync(string fileName, CancellationToken cancellationToken);
     Task<bool> FileExistsAsync(string fileName, CancellationToken cancellationToken);
     Task<List<BlobFile>> GetAllFilesAsync(CancellationToken cancellationToken);
+    string GetFileUrl (string fileName);
 }

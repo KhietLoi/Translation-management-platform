@@ -11,7 +11,6 @@ public class UpdateData
     public string FullName { get; set; } = string.Empty;
     public DateOnly  BirthDate { get; set; } 
     public string PhoneNumber { get; set; } = string.Empty;
-    public string? AvatarBlobName { get; set; } = string.Empty;
     public string? Address { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }
