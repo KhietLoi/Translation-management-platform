@@ -11,6 +11,7 @@
     <Project Path="MySolution.Email.Application/MySolution.Email.Application.csproj" />
     <Project Path="MySolution.Email.Infrastructure/MySolution.Email.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/Tests/" />
   <Project Path="MySolution.Migration/MySolution.Migration.csproj" />
   <Project Path="Shared/Shared.csproj" />
 </Solution>

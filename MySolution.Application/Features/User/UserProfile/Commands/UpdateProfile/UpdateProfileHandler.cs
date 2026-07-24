@@ -51,8 +51,7 @@ public class UpdateProfileHandler : IRequestHandler<UpdateProfileCommand, Update
             userProfile.PhoneNumber = payload.PhoneNumber;
             userProfile.FullName =  payload.FullName;
             userProfile.BirthDate = payload.BirthDate;
-            userProfile.AvatarBlobName =  payload.AvatarBlobName;
-            userProfile.UpdatedAt = new DateTime();
+            userProfile.UpdatedAt = DateTime.UtcNow;
             
             await _unitOfWork.SaveAsync(cancellationToken);
             response.Data = new UpdateData
@@ -60,7 +59,6 @@ public class UpdateProfileHandler : IRequestHandler<UpdateProfileCommand, Update
                 UserId = request.Id,
                 FullName = userProfile.FullName,
                 PhoneNumber = userProfile.PhoneNumber,
-                AvatarBlobName = userProfile.AvatarBlobName,
                 Address = userProfile.Address,
                 UpdatedAt = userProfile.UpdatedAt
             };

@@ -21,7 +21,8 @@ public class AzureBlobService : IAzureBlobService
         await _container.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
         var blobClient = _container.GetBlobClient(fileName);
         await blobClient.UploadAsync(stream, true, cancellationToken);
-        return blobClient.Uri.ToString();
+
+        return fileName;
     }
 
     public async Task<bool> DeleteFileAsync(string fileName, CancellationToken cancellationToken)
@@ -63,5 +64,10 @@ public class AzureBlobService : IAzureBlobService
         }
 
         return result;
+    }
+
+    public string GetFileUrl(string fileName)
+    {
+        return _container.GetBlobClient(fileName).Uri.ToString();
     }
 }

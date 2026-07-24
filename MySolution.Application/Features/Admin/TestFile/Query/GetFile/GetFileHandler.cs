@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 
-namespace MySolution.Application.Features.TestFile.Query.GetFile;
+namespace MySolution.Application.Features.Admin.TestFile.Query.GetFile;
 
 public class GetFileHandler : IRequestHandler<GetFileQuery, GetFileResponse>
 {

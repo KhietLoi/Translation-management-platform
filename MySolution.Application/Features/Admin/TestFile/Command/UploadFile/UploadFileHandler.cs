@@ -2,8 +2,9 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Features.TestFile.Command.UploadFile;
 
-namespace MySolution.Application.Features.TestFile.Command.UploadFile;
+namespace MySolution.Application.Features.Admin.TestFile.Command.UploadFile;
 
 public class UploadFileHandler : IRequestHandler<UploadFileCommand, UploadFileResponse>
 {
