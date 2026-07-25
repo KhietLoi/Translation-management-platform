@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Features.User.Commands.UpdateUser;
 using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.Admin.User.Commands.UpdateUser;

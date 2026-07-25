@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MySolution.Application.Features.User.Queries.GetUserById;
+namespace MySolution.Application.Features.Admin.User.Queries.GetUserById;
 
 public class GetUserByIdQuery : IRequest<GetUserByIdResponse>
 {

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
 
-namespace MySolution.Application.Features.User.Commands.UpdateUserRoles;
+namespace MySolution.Application.Features.Admin.User.Commands.UpdateUserRoles;
 
 public class UpdateUserRolesHandler : IRequestHandler<UpdateUserRolesCommand, UpdateUserRolesResponse>
 {

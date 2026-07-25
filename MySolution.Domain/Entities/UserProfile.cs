@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MySolution.Domain.Entities;
+﻿namespace MySolution.Domain.Entities;
 
 public class UserProfile
 {
@@ -13,4 +11,9 @@ public class UserProfile
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public User User { get; set; } = null!;
+
+    public bool IsCompleted =>
+        !string.IsNullOrWhiteSpace(FullName) &&
+        !string.IsNullOrWhiteSpace(PhoneNumber) &&
+        BirthDate.HasValue;
 }

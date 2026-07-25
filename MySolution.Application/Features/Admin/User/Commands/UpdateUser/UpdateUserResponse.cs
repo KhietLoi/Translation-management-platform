@@ -1,7 +1,7 @@
 ﻿using MySolution.Application.Common.Models;
 using MySolution.Domain.Enums;
 
-namespace MySolution.Application.Features.User.Commands.UpdateUser;
+namespace MySolution.Application.Features.Admin.User.Commands.UpdateUser;
 
 /// <summary>
 ///     Response class for the update user operation.

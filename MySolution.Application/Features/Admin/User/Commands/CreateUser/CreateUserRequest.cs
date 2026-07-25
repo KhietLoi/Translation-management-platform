@@ -1,4 +1,4 @@
-﻿namespace MySolution.Application.Features.User.Commands.CreateUser;
+﻿namespace MySolution.Application.Features.Admin.User.Commands.CreateUser;
 
 /// <summary>
 ///     Request model for creating a new user

@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Common.Models;
 using MySolution.Application.Features.Admin.User.Queries.GetUser;
-using MySolution.Application.Features.User.Queries.GetUser;
 
 namespace MySolution.Application.Features.Roles.Queries.GetRoles;
 

@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Features.User.Queries.GetUserById;
+using MySolution.Application.Features.Admin.User.Queries.GetUserById;
 using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.Roles.Commands.UpdateRolePermissions;

@@ -1,7 +1,7 @@
 ﻿using MySolution.Application.Common.Models;
 using MySolution.Domain.Enums;
 
-namespace MySolution.Application.Features.User.Queries.GetUserById;
+namespace MySolution.Application.Features.Admin.User.Queries.GetUserById;
 
 public class GetUserByIdResponse : BaseResponse<GetUserByIdData>
 {

@@ -1,4 +1,4 @@
-﻿namespace MySolution.Application.Features.User.Commands.UpdateUserRoles;
+﻿namespace MySolution.Application.Features.Admin.User.Commands.UpdateUserRoles;
 
 public class UpdateUserRolesRequest
 {
