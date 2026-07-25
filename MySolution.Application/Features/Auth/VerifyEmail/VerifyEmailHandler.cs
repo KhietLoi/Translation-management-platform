@@ -34,24 +34,33 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
         try
         {
             var payload = _emailVerificationTokenService.ValidateToken(request.Token);
-            if (payload.ExpiredAt < DateTime.UtcNow)
-            {
-                response.ErrorMessage = "Verification token is expired.";
-                response.WithStatus(HttpStatusCode.BadRequest);
-                return response;
-            }
-
             var user = _unitOfWork.User.GetByIdAsync(payload.UserId).Result;
+            
             if (user == null)
             {
                 response.ErrorMessage = "User not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
+            if (payload.ExpiredAt < DateTime.UtcNow)
+            {
+                response.ErrorMessage = "Verification token is expired.";
+                response.Data = new VerifyEmailData
+                {
+                    Email = user.Email
+                };
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
 
             if (user.IsEmailVerified)
             {
                 response.ErrorMessage = "Email is already verified.";
+                response.Data = new VerifyEmailData
+                {
+                    Email = user.Email
+                }; 
+                
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }

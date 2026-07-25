@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Backend_Net.Api.Handler;
 using MySolution.Api.Handler;
+using MySolution.Application.Common.Exceptions;
 using MySolution.Application.Validation;
 using Shared.Helpers;
 
@@ -107,6 +108,21 @@ public class ExceptionMiddleware
 
             var response = ResponseHandler.Unauthorized();
             await httpContext.Response.WriteAsync(JsonHelper.Serialize(response.Value));
+        }
+        catch (RateLimitExceededException ex)
+        {
+            httpContext.Response.ContentType = "application/json";
+            httpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+
+            var response = new ErrorHandler
+            {
+                success = false,
+                data = null,
+                errorMessage = ex.Message,
+                errorMessageCode = "RATE_LIMIT_EXCEEDED"
+            };
+
+            await httpContext.Response.WriteAsync(response.ToString());
         }
         catch (Exception ex)
         {
