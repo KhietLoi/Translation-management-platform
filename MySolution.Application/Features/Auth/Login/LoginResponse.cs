@@ -17,4 +17,5 @@ public class LoginResult
     //Support verified email:
     public bool IsEmailVerified { get; set; }
     public string Email { get; set; } = string.Empty;
+    public bool NeedCompleteProfile { get; set; }
 }

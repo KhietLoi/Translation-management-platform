@@ -90,6 +90,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                     Email = user.Email,
                     IsEmailVerified = false
                 };
+                
                 response.WithStatus(HttpStatusCode.BadRequest);
                 
                 return response;
@@ -122,7 +123,8 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                 RefreshToken = refreshToken,
                 ExpiresAtAccessToken = _jwtService.GetAccessTokenExpirationDate(),
                 IsEmailVerified = user.IsEmailVerified,
-                Email = user.Email
+                Email = user.Email,
+                NeedCompleteProfile = !user.Profile.IsCompleted
             };
             response
                 .WithSuccess(true)

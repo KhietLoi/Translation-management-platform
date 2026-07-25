@@ -52,6 +52,7 @@ public class UpdateProfileHandler : IRequestHandler<UpdateProfileCommand, Update
             userProfile.FullName =  payload.FullName;
             userProfile.BirthDate = payload.BirthDate;
             userProfile.UpdatedAt = DateTime.UtcNow;
+            userProfile.Address = payload.Address;
             
             await _unitOfWork.SaveAsync(cancellationToken);
             response.Data = new UpdateData

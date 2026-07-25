@@ -1,7 +1,6 @@
 ﻿using MediatR;
-using MySolution.Application.Features.Admin.User.Commands.UpdateUser;
 
-namespace MySolution.Application.Features.User.Commands.UpdateUser;
+namespace MySolution.Application.Features.Admin.User.Commands.UpdateUser;
 
 /// <summary>
 ///     Command to update a user

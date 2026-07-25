@@ -77,6 +77,13 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
             {
                 RoleId = role.Id
             });
+            // create empty user profile
+            user.Profile = new UserProfile
+            {
+                UserId = user.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+            
             await _unitOfWork.SaveAsync(cancellationToken);
             var token = _emailVerificationTokenService.GenerateVerificationToken(user.Id, user.Email);
             //Email

@@ -1,6 +1,6 @@
 ﻿using MySolution.Application.Common.Models;
 
-namespace MySolution.Application.Features.User.Commands.DeleteUser;
+namespace MySolution.Application.Features.Admin.User.Commands.DeleteUser;
 
 /// <summary>
 ///     Response class for the delete user operation.

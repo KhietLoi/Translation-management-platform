@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace MySolution.Application.Features.User.Queries.GetUser;
+namespace MySolution.Application.Features.Admin.User.Queries.GetUser;
 
 /// <summary>
 ///     Validator for the GetUsersQuery

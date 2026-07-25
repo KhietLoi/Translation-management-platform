@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
-namespace MySolution.Application.Features.User.Queries.GetUserById;
+namespace MySolution.Application.Features.Admin.User.Queries.GetUserById;
 
 /// <summary>
 ///     Handler for retrieving a user by their ID.

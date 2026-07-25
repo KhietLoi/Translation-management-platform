@@ -1,5 +1,5 @@
 ﻿using MySolution.Application.Common.Models;
-using MySolution.Application.Features.User.Queries.GetUserById;
+using MySolution.Application.Features.Admin.User.Queries.GetUserById;
 
 namespace MySolution.Application.Features.Roles.Commands.UpdateRolePermissions;
 

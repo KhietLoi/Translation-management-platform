@@ -1,4 +1,4 @@
-﻿namespace MySolution.Application.Features.User.Queries.GetUser;
+﻿namespace MySolution.Application.Features.Admin.User.Queries.GetUser;
 
 /// <summary>
 ///     Request model for retrieving a list of users with pagination and optional search criteria

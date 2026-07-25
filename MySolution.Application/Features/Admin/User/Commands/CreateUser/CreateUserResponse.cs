@@ -1,6 +1,6 @@
 ﻿using MySolution.Application.Common.Models;
 
-namespace MySolution.Application.Features.User.Commands.CreateUser;
+namespace MySolution.Application.Features.Admin.User.Commands.CreateUser;
 
 /// <summary>
 ///     Response class for the create user operation.

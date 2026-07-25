@@ -53,10 +53,11 @@ public class UserRepository(AppDbContext context, ILogger logger) : Repository<U
     {
         return await DbSet
             .AsSplitQuery()
+            .Include(x => x.Profile)
             .Include(x => x.UserRoles)
             .ThenInclude(x => x.Role)
-            .ThenInclude(x => x.RolePermissions)
-            .ThenInclude(x => x.Permission)
+            //.ThenInclude(x => x.RolePermissions)
+            //.ThenInclude(x => x.Permission)
             .FirstOrDefaultAsync(x => x.Username == username);
     }
 

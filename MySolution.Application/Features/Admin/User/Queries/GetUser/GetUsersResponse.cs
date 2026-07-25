@@ -1,7 +1,7 @@
 ﻿using MySolution.Application.Common.Models;
 using MySolution.Domain.Enums;
 
-namespace MySolution.Application.Features.User.Queries.GetUser;
+namespace MySolution.Application.Features.Admin.User.Queries.GetUser;
 
 /// <summary>
 ///     Response class for the get users operation.

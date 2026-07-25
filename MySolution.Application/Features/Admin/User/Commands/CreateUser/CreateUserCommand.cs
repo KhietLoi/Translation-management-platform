@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MySolution.Application.Features.User.Commands.CreateUser;
+namespace MySolution.Application.Features.Admin.User.Commands.CreateUser;
 
 /// <summary>
 ///     Command to create a new user

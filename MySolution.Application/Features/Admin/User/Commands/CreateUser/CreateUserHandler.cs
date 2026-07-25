@@ -6,7 +6,6 @@ using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Features.User.Commands.CreateUser;
 using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
 using Shared.MassTransit.IntegrationEvents;
@@ -89,6 +88,12 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
                     UserId = user.Id,
                     RoleId = role.Id
                 });
+            //Create empty user profile.
+            user.Profile = new UserProfile
+            {
+                UserId = user.Id,
+                CreatedAt = DateTime.UtcNow
+            };
             await _unitOfWork.SaveAsync(cancellationToken);
 
             var token = _passwordResetTokenService.GenerateResetToken(user.Id, user.Email, user.Username,

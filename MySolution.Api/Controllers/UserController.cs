@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Authorization;
 using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
+using MySolution.Application.Features.Admin.User.Commands.CreateUser;
+using MySolution.Application.Features.Admin.User.Commands.DeleteUser;
 using MySolution.Application.Features.Admin.User.Commands.UpdateUser;
-using MySolution.Application.Features.User.Commands.CreateUser;
+using MySolution.Application.Features.Admin.User.Commands.UpdateUserRoles;
+using MySolution.Application.Features.Admin.User.Queries.GetUser;
+using MySolution.Application.Features.Admin.User.Queries.GetUserById;
 using MySolution.Application.Features.User.Commands.DeleteUser;
-using MySolution.Application.Features.User.Commands.UpdateUser;
-using MySolution.Application.Features.User.Commands.UpdateUserRoles;
-using MySolution.Application.Features.User.Queries.GetUser;
-using MySolution.Application.Features.User.Queries.GetUserById;
 
 namespace MySolution.Api.Controllers;
 
