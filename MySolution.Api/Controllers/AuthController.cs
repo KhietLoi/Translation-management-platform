@@ -5,6 +5,7 @@ using MySolution.Api.Helpers;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Features.Auth.ChangePassword;
 using MySolution.Application.Features.Auth.ForgotPassword;
+using MySolution.Application.Features.Auth.GetCurrentUser;
 using MySolution.Application.Features.Auth.Login;
 using MySolution.Application.Features.Auth.Logout;
 using MySolution.Application.Features.Auth.RefreshToken;
@@ -144,5 +145,13 @@ public class AuthController(IMediator mediator,  IAuthCookieService cookieServic
     {
         var response = await mediator.Send(new ResetPasswordCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);
+    }
+    
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> Me(CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new GetCurrentUserQuery(), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 }
