@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   ChartBarIcon,
@@ -7,37 +8,58 @@ import {
   UserGroupIcon,
   KeyIcon,
   ChevronDownIcon,
+  UserCircleIcon
 } from "@heroicons/react/24/outline";
-import { useState } from "react";
-import { ToastContainer} from "react-toastify";
+import { ToastContainer } from "react-toastify";
+import { useAuth } from "../contexts/AuthContext";
 import "react-toastify/dist/ReactToastify.css";
 
-const menus = [
-  {
-    label: "Dashboard",
-    path: "/dashboard",
-    icon: ChartBarIcon,
-  },
-  {
-    label: "Access Control",
-    icon: ShieldCheckIcon,
-    children: [
-      { label: "Users", path: "/users", icon: UserGroupIcon },
-      { label: "Roles", path: "/roles", icon: ShieldCheckIcon },
-      { label: "Permissions", path: "/permissions", icon: KeyIcon },
-    ],
-  },
-  {
-    label: "Settings",
-    path: "/settings",
-    icon: Cog6ToothIcon,
-  },
-];
-
 export default function MainLayout() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [openAccess, setOpenAccess] = useState(true);
+
+  // Xử lý quyền truy cập
+  const permissions = user?.permissions ?? [];
+  const canViewUsers = permissions.includes("USER_VIEW");
+  const canViewRoles = permissions.includes("ROLE_VIEW");
+  const canViewPermissions = permissions.includes("PERMISSION_VIEW");
+  const hasAccessControlPermission = canViewUsers || canViewRoles || canViewPermissions;
+
+  const menus = [
+    {
+      label: "Dashboard",
+      path: "/dashboard",
+      icon: ChartBarIcon,
+    },
+    hasAccessControlPermission && {
+      label: "Access Control",
+      icon: ShieldCheckIcon,
+      children: [
+        canViewUsers && {
+          label: "Users",
+          path: "/users",
+          icon: UserGroupIcon,
+        },
+        canViewRoles && {
+          label: "Roles",
+          path: "/roles",
+          icon: ShieldCheckIcon,
+        },
+        canViewPermissions && {
+          label: "Permissions",
+          path: "/permissions",
+          icon: KeyIcon,
+        },
+      ].filter(Boolean),
+    },
+    {
+      label: "Settings",
+      path: "/settings",
+      icon: Cog6ToothIcon,
+    },
+  ].filter(Boolean);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -60,7 +82,10 @@ export default function MainLayout() {
   return (
     <div className="d-flex vh-100 overflow-hidden bg-dark">
       {/* Sidebar */}
-      <aside className="sidebar bg-black text-white d-flex flex-column border-end border-warning" style={{ width: "280px" }}>
+      <aside
+        className="sidebar bg-black text-white d-flex flex-column border-end border-warning"
+        style={{ width: "280px" }}
+      >
         {/* Logo */}
         <div className="p-4 text-center border-bottom border-warning">
           <div
@@ -85,15 +110,18 @@ export default function MainLayout() {
             const Icon = item.icon;
 
             if (item.children) {
-              const isChildActive = item.children.some((child) => isActive(child.path));
+              const isChildActive = item.children.some((child) =>
+                isActive(child.path)
+              );
 
               return (
                 <div key={item.label} className="mb-3">
                   <button
                     onClick={() => setOpenAccess(!openAccess)}
-                    className={`btn w-100 text-start d-flex align-items-center justify-content-between px-3 py-3 mb-2 border-0 fw-semibold ${
-                      isChildActive || openAccess ? "bg-warning text-dark" : "text-white hover-bg-secondary"
-                    }`}
+                    className={`btn w-100 text-start d-flex align-items-center justify-content-between px-3 py-3 mb-2 border-0 fw-semibold ${isChildActive || openAccess
+                      ? "bg-warning text-dark"
+                      : "text-white hover-bg-secondary"
+                      }`}
                   >
                     <div className="d-flex align-items-center gap-3">
                       <Icon width={24} height={24} />
@@ -102,7 +130,8 @@ export default function MainLayout() {
                     <ChevronDownIcon
                       width={20}
                       height={20}
-                      className={`transition-transform ${openAccess ? "rotate-180" : ""}`}
+                      className={`transition-transform ${openAccess ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
 
@@ -116,9 +145,10 @@ export default function MainLayout() {
                           <button
                             key={child.path}
                             onClick={() => navigate(child.path)}
-                            className={`btn w-100 text-start d-flex align-items-center gap-3 mb-1 py-2.5 px-3 border-0 ${
-                              active ? "bg-warning text-dark fw-semibold" : "text-white-50 hover-bg-secondary"
-                            }`}
+                            className={`btn w-100 text-start d-flex align-items-center gap-3 mb-1 py-2.5 px-3 border-0 ${active
+                              ? "bg-warning text-dark fw-semibold"
+                              : "text-white-50 hover-bg-secondary"
+                              }`}
                           >
                             <ChildIcon width={18} height={18} />
                             <span>{child.label}</span>
@@ -136,9 +166,10 @@ export default function MainLayout() {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`btn w-100 text-start d-flex align-items-center gap-3 mb-2 py-3 px-3 border-0 fw-medium ${
-                  active ? "bg-warning text-dark" : "text-white-50 hover-bg-secondary"
-                }`}
+                className={`btn w-100 text-start d-flex align-items-center gap-3 mb-2 py-3 px-3 border-0 fw-medium ${active
+                  ? "bg-warning text-dark"
+                  : "text-white-50 hover-bg-secondary"
+                  }`}
               >
                 <Icon width={24} height={24} />
                 <span>{item.label}</span>
@@ -165,13 +196,34 @@ export default function MainLayout() {
           <h5 className="mb-0 fw-bold text-warning">{pageTitle()}</h5>
 
           <div className="d-flex align-items-center gap-3">
-            <span className="text-light">Administrator</span>
-            <div
-              className="rounded-0 border border-warning bg-black text-warning d-flex align-items-center justify-content-center fw-bold"
-              style={{ width: "46px", height: "46px" }}
+            <span className="text-light">
+              {user?.userName}
+            </span>
+
+            <button
+              onClick={() => navigate("/profile")}
+              className="border-0 bg-transparent"
             >
-              A
-            </div>
+              {user?.avatarBlobName ? (
+                <img
+                  src={getAvatarUrl(user.avatarBlobName)}
+                  alt="avatar"
+                  className="rounded-circle border border-warning"
+                  width="46"
+                  height="46"
+                />
+              ) : (
+                <div
+                  className="rounded-circle border border-warning bg-black text-warning d-flex align-items-center justify-content-center fw-bold"
+                  style={{
+                    width: "46px",
+                    height: "46px"
+                  }}
+                >
+                  {user?.userName?.charAt(0)?.toUpperCase()}
+                </div>
+              )}
+            </button>
           </div>
         </header>
 
@@ -179,6 +231,7 @@ export default function MainLayout() {
           <Outlet />
         </main>
       </div>
+
       <ToastContainer
         position="top-right"
         autoClose={3000}
