@@ -1,9 +1,10 @@
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 export default function Dashboard() {
+  const { user } = useAuth();
   return (
     <div className="container-fluid">
-
-    
-
       {/* Statistics */}
       <div className="row g-4 mb-4">
 
