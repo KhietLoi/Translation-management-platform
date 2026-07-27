@@ -9,7 +9,7 @@ public class GetProjectsResponse : BaseResponse <GetProjectsResult>
 
 public class GetProjectsResult
 {
-    public List<GetProjectData> Projects { get; set; }
+    public List<GetProjectData>? Projects { get; set; }
 }
 
 public class GetProjectData

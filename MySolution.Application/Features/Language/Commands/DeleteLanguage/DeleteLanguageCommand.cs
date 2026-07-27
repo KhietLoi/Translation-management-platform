@@ -4,10 +4,10 @@ namespace MySolution.Application.Features.Language.Commands.DeleteLanguage;
 
 public class DeleteLanguageCommand : IRequest<DeleteLanguageResponse>
 {
-    public DeleteLanguageRequest Payload { get; set; }
+    public Guid LanguageId { get; set; }
 
-    public DeleteLanguageCommand(DeleteLanguageRequest payload)
+    public DeleteLanguageCommand(Guid languageId)
     {
-        Payload = payload;
+        LanguageId = languageId;
     }
 }

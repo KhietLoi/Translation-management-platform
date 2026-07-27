@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
 namespace MySolution.Application.Features.Language.Commands.DeleteLanguage;
 
 public class DeleteLanguageHandler : IRequestHandler<DeleteLanguageCommand, DeleteLanguageResponse>
@@ -30,12 +29,31 @@ public class DeleteLanguageHandler : IRequestHandler<DeleteLanguageCommand, Dele
 
         try
         {
+            var language = await _unitOfWork.Language.GetByIdAsync(request.LanguageId);
+            if (language == null)
+            {
+                response.ErrorMessage = "Language not found.";
+                response.StatusCode = HttpStatusCode.NotFound;
+                return response;
+            }
+            
+            _unitOfWork.Language.Delete(language);
+            await _unitOfWork.SaveAsync(cancellationToken);
 
-            response.Ok();
+            response.Data = new DeleteLanguageData
+            {
+                LanguageId = language.Id,
+                Code = language.Code,
+                Name = language.Name,
+            };
+            response
+                .WithSuccess(true)
+                .WithStatus(HttpStatusCode.OK);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            exception.LogError(_logger, functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
 
