@@ -166,9 +166,9 @@ CREATE TABLE IF NOT EXISTS mysolution."Projects"
 
     "IsActive" BOOLEAN NOT NULL DEFAULT TRUE,
 
-    "CreatedAt" TIMESTAMP NOT NULL,
+    "CreatedAt" TIMESTAMPTZ NOT NULL,
 
-    "UpdatedAt" TIMESTAMP NULL,
+    "UpdatedAt" TIMESTAMPTZ NULL,
 
     CONSTRAINT "PK_Projects"
     PRIMARY KEY ("Id")
@@ -183,9 +183,9 @@ CREATE TABLE IF NOT EXISTS mysolution."Languages"
 
     "Name" VARCHAR(100) NOT NULL,
 
-    "CreatedAt" TIMESTAMP NOT NULL,
+    "CreatedAt" TIMESTAMPTZ NOT NULL,
 
-    "UpdatedAt" TIMESTAMP NULL,
+    "UpdatedAt" TIMESTAMPTZ NULL,
 
     CONSTRAINT "PK_Languages"
     PRIMARY KEY ("Id")
@@ -197,10 +197,10 @@ CREATE TABLE IF NOT EXISTS mysolution."ProjectLanguages"
     "ProjectId" UUID NOT NULL,
 
     "LanguageId" UUID NOT NULL,
-    
-    "CreatedAt" TIMESTAMP NOT NULL,
 
-    "UpdatedAt" TIMESTAMP NULL,
+    "CreatedAt" TIMESTAMPTZ NOT NULL,
+
+    "UpdatedAt" TIMESTAMPTZ NULL,
 
     CONSTRAINT "PK_ProjectLanguages"
     PRIMARY KEY ("ProjectId", "LanguageId"),
@@ -225,9 +225,9 @@ CREATE TABLE IF NOT EXISTS mysolution."ProjectNamespaces"
 
     "Name" VARCHAR(100) NOT NULL,
 
-    "CreatedAt" TIMESTAMP NOT NULL,
+    "CreatedAt" TIMESTAMPTZ NOT NULL,
 
-    "UpdatedAt" TIMESTAMP NULL,
+    "UpdatedAt" TIMESTAMPTZ NULL,
 
     CONSTRAINT "PK_ProjectNamespaces"
     PRIMARY KEY ("Id"),
@@ -247,9 +247,9 @@ CREATE TABLE IF NOT EXISTS mysolution."ProjectMembers"
 
     "Role" INT NOT NULL,
 
-    "CreatedAt" TIMESTAMP NOT NULL,
+    "CreatedAt" TIMESTAMPTZ NOT NULL,
 
-    "UpdatedAt" TIMESTAMP NULL,
+    "UpdatedAt" TIMESTAMPTZ NULL,
 
     CONSTRAINT "PK_ProjectMembers"
     PRIMARY KEY ("ProjectId", "UserId"),

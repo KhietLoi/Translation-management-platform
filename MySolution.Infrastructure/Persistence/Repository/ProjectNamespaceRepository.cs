@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
 
@@ -7,18 +8,25 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 public class ProjectNamespaceRepository (AppDbContext context, ILogger logger)
     : Repository<ProjectNamespace>(context, logger), IProjectNamespaceRepository
 {
-    public Task<ProjectNamespace?> GetByIdAsync(Guid id)
+    public async Task<ProjectNamespace?> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await DbSet.FindAsync(id);
     }
 
-    public Task<bool> ExistsAsync(Guid projectId, string name)
+    public async Task<bool> ExistsAsync(Guid projectId, string name, Guid? excludeNamespaceId = null)
     {
-        throw new NotImplementedException();
+        return await DbSet.AnyAsync(x =>
+            x.ProjectId == projectId &&
+            x.Name == name &&
+            (!excludeNamespaceId.HasValue || x.Id  != excludeNamespaceId.Value));
     }
 
-    public Task<List<ProjectNamespace>> GetByProjectIdAsync(Guid projectId)
+    public async Task<List<ProjectNamespace>> GetByProjectIdAsync(Guid projectId)
     {
-        throw new NotImplementedException();
+        return await DbSet
+            .AsNoTracking()
+            .Where(x => x.ProjectId == projectId)
+            .OrderBy(x => x.Name)
+            .ToListAsync();
     }
 }
