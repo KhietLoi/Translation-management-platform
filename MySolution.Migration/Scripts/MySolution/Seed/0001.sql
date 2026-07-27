@@ -150,6 +150,30 @@ VALUES
         'ko-KR',
         'Korean',
         NOW()
+    ),
+    (
+        gen_random_uuid(),
+        'zh-CN',
+        'Chinese (Simplified)',
+        NOW()
+    ),
+    (
+        gen_random_uuid(),
+        'zh-TW',
+        'Chinese (Traditional)',
+        NOW()
+    ),
+    (
+        gen_random_uuid(),
+        'fr-FR',
+        'French',
+        NOW()
+    ),
+    (
+        gen_random_uuid(),
+        'de-DE',
+        'German',
+        NOW()
     )
-ON CONFLICT DO NOTHING;
+    ON CONFLICT ("Code") DO NOTHING;
 
