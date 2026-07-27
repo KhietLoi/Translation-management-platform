@@ -1,4 +1,4 @@
-﻿namespace MySolution.Application.Features.Roles.Commands.CreateRole;
+﻿namespace MySolution.Application.Features.Admin.Roles.Commands.CreateRole;
 
 /// <summary>
 ///     Request model for creating a new role

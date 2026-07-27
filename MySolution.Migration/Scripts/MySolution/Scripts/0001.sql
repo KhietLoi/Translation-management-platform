@@ -155,6 +155,115 @@ CREATE TABLE IF NOT EXISTS mysolution."RolePermissions"
     REFERENCES mysolution."Permissions"("Id")
     ON DELETE CASCADE
 );
+-- Project
+CREATE TABLE IF NOT EXISTS mysolution."Projects"
+(
+    "Id" UUID NOT NULL,
+
+    "Name" VARCHAR(100) NOT NULL,
+
+    "Description" VARCHAR(500),
+
+    "IsActive" BOOLEAN NOT NULL DEFAULT TRUE,
+
+    "CreatedAt" TIMESTAMP NOT NULL,
+
+    "UpdatedAt" TIMESTAMP NULL,
+
+    CONSTRAINT "PK_Projects"
+    PRIMARY KEY ("Id")
+);
+
+-- Language
+CREATE TABLE IF NOT EXISTS mysolution."Languages"
+(
+    "Id" UUID NOT NULL,
+
+    "Code" VARCHAR(30) NOT NULL,
+
+    "Name" VARCHAR(100) NOT NULL,
+
+    "CreatedAt" TIMESTAMP NOT NULL,
+
+    "UpdatedAt" TIMESTAMP NULL,
+
+    CONSTRAINT "PK_Languages"
+    PRIMARY KEY ("Id")
+);
+
+-- ProjectLanguage
+CREATE TABLE IF NOT EXISTS mysolution."ProjectLanguages"
+(
+    "ProjectId" UUID NOT NULL,
+
+    "LanguageId" UUID NOT NULL,
+    
+    "CreatedAt" TIMESTAMP NOT NULL,
+
+    "UpdatedAt" TIMESTAMP NULL,
+
+    CONSTRAINT "PK_ProjectLanguages"
+    PRIMARY KEY ("ProjectId", "LanguageId"),
+
+    CONSTRAINT "FK_ProjectLanguages_Projects_ProjectId"
+    FOREIGN KEY ("ProjectId")
+    REFERENCES mysolution."Projects" ("Id")
+    ON DELETE CASCADE,
+
+    CONSTRAINT "FK_ProjectLanguages_Languages_LanguageId"
+    FOREIGN KEY ("LanguageId")
+    REFERENCES mysolution."Languages" ("Id")
+    ON DELETE CASCADE
+);
+
+-- ProjectNamespace
+CREATE TABLE IF NOT EXISTS mysolution."ProjectNamespaces"
+(
+    "Id" UUID NOT NULL,
+
+    "ProjectId" UUID NOT NULL,
+
+    "Name" VARCHAR(100) NOT NULL,
+
+    "CreatedAt" TIMESTAMP NOT NULL,
+
+    "UpdatedAt" TIMESTAMP NULL,
+
+    CONSTRAINT "PK_ProjectNamespaces"
+    PRIMARY KEY ("Id"),
+
+    CONSTRAINT "FK_ProjectNamespaces_Projects_ProjectId"
+    FOREIGN KEY ("ProjectId")
+    REFERENCES mysolution."Projects" ("Id")
+    ON DELETE CASCADE
+);
+
+-- ProjectMember
+CREATE TABLE IF NOT EXISTS mysolution."ProjectMembers"
+(
+    "ProjectId" UUID NOT NULL,
+
+    "UserId" UUID NOT NULL,
+
+    "Role" INT NOT NULL,
+
+    "CreatedAt" TIMESTAMP NOT NULL,
+
+    "UpdatedAt" TIMESTAMP NULL,
+
+    CONSTRAINT "PK_ProjectMembers"
+    PRIMARY KEY ("ProjectId", "UserId"),
+
+    CONSTRAINT "FK_ProjectMembers_Projects_ProjectId"
+    FOREIGN KEY ("ProjectId")
+    REFERENCES mysolution."Projects" ("Id")
+    ON DELETE CASCADE,
+
+    CONSTRAINT "FK_ProjectMembers_Users_UserId"
+    FOREIGN KEY ("UserId")
+    REFERENCES mysolution."Users" ("Id")
+    ON DELETE CASCADE
+);
 
 -- Indexes
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_Users_Username"
@@ -194,4 +303,17 @@ CREATE UNIQUE INDEX IF NOT EXISTS "IX_UserProfiles_PhoneNumber"
     ON mysolution."UserProfiles" ("PhoneNumber")
     WHERE "PhoneNumber" IS NOT NULL;
 
-
+CREATE INDEX IF NOT EXISTS "IX_Projects_Name"
+    ON mysolution."Projects" ("Name");
+CREATE UNIQUE INDEX IF NOT EXISTS "IX_Languages_Code"
+    ON mysolution."Languages" ("Code");
+CREATE INDEX IF NOT EXISTS "IX_ProjectLanguages_LanguageId"
+    ON mysolution."ProjectLanguages" ("LanguageId");
+CREATE UNIQUE INDEX IF NOT EXISTS "IX_ProjectNamespaces_ProjectId_Name"
+    ON mysolution."ProjectNamespaces"
+    (
+        "ProjectId",
+        "Name"
+    );
+CREATE INDEX IF NOT EXISTS "IX_ProjectMembers_UserId"
+    ON mysolution."ProjectMembers" ("UserId");
