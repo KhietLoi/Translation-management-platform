@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using Shared.Extensions;
@@ -30,12 +31,30 @@ public class GetLanguagesHandler : IRequestHandler<GetLanguagesQuery, GetLanguag
 
         try
         {
-
-            response.Ok();
+            var languages = await _unitOfWork.Language
+                .GetAll()
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+            
+            response.Data = new GetLanguageResult
+            {
+                Languages = languages.Select(x => new GetLanguageData
+                {
+                    LanguageId = x.Id,
+                    Name = x.Name,
+                    Code = x.Code,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt
+                }).ToList()
+            };
+            response
+                .WithSuccess(true)
+                .WithStatus(HttpStatusCode.OK);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            exception.LogError(_logger, functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
 

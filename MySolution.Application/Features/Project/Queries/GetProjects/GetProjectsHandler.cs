@@ -1,10 +1,8 @@
 ﻿using System.Net;
-using MassTransit.Initializers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
 namespace MySolution.Application.Features.Project.Queries.GetProjects;
 
 public class GetProjectsHandler : IRequestHandler<GetProjectsQuery, GetProjectsResponse>
@@ -54,9 +52,10 @@ public class GetProjectsHandler : IRequestHandler<GetProjectsQuery, GetProjectsR
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            exception.LogError(_logger, functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
 

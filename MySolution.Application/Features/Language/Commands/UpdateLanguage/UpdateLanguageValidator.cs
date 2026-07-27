@@ -6,6 +6,13 @@ public class UpdateLanguageValidator : AbstractValidator<UpdateLanguageCommand>
 {
     public UpdateLanguageValidator()
     {
-        // Add validation rules here if needed
+        RuleFor(x => x.Payload.Code)
+            .NotEmpty()
+            .WithMessage("Language code cannot be empty")
+            .MaximumLength(30)
+            .WithMessage("Language code cannot exceed 30 characters");
+        RuleFor(x => x.Payload.Name)
+            .MaximumLength(100)
+            .WithMessage("Language name cannot exceed 100 characters");
     }
 }

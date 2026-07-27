@@ -24,18 +24,48 @@ public class CreateLanguageHandler : IRequestHandler<CreateLanguageCommand, Crea
 
     public async Task<CreateLanguageResponse> Handle(CreateLanguageCommand request, CancellationToken cancellationToken)
     {
+        var payload =  request.Payload;
         var functionName = $"{nameof(CreateLanguageHandler)} =>";
         _logger.LogInformation(functionName);
         var response = new CreateLanguageResponse();
 
         try
         {
+            // Check if Language code already exists
+            var isCodeExits = await _unitOfWork.Language.ExistsByCodeAsync(payload.Code);
+            if (isCodeExits)
+            {
+                response.ErrorMessage = "Code already exists";
+                response.WithStatus(HttpStatusCode.Conflict);
+                return response;
+            }
 
-            response.Ok();
+            var language = new Domain.Entities.Language
+            {
+                Id = Guid.CreateVersion7(),
+                Code = payload.Code,
+                Name = payload.Name,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _unitOfWork.Language.Add(language);
+            await _unitOfWork.SaveAsync(cancellationToken);
+
+            response.Data = new CreateLanguageData
+            {
+                Id = language.Id,
+                Name = language.Name,
+                Code = language.Code,
+                CreatedAt = language.CreatedAt
+            };
+
+            response
+                .WithSuccess(true)
+                .WithStatus(HttpStatusCode.Created);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            exception.LogError(_logger, functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
 
