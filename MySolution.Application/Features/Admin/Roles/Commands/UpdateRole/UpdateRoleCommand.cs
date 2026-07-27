@@ -1,6 +1,7 @@
 ﻿using MediatR;
+using MySolution.Application.Features.Roles.Commands.UpdateRole;
 
-namespace MySolution.Application.Features.Roles.Commands.UpdateRole;
+namespace MySolution.Application.Features.Admin.Roles.Commands.UpdateRole;
 
 /// <summary>
 ///     Command to update a role

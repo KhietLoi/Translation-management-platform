@@ -14,6 +14,11 @@ public interface IUnitOfWork
     IUserRoleRepository UserRole { get; }
     IRolePermissionRepository RolePermission { get; }
     IUserProfileRepository UserProfile { get; }
+    IProjectRepository  Project { get; }
+    ILanguageRepository Language { get; }
+    IProjectNamespaceRepository Namespace { get; }
+    IProjectLanguageRepository ProjectLanguage { get; }
+    IProjectMemberRepository ProjectMember { get; }
 
     Task SaveAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> OpenTransactionAsync(CancellationToken cancellationToken = default);

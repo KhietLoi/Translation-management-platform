@@ -23,6 +23,11 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
         UserRole = new UserRoleRepository(_context, _logger);
         RolePermission = new RolePermissionRepository(_context, _logger);
         UserProfile = new UserProfileRepository(_context, _logger);
+        Project = new ProjectRepository (context, _logger);
+        Language = new LanguageRepository (context, _logger);
+        Namespace = new ProjectNamespaceRepository (context, _logger);
+        ProjectLanguage = new ProjectLanguageRepository (context, _logger);
+        ProjectMember = new ProjectMemberRepository (context, _logger);
     }
 
     /*public async ValueTask DisposeAsync()
@@ -54,6 +59,11 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
     public IUserRoleRepository UserRole { get; }
     public IRolePermissionRepository RolePermission { get; }
     public IUserProfileRepository UserProfile { get; }
+    public IProjectRepository Project { get; }
+    public ILanguageRepository Language { get; }
+    public IProjectNamespaceRepository Namespace { get; }
+    public IProjectLanguageRepository ProjectLanguage { get; }
+    public IProjectMemberRepository ProjectMember { get; }
 
 
     public async Task SaveAsync(CancellationToken cancellationToken)

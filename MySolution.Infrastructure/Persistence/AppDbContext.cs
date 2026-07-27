@@ -17,6 +17,12 @@ public class AppDbContext : DbContext
     public DbSet<Permission> Permissions => Set<Permission>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<Language> Languages => Set<Language>();
+    public DbSet<ProjectLanguage> ProjectLanguages => Set<ProjectLanguage>();
+    public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
+    public DbSet<ProjectNamespace>  ProjectNamespaces => Set<ProjectNamespace>();
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

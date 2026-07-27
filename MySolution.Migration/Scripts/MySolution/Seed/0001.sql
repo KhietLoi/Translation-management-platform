@@ -118,4 +118,38 @@ SELECT
 FROM mysolution."Permissions" p
     ON CONFLICT DO NOTHING;
 
+-- LANGUAGES
+INSERT INTO mysolution."Languages"
+(
+    "Id",
+    "Code",
+    "Name",
+    "CreatedAt"
+)
+VALUES
+    (
+        gen_random_uuid(),
+        'vi-VN',
+        'Vietnamese',
+        NOW()
+    ),
+    (
+        gen_random_uuid(),
+        'en-US',
+        'English',
+        NOW()
+    ),
+    (
+        gen_random_uuid(),
+        'ja-JP',
+        'Japanese',
+        NOW()
+    ),
+    (
+        gen_random_uuid(),
+        'ko-KR',
+        'Korean',
+        NOW()
+    )
+ON CONFLICT DO NOTHING;
 

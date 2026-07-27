@@ -1,6 +1,7 @@
 ﻿using MediatR;
+using MySolution.Application.Features.Roles.Commands.UpdateRolePermissions;
 
-namespace MySolution.Application.Features.Roles.Commands.UpdateRolePermissions;
+namespace MySolution.Application.Features.Admin.Roles.Commands.UpdateRolePermissions;
 
 public class UpdateRolePermissionsCommand : IRequest<UpdateRolePermissionsResponse>
 {
