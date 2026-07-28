@@ -28,7 +28,9 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
         Namespace = new ProjectNamespaceRepository (context, _logger);
         ProjectLanguage = new ProjectLanguageRepository (context, _logger);
         ProjectMember = new ProjectMemberRepository (context, _logger);
-        TranslationKey = 
+        TranslationKey = new TranslationKeyRepository(context, _logger);
+        TranslationValue = new TranslationValueRepository(context, _logger);
+        AuditLog = new AuditLogRepository(context, _logger);
     }
 
     /*public async ValueTask DisposeAsync()

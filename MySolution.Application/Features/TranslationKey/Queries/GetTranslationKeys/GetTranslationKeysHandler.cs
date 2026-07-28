@@ -31,7 +31,9 @@ public class GetTranslationKeysHandler : IRequestHandler<GetTranslationKeysQuery
         try
         {
 
-            response.Ok();
+            response
+                .WithSuccess(true)
+                .WithStatus(HttpStatusCode.OK);
         }
         catch (Exception exception)
         {

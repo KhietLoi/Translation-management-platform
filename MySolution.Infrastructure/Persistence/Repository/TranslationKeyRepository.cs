@@ -16,7 +16,6 @@ public class TranslationKeyRepository (AppDbContext context, ILogger logger) :
             .FirstOrDefaultAsync(x => x.Id == id);
     }
     
-    
 
     public async Task<bool> ExistsAsync(Guid projectId, Guid namespaceId, string key, Guid? excludeKeyId = null)
     {
