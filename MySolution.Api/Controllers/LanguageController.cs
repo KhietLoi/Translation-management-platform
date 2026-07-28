@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using MySolution.Api.Authorization;
 using MySolution.Api.Helpers;
+using MySolution.Application.Constants;
 using MySolution.Application.Features.Language.Commands.CreateLanguage;
 using MySolution.Application.Features.Language.Commands.DeleteLanguage;
 using MySolution.Application.Features.Language.Commands.UpdateLanguage;
@@ -15,6 +17,7 @@ namespace MySolution.Api.Controllers;
 public class LanguageController (IMediator mediator) : Controller
 {
     [HttpPost]
+    [Permission(PermissionConstants.Language.Create)]
     public async Task<IActionResult> CreateLanguage([FromBody] CreateLanguageRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new CreateLanguageCommand(request), cancellationToken);
@@ -22,6 +25,7 @@ public class LanguageController (IMediator mediator) : Controller
     }
 
     [HttpPut("{id:guid}")]
+    [Permission(PermissionConstants.Language.Update)]
     public async Task<IActionResult> UpdateLanguage(Guid id, [FromBody] UpdateLanguageRequest request,
         CancellationToken cancellationToken)
     {
@@ -30,6 +34,7 @@ public class LanguageController (IMediator mediator) : Controller
     }
 
     [HttpDelete("{id:guid}")]
+    [Permission(PermissionConstants.Language.Delete)]
     public async Task<IActionResult> DeleteLanguage(Guid id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new DeleteLanguageCommand(id), cancellationToken);
@@ -37,6 +42,7 @@ public class LanguageController (IMediator mediator) : Controller
     }
 
     [HttpGet]
+    [Permission(PermissionConstants.Language.View)]
     public async Task<IActionResult> GetLanguages(CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new GetLanguagesQuery(), cancellationToken);

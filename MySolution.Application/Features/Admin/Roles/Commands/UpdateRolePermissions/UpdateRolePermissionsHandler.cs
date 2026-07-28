@@ -1,12 +1,14 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Features.Admin.Roles.Commands.UpdateRolePermissions;
 using MySolution.Application.Features.Admin.User.Queries.GetUserById;
+using MySolution.Application.Features.Roles.Commands.UpdateRolePermissions;
 using MySolution.Domain.Entities;
 
-namespace MySolution.Application.Features.Roles.Commands.UpdateRolePermissions;
+namespace MySolution.Application.Features.Admin.Roles.Commands.UpdateRolePermissions;
 
 /// <summary>
 ///     Handler for updating role permissions.
@@ -15,11 +17,18 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
 {
     private readonly ILogger<UpdateRolePermissionsHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPermissionCacheService _permissionCacheService;
 
-    public UpdateRolePermissionsHandler(IUnitOfWork unitOfWork, ILogger<UpdateRolePermissionsHandler> logger)
+    public UpdateRolePermissionsHandler
+    (
+        IUnitOfWork unitOfWork,
+        ILogger<UpdateRolePermissionsHandler> logger,
+        IPermissionCacheService permissionCacheService
+    )
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _permissionCacheService = permissionCacheService;
     }
 
     public async Task<UpdateRolePermissionsResponse> Handle(UpdateRolePermissionsCommand request,
@@ -95,6 +104,19 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
                     .DeleteRange(rolePermissionsToRemove);
 
             await _unitOfWork.SaveAsync(cancellationToken);
+            
+            //Update Redis:
+            var userIds =
+                await _unitOfWork.UserRole
+                    .GetAll()
+                    .Where(x => x.RoleId == payload.RoleId)
+                    .Select(x => x.UserId)
+                    .ToListAsync(cancellationToken);
+
+            foreach (var userId in userIds)
+            {
+                await _permissionCacheService.RemoveAsync(userId);
+            }
             var updatedPermissions =
                 await _unitOfWork.RolePermission
                     .GetByRoleIdWithPermissionAsync(
