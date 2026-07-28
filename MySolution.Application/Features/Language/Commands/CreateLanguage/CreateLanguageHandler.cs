@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
 namespace MySolution.Application.Features.Language.Commands.CreateLanguage;
 
 public class CreateLanguageHandler : IRequestHandler<CreateLanguageCommand, CreateLanguageResponse>

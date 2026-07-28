@@ -1,19 +1,17 @@
 ﻿using System.Net;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
-namespace MySolution.Application.Features.Project.Queries.GetProjectNamspaces;
+namespace MySolution.Application.Features.Project.Queries.GetProjectMembers;
 
-public class GetProjectNamspacesHandler : IRequestHandler<GetProjectNamspacesQuery, GetProjectNamspacesResponse>
+public class GetProjectMembersHandler : IRequestHandler<GetProjectMembersQuery, GetProjectMembersResponse>
 {
-    private readonly ILogger<GetProjectNamspacesHandler> _logger;
+    private readonly ILogger<GetProjectMembersHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
 
-    public GetProjectNamspacesHandler
+    public GetProjectMembersHandler
     (
-        ILogger<GetProjectNamspacesHandler> logger,
+        ILogger<GetProjectMembersHandler> logger,
 		IUnitOfWork unitOfWork
     )
     {
@@ -21,16 +19,16 @@ public class GetProjectNamspacesHandler : IRequestHandler<GetProjectNamspacesQue
 		_unitOfWork = unitOfWork;
     }
 
-    #region Implementation of IRequestHandler<in GetProjectNamspacesQuery, GetProjectNamspacesResponse>
+    #region Implementation of IRequestHandler<in GetProjectMembersQuery, GetProjectMembersResponse>
 
-    public async Task<GetProjectNamspacesResponse> Handle(GetProjectNamspacesQuery request, CancellationToken cancellationToken)
+    public async Task<GetProjectMembersResponse> Handle(GetProjectMembersQuery request, CancellationToken cancellationToken)
     {
-        var functionName = $"{nameof(GetProjectNamspacesHandler)} =>";
+        var functionName = $"{nameof(GetProjectMembersHandler)} =>";
         _logger.LogInformation(functionName);
-        var response = new GetProjectNamspacesResponse();
+        var response = new GetProjectMembersResponse();
 
         try
-        {
+        {   
             //Check project is already exists
             var isProject = await _unitOfWork.Project.ExistsAsync(request.ProjectId);
             if (!isProject)
@@ -40,17 +38,19 @@ public class GetProjectNamspacesHandler : IRequestHandler<GetProjectNamspacesQue
                 return response;
             }
             
-            var namespaces = await _unitOfWork.Namespace.GetByProjectIdAsync(request.ProjectId);
+            var members = await _unitOfWork.ProjectMember.GetByProjectIdWithUserAsync(request.ProjectId);
 
-            response.Data = new GetProjectNamespacesResult
+            response.Data = new GetProjectMembersResult
             {
-                Namespaces = namespaces.Select(x => new GetProjectNamespaceData
+                Members = members.Select(x => new GetProjectMemberData
                 {
-                    Id = x.Id,
-                    Name = x.Name
+                    UserId = x.UserId,
+                    Username = x.User.Username,
+                    Email = x.User.Email,
+                    Role = x.Role
                 }).ToList()
             };
-
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

@@ -13,6 +13,11 @@ public class ProjectRepository (AppDbContext context, ILogger logger)
         return await DbSet.FindAsync(id);
     }
 
+    public async Task<bool> ExistsAsync(Guid id)
+    {
+        return await DbSet.AnyAsync(x => x.Id == id);
+    }
+
     public async Task<Project?> GetByNameAsync(string name)
     {
         return await DbSet.FirstOrDefaultAsync(x  => x.Name == name);

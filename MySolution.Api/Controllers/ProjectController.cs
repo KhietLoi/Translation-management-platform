@@ -6,8 +6,12 @@ using MySolution.Application.Features.Project.Commands.CreateProjectNamespace;
 using MySolution.Application.Features.Project.Commands.DeleteProject;
 using MySolution.Application.Features.Project.Commands.DeleteProjectNamespace;
 using MySolution.Application.Features.Project.Commands.UpdateProject;
+using MySolution.Application.Features.Project.Commands.UpdateProjectLanguages;
+using MySolution.Application.Features.Project.Commands.UpdateProjectMembers;
 using MySolution.Application.Features.Project.Commands.UpdateProjectNamespace;
 using MySolution.Application.Features.Project.Queries.GetProjectById;
+using MySolution.Application.Features.Project.Queries.GetProjectLanguages;
+using MySolution.Application.Features.Project.Queries.GetProjectMembers;
 using MySolution.Application.Features.Project.Queries.GetProjectNamspaces;
 using MySolution.Application.Features.Project.Queries.GetProjects;
 
@@ -18,7 +22,11 @@ namespace MySolution.Api.Controllers;
 public class ProjectController (IMediator mediator): Controller
 {
     [HttpPost]
-    public async Task<IActionResult> CreateProject([FromBody] CreateProjectRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateProject
+    (
+        [FromBody] CreateProjectRequest request,
+        CancellationToken cancellationToken
+    )
     {
         var response = await mediator.Send(new CreateProjectCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
@@ -60,15 +68,24 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    [HttpPost("/namespaces")]
-    public async Task<IActionResult> CreateProjectNamespace([FromBody] CreateProjectNamespaceRequest request, CancellationToken cancellationToken)
+    [HttpPost("namespaces")]
+    public async Task<IActionResult> CreateProjectNamespace
+    (
+        [FromBody] CreateProjectNamespaceRequest request,
+        CancellationToken cancellationToken
+    )
     {
         var response = await mediator.Send(new CreateProjectNamespaceCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
     [HttpPut("namespaces/{id:guid}")]
-    public async Task<IActionResult> UpdateProjectNamespace(Guid id, [FromBody] UpdateProjectNamespaceRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateProjectNamespace
+    (
+        Guid id, 
+        [FromBody] UpdateProjectNamespaceRequest request, 
+        CancellationToken cancellationToken
+    )
     {
         var response = await mediator.Send(new UpdateProjectNamespaceCommand(request, id), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
@@ -78,6 +95,42 @@ public class ProjectController (IMediator mediator): Controller
     public async Task<IActionResult> DeleteProjectNamespace(Guid id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new DeleteProjectNamespaceCommand(id), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    
+    [HttpPut("{projectId:guid}/languages")]
+    public async Task<IActionResult> UpdateProjectLanguages
+    (
+        Guid projectId,
+        [FromBody] UpdateProjectLanguagesRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new UpdateProjectLanguagesCommand(request, projectId), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    
+    [HttpPut("{projectId:guid}/members")]
+    public async Task<IActionResult> UpdateProjectMembers
+    (
+        Guid projectId,
+        [FromBody] UpdateProjectMembersRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new UpdateProjectMembersCommand(request, projectId), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    
+    [HttpGet("{projectId:guid}/languages")]
+    public async Task<IActionResult> GetProjectLanguages(Guid projectId, CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new GetProjectLanguagesQuery(projectId), cancellationToken);
+        return ResponseHelper.ToResponse( response.StatusCode, response, response.Data);
+    }
+
+    [HttpGet("{projectId:guid}/members")]
+    public async Task<IActionResult> GetProjectMembers(Guid projectId, CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new GetProjectMembersQuery(projectId), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 }
