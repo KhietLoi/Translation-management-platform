@@ -28,6 +28,7 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
         Namespace = new ProjectNamespaceRepository (context, _logger);
         ProjectLanguage = new ProjectLanguageRepository (context, _logger);
         ProjectMember = new ProjectMemberRepository (context, _logger);
+        TranslationKey = 
     }
 
     /*public async ValueTask DisposeAsync()
@@ -64,6 +65,9 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
     public IProjectNamespaceRepository Namespace { get; }
     public IProjectLanguageRepository ProjectLanguage { get; }
     public IProjectMemberRepository ProjectMember { get; }
+    public ITranslationValueRepository TranslationValue { get; }
+    public ITranslationKeyRepository TranslationKey { get; }
+    public IAuditLogRepository AuditLog { get; }
 
 
     public async Task SaveAsync(CancellationToken cancellationToken)

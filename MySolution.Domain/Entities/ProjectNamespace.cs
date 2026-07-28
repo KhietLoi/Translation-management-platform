@@ -8,4 +8,5 @@ public class ProjectNamespace
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public Project Project { get; set; } = null!;
+    public ICollection<TranslationKey>  TranslationKeys { get; set; } = new List<TranslationKey>();
 }
