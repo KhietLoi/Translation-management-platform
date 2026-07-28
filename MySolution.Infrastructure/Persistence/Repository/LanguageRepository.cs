@@ -26,4 +26,9 @@ public class LanguageRepository(AppDbContext context, ILogger logger)
                   (!excludeProjectId.HasValue || x.Id != excludeProjectId.Value)
         );
     }
+
+    public async Task<List<Language>> GetByIdsAsync(List<Guid> ids)
+    {
+        return await DbSet.Where(x => ids.Contains(x.Id)).ToListAsync();
+    }
 }

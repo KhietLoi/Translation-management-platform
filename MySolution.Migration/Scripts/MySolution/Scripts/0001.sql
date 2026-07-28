@@ -245,8 +245,6 @@ CREATE TABLE IF NOT EXISTS mysolution."ProjectMembers"
 
     "UserId" UUID NOT NULL,
 
-    "Role" INT NOT NULL,
-
     "CreatedAt" TIMESTAMPTZ NOT NULL,
 
     "UpdatedAt" TIMESTAMPTZ NULL,

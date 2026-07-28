@@ -33,20 +33,21 @@ public class GetProjectsHandler : IRequestHandler<GetProjectsQuery, GetProjectsR
             var projects = await _unitOfWork.Project
                 .GetAll()
                 .AsNoTracking()
-                .ToListAsync(cancellationToken);
-
-            response.Data = new GetProjectsResult
-            {
-                Projects = projects.Select(x => new GetProjectData
+                .Select(x => new GetProjectData
                 {
                     Id = x.Id,
                     Name = x.Name,
                     Description = x.Description ?? string.Empty,
                     IsActive = x.IsActive,
-                    LanguageCount = x.ProjectLanguages.Count,
-                    MemberCount = x.ProjectMembers.Count,
-                    NamespaceCount = x.ProjectNamespaces.Count
-                }).ToList()
+                    LanguageCount = x.ProjectLanguages.Count(),
+                    MemberCount = x.ProjectMembers.Count(),
+                    NamespaceCount = x.ProjectNamespaces.Count()
+                })
+                .ToListAsync(cancellationToken);
+
+            response.Data = new GetProjectsResult
+            {
+                Projects = projects
             };
             response
                 .WithSuccess(true)

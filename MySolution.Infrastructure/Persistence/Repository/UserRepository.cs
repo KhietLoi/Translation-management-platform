@@ -88,4 +88,11 @@ public class UserRepository(AppDbContext context, ILogger logger) : Repository<U
             .Distinct()
             .ToHashSetAsync();
     }
+
+    public async Task<List<User>> GetByIdsAsync(List<Guid> ids)
+    {
+        return await DbSet
+            .Where(x => ids.Contains(x.Id))
+            .ToListAsync();
+    }
 }

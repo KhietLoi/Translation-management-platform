@@ -42,30 +42,12 @@ public class GetProjectByIdHandler : IRequestHandler<GetProjectByIdQuery, GetPro
                 Id = project.Id,
                 Name = project.Name,
                 Description = project.Description,
+                IsActive = project.IsActive,
                 CreatedAt = project.CreatedAt,
                 UpdatedAt = project.UpdatedAt,
-                ProjectLanguages = project.ProjectLanguages
-                    .Select(x => new GetProjectLanguageData
-                    {
-                        LanguageId = x.LanguageId,
-                        Code = x.Language.Code,
-                        Name = x.Language.Name
-                    }).ToList(),
-                ProjectMembers = project.ProjectMembers
-                    .Select(x => new GetProjectMemberData
-                    {
-                        UserId = x.UserId,
-                        UserName = x.User.Username,
-                        Email = x.User.Email,
-                        Role = x.Role
-                    }).ToList(),
-                ProjectNamespaces = project.ProjectNamespaces
-                    .Select(x => new GetProjectNamespaceData
-                    {
-                        NamespaceId = x.Id,
-                        Name = x.Name
-                    })
-                    .ToList()
+                LanguageCount = project.ProjectLanguages.Count,
+                MemberCount = project.ProjectMembers.Count,
+                NamespaceCount = project.ProjectNamespaces.Count
             };
             response
                 .WithSuccess(true)

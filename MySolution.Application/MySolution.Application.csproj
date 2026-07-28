@@ -15,7 +15,6 @@
         <Folder Include="Features\Admin\"/>
         <Folder Include="Features\Language\Commands\" />
         <Folder Include="Features\Language\Queries\" />
-        <Folder Include="Features\Project\Commands\" />
         <Folder Include="Features\Project\Queries\" />
         <Folder Include="Features\RequestLog\Commands\CreateRequestLog\"/>
         <Folder Include="Features\User\UserProfile\Queries\" />

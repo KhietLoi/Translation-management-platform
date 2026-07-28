@@ -57,4 +57,6 @@ public interface IUserRepository : IRepository<User>
     Task<bool> ExistsByEmailOrUsernameAsync(string email, string username, Guid excludeUserId);
 
     Task<HashSet<string>> GetUserPermissionsAsync(Guid userId);
+    
+    Task<List<User>> GetByIdsAsync(List<Guid> ids);
 }

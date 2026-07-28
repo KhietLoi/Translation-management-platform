@@ -14,8 +14,6 @@ public class ProjectMemberConfiguration : IEntityTypeConfiguration<ProjectMember
             x.ProjectId,
             x.UserId
         });
-        builder.Property(x => x.Role)
-            .HasConversion<int>();
         builder.HasOne(x => x.Project)
             .WithMany(x => x.ProjectMembers)
             .HasForeignKey(x => x.ProjectId);
