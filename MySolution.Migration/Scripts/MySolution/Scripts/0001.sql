@@ -263,6 +263,181 @@ CREATE TABLE IF NOT EXISTS mysolution."ProjectMembers"
     ON DELETE CASCADE
 );
 
+
+-- TranslationKeys
+CREATE TABLE IF NOT EXISTS mysolution."TranslationKeys"
+(
+    "Id" UUID NOT NULL,
+
+    "ProjectId" UUID NOT NULL,
+
+    "NamespaceId" UUID NOT NULL,
+
+    "Key" VARCHAR(200) NOT NULL,
+
+    "Description" VARCHAR(500),
+
+    "CreatedAt" TIMESTAMPTZ NOT NULL,
+
+    "UpdatedAt" TIMESTAMPTZ NULL,
+
+    CONSTRAINT "PK_TranslationKeys"
+    PRIMARY KEY ("Id"),
+
+    CONSTRAINT "FK_TranslationKeys_Projects_ProjectId"
+    FOREIGN KEY ("ProjectId")
+    REFERENCES mysolution."Projects" ("Id")
+    ON DELETE CASCADE,
+
+    CONSTRAINT "FK_TranslationKeys_ProjectNamespaces_NamespaceId"
+    FOREIGN KEY ("NamespaceId")
+    REFERENCES mysolution."ProjectNamespaces" ("Id")
+    ON DELETE CASCADE
+    );
+
+-- TranslationValues
+CREATE TABLE IF NOT EXISTS mysolution."TranslationValues"
+(
+    "Id" UUID NOT NULL,
+
+    "TranslationKeyId" UUID NOT NULL,
+
+    "LanguageId" UUID NOT NULL,
+
+    "Value" TEXT,
+
+    "Status" INT NOT NULL DEFAULT 0,
+
+    "TranslatedBy" UUID NULL,
+
+    "ReviewedBy" UUID NULL,
+
+    "PublishedBy" UUID NULL,
+
+    "CreatedAt" TIMESTAMPTZ NOT NULL,
+
+    "UpdatedAt" TIMESTAMPTZ NULL,
+
+    "TranslatedAt" TIMESTAMPTZ NULL,
+
+    "ReviewedAt" TIMESTAMPTZ NULL,
+
+    "PublishedAt" TIMESTAMPTZ NULL,
+
+    CONSTRAINT "PK_TranslationValues"
+    PRIMARY KEY ("Id"),
+
+    CONSTRAINT "FK_TranslationValues_TranslationKeys_TranslationKeyId"
+    FOREIGN KEY ("TranslationKeyId")
+    REFERENCES mysolution."TranslationKeys" ("Id")
+    ON DELETE CASCADE,
+
+    CONSTRAINT "FK_TranslationValues_Languages_LanguageId"
+    FOREIGN KEY ("LanguageId")
+    REFERENCES mysolution."Languages" ("Id")
+    ON DELETE RESTRICT,
+
+    CONSTRAINT "FK_TranslationValues_Translator"
+    FOREIGN KEY ("TranslatedBy")
+    REFERENCES mysolution."Users" ("Id")
+    ON DELETE SET NULL,
+
+    CONSTRAINT "FK_TranslationValues_Reviewer"
+    FOREIGN KEY ("ReviewedBy")
+    REFERENCES mysolution."Users" ("Id")
+    ON DELETE SET NULL,
+
+    CONSTRAINT "FK_TranslationValues_Publisher"
+    FOREIGN KEY ("PublishedBy")
+    REFERENCES mysolution."Users" ("Id")
+    ON DELETE SET NULL
+    );
+
+-- AuditLogs
+CREATE TABLE IF NOT EXISTS mysolution."AuditLogs"
+(
+    "Id" UUID NOT NULL,
+
+    "UserId" UUID NOT NULL,
+
+    "Action" VARCHAR(100) NOT NULL,
+
+    "EntityName" VARCHAR(100) NOT NULL,
+
+    "EntityId" VARCHAR(100) NOT NULL,
+
+    "OldValue" TEXT NULL,
+
+    "NewValue" TEXT NULL,
+
+    "CreatedAt" TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT "PK_AuditLogs"
+    PRIMARY KEY ("Id"),
+
+    CONSTRAINT "FK_AuditLogs_Users_UserId"
+    FOREIGN KEY ("UserId")
+    REFERENCES mysolution."Users" ("Id")
+    ON DELETE RESTRICT
+    );
+
+-- TranslationKeys Indexes
+CREATE UNIQUE INDEX IF NOT EXISTS "IX_TranslationKeys_ProjectId_NamespaceId_Key"
+    ON mysolution."TranslationKeys"
+    (
+    "ProjectId",
+    "NamespaceId",
+    "Key"
+    );
+
+CREATE INDEX IF NOT EXISTS "IX_TranslationKeys_ProjectId"
+    ON mysolution."TranslationKeys" ("ProjectId");
+
+CREATE INDEX IF NOT EXISTS "IX_TranslationKeys_NamespaceId"
+    ON mysolution."TranslationKeys" ("NamespaceId");
+
+-- TranslationValues Indexes
+CREATE UNIQUE INDEX IF NOT EXISTS "IX_TranslationValues_TranslationKeyId_LanguageId"
+    ON mysolution."TranslationValues"
+    (
+    "TranslationKeyId",
+    "LanguageId"
+    );
+
+CREATE INDEX IF NOT EXISTS "IX_TranslationValues_LanguageId"
+    ON mysolution."TranslationValues" ("LanguageId");
+
+CREATE INDEX IF NOT EXISTS "IX_TranslationValues_Status"
+    ON mysolution."TranslationValues" ("Status");
+
+CREATE INDEX IF NOT EXISTS "IX_TranslationValues_TranslatedBy"
+    ON mysolution."TranslationValues" ("TranslatedBy");
+
+CREATE INDEX IF NOT EXISTS "IX_TranslationValues_ReviewedBy"
+    ON mysolution."TranslationValues" ("ReviewedBy");
+
+CREATE INDEX IF NOT EXISTS "IX_TranslationValues_PublishedBy"
+    ON mysolution."TranslationValues" ("PublishedBy");
+
+-- AuditLogs Indexes
+CREATE INDEX IF NOT EXISTS "IX_AuditLogs_UserId"
+    ON mysolution."AuditLogs" ("UserId");
+
+CREATE INDEX IF NOT EXISTS "IX_AuditLogs_CreatedAt"
+    ON mysolution."AuditLogs" ("CreatedAt");
+
+CREATE INDEX IF NOT EXISTS "IX_AuditLogs_EntityName_EntityId"
+    ON mysolution."AuditLogs"
+    (
+    "EntityName",
+    "EntityId"
+    );
+
+CREATE INDEX IF NOT EXISTS "IX_AuditLogs_Action"
+    ON mysolution."AuditLogs" ("Action");
+
+
+
 -- Indexes
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_Users_Username"
     ON mysolution."Users" ("Username");

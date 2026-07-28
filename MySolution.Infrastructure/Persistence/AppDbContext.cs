@@ -22,6 +22,9 @@ public class AppDbContext : DbContext
     public DbSet<ProjectLanguage> ProjectLanguages => Set<ProjectLanguage>();
     public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
     public DbSet<ProjectNamespace>  ProjectNamespaces => Set<ProjectNamespace>();
+    public DbSet<TranslationKey> TranslationKeys => Set<TranslationKey>();
+    public DbSet<TranslationValue> TranslationValues => Set<TranslationValue>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

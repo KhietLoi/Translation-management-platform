@@ -19,6 +19,9 @@ public interface IUnitOfWork
     IProjectNamespaceRepository Namespace { get; }
     IProjectLanguageRepository ProjectLanguage { get; }
     IProjectMemberRepository ProjectMember { get; }
+    ITranslationValueRepository TranslationValue { get; }
+    ITranslationKeyRepository TranslationKey { get; }
+    IAuditLogRepository  AuditLog { get; }
 
     Task SaveAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> OpenTransactionAsync(CancellationToken cancellationToken = default);
