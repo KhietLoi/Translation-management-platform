@@ -39,7 +39,15 @@ public class CreateTranslationKeyHandler : IRequestHandler<CreateTranslationKeyC
                 response.WithStatus(HttpStatusCode.Conflict);
                 return response;
             }
-
+            
+            var isValidNamespace = await _unitOfWork.Namespace.IsNamespaceBelongsToProjectAsync(payload.NamespaceId, payload.ProjectId);
+            if (!isValidNamespace)
+            {
+                response.ErrorMessage = "Namespace does not belong to the specified project.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
+            
             var entity = new Domain.Entities.TranslationKey
             {
                 Id = Guid.CreateVersion7(),

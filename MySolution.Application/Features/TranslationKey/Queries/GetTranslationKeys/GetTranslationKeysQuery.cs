@@ -4,10 +4,14 @@ namespace MySolution.Application.Features.TranslationKey.Queries.GetTranslationK
 
 public class GetTranslationKeysQuery : IRequest<GetTranslationKeysResponse>
 {
-    public GetTranslationKeysRequest Payload { get; set; }
-
-    public GetTranslationKeysQuery(GetTranslationKeysRequest payload)
+    public Guid? ProjectId { get; set; }
+    public Guid? NamespaceId { get; set; }
+    public string? Keyword { get; set; }
+    
+    public GetTranslationKeysQuery(Guid? projectId, Guid? namespaceId, string? keyword)
     {
-        Payload = payload;
+        ProjectId = projectId;
+        NamespaceId = namespaceId;
+        Keyword = keyword;
     }
 }

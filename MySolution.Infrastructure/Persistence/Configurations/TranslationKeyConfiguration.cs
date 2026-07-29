@@ -17,11 +17,11 @@ public class TranslationKeyConfiguration : IEntityTypeConfiguration<TranslationK
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.UpdatedAt);
         builder.HasOne(x => x.Project)
-            .WithMany()
+            .WithMany(x => x.TranslationKeys)
             .HasForeignKey(x => x.ProjectId)
             .OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(x => x.Namespace)
-            .WithMany()
+            .WithMany(x => x.TranslationKeys)
             .HasForeignKey(x => x.NamespaceId)
             .OnDelete(DeleteBehavior.Cascade);
         builder.HasMany(x => x.TranslationValues)

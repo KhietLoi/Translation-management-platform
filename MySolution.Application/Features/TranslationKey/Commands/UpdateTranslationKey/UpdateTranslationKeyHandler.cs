@@ -30,7 +30,6 @@ public class UpdateTranslationKeyHandler : IRequestHandler<UpdateTranslationKeyC
 
         try
         {
-            //Check TranslationKey is already exists
             var translationKey = await _unitOfWork.TranslationKey.GetByIdAsync(request.TranslationKeyId);
             if (translationKey == null)
             {
@@ -52,12 +51,12 @@ public class UpdateTranslationKeyHandler : IRequestHandler<UpdateTranslationKeyC
                 response.WithStatus(HttpStatusCode.Conflict);
                 return response;
             }
-            
+            var now = DateTime.UtcNow;
             translationKey.Key = payload.Key;
             translationKey.Description = payload.Description;
-            translationKey.UpdatedAt = DateTime.UtcNow;
+            translationKey.UpdatedAt = now;
             
-            _unitOfWork.TranslationKey.Update(translationKey);
+            //_unitOfWork.TranslationKey.Update(translationKey);
             await _unitOfWork.SaveAsync(cancellationToken);
 
             response.Data = new UpdateTranslationKeyData
@@ -68,7 +67,7 @@ public class UpdateTranslationKeyHandler : IRequestHandler<UpdateTranslationKeyC
                 Key = payload.Key,
                 Description = payload.Description,
                 CreatedAt = translationKey.CreatedAt,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = now
             };
 
             response

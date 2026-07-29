@@ -4,10 +4,9 @@ namespace MySolution.Application.Features.TranslationKey.Queries.GetTranslationK
 
 public class GetTranslationKeyByIdQuery : IRequest<GetTranslationKeyByIdResponse>
 {
-    public GetTranslationKeyByIdRequest Payload { get; set; }
-
-    public GetTranslationKeyByIdQuery(GetTranslationKeyByIdRequest payload)
+    public Guid Id { get; set; }
+    public GetTranslationKeyByIdQuery(Guid id)
     {
-        Payload = payload;
+        Id = id;
     }
 }

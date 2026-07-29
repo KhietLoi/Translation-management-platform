@@ -7,4 +7,5 @@ public interface IProjectNamespaceRepository : IRepository<ProjectNamespace>
     Task<ProjectNamespace?> GetByIdAsync(Guid id);
     Task<bool> ExistsAsync(Guid projectId, string name, Guid? excludeNamespaceId = null);
     Task<List<ProjectNamespace>> GetByProjectIdAsync(Guid projectId);
+    Task<bool> IsNamespaceBelongsToProjectAsync(Guid namespaceId, Guid projectId);
 }

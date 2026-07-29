@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
+
 namespace MySolution.Application.Features.TranslationKey.Queries.GetTranslationKeys;
 
 public class GetTranslationKeysHandler : IRequestHandler<GetTranslationKeysQuery, GetTranslationKeysResponse>
@@ -30,14 +30,33 @@ public class GetTranslationKeysHandler : IRequestHandler<GetTranslationKeysQuery
 
         try
         {
+            var translationKeys = await _unitOfWork.TranslationKey
+                .GetAsync(request.ProjectId,request.NamespaceId, request.Keyword);
+
+            response.Data = new GetTranslationKeysData
+            {
+                Items = translationKeys
+                    .Select(x => new TranslationKeyItem
+                    {
+                        Id = x.Id,
+                        Key = x.Key,
+                        CreatedAt = x.CreatedAt,
+                        Description = x.Description,
+                        NamespaceId = x.NamespaceId,
+                        NamespaceName = x.Namespace.Name,
+                        ProjectId = x.ProjectId,
+                        ProjectName = x.Project.Name
+                    }).ToList()
+            };
 
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            exception.LogError(_logger, functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
 
