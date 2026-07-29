@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
 namespace MySolution.Application.Features.TranslationKey.Commands.DeleteTranslationKey;
 
 public class DeleteTranslationKeyHandler : IRequestHandler<DeleteTranslationKeyCommand, DeleteTranslationKeyResponse>
@@ -30,30 +29,30 @@ public class DeleteTranslationKeyHandler : IRequestHandler<DeleteTranslationKeyC
 
         try
         {
-            var entity = await _unitOfWork.TranslationKey.GetByIdAsync(request.Id);
+            var entity = await _unitOfWork.TranslationKey.GetExistingIdAsync(request.Id);
             if (entity is null)
             {
-                response.ErrorMessage =
-                    "Translation key not found.";
-
+                response.ErrorMessage = "Translation key not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
-
                 return response;
             }
 
             _unitOfWork
                 .TranslationKey
-                .Delete(entity);
+                .Delete(new Domain.Entities.TranslationKey
+                {
+                    Id = request.Id
+                });
 
-            await _unitOfWork
-                .SaveAsync(cancellationToken);
+            await _unitOfWork.SaveAsync(cancellationToken);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            exception.LogError(_logger, functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
 

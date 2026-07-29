@@ -21,7 +21,6 @@ public static class MassTransitRegistration
 
         services.AddMassTransit(x =>
         {
-
             x.UsingRabbitMq((context, cfg) =>
             {
                 cfg.Host(

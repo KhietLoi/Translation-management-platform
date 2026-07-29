@@ -5,7 +5,6 @@ using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Enums;
-using Shared.Extensions;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.Admin.User.Commands.ResendSetupPassword;

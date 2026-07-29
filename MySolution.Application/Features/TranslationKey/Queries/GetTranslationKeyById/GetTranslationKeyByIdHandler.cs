@@ -30,14 +30,34 @@ public class GetTranslationKeyByIdHandler : IRequestHandler<GetTranslationKeyByI
 
         try
         {
+            var translationKey = await _unitOfWork.TranslationKey.GetByIdTrackingAsync(request.Id);
+            if (translationKey == null)
+            {
+                response.ErrorMessage = "Translation key not found";
+                response.WithStatus(HttpStatusCode.NotFound);
+                return response;
+            }
 
+            response.Data = new GetTranslationKeyByIdData
+            {
+                Id = translationKey.Id,
+                Key = translationKey.Key,
+                Description = translationKey.Description,
+                CreatedAt = translationKey.CreatedAt,
+                UpdatedAt = translationKey.UpdatedAt,
+                ProjectId = translationKey.ProjectId,
+                ProjectName = translationKey.Project.Name,
+                NamespaceId = translationKey.NamespaceId,
+                NamespaceName = translationKey.Namespace.Name
+            };
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            exception.LogError(_logger, functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
 

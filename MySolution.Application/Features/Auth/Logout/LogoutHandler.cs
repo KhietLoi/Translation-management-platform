@@ -55,8 +55,7 @@ public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-            _logger.LogInformation("{FunctionName} User {UserId} logged out successfully.", functionName,
-                _currentUser.UserId);
+            _logger.LogInformation("{FunctionName} User {UserId} logged out successfully.", functionName, _currentUser.UserId);
         }
         catch (Exception ex)
         {

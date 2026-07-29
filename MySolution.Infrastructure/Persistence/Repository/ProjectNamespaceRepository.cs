@@ -29,4 +29,8 @@ public class ProjectNamespaceRepository (AppDbContext context, ILogger logger)
             .OrderBy(x => x.Name)
             .ToListAsync();
     }
+    public async Task<bool> IsNamespaceBelongsToProjectAsync(Guid namespaceId, Guid projectId)
+    {
+        return await DbSet.AnyAsync(x => x.Id == namespaceId && x.ProjectId == projectId);
+    }
 }
