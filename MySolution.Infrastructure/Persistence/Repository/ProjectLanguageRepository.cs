@@ -8,7 +8,6 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 public class ProjectLanguageRepository (AppDbContext context, ILogger logger)
     : Repository<ProjectLanguage>(context, logger), IProjectLanguageRepository
 {
-    private IProjectLanguageRepository _projectLanguageRepositoryImplementation;
 
     public async Task<List<ProjectLanguage>> GetByProjectIdAsync(Guid projectId)
     {
