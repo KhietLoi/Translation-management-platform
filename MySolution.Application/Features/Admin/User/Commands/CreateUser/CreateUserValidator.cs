@@ -24,8 +24,8 @@ public class CreateUserValidator : AbstractValidator<CreateUserCommand>
             .MinimumLength(6)
             .WithMessage("Password must be at least 6 characters.");*/
 
-        RuleFor(x => x.Payload.RoleIds)
+        /*RuleFor(x => x.Payload.RoleIds)
             .NotEmpty()
-            .WithMessage("At least one role is required.");
+            .WithMessage("At least one role is required.");*/
     }
 }

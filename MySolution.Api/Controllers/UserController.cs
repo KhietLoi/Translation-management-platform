@@ -5,6 +5,7 @@ using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
 using MySolution.Application.Features.Admin.User.Commands.CreateUser;
 using MySolution.Application.Features.Admin.User.Commands.DeleteUser;
+using MySolution.Application.Features.Admin.User.Commands.ResendSetupPassword;
 using MySolution.Application.Features.Admin.User.Commands.UpdateUser;
 using MySolution.Application.Features.Admin.User.Commands.UpdateUserRoles;
 using MySolution.Application.Features.Admin.User.Queries.GetUser;
@@ -94,5 +95,13 @@ public class UserController(IMediator mediator) : Controller
     {
         var response = await mediator.Send(new UpdateUserRolesCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    
+    [HttpPost("resend-setup-password")]
+
+    public async Task<IActionResult> ResendSetupPassword([FromBody] ResendSetupPasswordRequest request , CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new ResendSetupPasswordCommand(request), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response);
     }
 }
