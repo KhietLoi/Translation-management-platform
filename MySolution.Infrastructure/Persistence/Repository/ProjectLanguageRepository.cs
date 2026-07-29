@@ -8,6 +8,8 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 public class ProjectLanguageRepository (AppDbContext context, ILogger logger)
     : Repository<ProjectLanguage>(context, logger), IProjectLanguageRepository
 {
+    private IProjectLanguageRepository _projectLanguageRepositoryImplementation;
+
     public async Task<List<ProjectLanguage>> GetByProjectIdAsync(Guid projectId)
     {
         return await DbSet
@@ -29,5 +31,10 @@ public class ProjectLanguageRepository (AppDbContext context, ILogger logger)
             .Include(x => x.Language)
             .Where(x => x.ProjectId == projectId)
             .ToListAsync();
+    }
+
+    public async Task<bool> IsLanguageBelongsToProjectAsync(Guid languageId, Guid projectId)
+    {
+        return await DbSet.AnyAsync(x => x.LanguageId == languageId && x.ProjectId == projectId);
     }
 }

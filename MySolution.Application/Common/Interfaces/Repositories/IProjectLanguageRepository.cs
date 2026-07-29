@@ -7,4 +7,5 @@ public interface IProjectLanguageRepository : IRepository<ProjectLanguage>
     Task<List<ProjectLanguage>> GetByProjectIdAsync(Guid projectId);
     Task<List<ProjectLanguage>> GetByProjectIdsAsync(List<Guid> projectIds);
     Task<List<ProjectLanguage>> GetByProjectIdWithLanguageAsync(Guid projectId);
+    Task<bool> IsLanguageBelongsToProjectAsync(Guid languageId, Guid projectId);
 }

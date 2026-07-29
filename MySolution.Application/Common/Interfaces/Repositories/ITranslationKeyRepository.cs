@@ -9,7 +9,9 @@ public interface ITranslationKeyRepository : IRepository<TranslationKey>
     Task<TranslationKey?> GetByIdTrackingAsync(Guid id);
     Task<List<TranslationKey>> GetAsync (Guid? projectId, Guid? namespaceId, string? keyword);
     Task<bool> ExistsAsync(Guid projectId, Guid namespaceId, string key, Guid? excludeKeyId = null);
+    Task<bool> ExistsAsync(Guid id);
     
+    //Get project id from Translation key:
+    Task<Guid> GetProjectIdAsync(Guid translationKeyId);
     
-    //Task<TranslationKey> GetByIdTracking(Guid id);
 }

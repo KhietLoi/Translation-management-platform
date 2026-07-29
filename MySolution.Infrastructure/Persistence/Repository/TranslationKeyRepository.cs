@@ -67,9 +67,16 @@ public class TranslationKeyRepository (AppDbContext context, ILogger logger) :
             x.Key == key &&
             (!excludeKeyId.HasValue || x.Id != excludeKeyId.Value));
     }
-
-    /*public async Task<bool> IsNamespaceBelongsToProjectAsync(Guid namespaceId, Guid projectId)
+    public async Task<bool> ExistsAsync(Guid id)
     {
-        return await DbSet.AnyAsync(x => x.NamespaceId == namespaceId && x.ProjectId == projectId);
-    }*/
+        return await DbSet.AnyAsync(x => x.Id == id);
+    }
+
+    public async Task<Guid> GetProjectIdAsync(Guid translationKeyId)
+    {
+        return await DbSet
+            .Where(x => x.Id == translationKeyId)
+            .Select(x => x.ProjectId)
+            .FirstOrDefaultAsync();
+    }
 }
