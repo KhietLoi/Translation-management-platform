@@ -68,13 +68,14 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
             }
 
             //Create User
-            var passwordTemp = _passwordHasher.HashPassword(Guid.CreateVersion7().ToString());
+            var temporaryPassword = Guid.CreateVersion7().ToString();
+            var passwordHash = _passwordHasher.HashPassword(temporaryPassword);
             var user = new Domain.Entities.User
             {
                 Id = Guid.CreateVersion7(),
                 Username = payload.Username,
                 Email = payload.Email,
-                PasswordHash = passwordTemp,
+                PasswordHash = passwordHash,
                 IsEmailVerified = true,
                 Status = UserStatus.NonActive,
                 CreatedAt = DateTime.UtcNow
@@ -113,7 +114,8 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                IsActive = user.Status == UserStatus.NonActive
+                IsEmailVerified = true,
+                Status = UserStatus.NonActive
             };
             response
                 .WithSuccess(true)
