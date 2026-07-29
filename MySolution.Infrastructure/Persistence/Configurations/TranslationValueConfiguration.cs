@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MySolution.Domain.Entities;
+using MySolution.Domain.Enums;
 
 namespace MySolution.Infrastructure.Persistence.Configurations;
 
@@ -12,8 +13,7 @@ public class TranslationValueConfiguration : IEntityTypeConfiguration<Translatio
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Value).HasColumnType("text");
         builder.Property(x => x.Status)
-            .HasConversion<int>()
-            .IsRequired();
+            .HasConversion<int>().HasDefaultValue(TranslationStatus.Draft);
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.UpdatedAt);
         builder.Property(x => x.TranslatedAt);
