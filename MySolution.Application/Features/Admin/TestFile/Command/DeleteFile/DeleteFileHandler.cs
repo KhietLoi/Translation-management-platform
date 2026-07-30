@@ -2,9 +2,8 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
-using MySolution.Application.Features.Admin.TestFile.Command.DeleteFile;
 
-namespace MySolution.Application.Features.TestFile.Command.DeleteFile;
+namespace MySolution.Application.Features.Admin.TestFile.Command.DeleteFile;
 
 public class DeleteFileHandler : IRequestHandler<DeleteFileCommand, DeleteFileResponse>
 {

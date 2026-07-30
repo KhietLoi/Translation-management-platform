@@ -49,8 +49,7 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
             }
 
             //Verify current password:
-            var isCurrentPasswordValid =
-                _passwordHasher.VerifyPassword(request.Payload.CurrentPassword, user.PasswordHash);
+            var isCurrentPasswordValid = _passwordHasher.VerifyPassword(request.Payload.CurrentPassword, user.PasswordHash);
             if (!isCurrentPasswordValid)
             {
                 response.ErrorMessage = "Current password is incorrect.";

@@ -18,6 +18,7 @@ public static class DependencyInjection
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(assembly);
+            cfg.AddOpenBehavior(typeof(RateLimitBehavior<,>));
             cfg.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
         });
 
@@ -27,13 +28,13 @@ public static class DependencyInjection
         //Register:
         services.AddScoped<IMessageBusService, MessageBusService>();
 
-        //Rate Limited:
+        /*//Rate Limited:
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
-            cfg.AddOpenBehavior(typeof(RateLimitBehavior<,>));
+           
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
-        });
+        });*/
 
         return services;
     }

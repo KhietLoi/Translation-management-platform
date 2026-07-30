@@ -34,6 +34,7 @@ public class ProjectController (IMediator mediator): Controller
         var response = await mediator.Send(new CreateProjectCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
+    
     [Permission(PermissionConstants.Project.View)]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetProjectById(Guid id, CancellationToken cancellationToken)

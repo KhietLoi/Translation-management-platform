@@ -1,6 +1,6 @@
 ﻿using MySolution.Application.Common.Models;
 
-namespace MySolution.Application.Features.Roles.Commands.UpdateRole;
+namespace MySolution.Application.Features.Admin.Roles.Commands.UpdateRole;
 
 /// <summary>
 ///     Response class for the update role operation.

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
 
-namespace MySolution.Application.Features.Roles.Commands.CreateRole;
+namespace MySolution.Application.Features.Admin.Roles.Commands.CreateRole;
 
 /// <summary>
 ///     Handler for creating a new role.

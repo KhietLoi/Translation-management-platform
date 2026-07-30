@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
-namespace MySolution.Application.Features.Roles.Queries.GetRoleById;
+namespace MySolution.Application.Features.Admin.Roles.Queries.GetRoleById;
 
 /// <summary>
 ///     Handler for the GetRoleByIdQuery, responsible for retrieving a role by its ID.
@@ -33,7 +33,6 @@ public class GetRoleByIdHandler : IRequestHandler<GetRoleByIdQuery, GetRoleByIdR
             {
                 response.ErrorMessage = "Role not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
-
                 return response;
             }
 
@@ -52,6 +51,7 @@ public class GetRoleByIdHandler : IRequestHandler<GetRoleByIdQuery, GetRoleByIdR
                     })
                     .ToList()
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

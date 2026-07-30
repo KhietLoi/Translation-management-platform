@@ -1,6 +1,6 @@
 ﻿using MySolution.Application.Common.Models;
 
-namespace MySolution.Application.Features.Permission.Commands.UpdatePermission;
+namespace MySolution.Application.Features.Admin.Permission.Commands.UpdatePermission;
 
 /// <summary>
 ///     Response class for the update permission operation.

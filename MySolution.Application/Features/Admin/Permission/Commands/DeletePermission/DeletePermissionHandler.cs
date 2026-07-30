@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
-namespace MySolution.Application.Features.Permission.Commands.DeletePermission;
+namespace MySolution.Application.Features.Admin.Permission.Commands.DeletePermission;
 
 /// <summary>
 ///     Handler for deleting a permission.

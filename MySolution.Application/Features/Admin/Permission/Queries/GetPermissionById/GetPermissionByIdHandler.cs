@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
-namespace MySolution.Application.Features.Permission.Queries.GetPermissionById;
+namespace MySolution.Application.Features.Admin.Permission.Queries.GetPermissionById;
 
 /// <summary>
 ///     Handler for the GetPermissionByIdQuery, responsible for retrieving a permission by its ID.
@@ -45,6 +45,7 @@ public class GetPermissionByIdHandler : IRequestHandler<GetPermissionByIdQuery, 
                 CreatedDate = permission.CreatedAt,
                 UpdatedDate = permission.UpdatedAt
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

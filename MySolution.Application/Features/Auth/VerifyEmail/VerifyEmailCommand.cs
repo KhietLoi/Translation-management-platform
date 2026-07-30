@@ -9,5 +9,5 @@ public class VerifyEmailCommand : IRequest<VerifyEmailResponse>
         Token = token;
     }
 
-    public string Token { get; set; } = string.Empty;
+    public string Token { get; set; }
 }

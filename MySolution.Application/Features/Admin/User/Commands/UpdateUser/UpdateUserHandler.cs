@@ -16,15 +16,20 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
     private readonly ILogger<UpdateUserHandler> _logger;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPermissionCacheService _permissionCacheService;
 
-    public UpdateUserHandler(
+    public UpdateUserHandler
+    (
         ILogger<UpdateUserHandler> logger,
         IUnitOfWork unitOfWork,
-        IPasswordHasher passwordHasher)
+        IPasswordHasher passwordHasher,
+        IPermissionCacheService permissionCacheService
+    )
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
+        _permissionCacheService = permissionCacheService;
     }
 
     public async Task<UpdateUserResponse> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
@@ -73,6 +78,8 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
                 });
 
             await _unitOfWork.SaveAsync(cancellationToken);
+            // Delete Role:
+            await _permissionCacheService.RemoveAsync(user.Id);
             response.Data = new UpdateUserData
             {
                 Id = user.Id,

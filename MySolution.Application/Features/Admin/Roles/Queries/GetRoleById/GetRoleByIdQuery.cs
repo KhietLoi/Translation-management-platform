@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MySolution.Application.Features.Roles.Queries.GetRoleById;
+namespace MySolution.Application.Features.Admin.Roles.Queries.GetRoleById;
 
 /// <summary>
 ///     Query to retrieve a role by its ID

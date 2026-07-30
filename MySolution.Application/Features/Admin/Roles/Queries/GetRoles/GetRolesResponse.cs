@@ -1,6 +1,6 @@
 ﻿using MySolution.Application.Common.Models;
 
-namespace MySolution.Application.Features.Roles.Queries.GetRoles;
+namespace MySolution.Application.Features.Admin.Roles.Queries.GetRoles;
 
 /// <summary>
 ///     Response class for the get roles operation.

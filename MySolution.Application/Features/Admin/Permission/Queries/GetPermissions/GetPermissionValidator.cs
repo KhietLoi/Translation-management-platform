@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace MySolution.Application.Features.Permission.Queries.GetPermissions;
+namespace MySolution.Application.Features.Admin.Permission.Queries.GetPermissions;
 
 /// <summary>
 ///     Validator for the GetPermissionsQuery class, ensuring that the query parameters are valid.

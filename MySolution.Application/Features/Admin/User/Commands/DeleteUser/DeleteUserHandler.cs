@@ -2,9 +2,8 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Features.Admin.User.Commands.DeleteUser;
 
-namespace MySolution.Application.Features.User.Commands.DeleteUser;
+namespace MySolution.Application.Features.Admin.User.Commands.DeleteUser;
 
 /// <summary>
 ///     Handler for deleting a user by its ID.
@@ -48,6 +47,7 @@ public class DeleteUserHandler : IRequestHandler<DeleteUserCommand, DeleteUserRe
                 Email = user.Email,
                 Username = user.Username
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

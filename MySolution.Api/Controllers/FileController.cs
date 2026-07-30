@@ -4,8 +4,6 @@ using MySolution.Api.Helpers;
 using MySolution.Application.Features.Admin.TestFile.Command.DeleteFile;
 using MySolution.Application.Features.Admin.TestFile.Command.UploadFile;
 using MySolution.Application.Features.Admin.TestFile.Query.GetFile;
-using MySolution.Application.Features.TestFile.Command.DeleteFile;
-using MySolution.Application.Features.TestFile.Command.UploadFile;
 
 namespace MySolution.Api.Controllers;
 

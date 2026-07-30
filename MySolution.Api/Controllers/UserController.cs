@@ -10,7 +10,6 @@ using MySolution.Application.Features.Admin.User.Commands.UpdateUser;
 using MySolution.Application.Features.Admin.User.Commands.UpdateUserRoles;
 using MySolution.Application.Features.Admin.User.Queries.GetUser;
 using MySolution.Application.Features.Admin.User.Queries.GetUserById;
-using MySolution.Application.Features.User.Commands.DeleteUser;
 
 namespace MySolution.Api.Controllers;
 

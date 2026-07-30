@@ -57,9 +57,9 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
 
             // Check Roles
             var roles = await _unitOfWork.Role
-                .Where(x => payload.RoleIds.Contains(x.Id))
+                .Where(x => payload.RoleIds != null && payload.RoleIds.Contains(x.Id))
                 .ToListAsync(cancellationToken);
-            if (roles.Count != payload.RoleIds.Count)
+            if (payload.RoleIds != null && roles.Count != payload.RoleIds.Count)
             {
                 response.ErrorMessage = "One or more roles do not exist.";
                 response.WithStatus(HttpStatusCode.BadRequest);

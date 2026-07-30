@@ -4,14 +4,11 @@ using MySolution.Api.Authorization;
 using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
 using MySolution.Application.Features.Admin.Roles.Commands.CreateRole;
+using MySolution.Application.Features.Admin.Roles.Commands.DeleteRole;
 using MySolution.Application.Features.Admin.Roles.Commands.UpdateRole;
 using MySolution.Application.Features.Admin.Roles.Commands.UpdateRolePermissions;
-using MySolution.Application.Features.Roles.Commands.CreateRole;
-using MySolution.Application.Features.Roles.Commands.DeleteRole;
-using MySolution.Application.Features.Roles.Commands.UpdateRole;
-using MySolution.Application.Features.Roles.Commands.UpdateRolePermissions;
-using MySolution.Application.Features.Roles.Queries.GetRoleById;
-using MySolution.Application.Features.Roles.Queries.GetRoles;
+using MySolution.Application.Features.Admin.Roles.Queries.GetRoleById;
+using MySolution.Application.Features.Admin.Roles.Queries.GetRoles;
 
 namespace MySolution.Api.Controllers;
 

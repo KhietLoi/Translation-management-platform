@@ -8,29 +8,28 @@ namespace MySolution.Infrastructure.Persistence;
 public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
 {
     private readonly AppDbContext _context;
-    private readonly ILogger _logger;
-    private IDbContextTransaction _transaction;
+    private IDbContextTransaction? _transaction;
 
     public UnitOfWork(AppDbContext context, ILoggerFactory loggerFactory)
     {
         _context = context;
-        _logger = loggerFactory.CreateLogger("UnitOfWork");
+        var logger = loggerFactory.CreateLogger("UnitOfWork");
 
-        User = new UserRepository(_context, _logger);
-        Role = new RoleRepository(_context, _logger);
-        Permission = new PermissionRepository(_context, _logger);
-        RefreshToken = new RefreshTokenRepository(_context, _logger);
-        UserRole = new UserRoleRepository(_context, _logger);
-        RolePermission = new RolePermissionRepository(_context, _logger);
-        UserProfile = new UserProfileRepository(_context, _logger);
-        Project = new ProjectRepository (context, _logger);
-        Language = new LanguageRepository (context, _logger);
-        Namespace = new ProjectNamespaceRepository (context, _logger);
-        ProjectLanguage = new ProjectLanguageRepository (context, _logger);
-        ProjectMember = new ProjectMemberRepository (context, _logger);
-        TranslationKey = new TranslationKeyRepository(context, _logger);
-        TranslationValue = new TranslationValueRepository(context, _logger);
-        AuditLog = new AuditLogRepository(context, _logger);
+        User = new UserRepository(_context, logger);
+        Role = new RoleRepository(_context, logger);
+        Permission = new PermissionRepository(_context, logger);
+        RefreshToken = new RefreshTokenRepository(_context, logger);
+        UserRole = new UserRoleRepository(_context, logger);
+        RolePermission = new RolePermissionRepository(_context, logger);
+        UserProfile = new UserProfileRepository(_context, logger);
+        Project = new ProjectRepository (context, logger);
+        Language = new LanguageRepository (context, logger);
+        Namespace = new ProjectNamespaceRepository (context, logger);
+        ProjectLanguage = new ProjectLanguageRepository (context, logger);
+        ProjectMember = new ProjectMemberRepository (context, logger);
+        TranslationKey = new TranslationKeyRepository(context, logger);
+        TranslationValue = new TranslationValueRepository(context, logger);
+        AuditLog = new AuditLogRepository(context, logger);
     }
 
     /*public async ValueTask DisposeAsync()
@@ -96,6 +95,8 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
 
     public async Task RollbackAsync(CancellationToken cancellationToken = default)
     {
+        if (_transaction == null)
+            throw new InvalidOperationException("No active transaction");
         await _transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
     }
 }

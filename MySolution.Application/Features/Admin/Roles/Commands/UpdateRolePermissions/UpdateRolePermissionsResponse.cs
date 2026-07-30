@@ -1,7 +1,7 @@
 ﻿using MySolution.Application.Common.Models;
 using MySolution.Application.Features.Admin.User.Queries.GetUserById;
 
-namespace MySolution.Application.Features.Roles.Commands.UpdateRolePermissions;
+namespace MySolution.Application.Features.Admin.Roles.Commands.UpdateRolePermissions;
 
 public class UpdateRolePermissionsResponse : BaseResponse<UpdateRolePermissionsData>
 {

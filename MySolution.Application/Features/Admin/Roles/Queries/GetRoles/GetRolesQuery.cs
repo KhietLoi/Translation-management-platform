@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MySolution.Application.Features.Roles.Queries.GetRoles;
+namespace MySolution.Application.Features.Admin.Roles.Queries.GetRoles;
 
 /// <summary>
 ///     Query to retrieve a list of roles based on the provided request parameters.

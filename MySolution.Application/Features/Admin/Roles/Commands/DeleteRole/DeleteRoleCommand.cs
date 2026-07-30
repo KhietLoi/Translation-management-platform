@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MySolution.Application.Features.Roles.Commands.DeleteRole;
+namespace MySolution.Application.Features.Admin.Roles.Commands.DeleteRole;
 
 /// <summary>
 ///     Command to delete a role by its ID.

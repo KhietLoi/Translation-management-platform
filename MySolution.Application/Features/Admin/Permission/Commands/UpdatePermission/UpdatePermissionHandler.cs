@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
-namespace MySolution.Application.Features.Permission.Commands.UpdatePermission;
+namespace MySolution.Application.Features.Admin.Permission.Commands.UpdatePermission;
 
 /// <summary>
 ///     Handler for updating a permission.
