@@ -8,8 +8,9 @@ public interface ITranslationValueRepository : IRepository<TranslationValue>
     Task<TranslationValue?> GetByIdAsync(Guid id);
     Task<List<TranslationValue>> GetAsync(
         Guid? translationKeyId,
+        Guid? namespaceId,
         Guid? languageId,
-        TranslationStatus? status = TranslationStatus.Draft);
+        TranslationStatus? status);
     Task<bool> ExistsAsync(Guid translationKeyId, Guid languageId, Guid? excludeId = null);
     Task<bool> DeleteAsync(Guid id);
     Task<Guid?> GetExistingIdAsync(Guid id);

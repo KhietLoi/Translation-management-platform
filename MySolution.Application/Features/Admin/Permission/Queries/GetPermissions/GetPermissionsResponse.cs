@@ -1,6 +1,6 @@
 ﻿using MySolution.Application.Common.Models;
 
-namespace MySolution.Application.Features.Permission.Queries.GetPermissions;
+namespace MySolution.Application.Features.Admin.Permission.Queries.GetPermissions;
 
 /// <summary>
 ///     Response class for the get permissions operation.

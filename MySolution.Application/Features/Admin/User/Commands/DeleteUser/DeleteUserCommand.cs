@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using MySolution.Application.Features.User.Commands.DeleteUser;
 
 namespace MySolution.Application.Features.Admin.User.Commands.DeleteUser;
 

@@ -1,4 +1,4 @@
-﻿namespace MySolution.Application.Features.Permission.Queries.GetPermissions;
+﻿namespace MySolution.Application.Features.Admin.Permission.Queries.GetPermissions;
 
 /// <summary>
 ///     Represents a request to retrieve a paginated list of permissions, with optional search functionality.

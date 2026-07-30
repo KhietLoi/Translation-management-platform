@@ -1,7 +1,6 @@
 ﻿using MediatR;
-using MySolution.Application.Features.Admin.TestFile.Command.UploadFile;
 
-namespace MySolution.Application.Features.TestFile.Command.UploadFile;
+namespace MySolution.Application.Features.Admin.TestFile.Command.UploadFile;
 
 public class UploadFileCommand : IRequest<UploadFileResponse>
 {

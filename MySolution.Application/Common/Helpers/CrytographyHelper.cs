@@ -12,14 +12,14 @@ public class CrytographyHelper
         public static string EncryptStringToBytes_Aes(string plainText, string key)
         {
             var keyInbytes = Encoding.UTF8.GetBytes(key);
-            var IVInBytes = Encoding.UTF8.GetBytes(Reverse(key));
+            var ivInBytes = Encoding.UTF8.GetBytes(Reverse(key));
 
             // Check arguments.
             if (plainText == null || plainText.Length <= 0)
                 throw new ArgumentNullException("plainText");
             if (keyInbytes == null || keyInbytes.Length <= 0)
                 throw new ArgumentException("keyInbytes");
-            if (IVInBytes == null || IVInBytes.Length <= 0)
+            if (ivInBytes == null || ivInBytes.Length <= 0)
                 throw new ArgumentException("IVInBytes");
 
             byte[] encrypted;
@@ -29,7 +29,7 @@ public class CrytographyHelper
             using (var aesAlg = Aes.Create())
             {
                 aesAlg.Key = keyInbytes;
-                aesAlg.IV = IVInBytes;
+                aesAlg.IV = ivInBytes;
                 aesAlg.Mode = CipherMode.CBC;
                 aesAlg.Padding = PaddingMode.PKCS7;
 
@@ -55,22 +55,22 @@ public class CrytographyHelper
         public static string DecryptStringFromBytes_Aes(string cipherText, string key)
         {
             var keyInbytes = Encoding.UTF8.GetBytes(key);
-            var IVInBytes = Encoding.UTF8.GetBytes(Reverse(key));
+            var ivInBytes = Encoding.UTF8.GetBytes(Reverse(key));
 
             // Check arguments.
             if (cipherText == null || cipherText.Length <= 0)
                 throw new ArgumentNullException("cipherText");
             if (keyInbytes == null || keyInbytes.Length <= 0)
                 throw new ArgumentException("keyInbytes");
-            if (IVInBytes == null || IVInBytes.Length <= 0)
+            if (ivInBytes == null || ivInBytes.Length <= 0)
                 throw new ArgumentException("keyInbytes");
 
-            string plaintext = null;
+            string? plaintext;
 
             using (var aesAlg = Aes.Create())
             {
                 aesAlg.Key = keyInbytes;
-                aesAlg.IV = IVInBytes;
+                aesAlg.IV = ivInBytes;
                 aesAlg.Mode = CipherMode.CBC;
                 aesAlg.Padding = PaddingMode.PKCS7;
 

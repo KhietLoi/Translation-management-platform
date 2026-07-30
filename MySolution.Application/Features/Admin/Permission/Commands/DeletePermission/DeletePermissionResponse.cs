@@ -1,6 +1,6 @@
 ﻿using MySolution.Application.Common.Models;
 
-namespace MySolution.Application.Features.Permission.Commands.DeletePermission;
+namespace MySolution.Application.Features.Admin.Permission.Commands.DeletePermission;
 
 /// <summary>
 ///     Response class for the delete permission operation.

@@ -34,8 +34,7 @@ public class RefreshTokenCleanupHostedService : BackgroundService
             {
                 using var scope = _scopeFactory.CreateScope();
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                var deletedCount =
-                    await unitOfWork.RefreshToken.CleanUpExpiredTokensAsync(_options.KeepRevokedTokenDays);
+                var deletedCount = await unitOfWork.RefreshToken.CleanUpExpiredTokensAsync(_options.KeepRevokedTokenDays);
                 _logger.LogInformation("Refresh token cleanup completed. Deleted {Count} records.", deletedCount);
             }
             catch (Exception ex)

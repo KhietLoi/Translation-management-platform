@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
-namespace MySolution.Application.Features.Roles.Commands.DeleteRole;
+namespace MySolution.Application.Features.Admin.Roles.Commands.DeleteRole;
 
 /// <summary>
 ///     Handler for deleting a role.

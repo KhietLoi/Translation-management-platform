@@ -1,6 +1,6 @@
 ﻿using MySolution.Application.Common.Models;
 
-namespace MySolution.Application.Features.Roles.Commands.CreateRole;
+namespace MySolution.Application.Features.Admin.Roles.Commands.CreateRole;
 
 /// <summary>
 ///     Response class for the create role operation.

@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Features.Admin.User.Queries.GetUserById;
-using MySolution.Application.Features.Roles.Commands.UpdateRolePermissions;
 using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.Admin.Roles.Commands.UpdateRolePermissions;
@@ -76,12 +75,8 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
                 var invalidPermissions = permissionIdsToAdd.Except(foundPermissionIds).ToList();
                 if (invalidPermissions.Count > 0)
                 {
-                    response.ErrorMessage =
-                        "One or more permissions do not exist.";
-
-                    response.WithStatus(
-                        HttpStatusCode.BadRequest);
-
+                    response.ErrorMessage = "One or more permissions do not exist.";
+                    response.WithStatus(HttpStatusCode.BadRequest);
                     return response;
                 }
 
@@ -94,8 +89,7 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
                                 PermissionId = x.Id
                             })
                         .ToList();
-                await _unitOfWork.RolePermission
-                    .AddRange(entities);
+                await _unitOfWork.RolePermission.AddRange(entities);
             }
 
             // Remove permissions

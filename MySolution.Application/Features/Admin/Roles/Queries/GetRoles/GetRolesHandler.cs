@@ -6,7 +6,7 @@ using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Common.Models;
 using MySolution.Application.Features.Admin.User.Queries.GetUser;
 
-namespace MySolution.Application.Features.Roles.Queries.GetRoles;
+namespace MySolution.Application.Features.Admin.Roles.Queries.GetRoles;
 
 /// <summary>
 ///     Handler for processing the GetRolesQuery,

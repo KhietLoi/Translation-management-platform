@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MySolution.Application.Features.Permission.Commands.DeletePermission;
+namespace MySolution.Application.Features.Admin.Permission.Commands.DeletePermission;
 
 /// <summary>
 ///     Command to delete a permission by its ID.

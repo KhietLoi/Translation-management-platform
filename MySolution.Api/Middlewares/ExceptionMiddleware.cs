@@ -88,17 +88,20 @@ public class ExceptionMiddleware
         {
             httpContext.Response.ContentType = "application/json";
             httpContext.Response.StatusCode = ex.ValidationResultModel.StatusCode;
-            var error = ex.ValidationResultModel.Errors.FirstOrDefault();
-            if (error != null)
+            if (ex.ValidationResultModel.Errors != null)
             {
-                var response = new ErrorHandler
+                var error = ex.ValidationResultModel.Errors.FirstOrDefault();
+                if (error != null)
                 {
-                    success = false,
-                    errorMessage = error.ErrorMessage,
-                    errorMessageCode = error.ErrorMessageCode,
-                    errors = ex.ValidationResultModel.Errors
-                };
-                await httpContext.Response.WriteAsync(response.ToString());
+                    var response = new ErrorHandler
+                    {
+                        success = false,
+                        errorMessage = error.ErrorMessage,
+                        errorMessageCode = error.ErrorMessageCode,
+                        errors = ex.ValidationResultModel.Errors
+                    };
+                    await httpContext.Response.WriteAsync(response.ToString());
+                }
             }
         }
         catch (UnauthorizedAccessException)
@@ -107,7 +110,7 @@ public class ExceptionMiddleware
             httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
 
             var response = ResponseHandler.Unauthorized();
-            await httpContext.Response.WriteAsync(JsonHelper.Serialize(response.Value));
+            await httpContext.Response.WriteAsync(JsonHelper.Serialize(response.Value) ?? "");
         }
         catch (RateLimitExceededException ex)
         {

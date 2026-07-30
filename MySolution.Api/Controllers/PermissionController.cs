@@ -4,10 +4,10 @@ using MySolution.Api.Authorization;
 using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
 using MySolution.Application.Features.Admin.Permission.Commands.CreatePermission;
-using MySolution.Application.Features.Permission.Commands.DeletePermission;
-using MySolution.Application.Features.Permission.Commands.UpdatePermission;
-using MySolution.Application.Features.Permission.Queries.GetPermissionById;
-using MySolution.Application.Features.Permission.Queries.GetPermissions;
+using MySolution.Application.Features.Admin.Permission.Commands.DeletePermission;
+using MySolution.Application.Features.Admin.Permission.Commands.UpdatePermission;
+using MySolution.Application.Features.Admin.Permission.Queries.GetPermissionById;
+using MySolution.Application.Features.Admin.Permission.Queries.GetPermissions;
 
 namespace MySolution.Api.Controllers;
 

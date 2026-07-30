@@ -57,6 +57,7 @@ public class CreateProjectHandler : IRequestHandler<CreateProjectCommand, Create
                 IsActive = project.IsActive,
                 CreatedAt = project.CreatedAt
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.Created);

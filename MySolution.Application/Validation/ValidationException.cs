@@ -11,6 +11,7 @@ public class ValidationException : ExceptionError
         ValidationResultModel = validationResultModel;
     }
 
+    [Obsolete("Obsolete")]
     protected ValidationException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
     }

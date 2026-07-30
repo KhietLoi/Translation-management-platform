@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace MySolution.Application.Features.Roles.Queries.GetRoles;
+namespace MySolution.Application.Features.Admin.Roles.Queries.GetRoles;
 
 /// <summary>
 ///     Validator for the GetRolesQuery

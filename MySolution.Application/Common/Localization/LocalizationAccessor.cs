@@ -9,8 +9,7 @@ public class LocalizationAccessor
     public static ILocalizationService Localizer
         => _localizer ?? throw new InvalidOperationException(
             "Localization not configured. Call LocalizationAccessor.Configure() at startup.");
-
-    // Gọi 1 lần ở startup
+    
     public static void Configure(ILocalizationService localizer)
     {
         _localizer = localizer;

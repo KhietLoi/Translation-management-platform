@@ -1,4 +1,4 @@
-﻿namespace MySolution.Application.Features.Permission.Commands.UpdatePermission;
+﻿namespace MySolution.Application.Features.Admin.Permission.Commands.UpdatePermission;
 
 /// <summary>
 ///     Request model for updating a permission

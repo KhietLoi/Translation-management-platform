@@ -7,7 +7,7 @@ namespace MySolution.Application.Validation;
 /// </summary>
 public class ExceptionError : Exception
 {
-    public ExceptionError(Exception innerException, string code, string message) : base(message, innerException)
+    public ExceptionError(Exception? innerException, string code, string message) : base(message, innerException)
     {
         Code = code;
     }
@@ -20,9 +20,10 @@ public class ExceptionError : Exception
     {
     }
 
+    [Obsolete("Obsolete")]
     protected ExceptionError(SerializationInfo info, StreamingContext context) : base(info, context)
     {
     }
 
-    public string Code { get; }
+    public string? Code { get; }
 }

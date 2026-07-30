@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MySolution.Application.Features.Permission.Queries.GetPermissionById;
+namespace MySolution.Application.Features.Admin.Permission.Queries.GetPermissionById;
 
 /// <summary>
 ///     Query to get a permission by its ID

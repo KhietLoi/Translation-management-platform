@@ -34,14 +34,14 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
         try
         {
             var payload = _emailVerificationTokenService.ValidateToken(request.Token);
-            var user = _unitOfWork.User.GetByIdAsync(payload.UserId).Result;
-            
+            var user = await _unitOfWork.User.GetByIdAsync(payload.UserId);
             if (user == null)
             {
                 response.ErrorMessage = "User not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
+            
             if (payload.ExpiredAt < DateTime.UtcNow)
             {
                 response.ErrorMessage = "Verification token is expired.";
@@ -75,6 +75,7 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
+            
             return response;
         }
         catch (Exception ex)

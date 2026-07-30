@@ -17,40 +17,56 @@ public class TranslationValueRepository (AppDbContext context, ILogger logger) :
             .Include(x => x.Language)
             .FirstOrDefaultAsync(x => x.Id == id);
     }
+
+    public async Task<List<TranslationValue>> GetAsync(
+        Guid? translationKeyId,
+        Guid? namespaceId,
+        Guid? languageId,
+        TranslationStatus? status)
+    {
+        var query = DbSet
+            .AsNoTracking()
+            .Include(x => x.Language)
+            .Include(x => x.TranslationKey)
+            .ThenInclude(x => x.Namespace)
+            .AsQueryable();
+
+        if (translationKeyId.HasValue)
+        {
+            query = query.Where(x =>
+                x.TranslationKeyId == translationKeyId.Value);
+        }
+
+        if (namespaceId.HasValue)
+        {
+            query = query.Where(x =>
+                x.TranslationKey.NamespaceId == namespaceId.Value);
+        }
+
+        if (languageId.HasValue)
+        {
+            query = query.Where(x =>
+                x.LanguageId == languageId.Value);
+        }
+
+        if (status.HasValue)
+        {
+            query = query.Where(x =>
+                x.Status == status.Value);
+        }
+
+        return await query
+            .OrderBy(x => x.TranslationKey.Key)
+            .ThenBy(x => x.Language.Code)
+            .ToListAsync();
+    }
+
     public async Task<TranslationValue?> GetByIdTrackingAsync(Guid id)
     {
         return await DbSet
             .Include(x => x.TranslationKey)
             .Include(x => x.Language)
             .FirstAsync(x => x.Id == id);
-    }
-
-    public async Task<List<TranslationValue>> GetAsync(Guid? translationKeyId, Guid? languageId, TranslationStatus? status)
-    {
-        var query = DbSet
-            .AsNoTracking()
-            .Include(x => x.TranslationKey)
-            .Include(x => x.Language)
-            .AsQueryable();
-
-        if (translationKeyId.HasValue)
-        {
-            query = query.Where(x => x.TranslationKeyId == translationKeyId.Value);
-        }
-
-        if (languageId.HasValue)
-        {
-            query = query.Where(x => x.LanguageId == languageId.Value);
-        }
-
-        if (status.HasValue)
-        {
-            query = query.Where(x => x.Status == status.Value);
-        }
-
-        return await query
-            .OrderBy(x => x.Language.Name)
-            .ToListAsync();
     }
 
     public async Task<bool> ExistsAsync(Guid translationKeyId, Guid languageId, Guid? excludeId = null)

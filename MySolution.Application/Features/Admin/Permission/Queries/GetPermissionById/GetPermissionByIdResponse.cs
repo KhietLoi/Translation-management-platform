@@ -1,6 +1,6 @@
 ﻿using MySolution.Application.Common.Models;
 
-namespace MySolution.Application.Features.Permission.Queries.GetPermissionById;
+namespace MySolution.Application.Features.Admin.Permission.Queries.GetPermissionById;
 
 /// <summary>
 ///     Response class for the get permission by ID operation.

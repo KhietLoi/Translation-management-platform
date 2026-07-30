@@ -114,6 +114,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                     Jti = jti,
                     ExpiredAt = _jwtService.GetRefreshTokenExpirationDate()
                 });
+            
             await _unitOfWork.SaveAsync(cancellationToken);
             await _tokenSecurityService.SetSecurityStampAsync(user.Id, user.SecurityStamp);
 
@@ -126,6 +127,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                 Email = user.Email,
                 NeedCompleteProfile = !user.Profile.IsCompleted
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
