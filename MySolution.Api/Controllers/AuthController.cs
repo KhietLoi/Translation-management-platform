@@ -28,7 +28,7 @@ public class AuthController(IMediator mediator,  IAuthCookieService cookieServic
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost("register")]
-    [EnableRateLimiting("http-register")]
+    [EnableRateLimiting("auth-register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new RegisterCommand(request), cancellationToken);
@@ -42,7 +42,7 @@ public class AuthController(IMediator mediator,  IAuthCookieService cookieServic
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost("login")]
-    [EnableRateLimiting("http-login")]
+    [EnableRateLimiting("auth-login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new LoginCommand(request), cancellationToken);
@@ -65,7 +65,7 @@ public class AuthController(IMediator mediator,  IAuthCookieService cookieServic
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost("refresh-token")]
-    [EnableRateLimiting("http-refresh-token")]
+    [EnableRateLimiting("auth-refresh-token")]
     public async Task<IActionResult> RefreshToken(CancellationToken cancellationToken)
     {
         var refreshToken = cookieService.GetRefreshToken();
@@ -136,7 +136,7 @@ public class AuthController(IMediator mediator,  IAuthCookieService cookieServic
 
 
     [HttpPost("forgot-password")]
-    [EnableRateLimiting("http-forgot-password")]
+    [EnableRateLimiting("auth-forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request,
         CancellationToken cancellationToken)
     {

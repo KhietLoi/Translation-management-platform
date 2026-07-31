@@ -3,6 +3,7 @@
 public class HttpRateLimitOptions
 {
     public const string SectionName = "HttpRateLimit";
+    public HttpRateLimitPolicy Global { get; set; } = new();
     public HttpRateLimitPolicy Login { get; set; } = new();
     public HttpRateLimitPolicy Register { get; set; } = new();
     public HttpRateLimitPolicy ForgotPassword { get; set; } = new();

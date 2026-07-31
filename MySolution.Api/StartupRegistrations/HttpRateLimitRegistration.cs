@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.RateLimiting;
 using MySolution.Api.Options;
 
-
 namespace MySolution.Api.StartupRegistrations;
 
 public static class HttpRateLimitRegistration
@@ -22,6 +21,7 @@ public static class HttpRateLimitRegistration
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
             options.OnRejected = async (context, token) =>
             {
                 context.HttpContext.Response.ContentType = "application/json";
@@ -32,37 +32,65 @@ public static class HttpRateLimitRegistration
                         success = false,
                         message = "Too many requests. Please try again later."
                     },
-                    token);
+                    cancellationToken: token);
             };
 
-            AddPolicy(options, "http-login", settings.Login);
-            AddPolicy(options, "http-register", settings.Register);
-            AddPolicy(options, "http-forgot-password", settings.ForgotPassword);
-            AddPolicy(options, "http-refresh-token", settings.RefreshToken);
+            // Global Rate Limiter
+            options.GlobalLimiter = CreateGlobalLimiter(settings.Global);
+
+            // Authentication Policies
+            RegisterPolicy(options, "auth-login", settings.Login);
+            RegisterPolicy(options, "auth-register", settings.Register);
+            RegisterPolicy(options, "auth-forgot-password", settings.ForgotPassword);
+            RegisterPolicy(options, "auth-refresh-token", settings.RefreshToken);
         });
 
         return services;
     }
 
-    private static void AddPolicy(
+    private static void RegisterPolicy(
         RateLimiterOptions options,
         string policyName,
         HttpRateLimitOptions.HttpRateLimitPolicy policy)
     {
         options.AddPolicy(policyName, httpContext =>
         {
-            var ip = httpContext.Connection.RemoteIpAddress?.ToString()
-                     ?? "unknown";
-
-            return RateLimitPartition.GetFixedWindowLimiter(
-                partitionKey: ip,
-                factory: _ => new FixedWindowRateLimiterOptions
-                {
-                    PermitLimit = policy.PermitLimit,
-                    Window = TimeSpan.FromMinutes(policy.WindowMinutes),
-                    QueueLimit = policy.QueueLimit,
-                    AutoReplenishment = true
-                });
+            return CreatePartition(httpContext, policy);
         });
+    }
+
+    private static PartitionedRateLimiter<HttpContext> CreateGlobalLimiter(
+        HttpRateLimitOptions.HttpRateLimitPolicy policy)
+    {
+        return PartitionedRateLimiter.Create<HttpContext, string>(
+            httpContext => CreatePartition(httpContext, policy));
+    }
+
+    private static RateLimitPartition<string> CreatePartition(
+        HttpContext httpContext,
+        HttpRateLimitOptions.HttpRateLimitPolicy policy)
+    {
+        var ip = GetClientIp(httpContext);
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: ip,
+            factory: _ => CreateFixedWindowOptions(policy));
+    }
+
+    private static FixedWindowRateLimiterOptions CreateFixedWindowOptions(
+        HttpRateLimitOptions.HttpRateLimitPolicy policy)
+    {
+        return new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = policy.PermitLimit,
+            Window = TimeSpan.FromMinutes(policy.WindowMinutes),
+            QueueLimit = policy.QueueLimit,
+            AutoReplenishment = true
+        };
+    }
+
+    private static string GetClientIp(HttpContext context)
+    {
+        return context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
     }
 }
