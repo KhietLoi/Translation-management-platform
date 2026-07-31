@@ -20,7 +20,7 @@ export default function Users() {
 
   const [paging, setPaging] = useState({
     page: 1,
-    limit: 5,
+    limit: 10,
     totalItem: 0,
     totalPage: 0,
   });
@@ -40,7 +40,7 @@ export default function Users() {
 
       const response = await userService.getUsers(
         currentPage,
-        5,
+        10,
         search
       );
 
@@ -81,7 +81,7 @@ export default function Users() {
       await loadUsers();
 
     } catch (error) {
-      toast.error(error?.response?.data?.message ||"Create user failed");
+      toast.error(error?.response?.data?.message || "Create user failed");
       console.error(error);
     }
   };
@@ -131,10 +131,23 @@ export default function Users() {
       await loadUsers();
     } catch (error) {
 
-      toast.error(error?.response?.data?.message ||"Delete user failed");
+      toast.error(error?.response?.data?.message || "Delete user failed");
       console.error(error);
-      
+
     }
+  };
+
+  const getPageNumbers = (current, total) => {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    if (current <= 4) {
+      return [1, 2, 3, 4, 5, "...", total];
+    }
+    if (current >= total - 3) {
+      return [1, "...", total - 4, total - 3, total - 2, total - 1, total];
+    }
+    return [1, "...", current - 1, current, current + 1, "...", total];
   };
 
   return (
@@ -143,10 +156,7 @@ export default function Users() {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h3 className="fw-bold mb-1">Users</h3>
-
-          <p className="text-muted mb-0">
-            Manage system users and assigned roles
-          </p>
+          <p className="text-muted mb-0">Manage system users and their accounts</p>
         </div>
 
         <button
@@ -161,7 +171,7 @@ export default function Users() {
       {/* Main Card */}
       <div className="card border-0 shadow-sm">
         <div className="card-body">
-          {/* Search */}
+          {/* Search bar */}
           <div className="row mb-4">
             <div className="col-md-5">
               <div className="input-group">
@@ -172,11 +182,9 @@ export default function Users() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Search username or email..."
+                  placeholder="Search by username, email or full name..."
                   value={keyword}
-                  onChange={(e) =>
-                    setKeyword(e.target.value)
-                  }
+                  onChange={(e) => setKeyword(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       handleSearch();
@@ -210,38 +218,36 @@ export default function Users() {
 
             <ul className="pagination pagination-sm mb-0">
               <li
-                className={`page-item ${
-                  page === 1 ? "disabled" : ""
-                }`}
+                className={`page-item ${page <= 1 ? "disabled" : ""}`}
               >
                 <button
                   className="page-link"
-                  onClick={() =>
-                    setPage(page - 1)
-                  }
+                  onClick={() => setPage(page - 1)}
                 >
                   Previous
                 </button>
               </li>
 
-              <li className="page-item active">
-                <button className="page-link">
-                  {page}
-                </button>
-              </li>
+              {getPageNumbers(page, paging.totalPage || 1).map((p, idx) =>
+                p === "..." ? (
+                  <li key={`ellipsis-${idx}`} className="page-item disabled">
+                    <span className="page-link">...</span>
+                  </li>
+                ) : (
+                  <li key={p} className={`page-item ${p === page ? "active" : ""}`}>
+                    <button className="page-link" onClick={() => setPage(p)}>
+                      {p}
+                    </button>
+                  </li>
+                )
+              )}
 
               <li
-                className={`page-item ${
-                  page >= paging.totalPage
-                    ? "disabled"
-                    : ""
-                }`}
+                className={`page-item ${page >= (paging.totalPage || 1) ? "disabled" : ""}`}
               >
                 <button
                   className="page-link"
-                  onClick={() =>
-                    setPage(page + 1)
-                  }
+                  onClick={() => setPage(page + 1)}
                 >
                   Next
                 </button>
@@ -252,19 +258,19 @@ export default function Users() {
       </div>
 
       {/*  Update Modal */}
-     <UserModal
-  show={showModal}
-  mode={mode}
-  userId={selectedUser?.id}
-  onClose={() =>
-    setShowModal(false)
-  }
-  onSubmit={
-    mode === "create"
-      ? handleCreate
-      : handleUpdate
-  }
-/>
+      <UserModal
+        show={showModal}
+        mode={mode}
+        userId={selectedUser?.id}
+        onClose={() =>
+          setShowModal(false)
+        }
+        onSubmit={
+          mode === "create"
+            ? handleCreate
+            : handleUpdate
+        }
+      />
 
       {/* Delete Modal */}
       <DeleteUserModal

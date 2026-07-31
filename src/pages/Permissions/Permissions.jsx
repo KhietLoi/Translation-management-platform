@@ -27,7 +27,7 @@ export default function Permissions() {
   const [paging, setPaging] =
     useState({
       page: 1,
-      limit: 5,
+      limit: 10,
       totalItem: 0,
       totalPage: 0,
     });
@@ -57,7 +57,7 @@ export default function Permissions() {
         const response =
           await permissionService.getPermissions(
             currentPage,
-            5,
+            10,
             search
           );
 
@@ -118,7 +118,7 @@ export default function Permissions() {
         toast.error(
           error?.response?.data
             ?.errorMessage ||
-            "Create failed"
+          "Create failed"
         );
       }
     };
@@ -152,7 +152,7 @@ export default function Permissions() {
         toast.error(
           error?.response?.data
             ?.errorMessage ||
-            "Update failed"
+          "Update failed"
         );
       }
     };
@@ -184,78 +184,67 @@ export default function Permissions() {
         toast.error(
           error?.response?.data
             ?.errorMessage ||
-            "Delete failed"
+          "Delete failed"
         );
       }
     };
 
+  const getPageNumbers = (current, total) => {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    if (current <= 4) {
+      return [1, 2, 3, 4, 5, "...", total];
+    }
+    if (current >= total - 3) {
+      return [1, "...", total - 4, total - 3, total - 2, total - 1, total];
+    }
+    return [1, "...", current - 1, current, current + 1, "...", total];
+  };
+
   return (
     <div className="bg-white p-4 min-vh-100">
+      {/* HEADER */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h3 className="fw-bold mb-1">
-            Permissions
-          </h3>
-
-          <p className="text-muted mb-0">
-            Manage system
-            permissions
-          </p>
+          <h3 className="fw-bold">Permissions</h3>
+          <p className="text-muted">Manage system permissions</p>
         </div>
 
         <button
-          className="btn btn-warning d-flex align-items-center gap-2"
+          className="btn btn-warning"
           onClick={openCreate}
         >
-          <PlusIcon width={18} />
-          Add Permission
+          <PlusIcon width={18} /> Add Permission
         </button>
       </div>
 
-      <div className="card border-0 shadow-sm">
+      <div className="card shadow-sm border-0">
         <div className="card-body">
-          <div className="row mb-4">
-            <div className="col-md-5">
-              <div className="input-group">
-                <span className="input-group-text">
-                  <MagnifyingGlassIcon width={18} />
-                </span>
-
-                <input
-                  className="form-control"
-                  placeholder="Search permission..."
-                  value={keyword}
-                  onChange={(e) =>
-                    setKeyword(
-                      e.target.value
-                    )
-                  }
-                  onKeyDown={(e) => {
-                    if (
-                      e.key ===
-                      "Enter"
-                    ) {
-                      handleSearch();
-                    }
-                  }}
-                />
-
-                <button
-                  className="btn btn-warning"
-                  onClick={
-                    handleSearch
-                  }
-                >
-                  Search
-                </button>
-              </div>
-            </div>
+          <div className="input-group mb-4 w-50">
+            <span className="input-group-text">
+              <MagnifyingGlassIcon width={18} />
+            </span>
+            <input
+              className="form-control"
+              placeholder="Search permission..."
+              value={keyword}
+              onChange={(e) =>
+                setKeyword(
+                  e.target.value
+                )
+              }
+            />
+            <button
+              className="btn btn-warning"
+              onClick={handleSearch}
+            >
+              Search
+            </button>
           </div>
 
           <PermissionTable
-            permissions={
-              permissions
-            }
+            permissions={permissions}
             loading={loading}
             onEdit={openEdit}
             onDelete={
@@ -273,45 +262,36 @@ export default function Permissions() {
 
             <ul className="pagination pagination-sm mb-0">
               <li
-                className={`page-item ${
-                  page === 1
-                    ? "disabled"
-                    : ""
-                }`}
+                className={`page-item ${page <= 1 ? "disabled" : ""}`}
               >
                 <button
                   className="page-link"
-                  onClick={() =>
-                    setPage(
-                      page - 1
-                    )
-                  }
+                  onClick={() => setPage(page - 1)}
                 >
                   Previous
                 </button>
               </li>
 
-              <li className="page-item active">
-                <button className="page-link">
-                  {page}
-                </button>
-              </li>
+              {getPageNumbers(page, paging.totalPage || 1).map((p, idx) =>
+                p === "..." ? (
+                  <li key={`ellipsis-${idx}`} className="page-item disabled">
+                    <span className="page-link">...</span>
+                  </li>
+                ) : (
+                  <li key={p} className={`page-item ${p === page ? "active" : ""}`}>
+                    <button className="page-link" onClick={() => setPage(p)}>
+                      {p}
+                    </button>
+                  </li>
+                )
+              )}
 
               <li
-                className={`page-item ${
-                  page >=
-                  paging.totalPage
-                    ? "disabled"
-                    : ""
-                }`}
+                className={`page-item ${page >= (paging.totalPage || 1) ? "disabled" : ""}`}
               >
                 <button
                   className="page-link"
-                  onClick={() =>
-                    setPage(
-                      page + 1
-                    )
-                  }
+                  onClick={() => setPage(page + 1)}
                 >
                   Next
                 </button>

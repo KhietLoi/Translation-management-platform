@@ -10,11 +10,14 @@ export const register = async (payload) => {
   return response.data;
 }
 
-export const logout = () => {
-  localStorage.removeItem("accessToken");
-  window.location.href = "/";
-}
-
+export const logout = async () => {
+  try {
+    await api.post("/auth/logout");
+  } finally {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("currentUser");
+  }
+};
 export const verifyEmail = async (token) => {
   const response = await api.get(`/auth/verify-email/${token}`);
   return response.data;

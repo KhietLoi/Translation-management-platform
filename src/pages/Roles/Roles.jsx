@@ -17,7 +17,7 @@ export default function Roles() {
   const [page, setPage] = useState(1);
   const [paging, setPaging] = useState({
     page: 1,
-    limit: 5,
+    limit: 10,
     totalItem: 0,
     totalPage: 0,
   });
@@ -38,7 +38,7 @@ export default function Roles() {
   const loadRoles = async (currentPage = page, search = keyword) => {
     try {
       setLoading(true);
-      const response = await roleService.getRolesPaging(currentPage, 5, search);
+      const response = await roleService.getRolesPaging(currentPage, 10, search);
       const data = response.data.data;
 
       setRoles(data.roles);
@@ -158,6 +158,19 @@ export default function Roles() {
     }
   };
 
+  const getPageNumbers = (current, total) => {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    if (current <= 4) {
+      return [1, 2, 3, 4, 5, "...", total];
+    }
+    if (current >= total - 3) {
+      return [1, "...", total - 4, total - 3, total - 2, total - 1, total];
+    }
+    return [1, "...", current - 1, current, current + 1, "...", total];
+  };
+
   return (
     <div className="bg-white p-4 min-vh-100">
       {/* HEADER */}
@@ -195,6 +208,47 @@ export default function Roles() {
             onDelete={openDelete}
             onPermission={handleOpenPermissionModal}
           />
+
+          {/* Pagination */}
+          <div className="d-flex justify-content-between align-items-center mt-3">
+            <small className="text-muted">
+              Total Roles: {paging.totalItem}
+            </small>
+
+            <ul className="pagination pagination-sm mb-0">
+              <li className={`page-item ${page <= 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => setPage(page - 1)}
+                >
+                  Previous
+                </button>
+              </li>
+
+              {getPageNumbers(page, paging.totalPage || 1).map((p, idx) =>
+                p === "..." ? (
+                  <li key={`ellipsis-${idx}`} className="page-item disabled">
+                    <span className="page-link">...</span>
+                  </li>
+                ) : (
+                  <li key={p} className={`page-item ${p === page ? "active" : ""}`}>
+                    <button className="page-link" onClick={() => setPage(p)}>
+                      {p}
+                    </button>
+                  </li>
+                )
+              )}
+
+              <li className={`page-item ${page >= (paging.totalPage || 1) ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => setPage(page + 1)}
+                >
+                  Next
+                </button>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 

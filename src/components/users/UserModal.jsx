@@ -9,8 +9,7 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isActive, setIsActive] = useState(true);
+  //const [isActive, setIsActive] = useState(true);
   const [roleIds, setRoleIds] = useState([]);
 
   const [fieldErrors, setFieldErrors] = useState({});
@@ -35,26 +34,21 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
 
         setUsername(user?.username || "");
         setEmail(user?.email || "");
-        setPassword("");
-        setIsActive(user?.isActive ?? true);
-        
-        // SỬA LỖI MAPPING TẠI ĐÂY: 
-        // Ép kiểu tất cả id về dạng chuỗi (String) và hỗ trợ cả 2 trường hợp: 
-        // user.roles là mảng object [{id: 1}] hoặc là mảng ID [1, 2]
-        const existingRoleIds = user?.roles?.map((role) => 
-          typeof role === 'object' ? String(role.roleId) : String(role)
+        // Handle role mapping:
+        // Cast all IDs to strings to support both data structures:
+        // user.roles can be an array of objects [{ roleId: 1 }] or an array of IDs [1, 2]
+        const existingRoleIds = user?.roles?.map((role) =>
+          typeof role === "object" ? String(role.roleId) : String(role)
         ) || [];
-        
+
         setRoleIds(existingRoleIds);
       } else {
         setUsername("");
         setEmail("");
-        setPassword("");
-        setIsActive(true);
         setRoleIds([]);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Failed to load user data:", error);
     } finally {
       setLoading(false);
     }
@@ -78,13 +72,7 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
       }
     }
 
-    if (mode === "create") {
-      if (!password.trim()) {
-        newErrors.password = "Password is required.";
-      } else if (password.length < 6) {
-        newErrors.password = "Password must be at least 6 characters.";
-      }
-    }
+
 
     if (!roleIds || roleIds.length === 0) {
       newErrors.roleIds = "At least one role is required.";
@@ -100,19 +88,14 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
     const payload = {
       username: username.trim(),
       email: email.trim(),
-      isActive: isActive,
-      roleIds: roleIds, // payload sẽ là mảng các ID đã chọn
+      roleIds: roleIds, // Payload uses the array of selected IDs
     };
-
-    if (mode === "create") {
-      payload.password = password;
-    }
 
     onSubmit(payload);
   };
 
-  // CHUẨN BỊ OPTIONS CHO REACT-SELECT
-  // Ép kiểu value về String để đảm bảo việc mapping (lọc value) luôn chính xác 100%
+  // Prepare options for react-select
+  // Cast value to String to ensure mapping and filtering are always 100% accurate
   const roleOptions = roles.map((role) => ({
     value: String(role.id),
     label: role.description ? `${role.name} - ${role.description}` : role.name,
@@ -130,7 +113,7 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
       <div className="modal-dialog modal-lg modal-dialog-centered">
         <div className="modal-content">
           <div className="modal-header bg-warning">
-            <h5 className="modal-title">
+            <h5 className="modal-title text-text-muted">
               {mode === "create" ? "Create User" : "Update User"}
             </h5>
             <button type="button" className="btn-close" onClick={onClose} />
@@ -149,7 +132,7 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
                   <label className="form-label">Username</label>
                   <input
                     type="text"
-                    placeholder={mode ==="create" ? "Enter Username":""}
+                    placeholder={mode === "create" ? "Enter Username" : ""}
                     className={`form-control ${fieldErrors.username ? "is-invalid" : ""}`}
                     value={username}
                     onChange={(e) => {
@@ -166,7 +149,7 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
                   <label className="form-label">Email</label>
                   <input
                     type="email"
-                    placeholder={mode ==="create" ? "example@gmail.com":""}
+                    placeholder={mode === "create" ? "example@gmail.com" : ""}
                     className={`form-control ${fieldErrors.email ? "is-invalid" : ""}`}
                     value={email}
                     onChange={(e) => {
@@ -178,25 +161,6 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
                     <div className="invalid-feedback">{fieldErrors.email}</div>
                   )}
                 </div>
-
-                {mode === "create" && (
-                  <div className="mb-3">
-                    <label className="form-label">Password</label>
-                    <input
-                      type="password"
-                      placeholder={mode === "create" ? "Enter password": ""}
-                      className={`form-control ${fieldErrors.password ? "is-invalid" : ""}`}
-                      value={password}
-                      onChange={(e) => {
-                        setPassword(e.target.value);
-                        if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: null });
-                      }}
-                    />
-                    {fieldErrors.password && (
-                      <div className="invalid-feedback">{fieldErrors.password}</div>
-                    )}
-                  </div>
-                )}
 
                 <div className="mb-3">
                   <label className="form-label">Roles</label>
@@ -220,18 +184,7 @@ export default function UserModal({ show, mode, userId, onClose, onSubmit }) {
                   )}
                 </div>
 
-                <div className="form-check">
-                  <input
-                    type="checkbox"
-                    className="form-check-input"
-                    id="isActive"
-                    checked={isActive}
-                    onChange={(e) => setIsActive(e.target.checked)}
-                  />
-                  <label htmlFor="isActive" className="form-check-label">
-                    Active
-                  </label>
-                </div>
+
               </>
             )}
           </div>
