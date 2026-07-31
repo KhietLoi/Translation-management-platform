@@ -1,8 +1,9 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
-import { forgotPassword } from "../../../services/authService";
 import { toast } from "react-toastify";
+import { forgotPassword } from "../../../services/authService";
+import "./ForgotPassword.css"; // Remember to import the CSS file
 
 export default function ForgotPasswordPage() {
     const navigate = useNavigate();
@@ -15,73 +16,65 @@ export default function ForgotPasswordPage() {
 
         try {
             setLoading(true);
-
             await forgotPassword(email);
 
-            // navigate("/", {
-            //     state: { email }
-            // });
             toast.success("Please check your email!");
             setTimeout(() => {
                 navigate("/");
             }, 2000);
         } catch (error) {
             console.error(error);
+            toast.error("An error occurred, please try again!");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <Container fluid className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+        <Container fluid className="forgot-password-container min-vh-100 d-flex align-items-center justify-content-center">
             <Row className="w-100 justify-content-center">
-                <Col md={5} lg={4}>
-                    <Card className="shadow border-0">
-                        <Card.Body className="p-4">
+                <Col md={6} lg={4}>
+                    <Card className="forgot-password-card border-0">
+                        <Card.Body className="p-5">
                             <div className="text-center mb-4">
-                                <i
-                                    className="bi bi-key-fill text-primary"
-                                    style={{ fontSize: "3rem" }}
-                                />
-                                <h2 className="fw-bold mt-3">
-                                    Quên mật khẩu
-                                </h2>
+                                <div className="logo">MS</div>
+                                <h2 className="fw-bold title-text">Forgot Password?</h2>
 
-                                <p className="text-muted">
-                                    Nhập email để nhận liên kết đặt lại mật khẩu
-                                </p>
                             </div>
 
                             <Form onSubmit={handleSubmit}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Email</Form.Label>
-
+                                <Form.Group className="mb-4">
+                                    <Form.Label className="fw-semibold text-secondary">Email Address</Form.Label>
                                     <Form.Control
                                         type="email"
-                                        placeholder="Nhập email"
+                                        className="custom-input"
+                                        placeholder="e.g., yourname@gmail.com"
                                         value={email}
-                                        onChange={(e) =>
-                                            setEmail(e.target.value)
-                                        }
+                                        onChange={(e) => setEmail(e.target.value)}
                                         required
                                     />
                                 </Form.Group>
 
                                 <Button
                                     type="submit"
-                                    variant="primary"
-                                    className="w-100"
+                                    variant="warning"
+                                    className="w-100 custom-button fw-bold py-2"
                                     disabled={loading}
                                 >
-                                    {loading
-                                        ? "Đang gửi..."
-                                        : "Gửi liên kết"}
+                                    {loading ? (
+                                        <>
+                                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                            Sending...
+                                        </>
+                                    ) : (
+                                        "Send Reset Link"
+                                    )}
                                 </Button>
                             </Form>
 
-                            <div className="text-center mt-3">
-                                <Link to="/login">
-                                    Quay lại đăng nhập
+                            <div className="text-center mt-4">
+                                <Link to="/" className="back-to-login text-decoration-none">
+                                    <i className="bi bi-arrow-left me-1"></i> Back to Login
                                 </Link>
                             </div>
                         </Card.Body>

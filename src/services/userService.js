@@ -5,7 +5,7 @@ const API_URL = "/User";
 export const userService = {
   getUsers: (
     page = 1,
-    limit = 5,
+    limit = 10,
     search = ""
   ) =>
     api.get(API_URL, {

@@ -7,72 +7,82 @@ import {
   ArrowRightOnRectangleIcon,
   UserGroupIcon,
   KeyIcon,
-  ChevronDownIcon,
-  UserCircleIcon
+  Squares2X2Icon,
+  FolderIcon,
+  Bars3BottomLeftIcon,
+  ArrowDownTrayIcon,
+  ArrowsUpDownIcon,
+  BellIcon
 } from "@heroicons/react/24/outline";
 import { ToastContainer } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
 import "react-toastify/dist/ReactToastify.css";
+import "./MainLayout.css";
+
+import { logout } from "../services/authService";
 
 export default function MainLayout() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [openAccess, setOpenAccess] = useState(true);
 
-  // Xử lý quyền truy cập
+  // Access control logic
   const permissions = user?.permissions ?? [];
   const canViewUsers = permissions.includes("USER_VIEW");
   const canViewRoles = permissions.includes("ROLE_VIEW");
   const canViewPermissions = permissions.includes("PERMISSION_VIEW");
   const hasAccessControlPermission = canViewUsers || canViewRoles || canViewPermissions;
 
-  const menus = [
+  // Restructured menus
+  const menuCategories = [
     {
-      label: "Dashboard",
-      path: "/dashboard",
-      icon: ChartBarIcon,
+      title: "WORKSPACE",
+      items: [
+        { label: "Dashboard", path: "/dashboard", icon: Squares2X2Icon },
+        { label: "Projects", path: "/projects", icon: FolderIcon },
+        { label: "Translations", path: "/translations", icon: Bars3BottomLeftIcon },
+      ],
     },
     hasAccessControlPermission && {
-      label: "Access Control",
-      icon: ShieldCheckIcon,
-      children: [
-        canViewUsers && {
-          label: "Users",
-          path: "/users",
-          icon: UserGroupIcon,
-        },
-        canViewRoles && {
-          label: "Roles",
-          path: "/roles",
-          icon: ShieldCheckIcon,
-        },
-        canViewPermissions && {
-          label: "Permissions",
-          path: "/permissions",
-          icon: KeyIcon,
-        },
+      title: "ACCESS CONTROL",
+      items: [
+        canViewUsers && { label: "Users", path: "/users", icon: UserGroupIcon },
+        canViewRoles && { label: "Roles", path: "/roles", icon: ShieldCheckIcon },
+        canViewPermissions && { label: "Permissions", path: "/permissions", icon: KeyIcon },
       ].filter(Boolean),
     },
     {
-      label: "Settings",
-      path: "/settings",
-      icon: Cog6ToothIcon,
+      title: "DELIVERY",
+      items: [
+        { label: "Publish", path: "/publish", icon: ArrowDownTrayIcon },
+        { label: "Import / Export", path: "/import-export", icon: ArrowsUpDownIcon },
+      ],
+    },
+    {
+      title: "PLATFORM",
+      items: [
+        { label: "API Keys", path: "/api-keys", icon: KeyIcon },
+        { label: "Notifications", path: "/notifications", icon: BellIcon, badge: 5 },
+        { label: "Settings", path: "/settings", icon: Cog6ToothIcon },
+      ],
     },
   ].filter(Boolean);
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
+  // Logout handler using authService API
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      if (setUser) setUser(null);
+      navigate("/", { replace: true });
+    }
   };
-
   const pageTitle = () => {
-    for (const item of menus) {
-      if (item.path === location.pathname) return item.label;
-      if (item.children) {
-        const child = item.children.find((x) => x.path === location.pathname);
-        if (child) return child.label;
-      }
+    for (const category of menuCategories) {
+      const activeItem = category.items.find((item) => item.path === location.pathname);
+      if (activeItem) return activeItem.label;
     }
     return "Dashboard";
   };
@@ -80,168 +90,146 @@ export default function MainLayout() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="d-flex vh-100 overflow-hidden bg-dark">
-      {/* Sidebar */}
-      <aside
-        className="sidebar bg-black text-white d-flex flex-column border-end border-warning"
-        style={{ width: "280px" }}
-      >
-        {/* Logo */}
-        <div className="p-4 text-center border-bottom border-warning">
-          <div
-            className="mx-auto mb-3 d-flex align-items-center justify-content-center fw-bold border border-warning"
-            style={{
-              width: "72px",
-              height: "72px",
-              fontSize: "1.9rem",
-              background: "#1a1a1a",
-              color: "#d4af37",
-            }}
-          >
-            MS
+    <>
+      <div className="d-flex vh-100 overflow-hidden" style={{ backgroundColor: "-#11121c" }}>
+        {/* Sidebar */}
+        <aside
+          className="sidebar text-white d-flex flex-column border-end"
+          style={{ width: "260px", backgroundColor: "#161822", borderColor: "#282a36" }}
+        >
+          {/* Logo / Brand */}
+          <div className="p-4 d-flex align-items-center justify-content-center gap-3">
+            <div className="logo">
+              MS
+            </div>
+
+            <div>
+              <h5 className="mb-0 fw-bold text-white">
+                MySolution
+              </h5>
+              <small className="text-secondary">
+                Translation Platform
+              </small>
+            </div>
           </div>
-          <h5 className="text-warning fw-bold mb-1">MySolution</h5>
-          <small className="text-secondary">Authentication System</small>
-        </div>
 
-        {/* Menu */}
-        <nav className="flex-grow-1 p-3 overflow-auto">
-          {menus.map((item) => {
-            const Icon = item.icon;
-
-            if (item.children) {
-              const isChildActive = item.children.some((child) =>
-                isActive(child.path)
-              );
-
-              return (
-                <div key={item.label} className="mb-3">
-                  <button
-                    onClick={() => setOpenAccess(!openAccess)}
-                    className={`btn w-100 text-start d-flex align-items-center justify-content-between px-3 py-3 mb-2 border-0 fw-semibold ${isChildActive || openAccess
-                      ? "bg-warning text-dark"
-                      : "text-white hover-bg-secondary"
-                      }`}
-                  >
-                    <div className="d-flex align-items-center gap-3">
-                      <Icon width={24} height={24} />
-                      <span>{item.label}</span>
-                    </div>
-                    <ChevronDownIcon
-                      width={20}
-                      height={20}
-                      className={`transition-transform ${openAccess ? "rotate-180" : ""
-                        }`}
-                    />
-                  </button>
-
-                  {openAccess && (
-                    <div className="ms-4">
-                      {item.children.map((child) => {
-                        const ChildIcon = child.icon;
-                        const active = isActive(child.path);
-
-                        return (
-                          <button
-                            key={child.path}
-                            onClick={() => navigate(child.path)}
-                            className={`btn w-100 text-start d-flex align-items-center gap-3 mb-1 py-2.5 px-3 border-0 ${active
-                              ? "bg-warning text-dark fw-semibold"
-                              : "text-white-50 hover-bg-secondary"
-                              }`}
-                          >
-                            <ChildIcon width={18} height={18} />
-                            <span>{child.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            const active = isActive(item.path);
-            return (
-              <button
-                key={item.path}
-                onClick={() => navigate(item.path)}
-                className={`btn w-100 text-start d-flex align-items-center gap-3 mb-2 py-3 px-3 border-0 fw-medium ${active
-                  ? "bg-warning text-dark"
-                  : "text-white-50 hover-bg-secondary"
-                  }`}
-              >
-                <Icon width={24} height={24} />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Logout */}
-        <div className="p-3 border-top border-warning mt-auto">
-          <button
-            onClick={logout}
-            className="btn btn-outline-danger w-100 d-flex align-items-center gap-3 py-3"
-          >
-            <ArrowRightOnRectangleIcon width={24} height={24} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <div className="flex-grow-1 d-flex flex-column">
-        <header className="bg-black border-bottom border-warning px-4 py-3 d-flex justify-content-between align-items-center">
-          <h5 className="mb-0 fw-bold text-warning">{pageTitle()}</h5>
-
-          <div className="d-flex align-items-center gap-3">
-            <span className="text-light">
-              {user?.userName}
-            </span>
-
-            <button
-              onClick={() => navigate("/profile")}
-              className="border-0 bg-transparent"
-            >
-              {user?.avatarBlobName ? (
-                <img
-                  src={getAvatarUrl(user.avatarBlobName)}
-                  alt="avatar"
-                  className="rounded-circle border border-warning"
-                  width="46"
-                  height="46"
-                />
-              ) : (
-                <div
-                  className="rounded-circle border border-warning bg-black text-warning d-flex align-items-center justify-content-center fw-bold"
-                  style={{
-                    width: "46px",
-                    height: "46px"
-                  }}
+          {/* Menu Navigation */}
+          <nav className="flex-grow-1 px-3 pb-3 overflow-auto">
+            {menuCategories.map((category, idx) => (
+              <div key={idx} className="mb-4">
+                <h6
+                  className="text-uppercase fw-bold mb-2 ms-2"
+                  style={{ fontSize: "0.7rem", color: "#6b7280", letterSpacing: "0.05em" }}
                 >
-                  {user?.userName?.charAt(0)?.toUpperCase()}
-                </div>
-              )}
+                  {category.title}
+                </h6>
+                {category.items.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.path);
+
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={() => navigate(item.path)}
+                      className={`btn w-100 text-start d-flex align-items-center justify-content-between mb-1 py-2 px-3 border-0 rounded sidebar-link ${active ? "text-white fw-semibold" : "text-white-50"
+                        }`}
+                      style={{
+                        backgroundColor: active ? "#282a3a" : "transparent",
+                      }}
+                    >
+                      <div className="d-flex align-items-center gap-3">
+                        <Icon width={20} height={20} style={{ color: active ? "#fff" : "#9ca3af" }} />
+                        <span style={{ fontSize: "0.95rem" }}>{item.label}</span>
+                      </div>
+                      {item.badge && (
+                        <span className="badge rounded-pill bg-danger" style={{ fontSize: "0.7rem" }}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </nav>
+
+          {/* Logout - Danger Block */}
+          <div className="mt-auto px-3 pb-3 pt-3" style={{ borderTop: "1px solid #282a36" }}>
+            <button
+              onClick={handleLogout}
+              className="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 py-2 border-0 rounded"
+              style={{ transition: "background-color 0.2s" }}
+              onMouseOver={(e) => (e.currentTarget.className = "btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2 py-2 border-0 rounded")}
+              onMouseOut={(e) => (e.currentTarget.className = "btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 py-2 border-0 rounded text-danger")}
+              title="Logout"
+            >
+              <ArrowRightOnRectangleIcon width={20} height={20} />
+              <span className="fw-semibold" style={{ fontSize: "0.95rem" }}>Logout</span>
             </button>
           </div>
-        </header>
+        </aside>
 
-        <main className="flex-grow-1 p-3 overflow-auto bg-white text-white border-top border-warning">
-          <Outlet />
-        </main>
+        {/* Main Content Area */}
+        <div className="flex-grow-1 d-flex flex-column bg-light">
+          {/* Top Header */}
+          <header className="bg-white border-bottom px-4 py-3 d-flex justify-content-between align-items-center shadow-sm">
+            <h5 className="mb-0 fw-bold text-dark">{pageTitle()}</h5>
+
+            <div className="d-flex align-items-center gap-3">
+              <span className="text-dark fw-medium">
+                {user?.userName}
+              </span>
+
+              <button
+                onClick={() => navigate("/profile")}
+                className="border-0 bg-transparent p-0"
+                style={{ transition: "transform 0.2s ease" }}
+                onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+                onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              >
+                {user?.avatarBlobName ? (
+                  <img
+                    src={getAvatarUrl(user.avatarBlobName)} // Ensure getAvatarUrl is defined/imported if you keep this logic
+                    alt="avatar"
+                    className="rounded-circle border shadow-sm"
+                    width="40"
+                    height="40"
+                    style={{ objectFit: "cover" }}
+                  />
+                ) : (
+                  <div
+                    className="rounded-circle border bg-secondary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
+                    style={{
+                      width: "40px",
+                      height: "40px"
+                    }}
+                  >
+                    {user?.userName?.charAt(0)?.toUpperCase() || "U"}
+                  </div>
+                )}
+              </button>
+            </div>
+          </header>
+
+          <main className="flex-grow-1 p-4 overflow-auto">
+            {/* Added key based on pathname to trigger animation on route change */}
+            <div key={location.pathname} className="fade-in h-100">
+              <Outlet />
+            </div>
+          </main>
+        </div>
+
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          draggable
+          theme="light"
+        />
       </div>
-
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-        draggable
-        theme="dark"
-      />
-    </div>
+    </>
   );
 }
