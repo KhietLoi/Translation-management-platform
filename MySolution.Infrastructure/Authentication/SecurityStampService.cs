@@ -14,6 +14,8 @@ public class SecurityStampService : ISecurityStampService
 
     public async Task SetSecurityStampAsync(Guid userId, string securityStamp)
     {
+        var result = await _database.StringSetAsync($"security-stamp:{userId}", securityStamp);
+        Console.WriteLine(result);
         await _database.StringSetAsync($"security-stamp:{userId}", securityStamp);
     }
 
