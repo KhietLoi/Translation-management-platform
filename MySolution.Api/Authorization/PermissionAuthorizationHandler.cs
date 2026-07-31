@@ -34,6 +34,7 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
         _logger.LogInformation("Permissions: {Permissions}", string.Join(",", permissions));
         
         foreach (var permission in permissions) _logger.LogInformation("PERMISSION = {Permission}", permission);
+        
         // Check if the required permission is in the user's permissions
         if (Enumerable.Contains(permissions, requirement.Permission, StringComparer.OrdinalIgnoreCase))
             context.Succeed(requirement);

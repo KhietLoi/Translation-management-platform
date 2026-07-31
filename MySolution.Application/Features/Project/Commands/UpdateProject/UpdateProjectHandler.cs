@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
+
 namespace MySolution.Application.Features.Project.Commands.UpdateProject;
 
 public class UpdateProjectHandler : IRequestHandler<UpdateProjectCommand, UpdateProjectResponse>

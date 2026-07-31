@@ -7,8 +7,9 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 //1. Logging:
 builder.Host.UseLogging();
-
-//2. Register services
+//2. Rate Limit:
+builder.Services.AddHttpRateLimit(builder.Configuration);
+//3. Register services
 builder.Services
     .AddApplication(builder.Configuration)
     .AddInfrastructure(builder.Configuration)
@@ -35,6 +36,7 @@ app.InitLocalization();
 */
 
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 app.MapControllers();
 app.MapGet("/", () => { return Results.Redirect("/swagger"); });

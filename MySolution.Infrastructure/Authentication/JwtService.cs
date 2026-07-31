@@ -40,8 +40,7 @@ public class JwtService : IJwtService
     // Create Refresh Token
     public string GenerateRefreshToken()
     {
-        return Convert.ToBase64String(
-            RandomNumberGenerator.GetBytes(64));
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
     }
 
     // Validate Token and Get ClaimsPrincipal from Expired Token
