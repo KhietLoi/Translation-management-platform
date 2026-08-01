@@ -1,4 +1,5 @@
 ﻿using MySolution.Domain.Entities;
+using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Common.Interfaces.Repositories;
 
@@ -13,5 +14,14 @@ public interface ITranslationKeyRepository : IRepository<TranslationKey>
     
     //Get project id from Translation key:
     Task<Guid> GetProjectIdAsync(Guid translationKeyId);
+    //
+    Task <(List<TranslationKey> Items, int TotalCount)> GetByGridAsync(
+        Guid? projectId,
+        Guid? namespaceId,
+        string? keyword,
+        TranslationStatus? status,
+        int pageNumber,
+        int pageSize
+    );
     
 }

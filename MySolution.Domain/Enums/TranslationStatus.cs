@@ -2,8 +2,9 @@
 
 public enum TranslationStatus
 {
-    Draft = 0,
-    Translated = 1,
-    Reviewed = 2,
-    Published = 3
+    Missing = 0,
+    Draft = 1,
+    Translated = 2,
+    Reviewed = 3,
+    Published = 4
 }

@@ -8,12 +8,12 @@ namespace MySolution.Infrastructure.Persistence.Configurations;
 public class TranslationValueConfiguration : IEntityTypeConfiguration<TranslationValue>
 {
     public void Configure(EntityTypeBuilder<TranslationValue> builder)
-    {
+    {   
         builder.ToTable("TranslationValues");
-        builder.HasKey(x => x.Id);
+        builder.HasKey(x => x.Id);  
         builder.Property(x => x.Value).HasColumnType("text");
         builder.Property(x => x.Status)
-            .HasConversion<int>().HasDefaultValue(TranslationStatus.Draft);
+            .HasConversion<int>().HasDefaultValue(TranslationStatus.Missing);
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.UpdatedAt);
         builder.Property(x => x.TranslatedAt);

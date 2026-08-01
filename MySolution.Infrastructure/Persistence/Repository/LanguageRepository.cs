@@ -8,6 +8,7 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 public class LanguageRepository(AppDbContext context, ILogger logger)
     : Repository<Language>(context, logger), ILanguageRepository
 {
+    
     public async Task<Language?> GetByIdAsync(Guid id)
     {
         return await DbSet.FindAsync(id);
@@ -35,4 +36,5 @@ public class LanguageRepository(AppDbContext context, ILogger logger)
     {
         return await DbSet.AnyAsync(x => x.Id == id);
     }
+    
 }
