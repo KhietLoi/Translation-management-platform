@@ -1,4 +1,4 @@
-﻿namespace MySolution.Application.Features.TranslationKey.Commands.UpdateTranslationKey;
+﻿namespace MySolution.Application.Features.TranslationManagement.Commands.UpdateTranslationKey;
 
 public class UpdateTranslationKeyRequest
 {

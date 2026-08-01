@@ -17,10 +17,8 @@
         <Folder Include="Features\Language\Queries\" />
         <Folder Include="Features\Project\Queries\" />
         <Folder Include="Features\RequestLog\Commands\CreateRequestLog\"/>
-        <Folder Include="Features\TranslationKey\Commands\" />
-        <Folder Include="Features\TranslationKey\Queries\" />
-        <Folder Include="Features\TranslationValue\Commands\" />
-        <Folder Include="Features\TranslationValue\Queries\" />
+        <Folder Include="Features\TranslationManagement\Commands\" />
+        <Folder Include="Features\TranslationManagement\Queries\" />
         <Folder Include="Features\User\UserProfile\Queries\" />
     </ItemGroup>
 

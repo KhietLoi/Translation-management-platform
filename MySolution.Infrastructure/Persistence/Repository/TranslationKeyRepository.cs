@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
+using MySolution.Domain.Enums;
 
 namespace MySolution.Infrastructure.Persistence.Repository;
 
@@ -78,5 +79,53 @@ public class TranslationKeyRepository (AppDbContext context, ILogger logger) :
             .Where(x => x.Id == translationKeyId)
             .Select(x => x.ProjectId)
             .FirstOrDefaultAsync();
+    }
+
+    public async Task <(List<TranslationKey> Items, int TotalCount)> GetByGridAsync
+    (
+        Guid? projectId,
+        Guid? namespaceId,
+        string? keyword,
+        TranslationStatus? status,
+        int pageNumber, int pageSize
+    )
+    {
+        var query = DbSet
+            .AsNoTracking()
+            .Include(x => x.Namespace)
+            .Include(x => x.TranslationValues)
+            .ThenInclude(x => x.Language)
+            .Where(x => x.ProjectId == projectId);
+
+        if (namespaceId.HasValue)
+        {
+            query = query.Where(x =>
+                x.NamespaceId == namespaceId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            query = query.Where(x =>
+                x.Key.Contains(keyword) ||
+                (x.Description != null &&
+                 x.Description.Contains(keyword)));
+        }
+
+        if (status.HasValue)
+        {
+            query = query.Where(x =>
+                x.TranslationValues.Any(v =>
+                    v.Status == status.Value));
+        }
+
+        var totalCount = await query.CountAsync();
+        
+        var items = await query
+            .OrderBy(x => x.Key)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+        
+        return (items, totalCount);
     }
 }

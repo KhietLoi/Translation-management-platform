@@ -1,6 +1,6 @@
 ﻿using MySolution.Application.Common.Models;
 
-namespace MySolution.Application.Features.TranslationKey.Commands.UpdateTranslationKey;
+namespace MySolution.Application.Features.TranslationManagement.Commands.UpdateTranslationKey;
 
 public class UpdateTranslationKeyResponse : BaseResponse <UpdateTranslationKeyData>
 {

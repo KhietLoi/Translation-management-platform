@@ -9,4 +9,5 @@ public interface ILanguageRepository : IRepository<Language>
     Task<bool> ExistsByCodeAsync(string code, Guid? excludeProjectId = null);
     Task<List<Language>> GetByIdsAsync(List<Guid> ids);
     Task<bool> ExistsAsync(Guid id);
+   
 }

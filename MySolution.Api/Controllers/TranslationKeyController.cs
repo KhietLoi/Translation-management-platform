@@ -1,11 +1,11 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Helpers;
-using MySolution.Application.Features.TranslationKey.Commands.CreateTranslationKey;
 using MySolution.Application.Features.TranslationKey.Commands.DeleteTranslationKey;
-using MySolution.Application.Features.TranslationKey.Commands.UpdateTranslationKey;
 using MySolution.Application.Features.TranslationKey.Queries.GetTranslationKeyById;
 using MySolution.Application.Features.TranslationKey.Queries.GetTranslationKeys;
+using MySolution.Application.Features.TranslationManagement.Commands.CreateTranslationKey;
+using MySolution.Application.Features.TranslationManagement.Commands.UpdateTranslationKey;
 
 namespace MySolution.Api.Controllers;
 

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace MySolution.Application.Features.TranslationKey.Commands.CreateTranslationKey;
+namespace MySolution.Application.Features.TranslationManagement.Commands.CreateTranslationKey;
 
 public class CreateTranslationKeyValidator : AbstractValidator<CreateTranslationKeyCommand>
 {

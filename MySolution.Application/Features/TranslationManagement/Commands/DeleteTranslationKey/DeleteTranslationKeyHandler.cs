@@ -2,7 +2,9 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-namespace MySolution.Application.Features.TranslationKey.Commands.DeleteTranslationKey;
+using MySolution.Application.Features.TranslationKey.Commands.DeleteTranslationKey;
+
+namespace MySolution.Application.Features.TranslationManagement.Commands.DeleteTranslationKey;
 
 public class DeleteTranslationKeyHandler : IRequestHandler<DeleteTranslationKeyCommand, DeleteTranslationKeyResponse>
 {

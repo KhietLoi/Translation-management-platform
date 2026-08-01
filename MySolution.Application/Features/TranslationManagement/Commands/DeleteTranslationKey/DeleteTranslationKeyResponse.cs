@@ -1,6 +1,6 @@
 ﻿using MySolution.Application.Common.Models;
 
-namespace MySolution.Application.Features.TranslationKey.Commands.DeleteTranslationKey;
+namespace MySolution.Application.Features.TranslationManagement.Commands.DeleteTranslationKey;
 
 public class DeleteTranslationKeyResponse : BaseResponse
 {

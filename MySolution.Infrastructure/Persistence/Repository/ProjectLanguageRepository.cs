@@ -36,4 +36,13 @@ public class ProjectLanguageRepository (AppDbContext context, ILogger logger)
     {
         return await DbSet.AnyAsync(x => x.LanguageId == languageId && x.ProjectId == projectId);
     }
+
+    public async Task<List<Language>> GetLanguagesByProjectIdAsync(Guid projectId)
+    {
+        return await DbSet 
+            .AsNoTracking()
+            .Where(x => x.ProjectId == projectId)
+            .Select(x => x.Language)
+            .ToListAsync();
+    }
 }

@@ -2,7 +2,8 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-namespace MySolution.Application.Features.TranslationKey.Commands.UpdateTranslationKey;
+
+namespace MySolution.Application.Features.TranslationManagement.Commands.UpdateTranslationKey;
 
 public class UpdateTranslationKeyHandler : IRequestHandler<UpdateTranslationKeyCommand, UpdateTranslationKeyResponse>
 {

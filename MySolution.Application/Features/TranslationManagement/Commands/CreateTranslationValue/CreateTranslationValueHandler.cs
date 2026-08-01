@@ -2,8 +2,10 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Application.Features.TranslationValue.Commands.CreateTranslationValue;
 using MySolution.Domain.Enums;
-namespace MySolution.Application.Features.TranslationValue.Commands.CreateTranslationValue;
+
+namespace MySolution.Application.Features.TranslationManagement.Commands.CreateTranslationValue;
 
 public class CreateTranslationValueHandler : IRequestHandler<CreateTranslationValueCommand, CreateTranslationValueResponse>
 {
@@ -42,13 +44,14 @@ public class CreateTranslationValueHandler : IRequestHandler<CreateTranslationVa
             
             Guid projectId = await _unitOfWork.TranslationKey.GetProjectIdAsync(payload.TranslationKeyId);
             
+            /*
             var isValidLanguage = await _unitOfWork.Namespace.IsNamespaceBelongsToProjectAsync(payload.LanguageId, projectId);
             if (!isValidLanguage)
             {
                 response.ErrorMessage = "Language does not belong to the specified project.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
-            }
+            }*/
             
             // Check duplicate
             var exists = await _unitOfWork.TranslationValue.ExistsAsync(payload.TranslationKeyId, payload.LanguageId);
