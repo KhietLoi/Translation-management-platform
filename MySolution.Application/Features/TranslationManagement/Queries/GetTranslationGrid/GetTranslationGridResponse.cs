@@ -37,7 +37,7 @@ public class TranslationCellItem
 
     public Guid LanguageId { get; set; }
 
-    public string LanguageCode { get; set; } = string.Empty;
+    public string LanguageCode { get; set; } 
 
     public string Value { get; set; } = string.Empty;
 

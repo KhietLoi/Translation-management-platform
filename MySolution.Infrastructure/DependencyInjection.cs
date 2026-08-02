@@ -85,6 +85,9 @@ public static class DependencyInjection
         services.Configure<RateLimitOptions>(configuration.GetSection(RateLimitOptions.SectionName));
         //SecurityTimestamp
         services.AddScoped<ISecurityStampService, SecurityStampService>();
+        //AuditLog
+        services.AddScoped<IAuditLogService, AuditLogService>();
+        
         
         return services;
     }

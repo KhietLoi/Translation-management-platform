@@ -360,15 +360,17 @@ CREATE TABLE IF NOT EXISTS mysolution."AuditLogs"
 
     "UserId" UUID NOT NULL,
 
-    "Action" VARCHAR(100) NOT NULL,
+    "Action" INT NOT NULL,
 
     "EntityName" VARCHAR(100) NOT NULL,
 
-    "EntityId" VARCHAR(100) NOT NULL,
+    "EntityId" UUID NOT NULL,
 
     "OldValue" TEXT NULL,
 
     "NewValue" TEXT NULL,
+    
+    "Reason" VARCHAR(1000) NULL,
 
     "CreatedAt" TIMESTAMPTZ NOT NULL,
 
