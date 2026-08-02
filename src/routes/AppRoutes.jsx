@@ -14,6 +14,7 @@ import ForgotPassword from "../pages/auth/ForgotPassword/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword/ResetPassword";
 import Forbidden from "../pages/Error/Forbidden";
 import Profile from "../pages/Profile/Profile";
+import ProjectListPage from "../pages/projects/ProjectListPage";
 // import Roles from "../pages/Roles/Roles";
 // import Permissions from "../pages/Permissions/Permissions";
 
@@ -36,6 +37,10 @@ export default function AppRoutes() {
         <Route
           path="/profile"
           element={<Profile />}
+        />
+        <Route
+          path="/projects"
+          element={<ProjectListPage />}
         />
       </Route>
 
