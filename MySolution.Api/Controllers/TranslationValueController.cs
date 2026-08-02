@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using MySolution.Api.Authorization;
 using MySolution.Api.Helpers;
+using MySolution.Application.Constants;
 using MySolution.Application.Features.TranslationValue.Commands.CreateTranslationValue;
 using MySolution.Application.Features.TranslationValue.Commands.DeleteTranslationValue;
 using MySolution.Application.Features.TranslationValue.Commands.UpdateTranslationValue;
@@ -15,6 +17,7 @@ public class TranslationValueController (IMediator mediator) : Controller
 {
     
     [HttpPost]
+    [Permission(PermissionConstants.Translation.Create)]
     public async Task<IActionResult> CreateTranslationValue([FromBody] CreateTranslationValueRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -23,6 +26,7 @@ public class TranslationValueController (IMediator mediator) : Controller
     }
     
     [HttpPut("{id:guid}")]
+    [Permission(PermissionConstants.Translation.Update)]
     public async Task<IActionResult> UpdateTranslationValue
     (
         Guid id,
@@ -35,6 +39,7 @@ public class TranslationValueController (IMediator mediator) : Controller
     }
     
     [HttpDelete("{id:guid}")]
+    [Permission(PermissionConstants.Translation.Delete)]
     public async Task<IActionResult> DeleteTranslationValue(Guid id, CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new DeleteTranslationValueCommand(id), cancellationToken);
@@ -42,6 +47,7 @@ public class TranslationValueController (IMediator mediator) : Controller
     }
     
     [HttpGet]
+    [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetTranslationValues(
         [FromQuery] Guid? translationKeyId,
         [FromQuery] Guid? namespaceId,

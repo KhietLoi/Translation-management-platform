@@ -15,7 +15,7 @@ public class CreateUserValidator : AbstractValidator<CreateUserCommand>
         RuleFor(x => x.Payload.Email)
             .NotEmpty()
             .WithMessage("Email is required.")
-            .EmailAddress()
+            .Matches(@"^(?=.{1,254}$)(?=.{1,64}@)[A-Za-z0-9](?:[A-Za-z0-9._%+-]{0,62}[A-Za-z0-9])?@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$")
             .WithMessage("Email is invalid.");
 
         /*RuleFor(x => x.Payload.Password)
