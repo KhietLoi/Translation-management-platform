@@ -16,6 +16,7 @@ public class TranslationManagementController (IMediator mediator) : Controller
         [FromQuery] Guid? namespaceId,
         [FromQuery] string? keyword,
         [FromQuery] TranslationStatus? status,
+        [FromQuery] int numberOfLanguages = 3,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20)
     {
@@ -26,6 +27,7 @@ public class TranslationManagementController (IMediator mediator) : Controller
                 NamespaceId = namespaceId,
                 Keyword = keyword,
                 Status = status,
+                NumberOfLanguages = numberOfLanguages,
                 PageNumber = pageNumber,
                 PageSize = pageSize
             });

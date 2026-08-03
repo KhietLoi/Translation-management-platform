@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Features.TranslationManagement.Commands.CreateTranslationKey;

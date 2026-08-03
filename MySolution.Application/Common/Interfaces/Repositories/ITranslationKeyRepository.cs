@@ -20,6 +20,7 @@ public interface ITranslationKeyRepository : IRepository<TranslationKey>
         Guid? namespaceId,
         string? keyword,
         TranslationStatus? status,
+        int numberOfLanguages,
         int pageNumber,
         int pageSize
     );
