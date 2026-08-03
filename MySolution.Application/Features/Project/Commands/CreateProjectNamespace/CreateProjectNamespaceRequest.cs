@@ -2,6 +2,5 @@
 
 public class CreateProjectNamespaceRequest
 {
-    public Guid ProjectId { get; set; }
     public string Name { get; set; } =  string.Empty;
 }   

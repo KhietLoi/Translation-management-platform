@@ -3,7 +3,6 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
-using Shared.Extensions;
 namespace MySolution.Application.Features.Project.Commands.CreateProjectNamespace;
 
 public class CreateProjectNamespaceHandler : IRequestHandler<CreateProjectNamespaceCommand, CreateProjectNamespaceResponse>
@@ -33,7 +32,7 @@ public class CreateProjectNamespaceHandler : IRequestHandler<CreateProjectNamesp
         try
         {
             //Check project
-            var project =  await  _unitOfWork.Project.GetByIdAsync(payload.ProjectId);
+            var project =  await  _unitOfWork.Project.GetByIdAsync(request.ProjectId);
             if (project == null)
             {
                 response.ErrorMessage = "Project not found";
@@ -53,7 +52,7 @@ public class CreateProjectNamespaceHandler : IRequestHandler<CreateProjectNamesp
             var entity = new ProjectNamespace
             {
                 Id = Guid.CreateVersion7(),
-                ProjectId = payload.ProjectId,
+                ProjectId = request.ProjectId,
                 Name = payload.Name,
                 CreatedAt = DateTime.UtcNow
             };

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
@@ -84,6 +85,60 @@ public class UpdateProjectLanguagesHandler : IRequestHandler<UpdateProjectLangua
                         .ToList();
 
                 await _unitOfWork.ProjectLanguage.AddRange(entities);
+                
+                var translationKeys =
+                    await _unitOfWork
+                        .TranslationKey
+                        .GetAll()
+                        .Where(x => x.ProjectId == request.ProjectId)
+                        .ToListAsync(cancellationToken);
+                
+                var existingValues =
+                    await _unitOfWork
+                        .TranslationValue
+                        .GetAll()
+                        .Where(x =>
+                            x.TranslationKey.ProjectId ==
+                            request.ProjectId)
+                        .Select(x => new
+                        {
+                            x.TranslationKeyId,
+                            x.LanguageId
+                        })
+                        .ToListAsync(cancellationToken);
+                
+                var existingPairs =
+                    existingValues
+                        .Select(x =>
+                        (
+                            x.TranslationKeyId,
+                            x.LanguageId
+                        ))
+                        .ToHashSet();
+
+                var translationValuesToCreate =
+                (
+                    from key in translationKeys
+                    from languageId in languageIdsToAdd
+                    where !existingPairs.Contains((key.Id, languageId))
+                    select new Domain.Entities.TranslationValue
+                    {
+                        TranslationKeyId = key.Id,
+                        LanguageId = languageId,
+                        Value = string.Empty,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = null
+                    }
+                ).ToList();
+
+                if (translationValuesToCreate.Count > 0)
+                {
+                    await _unitOfWork
+                        .TranslationValue
+                        .AddRange(
+                            translationValuesToCreate
+                        );
+                }
             }
 
             if (projectLanguagesToRemove.Count > 0)
