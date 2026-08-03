@@ -241,7 +241,7 @@ export default function Roles() {
 
               <li className={`page-item ${page >= (paging.totalPage || 1) ? "disabled" : ""}`}>
                 <button
-                  className="page-link"
+                  className="page-link "
                   onClick={() => setPage(page + 1)}
                 >
                   Next

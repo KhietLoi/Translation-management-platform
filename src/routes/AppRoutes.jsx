@@ -17,6 +17,7 @@ import Profile from "../pages/Profile/Profile";
 import ProjectListPage from "../pages/projects/ProjectListPage";
 // import Roles from "../pages/Roles/Roles";
 // import Permissions from "../pages/Permissions/Permissions";
+import ProjectDetailPage from "../pages/projects/ProjectDetailPage";
 
 export default function AppRoutes() {
   return (
@@ -29,6 +30,7 @@ export default function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/403" element={<Forbidden />} />
+
       <Route element={<MainLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/users" element={<Users />} />
@@ -38,6 +40,7 @@ export default function AppRoutes() {
           path="/profile"
           element={<Profile />}
         />
+        <Route path="/projects/:id" element={<ProjectDetailPage />} />
         <Route
           path="/projects"
           element={<ProjectListPage />}
