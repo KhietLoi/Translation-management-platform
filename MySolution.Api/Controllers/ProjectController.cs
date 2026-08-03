@@ -4,6 +4,7 @@ using MediatR;
 using MySolution.Api.Authorization;
 using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
+using MySolution.Application.Features.Project.Commands.CreateProjectFull;
 using MySolution.Application.Features.Project.Commands.CreateProjectNamespace;
 using MySolution.Application.Features.Project.Commands.DeleteProject;
 using MySolution.Application.Features.Project.Commands.DeleteProjectNamespace;
@@ -147,6 +148,19 @@ public class ProjectController (IMediator mediator): Controller
     public async Task<IActionResult> GetProjectMembers(Guid projectId, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new GetProjectMembersQuery(projectId), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    
+    //Create project full 
+    [HttpPost("full")]
+    [Permission(PermissionConstants.Project.Create)]
+    public async Task<IActionResult> CreateProjectFull
+    (
+        [FromBody] CreateProjectFullRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var response = await mediator.Send(new CreateProjectFullCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 }
