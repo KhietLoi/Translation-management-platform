@@ -6,9 +6,6 @@ public class CreateProjectNamespaceValidator : AbstractValidator<CreateProjectNa
 {
     public CreateProjectNamespaceValidator()
     {
-        RuleFor(x => x.Payload.ProjectId)
-            .NotEmpty()
-            .WithMessage("Project cannot be empty");
         RuleFor(x => x.Payload.Name)
             .NotEmpty()
             .WithMessage("Project name cannot be empty");

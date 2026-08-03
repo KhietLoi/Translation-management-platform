@@ -76,19 +76,20 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    [HttpPost("namespaces")]
+    [HttpPost("{projectId:guid}/namespaces")]
     [Permission(PermissionConstants.Project.Create)]
     public async Task<IActionResult> CreateProjectNamespace
     (
         [FromBody] CreateProjectNamespaceRequest request,
+        Guid projectId,
         CancellationToken cancellationToken
     )
     {
-        var response = await mediator.Send(new CreateProjectNamespaceCommand(request), cancellationToken);
+        var response = await mediator.Send(new CreateProjectNamespaceCommand(request, projectId), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    [HttpPut("namespaces/{id:guid}")]
+    [HttpPut("{projectId:guid}/namespaces/{id:guid}")]
     [Permission(PermissionConstants.Project.Update)]
     public async Task<IActionResult> UpdateProjectNamespace
     (
@@ -101,7 +102,7 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    [HttpDelete("namespaces/{id:guid}")]
+    [HttpDelete("{projectId:guid}/namespaces/{id:guid}")]
     [Permission(PermissionConstants.Project.Delete)]
     public async Task<IActionResult> DeleteProjectNamespace(Guid id, CancellationToken cancellationToken)
     {

@@ -1,4 +1,5 @@
 ﻿using MySolution.Application.Common.Models;
+using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.Project.Queries.GetProjects;
 
@@ -21,4 +22,21 @@ public class GetProjectData
     public int LanguageCount { get; set; }
     public int MemberCount { get; set; }
     public int NamespaceCount { get; set; }
+    public int TotalTranslationCount { get; set; }
+    public int CompletedTranslationCount { get; set; }
+    public decimal ProgressPercentage { get; set; }
+    public List<ProjectLanguageItem> Languages { get; set; } = new();
+    public List<ProjectMemberItem> Members { get; set; } = new();
+}
+
+public class ProjectLanguageItem
+{
+    public Guid Id { get; set; }
+    public string Code { get; set; } = string.Empty;
+}
+
+public class ProjectMemberItem
+{
+    public Guid Id { get; set; }
+    public string UserName { get; set; } = string.Empty;
 }
