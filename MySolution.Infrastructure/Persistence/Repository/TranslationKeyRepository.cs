@@ -87,6 +87,7 @@ public class TranslationKeyRepository (AppDbContext context, ILogger logger) :
         Guid? namespaceId,
         string? keyword,
         TranslationStatus? status,
+        int numberOfLanguages,
         int pageNumber, int pageSize
     )
     {
@@ -126,6 +127,13 @@ public class TranslationKeyRepository (AppDbContext context, ILogger logger) :
             .Take(pageSize)
             .ToListAsync();
         
+        foreach (var item in items)
+        {
+            item.TranslationValues = item.TranslationValues
+                .OrderBy(v => v.Language.Code)
+                .Take(numberOfLanguages)
+                .ToList();
+        }
         return (items, totalCount);
     }
 }

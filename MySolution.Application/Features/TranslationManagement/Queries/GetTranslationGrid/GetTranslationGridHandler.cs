@@ -37,6 +37,7 @@ public class GetTranslationGridHandler : IRequestHandler<GetTranslationGridQuery
                     request.NamespaceId,
                     request.Keyword,
                     request.Status,
+                    request.NumberOfLanguages,
                     request.PageNumber,
                     request.PageSize
                 );
@@ -44,9 +45,10 @@ public class GetTranslationGridHandler : IRequestHandler<GetTranslationGridQuery
             response.Data = new GetTranslationGridData
             {
                 TotalCount = totalCount,
+                NumberOfLanguages = request.NumberOfLanguages,
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize,
-
+            
                 Items = items.Select(x =>
                         new TranslationGridItem
                         {

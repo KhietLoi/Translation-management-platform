@@ -11,6 +11,7 @@ public class GetTranslationGridResponse : BaseResponse <GetTranslationGridData>
 public class GetTranslationGridData
 {
     public int TotalCount { get; set; }
+    public int NumberOfLanguages { get; set; }
     public int PageNumber { get; set; }
     public int PageSize { get; set; }
     public List<TranslationGridItem> Items { get; set; } = new List<TranslationGridItem>();
@@ -37,7 +38,7 @@ public class TranslationCellItem
 
     public Guid LanguageId { get; set; }
 
-    public string LanguageCode { get; set; } 
+    public string LanguageCode { get; set; } = string.Empty;
 
     public string Value { get; set; } = string.Empty;
 

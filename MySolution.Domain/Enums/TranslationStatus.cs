@@ -5,6 +5,7 @@ public enum TranslationStatus
     Missing = 0,
     Draft = 1,
     Translated = 2,
-    Reviewed = 3,
-    Published = 4
+    Rejected = 3,
+    Reviewed = 4,
+    Published = 5
 }

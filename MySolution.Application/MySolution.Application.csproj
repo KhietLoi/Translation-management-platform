@@ -17,7 +17,6 @@
         <Folder Include="Features\Language\Commands\" />
         <Folder Include="Features\Language\Queries\" />
         <Folder Include="Features\Project\Queries\" />
-        <Folder Include="Features\TranslationManagement\Commands\" />
         <Folder Include="Features\TranslationManagement\Queries\" />
         <Folder Include="Features\User\UserProfile\Queries\" />
     </ItemGroup>
