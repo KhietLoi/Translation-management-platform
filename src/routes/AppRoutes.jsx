@@ -15,9 +15,11 @@ import ResetPassword from "../pages/auth/ResetPassword/ResetPassword";
 import Forbidden from "../pages/Error/Forbidden";
 import Profile from "../pages/Profile/Profile";
 import ProjectListPage from "../pages/projects/ProjectListPage";
+import CreateProject from "../components/projects/CreateProject";
 // import Roles from "../pages/Roles/Roles";
 // import Permissions from "../pages/Permissions/Permissions";
 import ProjectDetailPage from "../pages/projects/ProjectDetailPage";
+import TranslationManagementPage from "../pages/translations/TranslationManagementPage";
 
 export default function AppRoutes() {
   return (
@@ -45,6 +47,17 @@ export default function AppRoutes() {
           path="/projects"
           element={<ProjectListPage />}
         />
+        <Route
+          path="/projects/create"
+          element={
+            <CreateProject />
+          }
+        />
+        <Route
+          path="/translations"
+          element={<TranslationManagementPage />}
+        />
+
       </Route>
 
     </Routes>

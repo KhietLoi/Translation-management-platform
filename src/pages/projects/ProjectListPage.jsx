@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import ProjectCard from "../../components/projects/ProjectCard";
+import CreateProjectModal from "../../components/projects/CreateProject";
 import { getProjects } from "../../services/projectService";
 
 function ProjectListPage() {
     const navigate = useNavigate();
 
     const [projects, setProjects] = useState([]);
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     useEffect(() => {
         loadProjects();
@@ -40,7 +42,10 @@ function ProjectListPage() {
                     </p>
                 </div>
 
-                <button className="btn btn-primary">
+                <button
+                    className="btn btn-primary"
+                    onClick={() => setShowCreateModal(true)}
+                >
                     Create Project
                 </button>
 
@@ -63,6 +68,12 @@ function ProjectListPage() {
                 ))}
 
             </div>
+
+            <CreateProjectModal
+                show={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+                onSuccess={() => loadProjects()}
+            />
 
         </div>
     );

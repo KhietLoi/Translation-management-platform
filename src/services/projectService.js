@@ -1,5 +1,6 @@
 import api from "./api";
 
+//Project:
 export const getProjects = async () => {
     const response = await api.get("/Project");
 
@@ -8,6 +9,43 @@ export const getProjects = async () => {
 
 export const getProjectById = async (id) => {
     const response = await api.get(
+        `/Project/${id}`
+    );
+
+    return response.data;
+};
+
+export const createProject = async (project) => {
+    const response = await api.post(
+        "/Project",
+        project
+    );
+
+    return response.data;
+};
+
+export const createProjectFull = async (data) => {
+    const response = await api.post(
+        "/Project/full",
+        data
+    );
+
+    return response.data;
+};
+
+export const updateProject = async (id, data) => {
+    const targetId = typeof id === "object" ? id.id : id;
+    const body = typeof id === "object" ? id : data;
+    const response = await api.put(
+        `/Project/${targetId}`,
+        body
+    );
+
+    return response.data;
+};
+
+export const deleteProject = async (id) => {
+    const response = await api.delete(
         `/Project/${id}`
     );
 
@@ -26,9 +64,6 @@ export const updateProjectMembers = async (
     projectId,
     memberIds
 ) => {
-
-    console.log("projectId", projectId);
-    console.log("memberIds", memberIds);
     const response = await api.put(
         `/Project/${projectId}/members`,
         {
@@ -41,6 +76,7 @@ export const updateProjectMembers = async (
     return response.data;
 };
 
+// Languages:
 export const getProjectLanguages = async (id) => {
     const response = await api.get(
         `/Project/${id}/languages`
@@ -65,7 +101,6 @@ export const updateProjectLanguages = async (
 };
 
 //namespace:
-
 export const getProjectNamespaces = async (projectId) => {
 
     const response = await api.get(
