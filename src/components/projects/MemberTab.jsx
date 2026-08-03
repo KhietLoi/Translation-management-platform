@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { userService } from "../../services/userService";
 import { updateProjectMembers } from "../../services/projectService";
+import { toast } from "react-toastify";
 import "./MemberTab.css";
 
 function MembersTab({ projectId, members = [], onUpdated }) {
@@ -73,10 +74,10 @@ function MembersTab({ projectId, members = [], onUpdated }) {
             );
 
             if (onUpdated) onUpdated();
-            alert("Members updated successfully");
+            toast.success("Members updated successfully");
         } catch (error) {
             console.error(error);
-            alert("Update failed");
+            toast.error(error?.response?.data?.message || "Update failed");
         } finally {
             setSaving(false);
         }

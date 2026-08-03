@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 import ProjectTabs from "../../components/projects/ProjectTab";
 import OverviewTab from "../../components/projects/OverviewTab";
@@ -7,17 +7,22 @@ import LanguagesTab from "../../components/projects/LanguageTab";
 import NamespacesTab from "../../components/projects/NamespaceTab";
 import MembersTab from "../../components/projects/MemberTab";
 
+import { toast } from "react-toastify";
+
 import {
     getProjectById,
     getProjectLanguages,
     getProjectNamespaces,
-    getProjectMembers
+    getProjectMembers,
+    updateProject,
+    deleteProject
 } from "../../services/projectService";
 
 import "./ProjectDetailPage.css";
 
 function ProjectDetailPage() {
     const { id } = useParams();
+    const navigate = useNavigate();
 
     const [project, setProject] = useState(null);
     const [languages, setLanguages] = useState([]);
@@ -25,6 +30,13 @@ function ProjectDetailPage() {
     const [members, setMembers] = useState([]);
     const [activeTab, setActiveTab] = useState("overview");
     const [loading, setLoading] = useState(true);
+
+    // Edit modal & Delete state
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editForm, setEditForm] = useState({ name: "", description: "", isActive: true });
+    const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+
     const loadData = async () => {
         setLoading(true);
         try {
@@ -50,11 +62,56 @@ function ProjectDetailPage() {
             setLoading(false);
         }
     };
+
     useEffect(() => {
-
-
         loadData();
     }, [id]);
+
+    const handleOpenEdit = () => {
+        if (project) {
+            setEditForm({
+                name: project.name || "",
+                description: project.description || "",
+                isActive: project.isActive || true
+            });
+            setShowEditModal(true);
+        }
+    };
+
+    const handleSaveEdit = async () => {
+        if (!editForm.name.trim()) return;
+        try {
+            setSaving(true);
+            await updateProject(id, {
+                name: editForm.name,
+                description: editForm.description,
+                isActive: editForm.isActive
+            });
+            toast.success("Project updated successfully");
+            setShowEditModal(false);
+            await loadData();
+        } catch (error) {
+            console.error("Failed to update project:", error);
+            toast.error(error?.response?.data?.message || "Failed to update project");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleDeleteProject = async () => {
+        if (window.confirm(`Are you sure you want to delete project "${project.name}"?`)) {
+            try {
+                setDeleting(true);
+                await deleteProject(id);
+                toast.success("Project deleted successfully");
+                navigate("/projects");
+            } catch (error) {
+                console.error("Failed to delete project:", error);
+                toast.error(error?.response?.data?.message || "Failed to delete project");
+                setDeleting(false);
+            }
+        }
+    };
 
     // Xử lý giao diện Loading với Spinner của Bootstrap 5
     if (loading) {
@@ -94,14 +151,27 @@ function ProjectDetailPage() {
                     <h2 className="fw-bold mb-2">{project.name}</h2>
                     <p className="text-muted mb-0">{project.description}</p>
                 </div>
-                <div>
-                    <span className={`badge badge-status ${project.isActive ? "bg-success" : "bg-secondary"}`}>
+                <div className="d-flex align-items-center gap-2">
+                    <span className={`badge badge-status me-2 ${project.isActive ? "bg-success" : "bg-secondary"}`}>
                         {project.isActive ? "Active" : "Inactive"}
                     </span>
+                    <button
+                        className="btn btn-outline-primary btn-sm me-2"
+                        onClick={handleOpenEdit}
+                    >
+                        Edit
+                    </button>
+                    <button
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={handleDeleteProject}
+                        disabled={deleting}
+                    >
+                        {deleting ? "Deleting..." : "Delete"}
+                    </button>
                 </div>
             </div>
 
-            {/* Stats Section (Dùng map để tránh lặp code) */}
+            {/* Stats Section */}
             <div className="row g-4 mb-5">
                 {stats.map((stat, index) => (
                     <div className="col-md-4" key={index}>
@@ -128,13 +198,11 @@ function ProjectDetailPage() {
             <div className="tab-content-wrapper">
                 {activeTab === "overview" && <OverviewTab project={project} />}
                 {activeTab === "languages" && (
-
                     <LanguagesTab
                         projectId={id}
                         languages={languages}
                         onUpdated={loadData}
                     />
-
                 )}
                 {activeTab === "namespaces" && <NamespacesTab projectId={project.id} namespaces={namespaces} onUpdate={loadData} />}
                 {activeTab === "members" && (
@@ -145,6 +213,77 @@ function ProjectDetailPage() {
                     />
                 )}
             </div>
+
+            {/* Edit Project Modal */}
+            {showEditModal && (
+                <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Edit Project</h5>
+                                <button
+                                    type="button"
+                                    className="btn-close"
+                                    onClick={() => setShowEditModal(false)}
+                                    disabled={saving}
+                                ></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="mb-3">
+                                    <label className="form-label fw-semibold">Project Name</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={editForm.name}
+                                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label fw-semibold">Description</label>
+                                    <textarea
+                                        className="form-control"
+                                        rows="3"
+                                        value={editForm.description}
+                                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                    ></textarea>
+                                </div>
+                                {/* Active Toggle */}
+                                <div className="mb-3 form-check form-switch">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        id="activeToggle"
+                                        checked={editForm.isActive}
+                                        onChange={(e) =>
+                                            setEditForm({ ...editForm, isActive: e.target.checked })}
+                                    />
+                                    <label className="form-check-label" htmlFor="activeToggle">
+                                        {editForm.isActive ? "Active" : "Inactive"}
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button
+                                    type="button"
+                                    className="btn-secondary btn"
+                                    onClick={() => setShowEditModal(false)}
+                                    disabled={saving}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    onClick={handleSaveEdit}
+                                    disabled={saving || !editForm.name.trim()}
+                                >
+                                    {saving ? "Saving..." : "Save Changes"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
     );

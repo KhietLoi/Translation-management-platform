@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { getLanguages } from "../../services/languageService";
 import { updateProjectLanguages } from "../../services/projectService";
+import { toast } from "react-toastify";
 
 import "./LanguageTab.css";
 
@@ -84,7 +85,7 @@ function LanguagesTab({
                 onUpdated();
             }
 
-            alert(
+            toast.success(
                 "Languages updated successfully"
             );
 
@@ -93,8 +94,8 @@ function LanguagesTab({
 
             console.error(error);
 
-            alert(
-                "Update failed"
+            toast.error(
+                error?.response?.data?.message || "Update failed"
             );
         }
         finally {

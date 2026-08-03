@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import {
     createProjectNamespace,
@@ -54,14 +55,15 @@ function NamespacesTab({
             ]);
 
             setNewName("");
+            toast.success("Namespace created successfully");
 
         }
         catch (error) {
 
             console.error(error);
 
-            alert(
-                "Create namespace failed"
+            toast.error(
+                error?.response?.data?.message || "Create namespace failed"
             );
 
         }
@@ -100,14 +102,15 @@ function NamespacesTab({
 
             setEditingId(null);
             setEditingName("");
+            toast.success("Namespace updated successfully");
 
         }
         catch (error) {
 
             console.error(error);
 
-            alert(
-                "Update namespace failed"
+            toast.error(
+                error?.response?.data?.message || "Update namespace failed"
             );
 
         }
@@ -139,13 +142,15 @@ function NamespacesTab({
                 prev.filter(x => x.id !== id)
             );
 
+            toast.success("Namespace deleted successfully");
+
         }
         catch (error) {
 
             console.error(error);
 
-            alert(
-                "Delete namespace failed"
+            toast.error(
+                error?.response?.data?.message || "Delete namespace failed"
             );
 
         }
