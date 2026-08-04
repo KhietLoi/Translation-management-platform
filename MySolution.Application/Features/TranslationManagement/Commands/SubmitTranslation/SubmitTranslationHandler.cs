@@ -48,9 +48,9 @@ public class SubmitTranslationHandler : IRequestHandler<SubmitTranslationCommand
                 return response;
             }
             
-            if (entity.Status != TranslationStatus.Draft)
+            if (entity.Status != TranslationStatus.Draft && entity.Status != TranslationStatus.Missing && entity.Status != TranslationStatus.Rejected)
             {
-                response.ErrorMessage = "Only Draft translation can be submitted";
+                response.ErrorMessage = "Only Draft, Missing, or Rejected translation can be submitted";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }

@@ -27,6 +27,8 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
     {
         _logger = logger;
 		_unitOfWork = unitOfWork;
+        _auditLogService = auditLogService;
+        _currentUser = currentUser;
     }
 
     #region Implementation of IRequestHandler<in RejectTranslationCommand, RejectTranslationResponse>
@@ -39,10 +41,7 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
 
         try
         {
-            var entity =
-                await _unitOfWork.TranslationValue
-                    .GetByIdTrackingAsync(request.Id);
-
+            var entity = await _unitOfWork.TranslationValue.GetByIdTrackingAsync(request.Id);
             if (entity == null)
             {
                 response.ErrorMessage = "Translation value not found";
@@ -52,16 +51,14 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
 
             if (entity.Status != TranslationStatus.Translated)
             {
-                response.ErrorMessage =
-                    "Only translated item can be rejected";
+                response.ErrorMessage = "Only translated item can be rejected";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
 
             if (string.IsNullOrWhiteSpace(request.Payload.Reason))
             {
-                response.ErrorMessage =
-                    "Reject reason is required";
+                response.ErrorMessage = "Reject reason is required";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
@@ -74,21 +71,26 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
             entity.Status = TranslationStatus.Rejected;
             entity.RejectionReason = request.Payload.Reason;
             entity.UpdatedAt = DateTime.UtcNow;
+            entity.ReviewedBy = _currentUser.UserId;
+            entity.ReviewedAt = DateTime.UtcNow;
 
             var newValue = new
             {
                 entity.Status,
-                entity.RejectionReason
+                entity.RejectionReason,
+                entity.ReviewedBy,
+                entity.ReviewedAt
             };
 
             await _auditLogService.CreateAsync(
+                
                 _currentUser.UserId,
                 AuditAction.RejectTranslation,
                 AuditConstants.TranslationValue,
                 entity.Id,
                 oldValue,
-                newValue,
-                request.Payload.Reason);
+                newValue
+            );
 
             await _unitOfWork.SaveAsync(cancellationToken);
 
@@ -97,7 +99,7 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
                 Id = entity.Id,
                 Status = entity.Status,
                 RejectionReason = entity.RejectionReason,
-                UpdatedAt = entity.UpdatedAt
+                UpdatedAt = entity.UpdatedAt ?? DateTime.MinValue
             };
             response
                 .WithSuccess(true)

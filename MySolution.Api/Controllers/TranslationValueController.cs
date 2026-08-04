@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Authorization;
 using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
+using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationValueById;
 using MySolution.Application.Features.TranslationValue.Commands.CreateTranslationValue;
 using MySolution.Application.Features.TranslationValue.Commands.DeleteTranslationValue;
 using MySolution.Application.Features.TranslationValue.Commands.UpdateTranslationValue;
@@ -62,6 +63,13 @@ public class TranslationValueController (IMediator mediator) : Controller
                 status),
             cancellationToken);
 
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetTranslationValueById(Guid id, CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new GetTranslationValueByIdQuery(id), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 }
