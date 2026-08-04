@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import { getProjects, getProjectNamespaces } from "../../services/projectService";
-import { getTranslationGrid } from "../../services/translationManagementService";
+import { getTranslationGrid, createTranslationKey, updateTranslationKey, deleteTranslationKey, getTranslationValueById } from "../../services/translationManagementService";
 
 import TranslationFilter from "../../components/translations/TranslationFilter";
 import TranslationGrid from "../../components/translations/TranslationGrid";
 import TranslationPagination from "../../components/translations/TranslationPagination";
+import CreateTranslationKeyModal from "../../components/translations/CreateTranslationKeyModal";
+import UpdateTranslationKeyModal from "../../components/translations/UpdateTranslationKeyModal";
+import DeleteTranslationKeyModal from "../../components/translations/DeleteTranslationKeyModal";
+import TranslationDetailDrawer from "../../components/translations/TranslationDetailDrawer";
+import { toast } from "react-toastify";
 
 function TranslationManagementPage() {
     const [loading, setLoading] = useState(false);
     const [projects, setProjects] = useState([]);
     const [namespaces, setNamespaces] = useState([]);
-
     const [selectedProjectId, setSelectedProjectId] = useState("");
     const [selectedNamespaceId, setSelectedNamespaceId] = useState("");
     const [keyword, setKeyword] = useState("");
@@ -19,6 +23,16 @@ function TranslationManagementPage() {
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize] = useState(20);
     const [gridData, setGridData] = useState(null);
+
+    const [showCreateKeyModal, setShowCreateKeyModal] = useState(false);
+    const [selectedTranslationKey, setSelectedTranslationKey] = useState(null);
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+    //Detail drawer.
+    const [showDrawer, setShowDrawer] = useState(false);
+    const [selectedTranslationValue, setSelectedTranslationValue] =
+        useState(null);
 
     // ==========================
     // LOAD PROJECTS
@@ -78,6 +92,76 @@ function TranslationManagementPage() {
         }
     };
 
+    const handleCreateTranslationKey = async (payload) => {
+        try {
+
+            await createTranslationKey(payload);
+            toast.success("Translation key created successfully");
+            setShowCreateKeyModal(false);
+            await loadGrid();
+
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to create translation key");
+        }
+    };
+
+    const handleUpdateTranslationKey = async (
+        payload
+    ) => {
+        try {
+
+            await updateTranslationKey(
+                selectedTranslationKey.translationKeyId,
+                payload
+            );
+            toast.success("Translation key updated successfully");
+
+            setShowUpdateModal(false);
+            setSelectedTranslationKey(null);
+
+            await loadGrid();
+
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to update translation key");
+        }
+    };
+
+    const handleDeleteTranslationKey = async (
+        id
+    ) => {
+        try {
+
+            await deleteTranslationKey(id);
+
+            toast.success(
+                "Translation key deleted successfully."
+            );
+
+            setShowDeleteModal(false);
+            setSelectedTranslationKey(null);
+
+            await loadGrid();
+
+        } catch (error) {
+
+            toast.error(
+                error?.response?.data?.errorMessage ||
+                "Failed to delete translation key."
+            );
+
+            console.error(error);
+        }
+    };
+
+    //Clilk cell:
+    const handleCellClick = (data) => {
+
+        setSelectedTranslationValue(data);
+
+        setShowDrawer(true);
+    };
     // ==========================
     // EFFECTS
     // ==========================
@@ -126,8 +210,11 @@ function TranslationManagementPage() {
                         Namespace: {currentNamespaceName} · {totalCount} keys
                     </p>
                 </div>
-                <button className="btn btn-dark fw-medium px-4 py-2 rounded-3">
-                    + Thêm key
+                <button
+                    className="btn btn-dark fw-medium px-4 py-2 rounded-3"
+                    onClick={() => setShowCreateKeyModal(true)}
+                >
+                    + Create Key
                 </button>
             </div>
 
@@ -162,6 +249,15 @@ function TranslationManagementPage() {
                 loading={loading}
                 gridData={gridData}
                 languages={languages}
+                onEdit={item => {
+                    setSelectedTranslationKey(item);
+                    setShowUpdateModal(true);
+                }}
+                onDelete={item => {
+                    setSelectedTranslationKey(item);
+                    setShowDeleteModal(true);
+                }}
+                onCellClick={handleCellClick}
             />
 
             {/* PAGINATION COMPONENT */}
@@ -172,6 +268,40 @@ function TranslationManagementPage() {
                 onNext={() => setPageNumber(prev => prev + 1)}
             />
 
+            <CreateTranslationKeyModal
+                show={showCreateKeyModal}
+                projectId={selectedProjectId}
+                namespaces={namespaces}
+                onClose={() => setShowCreateKeyModal(false)}
+                onSubmit={handleCreateTranslationKey}
+            />
+            <UpdateTranslationKeyModal
+                show={showUpdateModal}
+                translationKey={selectedTranslationKey}
+                onClose={() => {
+                    setShowUpdateModal(false);
+                    setSelectedTranslationKey(null);
+                }}
+                onSubmit={handleUpdateTranslationKey}
+            />
+            <DeleteTranslationKeyModal
+                show={showDeleteModal}
+                translationKey={selectedTranslationKey}
+                onClose={() => {
+                    setShowDeleteModal(false);
+                    setSelectedTranslationKey(null);
+                }}
+                onDelete={handleDeleteTranslationKey}
+            />
+
+            <TranslationDetailDrawer
+                show={showDrawer}
+                translationValue={selectedTranslationValue}
+                onClose={() => {
+                    setShowDrawer(false);
+                    setSelectedTranslationValue(null);
+                }}
+            />
         </div>
     );
 }

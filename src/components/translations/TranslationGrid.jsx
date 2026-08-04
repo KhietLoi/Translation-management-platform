@@ -1,6 +1,6 @@
 import TranslationGridRow from "./TranslationGridRow";
 
-function TranslationGrid({ loading, gridData, languages }) {
+function TranslationGrid({ loading, gridData, languages, onEdit, onDelete, onCellClick }) {
     return (
         <div className="card border-0 shadow-sm mb-3">
             <div className="card-body p-0">
@@ -17,6 +17,9 @@ function TranslationGrid({ loading, gridData, languages }) {
                                 ))}
                                 <th className="py-3 text-center px-3" style={{ width: '120px' }}>
                                     Status
+                                </th>
+                                <th className="py-3 text-center px-3" style={{ width: '120px' }}>
+                                    Actions
                                 </th>
                             </tr>
                         </thead>
@@ -46,6 +49,9 @@ function TranslationGrid({ loading, gridData, languages }) {
                                         key={item.translationKeyId}
                                         item={item}
                                         languages={languages}
+                                        onEdit={onEdit}
+                                        onDelete={onDelete}
+                                        onCellClick={onCellClick}
                                     />
                                 ))
                             )}
