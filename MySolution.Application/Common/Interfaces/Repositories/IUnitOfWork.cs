@@ -22,6 +22,11 @@ public interface IUnitOfWork
     ITranslationValueRepository TranslationValue { get; }
     ITranslationKeyRepository TranslationKey { get; }
     IAuditLogRepository  AuditLog { get; }
+    
+    IApiKeyPermissionRepository ApiKeyPermission { get; }
+    IApiKeyRepository ApiKey { get; }
+    IApplicationRepository Application { get; }
+    IApiKeyUsageLogRepository ApiKeyUsageLog { get; }
 
     Task SaveAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> OpenTransactionAsync(CancellationToken cancellationToken = default);

@@ -30,6 +30,10 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
         TranslationKey = new TranslationKeyRepository(context, logger);
         TranslationValue = new TranslationValueRepository(context, logger);
         AuditLog = new AuditLogRepository(context, logger);
+        ApiKeyPermission = new ApiKeyPermissionRepository(_context, logger);
+        ApiKey = new ApiKeyRepository(_context, logger);
+        Application = new ApplicationRepository(_context, logger);
+        ApiKeyUsageLog = new ApiKeyUsageLogRepository(_context, logger);
     }
 
     /*public async ValueTask DisposeAsync()
@@ -69,6 +73,10 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
     public ITranslationValueRepository TranslationValue { get; }
     public ITranslationKeyRepository TranslationKey { get; }
     public IAuditLogRepository AuditLog { get; }
+    public IApiKeyPermissionRepository ApiKeyPermission { get; }
+    public IApiKeyRepository ApiKey { get; }
+    public IApplicationRepository Application { get; }
+    public IApiKeyUsageLogRepository ApiKeyUsageLog { get; }
 
 
     public async Task SaveAsync(CancellationToken cancellationToken)

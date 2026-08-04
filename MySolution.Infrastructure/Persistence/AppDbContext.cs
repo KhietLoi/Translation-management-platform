@@ -25,7 +25,10 @@ public class AppDbContext : DbContext
     public DbSet<TranslationKey> TranslationKeys => Set<TranslationKey>();
     public DbSet<TranslationValue> TranslationValues => Set<TranslationValue>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
-    
+    public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
+    public DbSet<ApiKeyPermission> ApiKeyPermissions => Set<ApiKeyPermission>();
+    public DbSet<ApiKeyUsageLog> ApiKeyUsageLogs => Set<ApiKeyUsageLog>();
+    public DbSet<Domain.Entities.Application> Applications => Set<Domain.Entities.Application>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
