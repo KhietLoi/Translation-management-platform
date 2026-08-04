@@ -19,6 +19,7 @@ public class TranslationValue
     public DateTime? UpdatedAt { get; set; }
     public TranslationKey TranslationKey { get; set; } = null!;
     public Language Language { get; set; } = null!;
+    public string? RejectionReason { get; set; }
     public User? Translator { get; set; }
     public User? Reviewer { get; set; }
     public User? Publisher { get; set; }

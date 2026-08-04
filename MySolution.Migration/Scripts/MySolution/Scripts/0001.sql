@@ -309,6 +309,8 @@ CREATE TABLE IF NOT EXISTS mysolution."TranslationValues"
     "Status" INT NOT NULL DEFAULT 0,
 
     "TranslatedBy" UUID NULL,
+    
+    "RejectionReason" VARCHAR(1000) NULL,
 
     "ReviewedBy" UUID NULL,
 

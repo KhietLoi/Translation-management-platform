@@ -49,6 +49,32 @@ public class UpdateTranslationValueHandler : IRequestHandler<UpdateTranslationVa
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
+            
+            // Check if the translation value is already translated
+            if (entity.Status is TranslationStatus.Translated)
+            {
+                response.ErrorMessage = "Cannot update a translation value that is already translated.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
+            
+            // Check if the translation value is under review
+            if (entity.Status is TranslationStatus.Reviewed)
+            {
+                response.ErrorMessage = "Cannot update a translation value that is under review.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
+            
+            // Check if the translation value is already published
+            if (entity.Status is TranslationStatus.Published)
+            {
+                response.ErrorMessage = "Cannot update a translation value that is already published.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
+            
+            
             // Save old value for audit logging
             var oldValue = new
             {
@@ -58,7 +84,9 @@ public class UpdateTranslationValueHandler : IRequestHandler<UpdateTranslationVa
             var now = DateTime.UtcNow;
             entity.Value = payload.Value;
             entity.UpdatedAt = now;
-            
+            entity.Status  = TranslationStatus.Draft;
+            entity.TranslatedBy = _currentUserService.UserId;
+            entity.TranslatedAt = DateTime.UtcNow;
             
             var newValue = new
             {

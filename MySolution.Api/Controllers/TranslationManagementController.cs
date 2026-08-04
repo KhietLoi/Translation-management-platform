@@ -1,6 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Helpers;
+using MySolution.Application.Features.TranslationManagement.Commands.RejectTranslation;
+using MySolution.Application.Features.TranslationManagement.Commands.ReviewTranslation;
+using MySolution.Application.Features.TranslationManagement.Commands.SubmitTranslation;
 using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationGrid;
 using MySolution.Domain.Enums;
 
@@ -34,5 +37,25 @@ public class TranslationManagementController (IMediator mediator) : Controller
 
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
+    
+    [HttpPost("{id:guid}/reject")]
+    public async Task<IActionResult> RejectTranslation(Guid id,[FromBody] RejectTranslationRequest request, CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new RejectTranslationCommand(request, id), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
 
+    [HttpPost("{id:guid}/review")]
+    public async Task<IActionResult> ReviewTranslation(Guid id, CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new ReviewTranslationCommand(id), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+
+    [HttpPost("{id:guid}/submit")]
+    public async Task<IActionResult> SubmitTranslation(Guid id, CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new SubmitTranslationCommand(id), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
 }
