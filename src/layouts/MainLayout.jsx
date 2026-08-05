@@ -48,7 +48,7 @@ export default function MainLayout() {
       items: [
         canViewUsers && { label: "Users", path: "/users", icon: UserGroupIcon },
         canViewRoles && { label: "Roles", path: "/roles", icon: ShieldCheckIcon },
-        canViewPermissions && { label: "Permissions", path: "/permissions", icon: KeyIcon },
+        //   canViewPermissions && { label: "Permissions", path: "/permissions", icon: KeyIcon },
       ].filter(Boolean),
     },
     {
