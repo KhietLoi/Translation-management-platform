@@ -431,3 +431,375 @@ VALUES
         NOW()
     )
     ON CONFLICT DO NOTHING;
+
+-- ==========================================
+-- TRANSLATION KEYS
+-- ==========================================
+
+INSERT INTO mysolution."TranslationKeys"
+(
+    "Id",
+    "ProjectId",
+    "NamespaceId",
+    "Key",
+    "Description",
+    "CreatedAt"
+)
+SELECT
+    gen_random_uuid(),
+    p."Id",
+    n."Id",
+    t."Key",
+    t."Description",
+    NOW()
+FROM mysolution."Projects" p
+         JOIN mysolution."ProjectNamespaces" n
+              ON n."ProjectId" = p."Id"
+         JOIN
+     (
+         VALUES
+             ('Common','button.save','Save button'),
+             ('Common','button.cancel','Cancel button'),
+             ('Common','button.search','Search button'),
+             ('Common','button.delete','Delete button'),
+             ('Common','message.success','Success message'),
+             ('Common','message.error','Error message'),
+
+             ('Auth','login.title','Login title'),
+             ('Auth','login.username','Username'),
+             ('Auth','login.password','Password'),
+             ('Auth','login.remember','Remember me'),
+
+             ('Product','product.name','Product Name'),
+             ('Product','product.price','Product Price'),
+             ('Product','product.description','Product Description'),
+
+             ('Transaction','transaction.title','Transaction title'),
+             ('Transaction','transaction.amount','Transaction amount'),
+             ('Transaction','transaction.history','Transaction history')
+     ) t
+         (
+          "Namespace",
+          "Key",
+          "Description"
+             )
+     ON n."Name" = t."Namespace"
+    ON CONFLICT DO NOTHING;
+-- ==========================================
+-- TRANSLATION VALUES
+-- ==========================================
+
+INSERT INTO mysolution."TranslationValues"
+(
+    "Id",
+    "TranslationKeyId",
+    "LanguageId",
+    "Value",
+    "Status",
+    "TranslatedBy",
+    "ReviewedBy",
+    "CreatedAt",
+    "TranslatedAt",
+    "ReviewedAt"
+)
+SELECT
+    gen_random_uuid(),
+
+    tk."Id",
+
+    l."Id",
+
+    CASE
+
+        WHEN tk."Key"='button.save'
+            AND l."Code"='en-US'
+            THEN 'Save'
+
+        WHEN tk."Key"='button.save'
+            AND l."Code"='vi-VN'
+            THEN 'Lưu'
+
+        WHEN tk."Key"='button.save'
+            AND l."Code"='ko-KR'
+            THEN '저장'
+
+
+        WHEN tk."Key"='button.cancel'
+            AND l."Code"='en-US'
+            THEN 'Cancel'
+
+        WHEN tk."Key"='button.cancel'
+            AND l."Code"='vi-VN'
+            THEN 'Hủy'
+
+        WHEN tk."Key"='button.cancel'
+            AND l."Code"='ko-KR'
+            THEN '취소'
+
+
+        WHEN tk."Key"='button.search'
+            AND l."Code"='en-US'
+            THEN 'Search'
+
+        WHEN tk."Key"='button.search'
+            AND l."Code"='vi-VN'
+            THEN 'Tìm kiếm'
+
+        WHEN tk."Key"='button.search'
+            AND l."Code"='ko-KR'
+            THEN '검색'
+
+
+        WHEN tk."Key"='button.delete'
+            AND l."Code"='en-US'
+            THEN 'Delete'
+
+        WHEN tk."Key"='button.delete'
+            AND l."Code"='vi-VN'
+            THEN 'Xóa'
+
+
+        WHEN tk."Key"='login.title'
+            AND l."Code"='en-US'
+            THEN 'Login'
+
+        WHEN tk."Key"='login.title'
+            AND l."Code"='vi-VN'
+            THEN 'Đăng nhập'
+
+
+        WHEN tk."Key"='login.username'
+            AND l."Code"='en-US'
+            THEN 'Username'
+
+        WHEN tk."Key"='login.username'
+            AND l."Code"='vi-VN'
+            THEN 'Tên đăng nhập'
+
+
+        WHEN tk."Key"='login.password'
+            AND l."Code"='en-US'
+            THEN 'Password'
+
+        WHEN tk."Key"='login.password'
+            AND l."Code"='vi-VN'
+            THEN 'Mật khẩu'
+
+
+        WHEN tk."Key"='product.name'
+            AND l."Code"='en-US'
+            THEN 'Product Name'
+
+        WHEN tk."Key"='product.name'
+            AND l."Code"='vi-VN'
+            THEN 'Tên sản phẩm'
+
+
+        WHEN tk."Key"='product.price'
+            AND l."Code"='en-US'
+            THEN 'Price'
+
+        WHEN tk."Key"='product.price'
+            AND l."Code"='vi-VN'
+            THEN 'Giá'
+
+
+        WHEN tk."Key"='product.description'
+            AND l."Code"='en-US'
+            THEN 'Description'
+
+        WHEN tk."Key"='product.description'
+            AND l."Code"='vi-VN'
+            THEN 'Mô tả'
+
+
+        WHEN tk."Key"='transaction.title'
+            AND l."Code"='en-US'
+            THEN 'Transaction'
+
+        WHEN tk."Key"='transaction.title'
+            AND l."Code"='vi-VN'
+            THEN 'Giao dịch'
+
+
+        WHEN tk."Key"='transaction.amount'
+            AND l."Code"='en-US'
+            THEN 'Amount'
+
+        WHEN tk."Key"='transaction.amount'
+            AND l."Code"='vi-VN'
+            THEN 'Số tiền'
+
+
+        WHEN tk."Key"='transaction.history'
+            AND l."Code"='en-US'
+            THEN 'History'
+
+        WHEN tk."Key"='transaction.history'
+            AND l."Code"='vi-VN'
+            THEN 'Lịch sử'
+
+
+        ELSE NULL
+
+        END,
+
+
+    CASE
+
+        -- Reviewed
+        WHEN tk."Key" IN
+             (
+              'button.save',
+              'button.cancel',
+              'button.search',
+              'button.delete',
+              'login.title'
+                 )
+            THEN 3
+
+
+        -- Translated
+        WHEN l."Code"='ko-KR'
+            THEN 2
+
+
+        -- Draft
+        ELSE 1
+
+        END,
+
+
+    -- TranslatedBy
+    CASE
+        WHEN l."Code"='ko-KR'
+            THEN NULL::uuid
+
+        ELSE
+            'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'::uuid
+
+        END,
+
+
+    -- ReviewedBy
+    CASE
+
+        WHEN
+            (
+                tk."Key" IN
+                (
+                 'button.save',
+                 'button.cancel',
+                 'button.search',
+                 'button.delete',
+                 'login.title'
+                    )
+                )
+            THEN
+            'cccccccc-cccc-cccc-cccc-cccccccccccc'::uuid
+
+
+        ELSE NULL::uuid
+
+        END,
+
+
+    NOW(),
+
+
+    CASE
+        WHEN l."Code"='ko-KR'
+            THEN NULL
+
+        ELSE NOW()
+
+        END,
+
+
+    CASE
+
+        WHEN tk."Key" IN
+             (
+              'button.save',
+              'button.cancel',
+              'button.search',
+              'button.delete',
+              'login.title'
+                 )
+
+            THEN NOW()
+
+        ELSE NULL
+
+        END
+
+
+FROM mysolution."TranslationKeys" tk
+
+         JOIN mysolution."ProjectLanguages" pl
+              ON pl."ProjectId" = tk."ProjectId"
+
+         JOIN mysolution."Languages" l
+              ON l."Id" = pl."LanguageId"
+
+
+    ON CONFLICT DO NOTHING;
+
+-- ==========================================
+-- AUDIT LOGS
+-- ==========================================
+
+INSERT INTO mysolution."AuditLogs"
+(
+    "Id",
+    "UserId",
+    "Action",
+    "EntityName",
+    "EntityId",
+    "OldValue",
+    "NewValue",
+    "CreatedAt"
+)
+SELECT
+    gen_random_uuid(),
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    1,
+    'Project',
+    p."Id",
+    NULL,
+    p."Name",
+    NOW()
+FROM mysolution."Projects" p
+    ON CONFLICT DO NOTHING;
+
+-- ==========================================
+-- APPLICATIONS
+-- ==========================================
+
+INSERT INTO mysolution."Applications"
+(
+    "Id",
+    "ProjectId",
+    "Name",
+    "Description",
+    "CreatedAt",
+    "CreatedBy"
+)
+VALUES
+    (
+        gen_random_uuid(),
+        '66666666-6666-6666-6666-666666666666',
+        'Ecommerce Web',
+        'Frontend application',
+        NOW(),
+        'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+    ),
+    (
+        gen_random_uuid(),
+        '77777777-7777-7777-7777-777777777777',
+        'Mobile Banking API',
+        'Public API',
+        NOW(),
+        'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+    )
+    ON CONFLICT DO NOTHING;
