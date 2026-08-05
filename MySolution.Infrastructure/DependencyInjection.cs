@@ -101,6 +101,7 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUser, CurrentUserService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IAuthCookieService,  AuthCookieService>();
+        services.AddScoped<IApiKeyGenerator, ApiKeyGenerator>();
 
         return services;
     }
