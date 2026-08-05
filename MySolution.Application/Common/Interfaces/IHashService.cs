@@ -2,5 +2,7 @@
 
 public interface IHashService
 {
-    string ComputeSha256(string value);
+    string ComputeHash(string value);
+    bool Verify(string value, string hash);
+    
 }

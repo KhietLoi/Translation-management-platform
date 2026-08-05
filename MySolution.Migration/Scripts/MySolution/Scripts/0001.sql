@@ -385,6 +385,156 @@ CREATE TABLE IF NOT EXISTS mysolution."AuditLogs"
     ON DELETE RESTRICT
     );
 
+-- SPRINT 4:
+-- Application
+CREATE TABLE IF NOT EXISTS mysolution."Applications"
+(
+    "Id" UUID NOT NULL,
+
+    "ProjectId" UUID NOT NULL,
+
+    "Name" VARCHAR(100) NOT NULL,
+
+    "Description" VARCHAR(1000) NULL,
+
+    "IsActive" BOOLEAN NOT NULL DEFAULT TRUE,
+
+    "CreatedAt" TIMESTAMPTZ NOT NULL,
+    
+    "CreatedBy" UUID NOT NULL,
+    
+    "UpdatedAt" TIMESTAMPTZ NULL,
+    
+    "UpdatedBy" UUID NULL,
+
+    CONSTRAINT "PK_Applications"
+    PRIMARY KEY ("Id"),
+    
+    CONSTRAINT "FK_Applications_Projects_ProjectId"
+    FOREIGN KEY ("ProjectId")
+    REFERENCES mysolution."Projects" ("Id")
+    ON DELETE CASCADE
+);
+
+
+
+CREATE UNIQUE INDEX IF NOT EXISTS "UX_Applications_Name"
+    ON mysolution."Applications"
+    (
+        "Name"
+    );
+
+CREATE INDEX IF NOT EXISTS "IX_Applications_Id"
+    ON mysolution."Applications" ("Id");
+
+-- API Keys
+CREATE TABLE IF NOT EXISTS mysolution."ApiKeys"
+(
+    "Id" UUID NOT NULL,
+
+    "ApplicationId" UUID NOT NULL,
+
+    "Name" VARCHAR(100) NOT NULL,
+
+    "KeyHash" VARCHAR(500) NOT NULL,
+
+    "KeyPrefix" VARCHAR(50) NOT NULL,
+
+    "ExpiresAt" TIMESTAMPTZ NULL,
+    
+    "RevokedAt" TIMESTAMPTZ NULL,
+
+    "RevokedBy" UUID NULL,
+
+    "CreatedAt" TIMESTAMPTZ NOT NULL,
+
+    "CreatedBy" UUID NOT NULL,
+
+    CONSTRAINT "PK_ApiKeys"
+    PRIMARY KEY ("Id"),
+
+    CONSTRAINT "FK_ApiKeys_Applications_ApplicationId"
+    FOREIGN KEY ("ApplicationId")
+    REFERENCES mysolution."Applications" ("Id")
+    ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS "IX_ApiKeys_ApplicationId"
+    ON mysolution."ApiKeys" ("ApplicationId");
+
+CREATE INDEX IF NOT EXISTS "IX_ApiKeys_KeyPrefix"
+    ON mysolution."ApiKeys" ("KeyPrefix");
+
+CREATE INDEX IF NOT EXISTS "IX_ApiKeys_KeyHash"
+    ON mysolution."ApiKeys" ("KeyHash");
+
+-- API Key Permissions
+CREATE TABLE IF NOT EXISTS mysolution."ApiKeyPermissions"
+(
+    "Id" UUID NOT NULL,
+
+    "ApiKeyId" UUID NOT NULL,
+
+    "Permission" INT NOT NULL,
+
+    CONSTRAINT "PK_ApiKeyPermissions"
+    PRIMARY KEY ("Id"),
+
+    CONSTRAINT "FK_ApiKeyPermissions_ApiKeys_ApiKeyId"
+    FOREIGN KEY ("ApiKeyId")
+    REFERENCES mysolution."ApiKeys" ("Id")
+    ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS "IX_ApiKeyPermissions_ApiKeyId"
+    ON mysolution."ApiKeyPermissions" ("ApiKeyId");
+
+-- Duplicate permission
+CREATE UNIQUE INDEX IF NOT EXISTS "UX_ApiKeyPermissions_ApiKeyId_Permission"
+    ON mysolution."ApiKeyPermissions"
+(
+    "ApiKeyId",
+    "Permission"
+);
+-- API Key Usage Logs
+CREATE TABLE IF NOT EXISTS mysolution."ApiKeyUsageLogs"
+(
+    "Id" UUID NOT NULL,
+
+    "ApiKeyId" UUID NOT NULL,
+
+    "Endpoint" VARCHAR(500) NOT NULL,
+
+    "Method" VARCHAR(20) NOT NULL,
+
+    "StatusCode" INT NOT NULL,
+
+    "IpAddress" VARCHAR(100) NULL,
+
+    "CreatedAt" TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT "PK_ApiKeyUsageLogs"
+    PRIMARY KEY ("Id"),
+
+    CONSTRAINT "FK_ApiKeyUsageLogs_ApiKeys_ApiKeyId"
+    FOREIGN KEY ("ApiKeyId")
+    REFERENCES mysolution."ApiKeys" ("Id")
+    ON DELETE CASCADE
+    );
+
+CREATE INDEX IF NOT EXISTS "IX_ApiKeyUsageLogs_ApiKeyId"
+    ON mysolution."ApiKeyUsageLogs" ("ApiKeyId");
+
+CREATE INDEX IF NOT EXISTS "IX_ApiKeyUsageLogs_CreatedAt"
+    ON mysolution."ApiKeyUsageLogs" ("CreatedAt");
+
+CREATE INDEX IF NOT EXISTS "IX_ApiKeyUsageLogs_ApiKeyId_CreatedAt"
+    ON mysolution."ApiKeyUsageLogs"
+    (
+    "ApiKeyId",
+    "CreatedAt" DESC
+    );
+
 -- TranslationKeys Indexes
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_TranslationKeys_ProjectId_NamespaceId_Key"
     ON mysolution."TranslationKeys"

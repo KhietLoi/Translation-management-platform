@@ -37,7 +37,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
 
         try
         {
-            var hash = _hashService.ComputeSha256(payload.RefreshToken);
+            var hash = _hashService.ComputeHash(payload.RefreshToken);
             var refreshToken = await _unitOfWork.RefreshToken.GetByHashAsync(hash);
             if (refreshToken is null)
             {
@@ -68,7 +68,7 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
             var accessToken = _jwtService.GenerateJwtToken(user, jti);
             // Generate a new refresh token
             var newRefreshToken = _jwtService.GenerateRefreshToken();
-            var newHash = _hashService.ComputeSha256(newRefreshToken);
+            var newHash = _hashService.ComputeHash(newRefreshToken);
             // Revoke the current refresh token
             refreshToken.RevokedAt = DateTime.UtcNow;
 

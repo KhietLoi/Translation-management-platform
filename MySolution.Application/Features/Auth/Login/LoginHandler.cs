@@ -72,6 +72,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
 
             // Check Invalid
             var verify = _passwordHasher.VerifyPassword(payload.Password, user.PasswordHash);
+           
             if (!verify)
             {
                 _logger.LogWarning("{FunctionName} Invalid password: {Username}", functionName, payload.Username);
@@ -102,7 +103,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
             var accessToken = _jwtService.GenerateJwtToken(user, jti);
             // Generate RefreshToken
             var refreshToken = _jwtService.GenerateRefreshToken();
-            var tokenHash = _hashService.ComputeSha256(refreshToken);
+            var tokenHash = _hashService.ComputeHash(refreshToken);
             // Save RefreshToken to database
             await _unitOfWork.RefreshToken.Add(
                 new Domain.Entities.RefreshToken
