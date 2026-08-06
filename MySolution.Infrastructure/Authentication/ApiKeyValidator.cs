@@ -20,11 +20,7 @@ public class ApiKeyValidator : IApiKeyValidator
         _hashService = hashService;
     }
 
-    public async Task<ApiKeyContext?> ValidateAsync
-    (
-        string rawApiKey,
-        CancellationToken cancellationToken
-    )
+    public async Task<ApiKeyContext?> ValidateAsync(string rawApiKey, CancellationToken cancellationToken)
     {
         var hash = _hashService.ComputeHash(rawApiKey);
         var apiKey = await _unitOfWork.ApiKey.GetByHashAsync(hash, cancellationToken);
@@ -32,6 +28,7 @@ public class ApiKeyValidator : IApiKeyValidator
         {
             return null;
         }
+        
         if (apiKey.RevokedAt.HasValue)
         {
             return null;

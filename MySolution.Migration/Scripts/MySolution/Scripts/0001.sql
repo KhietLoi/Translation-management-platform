@@ -502,14 +502,20 @@ CREATE TABLE IF NOT EXISTS mysolution."ApiKeyUsageLogs"
     "Id" UUID NOT NULL,
 
     "ApiKeyId" UUID NOT NULL,
+    
+    "ApplicationId" UUID NOT NULL,
 
     "Endpoint" VARCHAR(500) NOT NULL,
 
     "Method" VARCHAR(20) NOT NULL,
 
     "StatusCode" INT NOT NULL,
+    
+    "DurationMs" INT NOT NULL,
 
     "IpAddress" VARCHAR(100) NULL,
+    
+    "UserAgent" TEXT NULL,
 
     "CreatedAt" TIMESTAMPTZ NOT NULL,
 
@@ -519,8 +525,14 @@ CREATE TABLE IF NOT EXISTS mysolution."ApiKeyUsageLogs"
     CONSTRAINT "FK_ApiKeyUsageLogs_ApiKeys_ApiKeyId"
     FOREIGN KEY ("ApiKeyId")
     REFERENCES mysolution."ApiKeys" ("Id")
+    ON DELETE CASCADE,
+    
+    CONSTRAINT "FK_ApiKeyUsageLogs_Applications_ApplicationId"
+    FOREIGN KEY ("ApplicationId")
+    REFERENCES mysolution."Applications" ("Id")
     ON DELETE CASCADE
-    );
+);
+
 
 CREATE INDEX IF NOT EXISTS "IX_ApiKeyUsageLogs_ApiKeyId"
     ON mysolution."ApiKeyUsageLogs" ("ApiKeyId");
@@ -534,6 +546,8 @@ CREATE INDEX IF NOT EXISTS "IX_ApiKeyUsageLogs_ApiKeyId_CreatedAt"
     "ApiKeyId",
     "CreatedAt" DESC
     );
+CREATE INDEX IF NOT EXISTS "IX_ApiKeyUsageLogs_ApplicationId"
+    ON mysolution."ApiKeyUsageLogs" ("ApplicationId");
 
 -- TranslationKeys Indexes
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_TranslationKeys_ProjectId_NamespaceId_Key"

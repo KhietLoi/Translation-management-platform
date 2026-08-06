@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using MySolution.Application.Common.Interfaces.Authentication;
+using MySolution.Application.Common.Models;
 
 namespace MySolution.Api.Authorization.Application;
 
@@ -11,7 +12,6 @@ public class ApiKeyAuthorizeFilter : IAsyncAuthorizationFilter
     {
         _apiKeyValidator = apiKeyValidator;
     }
-
 
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
@@ -29,6 +29,11 @@ public class ApiKeyAuthorizeFilter : IAsyncAuthorizationFilter
             return;
         }
         
-        context.HttpContext.Items["ApiKey"] = apiKeyContext;
+        context.HttpContext.Items["ApiKey"] = new ApiKeyContext
+        {
+            ApiKeyId = apiKeyContext.ApiKeyId,
+            ApplicationId = apiKeyContext.ApplicationId,
+            Permissions = apiKeyContext.Permissions
+        };
     }
 }

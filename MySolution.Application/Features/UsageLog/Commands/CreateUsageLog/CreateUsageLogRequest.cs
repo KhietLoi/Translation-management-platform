@@ -1,8 +1,7 @@
-﻿namespace MySolution.Domain.Entities;
+namespace MySolution.Application.Features.UsageLog.Commands.CreateUsageLog;
 
-public class ApiKeyUsageLog
+public class CreateUsageLogRequest
 {
-    public Guid Id { get; set; }
     public Guid ApiKeyId { get; set; }
     public Guid ApplicationId { get; set; }
     public string Endpoint { get; set; } = string.Empty;
@@ -11,7 +10,4 @@ public class ApiKeyUsageLog
     public int DurationMs { get; set; }
     public string? IpAddress { get; set; }
     public string? UserAgent { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public ApiKey ApiKey { get; set; } = null!;
-    public ApiKey Application { get; set; } = null!;
 }

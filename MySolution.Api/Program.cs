@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.DataProtection;
+using MySolution.Api.Middlewares;
 using MySolution.Api.StartupRegistrations;
 using MySolution.Api.StartupRegistrations.Swagger;
 using MySolution.Application.ServiceRegistration;
@@ -39,6 +40,9 @@ app.InitLocalization();
 app.UseAuthentication();
 app.UseRateLimiter();
 app.UseAuthorization();
+// ApiKey Usage
+app.UseMiddleware<UsageLoggingMiddleware>();
+
 app.MapControllers();
 app.MapGet("/", () => { return Results.Redirect("/swagger"); });
 app.Run();

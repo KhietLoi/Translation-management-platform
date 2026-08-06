@@ -22,10 +22,20 @@ public class ApiKeyUsageLogConfiguration : IEntityTypeConfiguration<ApiKeyUsageL
             .HasMaxLength(20);
         builder.Property(x => x.IpAddress)
             .HasMaxLength(100);
-      
+        builder.Property(x => x.DurationMs)
+            .IsRequired();
+        builder.Property(x => x.UserAgent)
+            .HasMaxLength(500);
+        builder.Property(x => x.ApplicationId)
+            .IsRequired();
+        
         builder.HasOne(x => x.ApiKey)
             .WithMany()
             .HasForeignKey(x => x.ApiKeyId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.Application)
+            .WithMany()
+            .HasForeignKey(x => x.ApplicationId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
