@@ -23,7 +23,7 @@ public class EmailVerificationTokenService : IEmailVerificationTokenService
         {
             UserId = userid,
             Email = email,
-            ExpiredAt = DateTime.UtcNow.AddMinutes(_tokenSetting.EmailVerificationExpiryMinutes)
+            ExpiredAt= DateTime.UtcNow.AddMinutes(_tokenSetting.EmailVerificationExpiryMinutes)
         };
         var json = JsonConvert.SerializeObject(payload);
         //Decrypt:

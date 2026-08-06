@@ -1,9 +1,8 @@
 ﻿using MediatR;
-using MySolution.Application.Common.Interfaces.RateLimit;
 
 namespace MySolution.Application.Features.Auth.ForgotPassword;
 
-public class ForgotPasswordCommand : IRequest<ForgotPasswordResponse>, IRateLimitedRequest
+public class ForgotPasswordCommand : IRequest<ForgotPasswordResponse>
 {
     public ForgotPasswordCommand(ForgotPasswordRequest payload)
     {
@@ -11,6 +10,4 @@ public class ForgotPasswordCommand : IRequest<ForgotPasswordResponse>, IRateLimi
     }
 
     public ForgotPasswordRequest Payload { get; set; }
-    public string PolicyName  => "ForgotPassword";
-    public string RateLimitKey => $"forgot-password:{Payload.Email}";
 }

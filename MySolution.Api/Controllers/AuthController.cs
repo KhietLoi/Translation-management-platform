@@ -127,6 +127,7 @@ public class AuthController(IMediator mediator,  IAuthCookieService cookieServic
     }
 
     [HttpPost("resend-verify-email")]
+    [EnableRateLimiting("auth-resend-verification-email")]
     public async Task<IActionResult> ResendVerifyEmail([FromBody] ResendVerificationEmailRequest request,
         CancellationToken cancellationToken)
     {

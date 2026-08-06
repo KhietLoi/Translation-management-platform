@@ -43,6 +43,7 @@ public static class HttpRateLimitRegistration
             RegisterPolicy(options, "auth-register", settings.Register);
             RegisterPolicy(options, "auth-forgot-password", settings.ForgotPassword);
             RegisterPolicy(options, "auth-refresh-token", settings.RefreshToken);
+            RegisterPolicy(options, "auth-resend-verification-email", settings.ResendVerificationEmail);
         });
 
         return services;

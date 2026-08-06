@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MySolution.Email.Application.Common.Factories;
 using MySolution.Email.Application.Common.Interfaces;
 using MySolution.Email.Infrastructure.MassTransit.Registration;
 using MySolution.Email.Infrastructure.Options;
@@ -33,6 +34,9 @@ public static class DependencyInjection
         services.AddScoped<ITemplateRenderer, ScribanTemplateRenderer>();
         //MassTransit:
         services.AddMassTransitServices(configuration);
+        //Email common:
+        services.AddScoped<IEmailTemplateFactory, EmailTemplateFactory>();
+        services.AddScoped<IEmailTemplateService, EmailTemplateService>();
         return services;
     }
 }
