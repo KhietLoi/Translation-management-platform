@@ -1,6 +1,6 @@
 ﻿using Microsoft.OpenApi.Models;
 
-namespace MySolution.Api.StartupRegistrations;
+namespace MySolution.Api.StartupRegistrations.Swagger;
 
 public static class SwaggerRegistration
 {
@@ -26,8 +26,16 @@ public static class SwaggerRegistration
                 Scheme = "bearer",
                 BearerFormat = "JWT"
             });
-
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            // API Key
+            options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+            {
+                Name = "X-API-KEY",
+                Description = "Nhập API Key",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey
+            });
+            options.OperationFilter<SecurityRequirementsOperationFilter>();
+            /*options.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
                 {
                     new OpenApiSecurityScheme
@@ -39,8 +47,19 @@ public static class SwaggerRegistration
                         }
                     },
                     Array.Empty<string>()
+                },
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "ApiKey"
+                        }
+                    },
+                    Array.Empty<string>()
                 }
-            });
+            });*/
         });
 
         return services;

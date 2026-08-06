@@ -52,6 +52,7 @@ public class AssignApiKeyPermissionHandler : IRequestHandler<AssignApiKeyPermiss
                     Permission = x
                 }).ToList();
             
+            await _unitOfWork.ApiKeyPermission.AddRange(permissions);
             await _unitOfWork.SaveAsync(cancellationToken);
             
             response.Data = new AssignApiKeyPermissionData

@@ -6,6 +6,12 @@ public class GetApiKeyGridValidator : AbstractValidator<GetApiKeyGridQuery>
 {
     public GetApiKeyGridValidator()
     {
-        // Add validation rules here if needed
+        RuleFor(x => x.Payload.Page)
+            .GreaterThan(0);
+        RuleFor(x => x.Payload.Limit)
+            .GreaterThan(0)
+            .LessThanOrEqualTo(100);
+        RuleFor(x => x.Payload.Keyword)
+            .MaximumLength(100);
     }
 }

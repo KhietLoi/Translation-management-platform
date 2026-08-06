@@ -94,6 +94,7 @@ public class RotateApiKeyHandler : IRequestHandler<RotateApiKeyCommand, RotateAp
             
             apikey.RevokedAt = DateTime.UtcNow;
             apikey.RevokedBy = _currentUser.UserId;
+            
             await _unitOfWork.SaveAsync(cancellationToken);
             
             response

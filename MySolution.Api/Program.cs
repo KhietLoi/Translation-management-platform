@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.DataProtection;
 using MySolution.Api.StartupRegistrations;
+using MySolution.Api.StartupRegistrations.Swagger;
 using MySolution.Application.ServiceRegistration;
 using MySolution.Infrastructure;
 using Serilog;
