@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.ApiKey.Command.GenerateApiKey;
 
 public class GenerateApiKeyResponse : BaseResponse  <GenerateApiKeyData>
 {
-    
 }
 
 public class GenerateApiKeyData

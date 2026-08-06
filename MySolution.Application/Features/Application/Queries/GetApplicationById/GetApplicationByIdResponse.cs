@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.Application.Queries.GetApplicationById
 
 public class GetApplicationByIdResponse : BaseResponse <GetApplicationByIdData>
 {
-    
 }
 
 public class GetApplicationByIdData

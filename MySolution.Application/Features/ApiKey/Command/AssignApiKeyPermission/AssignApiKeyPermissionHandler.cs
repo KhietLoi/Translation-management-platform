@@ -43,6 +43,7 @@ public class AssignApiKeyPermissionHandler : IRequestHandler<AssignApiKeyPermiss
             {
                 _unitOfWork.ApiKeyPermission.DeleteRange(oldPermissions);
             }
+            
             var permissions = request.Payload.Permissions
                 .Distinct()
                 .Select(x => new ApiKeyPermission
@@ -63,7 +64,7 @@ public class AssignApiKeyPermissionHandler : IRequestHandler<AssignApiKeyPermiss
             
             response
                 .WithSuccess(true)
-                .WithStatus(HttpStatusCode.OK);
+                .WithStatus(HttpStatusCode.Created);
         }
         catch (Exception ex)
         {

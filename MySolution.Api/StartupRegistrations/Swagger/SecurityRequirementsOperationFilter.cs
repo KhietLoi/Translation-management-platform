@@ -5,8 +5,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace MySolution.Api.StartupRegistrations.Swagger;
 
-public class SecurityRequirementsOperationFilter
-    : IOperationFilter
+public class SecurityRequirementsOperationFilter : IOperationFilter
 {
     public void Apply(
         OpenApiOperation operation,
