@@ -1,43 +1,39 @@
 ﻿using MediatR;
+using MySolution.Email.Application.Common.Bases;
+using MySolution.Email.Application.Common.Enums;
 using MySolution.Email.Application.Common.Interfaces;
 
 
 namespace MySolution.Email.Application.Features.SendForgotPasswordEmail;
 
-public class SendForgotPasswordEmailHandler : IRequestHandler<SendForgotPasswordEmailCommand>
+public class SendForgotPasswordEmailHandler
+    : BaseEmailHandler,
+        IRequestHandler<SendForgotPasswordEmailCommand>
 {
-    private readonly IApplicationUrlProvider _applicationUrlProvider;
-    private readonly IEmailService _emailService;
-    private readonly ITemplateRenderer _templateRenderer;
     private readonly ITokenSetting _tokenSettings;
 
-    public SendForgotPasswordEmailHandler
-    (
-        IApplicationUrlProvider applicationUrlProvider,
-        IEmailService emailService,
-        ITokenSetting tokenSetting,
-        ITemplateRenderer templateRenderer
-    )
+    public SendForgotPasswordEmailHandler(
+        IApplicationUrlProvider urlProvider,
+        IEmailTemplateFactory emailTemplateFactory,
+        IEmailTemplateService emailTemplateService,
+        ITokenSetting tokenSetting)
+        : base(
+            urlProvider,
+            emailTemplateFactory,
+            emailTemplateService)
     {
-        _applicationUrlProvider = applicationUrlProvider;
-        _emailService = emailService;
         _tokenSettings = tokenSetting;
-        _templateRenderer = templateRenderer;
     }
 
-    public async Task Handle(SendForgotPasswordEmailCommand request, CancellationToken cancellationToken)
+    public Task Handle(SendForgotPasswordEmailCommand request, CancellationToken cancellationToken)
     {
-        var resetUrl = _applicationUrlProvider.GetResetPasswordUrl(Uri.EscapeDataString(request.Message.Token));
-        var html = await _templateRenderer.RenderAsync(
-            "ForgotPassword.html",
-            new
-            {
-                user_name = request.Message.Username,
-                reset_url = resetUrl,
-                expiry_minutes = _tokenSettings.PasswordResetExpiryMinutes,
-                logo_url = "https://wmtstorageaccdevsa.blob.core.windows.net/documents/logo.png",
-                year = DateTime.Now.Year
-            }, cancellationToken);
-        await _emailService.SendEmailAsync(request.Message.Email, "Reset Password", html, cancellationToken);
+        return SendTemplateAsync(
+            EmailType.ForgotPassword,
+            request.Message.Email,
+            request.Message.Username,
+            UrlProvider.GetResetPasswordUrl(
+                Uri.EscapeDataString(request.Message.Token)),
+            _tokenSettings.PasswordResetExpiryMinutes,
+            cancellationToken);
     }
 }

@@ -17,4 +17,5 @@
       <ProjectReference Include="..\MySolution.Email.Infrastructure\MySolution.Email.Infrastructure.csproj" />
     </ItemGroup>
 
+
 </Project>

@@ -1,10 +1,9 @@
 ﻿using MediatR;
-using MySolution.Application.Common.Interfaces.RateLimit;
 
 
 namespace MySolution.Application.Features.Auth.ResendVerificationEmail;
 
-public class ResendVerificationEmailCommand : IRequest<ResendVerificationEmailResponse>, IRateLimitedRequest
+public class ResendVerificationEmailCommand : IRequest<ResendVerificationEmailResponse>
 {
     public ResendVerificationEmailCommand(ResendVerificationEmailRequest payload)
     {
@@ -12,6 +11,4 @@ public class ResendVerificationEmailCommand : IRequest<ResendVerificationEmailRe
     }
 
     public ResendVerificationEmailRequest Payload { get; }
-    public string PolicyName => "ResendEmail";
-    public string RateLimitKey => $"resend-email:{Payload.Email}";
 }

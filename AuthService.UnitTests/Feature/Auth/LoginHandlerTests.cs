@@ -267,9 +267,6 @@ public class LoginHandlerTests
             .Setup(x => x.GetRefreshTokenExpirationDate())
             .Returns(DateTime.UtcNow.AddDays(7));
 
-        _hashServiceMock
-            .Setup(x => x.ComputeSha256("refresh-token"))
-            .Returns("hashed-refresh-token");
 
         // Act
         var response = await _handler.Handle(command, CancellationToken.None);

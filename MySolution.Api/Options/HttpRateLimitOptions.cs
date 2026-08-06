@@ -8,6 +8,7 @@ public class HttpRateLimitOptions
     public HttpRateLimitPolicy Register { get; set; } = new();
     public HttpRateLimitPolicy ForgotPassword { get; set; } = new();
     public HttpRateLimitPolicy RefreshToken { get; set; } = new();
+    public HttpRateLimitPolicy ResendVerificationEmail { get; set; } = new();
     public class HttpRateLimitPolicy
     {
         public int PermitLimit { get; set; }
