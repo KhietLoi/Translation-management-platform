@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using MySolution.Api.Authorization;
+using MySolution.Api.Authorization.User;
 
 namespace MySolution.Api.StartupRegistrations;
 

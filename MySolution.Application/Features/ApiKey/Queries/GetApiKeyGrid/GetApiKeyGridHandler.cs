@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
+using MySolution.Application.Common.Models;
 namespace MySolution.Application.Features.ApiKey.Queries.GetApiKeyGrid;
 
 public class GetApiKeyGridHandler : IRequestHandler<GetApiKeyGridQuery, GetApiKeyGridResponse>
@@ -24,16 +24,43 @@ public class GetApiKeyGridHandler : IRequestHandler<GetApiKeyGridQuery, GetApiKe
 
     public async Task<GetApiKeyGridResponse> Handle(GetApiKeyGridQuery request, CancellationToken cancellationToken)
     {
+        var payload = request.Payload;
         var functionName = $"{nameof(GetApiKeyGridHandler)} =>";
         _logger.LogInformation(functionName);
         var response = new GetApiKeyGridResponse();
 
         try
         {
+            var result =
+                await _unitOfWork.ApiKey.GetGridAsync
+                (
+                    payload.ProjectId,
+                    payload.ApplicationId,
+                    payload.Keyword,
+                    payload.IsRevoked,
+                    payload.Page,
+                    payload.Limit,
+                    cancellationToken
+                );
+
+            response.Data =
+                new GetApiKeyGridResult
+                {
+                    Items = result.Items,
+                    Paging = new PagingInfo
+                    {
+                        Page = payload.Page,
+                        Limit = payload.Limit,
+                        TotalItem = result.TotalItems,
+                        TotalPage = (int)Math.Ceiling(
+                            result.TotalItems /
+                            (double)payload.Limit)
+                    }
+                };
 
             response
-                            .WithSuccess(true)
-                            .WithStatus(HttpStatusCode.OK);
+                .WithSuccess(true)
+                .WithStatus(HttpStatusCode.OK);
         }
         catch (Exception ex)
         {

@@ -9,9 +9,9 @@ public class GenerateApiKeyValidator : AbstractValidator<GenerateApiKeyCommand>
         RuleFor(x => x.Payload.Name)
             .NotEmpty()
             .MaximumLength(100);
-
-        RuleFor(x => x.Payload.ExpiresAt)
-            .Must(x => x == null || x > DateTime.UtcNow)
-            .WithMessage("Expiration date must be in the future.");
+        
+        RuleFor(x => x.Payload.NumofDaysExpires)
+            .InclusiveBetween(0, 365)
+            .WithMessage("Number of days until expiration must be between 0 and 365.");
     }
 }

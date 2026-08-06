@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using MySolution.Application.Common.Interfaces.Authentication;
 
-namespace MySolution.Api.Authorization;
+namespace MySolution.Api.Authorization.User;
 
 public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
 {

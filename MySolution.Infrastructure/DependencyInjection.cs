@@ -102,7 +102,8 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IAuthCookieService,  AuthCookieService>();
         services.AddScoped<IApiKeyGenerator, ApiKeyGenerator>();
-
+        services.AddScoped<IApiKeyValidator, ApiKeyValidator>();
+        services.AddScoped<IApiKeyContextAccessor, ApiKeyContextAccessor>();
         return services;
     }
 }

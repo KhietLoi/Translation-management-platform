@@ -432,6 +432,7 @@ VALUES
     )
     ON CONFLICT DO NOTHING;
 
+
 -- ==========================================
 -- TRANSLATION KEYS
 -- ==========================================
@@ -462,13 +463,10 @@ FROM mysolution."Projects" p
              ('Common','button.cancel','Cancel button'),
              ('Common','button.search','Search button'),
              ('Common','button.delete','Delete button'),
-             ('Common','message.success','Success message'),
-             ('Common','message.error','Error message'),
 
              ('Auth','login.title','Login title'),
              ('Auth','login.username','Username'),
              ('Auth','login.password','Password'),
-             ('Auth','login.remember','Remember me'),
 
              ('Product','product.name','Product Name'),
              ('Product','product.price','Product Price'),
@@ -477,17 +475,16 @@ FROM mysolution."Projects" p
              ('Transaction','transaction.title','Transaction title'),
              ('Transaction','transaction.amount','Transaction amount'),
              ('Transaction','transaction.history','Transaction history')
-     ) t
+     ) AS t
          (
           "Namespace",
           "Key",
           "Description"
              )
      ON n."Name" = t."Namespace"
+
     ON CONFLICT DO NOTHING;
--- ==========================================
--- TRANSLATION VALUES
--- ==========================================
+-- Translation Values
 
 INSERT INTO mysolution."TranslationValues"
 (
@@ -504,150 +501,31 @@ INSERT INTO mysolution."TranslationValues"
 )
 SELECT
     gen_random_uuid(),
-
     tk."Id",
-
     l."Id",
+    v."Value",
 
     CASE
-
-        WHEN tk."Key"='button.save'
-            AND l."Code"='en-US'
-            THEN 'Save'
-
-        WHEN tk."Key"='button.save'
-            AND l."Code"='vi-VN'
-            THEN 'Lưu'
-
-        WHEN tk."Key"='button.save'
-            AND l."Code"='ko-KR'
-            THEN '저장'
-
-
-        WHEN tk."Key"='button.cancel'
-            AND l."Code"='en-US'
-            THEN 'Cancel'
-
-        WHEN tk."Key"='button.cancel'
-            AND l."Code"='vi-VN'
-            THEN 'Hủy'
-
-        WHEN tk."Key"='button.cancel'
-            AND l."Code"='ko-KR'
-            THEN '취소'
-
-
-        WHEN tk."Key"='button.search'
-            AND l."Code"='en-US'
-            THEN 'Search'
-
-        WHEN tk."Key"='button.search'
-            AND l."Code"='vi-VN'
-            THEN 'Tìm kiếm'
-
-        WHEN tk."Key"='button.search'
-            AND l."Code"='ko-KR'
-            THEN '검색'
-
-
-        WHEN tk."Key"='button.delete'
-            AND l."Code"='en-US'
-            THEN 'Delete'
-
-        WHEN tk."Key"='button.delete'
-            AND l."Code"='vi-VN'
-            THEN 'Xóa'
-
-
-        WHEN tk."Key"='login.title'
-            AND l."Code"='en-US'
-            THEN 'Login'
-
-        WHEN tk."Key"='login.title'
-            AND l."Code"='vi-VN'
-            THEN 'Đăng nhập'
-
-
-        WHEN tk."Key"='login.username'
-            AND l."Code"='en-US'
-            THEN 'Username'
-
-        WHEN tk."Key"='login.username'
-            AND l."Code"='vi-VN'
-            THEN 'Tên đăng nhập'
-
-
-        WHEN tk."Key"='login.password'
-            AND l."Code"='en-US'
-            THEN 'Password'
-
-        WHEN tk."Key"='login.password'
-            AND l."Code"='vi-VN'
-            THEN 'Mật khẩu'
-
-
-        WHEN tk."Key"='product.name'
-            AND l."Code"='en-US'
-            THEN 'Product Name'
-
-        WHEN tk."Key"='product.name'
-            AND l."Code"='vi-VN'
-            THEN 'Tên sản phẩm'
-
-
-        WHEN tk."Key"='product.price'
-            AND l."Code"='en-US'
-            THEN 'Price'
-
-        WHEN tk."Key"='product.price'
-            AND l."Code"='vi-VN'
-            THEN 'Giá'
-
-
-        WHEN tk."Key"='product.description'
-            AND l."Code"='en-US'
-            THEN 'Description'
-
-        WHEN tk."Key"='product.description'
-            AND l."Code"='vi-VN'
-            THEN 'Mô tả'
-
-
-        WHEN tk."Key"='transaction.title'
-            AND l."Code"='en-US'
-            THEN 'Transaction'
-
-        WHEN tk."Key"='transaction.title'
-            AND l."Code"='vi-VN'
-            THEN 'Giao dịch'
-
-
-        WHEN tk."Key"='transaction.amount'
-            AND l."Code"='en-US'
-            THEN 'Amount'
-
-        WHEN tk."Key"='transaction.amount'
-            AND l."Code"='vi-VN'
-            THEN 'Số tiền'
-
-
-        WHEN tk."Key"='transaction.history'
-            AND l."Code"='en-US'
-            THEN 'History'
-
-        WHEN tk."Key"='transaction.history'
-            AND l."Code"='vi-VN'
-            THEN 'Lịch sử'
-
-
-        ELSE NULL
-
+        WHEN tk."Key" IN
+             (
+              'button.save',
+              'button.cancel',
+              'button.search',
+              'button.delete',
+              'login.title'
+                 ) THEN 3
+        WHEN l."Code" = 'ko-KR' THEN 2
+        ELSE 1
         END,
 
+    CASE
+        WHEN l."Code" = 'ko-KR'
+            THEN NULL::uuid
+        ELSE
+            'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'::uuid
+        END,
 
     CASE
-
-        -- Reviewed
         WHEN tk."Key" IN
              (
               'button.save',
@@ -656,68 +534,19 @@ SELECT
               'button.delete',
               'login.title'
                  )
-            THEN 3
-
-
-        -- Translated
-        WHEN l."Code"='ko-KR'
-            THEN 2
-
-
-        -- Draft
-        ELSE 1
-
-        END,
-
-
-    -- TranslatedBy
-    CASE
-        WHEN l."Code"='ko-KR'
-            THEN NULL::uuid
-
-        ELSE
-            'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'::uuid
-
-        END,
-
-
-    -- ReviewedBy
-    CASE
-
-        WHEN
-            (
-                tk."Key" IN
-                (
-                 'button.save',
-                 'button.cancel',
-                 'button.search',
-                 'button.delete',
-                 'login.title'
-                    )
-                )
-            THEN
-            'cccccccc-cccc-cccc-cccc-cccccccccccc'::uuid
-
-
+            THEN 'cccccccc-cccc-cccc-cccc-cccccccccccc'::uuid
         ELSE NULL::uuid
-
         END,
-
 
     NOW(),
 
-
     CASE
-        WHEN l."Code"='ko-KR'
+        WHEN l."Code" = 'ko-KR'
             THEN NULL
-
         ELSE NOW()
-
         END,
 
-
     CASE
-
         WHEN tk."Key" IN
              (
               'button.save',
@@ -726,14 +555,10 @@ SELECT
               'button.delete',
               'login.title'
                  )
-
             THEN NOW()
-
         ELSE NULL
-
         END
-
-
+    
 FROM mysolution."TranslationKeys" tk
 
          JOIN mysolution."ProjectLanguages" pl
@@ -742,6 +567,65 @@ FROM mysolution."TranslationKeys" tk
          JOIN mysolution."Languages" l
               ON l."Id" = pl."LanguageId"
 
+         JOIN
+     (
+         VALUES
+
+             ('button.save','en-US','Save'),
+             ('button.save','vi-VN','Lưu'),
+             ('button.save','ko-KR','저장'),
+
+             ('button.cancel','en-US','Cancel'),
+             ('button.cancel','vi-VN','Hủy'),
+             ('button.cancel','ko-KR','취소'),
+
+             ('button.search','en-US','Search'),
+             ('button.search','vi-VN','Tìm kiếm'),
+             ('button.search','ko-KR','검색'),
+
+             ('button.delete','en-US','Delete'),
+             ('button.delete','vi-VN','Xóa'),
+             ('button.delete','ko-KR','삭제'),
+
+             ('login.title','en-US','Login'),
+             ('login.title','vi-VN','Đăng nhập'),
+             ('login.title','ko-KR','로그인'),
+
+             ('login.username','en-US','Username'),
+             ('login.username','vi-VN','Tên đăng nhập'),
+             ('login.username','ko-KR','사용자 이름'),
+
+             ('login.password','en-US','Password'),
+             ('login.password','vi-VN','Mật khẩu'),
+             ('login.password','ko-KR','비밀번호'),
+
+             ('product.name','en-US','Product Name'),
+             ('product.name','vi-VN','Tên sản phẩm'),
+             ('product.name','ko-KR','제품명'),
+
+             ('product.price','en-US','Price'),
+             ('product.price','vi-VN','Giá'),
+             ('product.price','ko-KR','가격'),
+
+             ('product.description','en-US','Description'),
+             ('product.description','vi-VN','Mô tả'),
+             ('product.description','ko-KR','제품 설명'),
+
+             ('transaction.title','en-US','Transaction'),
+             ('transaction.title','vi-VN','Giao dịch'),
+             ('transaction.title','ko-KR','거래'),
+
+             ('transaction.amount','en-US','Amount'),
+             ('transaction.amount','vi-VN','Số tiền'),
+             ('transaction.amount','ko-KR','금액'),
+
+             ('transaction.history','en-US','History'),
+             ('transaction.history','vi-VN','Lịch sử'),
+             ('transaction.history','ko-KR','거래 내역')
+
+     ) AS v("Key","LanguageCode","Value")
+     ON v."Key" = tk."Key"
+         AND v."LanguageCode" = l."Code"
 
     ON CONFLICT DO NOTHING;
 

@@ -2,6 +2,7 @@
 using MySolution.Application.Features.Project.Commands.CreateProject;
 using MediatR;
 using MySolution.Api.Authorization;
+using MySolution.Api.Authorization.User;
 using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
 using MySolution.Application.Features.Project.Commands.CreateProjectFull;

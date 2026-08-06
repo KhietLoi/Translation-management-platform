@@ -49,7 +49,7 @@ public class GenerateApiKeyHandler : IRequestHandler<GenerateApiKeyCommand, Gene
                 return response;
             }
             
-            //Check duplicate name
+            // Check duplicate name
             var existingApiKey = await _unitOfWork.ApiKey.IsApiKeyExistsAsync(request.ApplicationId, request.Payload.Name);
             if (existingApiKey)
             {
@@ -57,6 +57,7 @@ public class GenerateApiKeyHandler : IRequestHandler<GenerateApiKeyCommand, Gene
                 response.WithStatus(HttpStatusCode.Conflict);
                 return response;
             }
+            
             
             // Generate raw key:
             var rawKey = _apiKeyGenerator.GenerateApiKey();
@@ -66,6 +67,9 @@ public class GenerateApiKeyHandler : IRequestHandler<GenerateApiKeyCommand, Gene
             var hash = _hashService.ComputeHash(rawKey);
             // Create new ApiKey entity
             var now = DateTime.UtcNow;
+            DateTime? expiresAt = request.Payload.NumofDaysExpires == 0
+                ? null
+                : now.AddDays(request.Payload.NumofDaysExpires);
             
             var apiKey = new Domain.Entities.ApiKey
             {
@@ -74,7 +78,7 @@ public class GenerateApiKeyHandler : IRequestHandler<GenerateApiKeyCommand, Gene
                 Name = request.Payload.Name,
                 KeyHash = hash,
                 KeyPrefix = keyPrefix,
-                ExpiresAt = request.Payload.ExpiresAt,
+                ExpiresAt = expiresAt,
                 CreatedAt = now,
                 CreatedBy = _currentUserService.UserId
             };
@@ -92,7 +96,7 @@ public class GenerateApiKeyHandler : IRequestHandler<GenerateApiKeyCommand, Gene
                 };
             response
                 .WithSuccess(true)
-                .WithStatus(HttpStatusCode.OK);
+                .WithStatus(HttpStatusCode.Created);
         }
         catch (Exception ex)
         {
