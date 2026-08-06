@@ -6,7 +6,6 @@ namespace MySolution.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-[ApiKeyAuthorize]
 public class SdkController : Controller
 {
    //Test api:
