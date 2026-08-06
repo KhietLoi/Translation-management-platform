@@ -47,9 +47,10 @@ public class DeleteApplicationHandler : IRequestHandler<DeleteApplicationCommand
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            exception.LogError(_logger, functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
 

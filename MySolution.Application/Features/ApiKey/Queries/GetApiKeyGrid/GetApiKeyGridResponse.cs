@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.ApiKey.Queries.GetApiKeyGrid;
 
 public class GetApiKeyGridResponse : BaseResponse <GetApiKeyGridResult>
 {
-
 }
 
 public class GetApiKeyGridResult

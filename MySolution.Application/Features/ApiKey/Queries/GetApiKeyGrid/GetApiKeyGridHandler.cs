@@ -31,20 +31,18 @@ public class GetApiKeyGridHandler : IRequestHandler<GetApiKeyGridQuery, GetApiKe
 
         try
         {
-            var result =
-                await _unitOfWork.ApiKey.GetGridAsync
-                (
-                    payload.ProjectId,
-                    payload.ApplicationId,
-                    payload.Keyword,
-                    payload.IsRevoked,
-                    payload.Page,
-                    payload.Limit,
-                    cancellationToken
-                );
+            var result = await _unitOfWork.ApiKey.GetGridAsync
+            (
+                payload.ProjectId,
+                payload.ApplicationId,
+                payload.Keyword,
+                payload.IsRevoked,
+                payload.Page,
+                payload.Limit,
+                cancellationToken
+            );
 
-            response.Data =
-                new GetApiKeyGridResult
+            response.Data = new GetApiKeyGridResult
                 {
                     Items = result.Items,
                     Paging = new PagingInfo
@@ -52,9 +50,7 @@ public class GetApiKeyGridHandler : IRequestHandler<GetApiKeyGridQuery, GetApiKe
                         Page = payload.Page,
                         Limit = payload.Limit,
                         TotalItem = result.TotalItems,
-                        TotalPage = (int)Math.Ceiling(
-                            result.TotalItems /
-                            (double)payload.Limit)
+                        TotalPage = (int)Math.Ceiling(result.TotalItems / (double)payload.Limit)
                     }
                 };
 

@@ -28,7 +28,6 @@ public class ApiKeyController (IMediator mediator) : Controller
     public async Task<IActionResult> Rotate(Guid id, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new RotateApiKeyCommand(id), cancellationToken);
-
         return ResponseHelper.ToResponse(result.StatusCode, result, result.Data);
     }
     

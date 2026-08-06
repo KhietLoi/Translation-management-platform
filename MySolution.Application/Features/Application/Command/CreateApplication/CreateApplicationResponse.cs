@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.Application.Command.CreateApplication;
 
 public class CreateApplicationResponse : BaseResponse <CreateApplicationData>
 {
-
 }
 
 public class CreateApplicationData

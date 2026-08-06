@@ -58,7 +58,6 @@ public class GenerateApiKeyHandler : IRequestHandler<GenerateApiKeyCommand, Gene
                 return response;
             }
             
-            
             // Generate raw key:
             var rawKey = _apiKeyGenerator.GenerateApiKey();
             // Generate prefix:
@@ -87,13 +86,13 @@ public class GenerateApiKeyHandler : IRequestHandler<GenerateApiKeyCommand, Gene
             await _unitOfWork.SaveAsync(cancellationToken);
             
             response.Data = new GenerateApiKeyData
-                {
-                    Id = apiKey.Id,
-                    Name = apiKey.Name,
-                    ApiKey = rawKey,
-                    KeyPrefix = keyPrefix,
-                    ExpiresAt = apiKey.ExpiresAt
-                };
+            {
+                Id = apiKey.Id,
+                Name = apiKey.Name,
+                ApiKey = rawKey,
+                KeyPrefix = keyPrefix,
+                ExpiresAt = apiKey.ExpiresAt
+            };
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.Created);

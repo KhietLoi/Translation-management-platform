@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.Application.Command.UpdateApplication;
 
 public class UpdateApplicationResponse : BaseResponse <UpdateApplicationData>
 {
-
 }
 
 public class UpdateApplicationData
