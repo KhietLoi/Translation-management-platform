@@ -1,7 +1,7 @@
 ﻿using MySolution.Application.Common.Models;
 
 namespace MySolution.Application.Features.Application.Queries.GetApplications;
-
+    
 public class GetApplicationsResponse : BaseResponse <GetApplicationsResult>
 {
 

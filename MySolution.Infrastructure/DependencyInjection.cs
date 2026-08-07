@@ -3,11 +3,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
-
+using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Infrastructure.Authentication;
 using MySolution.Infrastructure.Authorization;
 using MySolution.Infrastructure.BackgroundServices;
+using MySolution.Infrastructure.ImportExport.Generators;
+using MySolution.Infrastructure.ImportExport.Services;
 using MySolution.Infrastructure.MassTransit;
 using MySolution.Infrastructure.Options;
 using MySolution.Infrastructure.Persistence;
@@ -100,6 +102,8 @@ public static class DependencyInjection
         services.AddScoped<IApiKeyGenerator, ApiKeyGenerator>();
         services.AddScoped<IApiKeyValidator, ApiKeyValidator>();
         services.AddScoped<IApiKeyContextAccessor, ApiKeyContextAccessor>();
+        services.AddScoped<ITranslationGenerator, JsonGenerator>();
+        services.AddScoped<IExportService, ExportService>();
         return services;
     }
 }
