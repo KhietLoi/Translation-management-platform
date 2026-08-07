@@ -1,7 +1,4 @@
-﻿
-using Shared.Enums;
-
-namespace Shared.MassTransit.IntegrationEvents;
+﻿namespace Shared.MassTransit.IntegrationEvents;
 
 public class ExportTranslationsEvent
 {
