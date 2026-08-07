@@ -6,6 +6,6 @@ namespace MySolution.Application.Common.Interfaces.File;
 
 public interface ITranslationGenerator
 {
-    ExportFileType Format { get; }
+    FileType Format { get; }
     Task<MemoryStream> GenerateAsync(IReadOnlyCollection<TranslationExportData> data, CancellationToken cancellationToken);
 }

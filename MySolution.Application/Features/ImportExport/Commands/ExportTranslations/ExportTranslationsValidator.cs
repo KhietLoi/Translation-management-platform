@@ -9,7 +9,7 @@ public class ExportTranslationsValidator : AbstractValidator<ExportTranslationsC
         RuleFor(x => x.Payload.ProjectId)
             .NotEqual(Guid.Empty)
             .WithMessage("Project ID is required.");
-        RuleFor(x => x.Payload.ExportFormat)
+        RuleFor(x => x.Payload.Format)
             .IsInEnum();
     }
 }

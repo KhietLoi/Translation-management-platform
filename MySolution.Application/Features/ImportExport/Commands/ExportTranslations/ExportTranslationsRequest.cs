@@ -5,5 +5,5 @@ namespace MySolution.Application.Features.ImportExport.Commands.ExportTranslatio
 public class ExportTranslationsRequest
 {
     public Guid ProjectId { get; set; }
-    public ExportFileType ExportFormat { get; set; }
+    public FileType Format { get; set; }
 }

@@ -8,7 +8,7 @@ public class TranslationJob
     public TranslationJobType Type { get; set; }
     public TranslationJobStatus Status { get; set; }
     // Export
-    public ExportFileType? ExportFormat { get; set; }
+    public FileType? ExportFormat { get; set; }
     // Import
     public string? BlobFileName { get; set; }
     // Result

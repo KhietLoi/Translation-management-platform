@@ -1,7 +1,7 @@
 ﻿using MySolution.Application.Common.Interfaces.File;
 using MySolution.Domain.Enums;
 
-namespace MySolution.Infrastructure.ImportExport;
+namespace MySolution.Infrastructure.ImportExport.Factories;
 
 public class TranslationGeneratorFactory : ITranslationGeneratorFactory
 {
@@ -10,17 +10,13 @@ public class TranslationGeneratorFactory : ITranslationGeneratorFactory
     {
         _generators = generators;
     }
-    public ITranslationGenerator GetGenerator(
-        ExportFileType format)
+    public ITranslationGenerator GetGenerator(FileType format)
     {
-        var generator =
-            _generators.FirstOrDefault(
-                x => x.Format == format);
+        var generator = _generators.FirstOrDefault(x => x.Format == format);
 
         if (generator == null)
         {
-            throw new NotSupportedException(
-                $"Export format '{format}' is not supported.");
+            throw new NotSupportedException($"Export format '{format}' is not supported.");
         }
 
         return generator;

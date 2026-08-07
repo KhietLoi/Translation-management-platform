@@ -6,5 +6,5 @@ namespace MySolution.Application.Common.Interfaces.File;
 
 public interface IExportService
 {
-    Task<ExportTranslationResult> ExportAsync(Guid projectId, ExportFileType format, CancellationToken cancellationToken);
+    Task<ExportTranslationResult> ExportAsync(Guid projectId, FileType format, CancellationToken cancellationToken);
 }

@@ -8,7 +8,7 @@ namespace MySolution.Infrastructure.ImportExport.Generators;
 
 public class JsonGenerator : ITranslationGenerator
 {
-    public ExportFileType Format  => ExportFileType.Json;
+    public FileType Format  => FileType.Json;
 
     public async Task<MemoryStream> GenerateAsync(IReadOnlyCollection<TranslationExportData> data, CancellationToken cancellationToken)
     {
