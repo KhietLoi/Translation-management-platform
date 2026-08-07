@@ -1,6 +1,6 @@
 ﻿namespace MySolution.Domain.Enums;
 
-public enum ExportFileType
+public enum FileType
 {
     Json = 1,
     Csv = 2,

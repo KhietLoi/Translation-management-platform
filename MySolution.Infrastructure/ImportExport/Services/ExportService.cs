@@ -28,7 +28,7 @@ public class ExportService : IExportService
         _azureBlobService = azureBlobService;
         _translationGeneratorFactory = translationGeneratorFactory;
     }
-    public async Task<ExportTranslationResult> ExportAsync(Guid projectId, ExportFileType format, CancellationToken cancellationToken)
+    public async Task<ExportTranslationResult> ExportAsync(Guid projectId, FileType format, CancellationToken cancellationToken)
     {
         //Validate project:
         var project = await _unitOfWork.Project.GetByIdAsync(projectId);

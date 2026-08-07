@@ -7,7 +7,7 @@ namespace MySolution.Infrastructure.ImportExport.Generators;
 
 public class CsvGenerator : ITranslationGenerator
 {
-    public ExportFileType Format => ExportFileType.Csv;
+    public FileType Format => FileType.Csv;
 
     public async Task<MemoryStream> GenerateAsync(IReadOnlyCollection<TranslationExportData> data, CancellationToken cancellationToken)
     {

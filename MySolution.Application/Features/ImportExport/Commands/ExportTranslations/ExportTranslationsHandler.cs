@@ -49,7 +49,7 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
                 ProjectId = payload.ProjectId,
                 Type = TranslationJobType.Export,
                 Status = TranslationJobStatus.Pending,
-                ExportFormat = payload.ExportFormat,
+                ExportFormat = payload.Format,
                 CreatedAt = DateTime.UtcNow
             };
             await _unitOfWork.TranslationJob.Add(job);
@@ -60,7 +60,7 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
                 JobId = job.Id,
             }, cancellationToken);
             
-            //var result = await _exportService.ExportAsync(payload.ProjectId, payload.ExportFormat, cancellationToken);
+            //var result = await _exportService.ExportAsync(payload.ProjectId, payload.Format, cancellationToken);
             response.Data = new ExportTranslationData
             {
                 JobId = job.Id

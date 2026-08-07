@@ -7,7 +7,7 @@ namespace MySolution.Infrastructure.ImportExport.Generators;
 
 public class ExcelGenerator : ITranslationGenerator
 {
-    public ExportFileType Format => ExportFileType.Excel;
+    public FileType Format => FileType.Excel;
 
     public async Task<MemoryStream> GenerateAsync(IReadOnlyCollection<TranslationExportData> data, CancellationToken cancellationToken)
     {
