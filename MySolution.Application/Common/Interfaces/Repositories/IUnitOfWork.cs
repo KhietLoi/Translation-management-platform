@@ -22,6 +22,7 @@ public interface IUnitOfWork
     ITranslationValueRepository TranslationValue { get; }
     ITranslationKeyRepository TranslationKey { get; }
     IAuditLogRepository  AuditLog { get; }
+    ITranslationJobRepository TranslationJob { get; }
     
     IApiKeyPermissionRepository ApiKeyPermission { get; }
     IApiKeyRepository ApiKey { get; }

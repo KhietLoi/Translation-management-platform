@@ -33,6 +33,7 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
         ApiKeyPermission = new ApiKeyPermissionRepository(_context, logger);
         ApiKey = new ApiKeyRepository(_context, logger);
         Application = new ApplicationRepository(_context, logger);
+        TranslationJob = new TranslationJobRepository(_context, logger);
         ApiKeyUsageLog = new ApiKeyUsageLogRepository(_context, logger);
     }
 
@@ -73,6 +74,7 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
     public ITranslationValueRepository TranslationValue { get; }
     public ITranslationKeyRepository TranslationKey { get; }
     public IAuditLogRepository AuditLog { get; }
+    public ITranslationJobRepository TranslationJob { get; }
     public IApiKeyPermissionRepository ApiKeyPermission { get; }
     public IApiKeyRepository ApiKey { get; }
     public IApplicationRepository Application { get; }

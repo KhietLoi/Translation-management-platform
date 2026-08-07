@@ -3,7 +3,7 @@ using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Common.Models;
-using MySolution.Domain.Enums;
+using Shared.Enums;
 using SendGrid.Helpers.Errors.Model;
 
 namespace MySolution.Infrastructure.ImportExport.Services;
@@ -72,26 +72,25 @@ public class ExportService : IExportService
                 
                 exportData.Translations.Add(translationKey.Key, translationValue.Value);
             }
+            
             exportDataList.Add(exportData);
         }
-        var stream = await _translationGenerator.GenerateAsync(
-            exportDataList,
-            cancellationToken);
+        
+        //await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
+        
+        var stream = await _translationGenerator.GenerateAsync(exportDataList, cancellationToken);
         
         stream.Position = 0;
         var fileName = $"export_{project.Name}_{DateTime.UtcNow:yyyyMMddHHmmss}.zip";
         
         await _azureBlobService.UploadFileAsync(stream, fileName, cancellationToken);
         var dowloadUrl = _azureBlobService.GetFileUrl(fileName);
+        _logger.LogInformation("File {FileName} uploaded to Azure Blob Storage. Download URL: {DownloadUrl}", fileName, dowloadUrl);
 
-        _logger.LogInformation("Exported translations for project {ProjectId} to {FileName}", projectId, fileName);
-        
         return new ExportTranslationResult
-        { 
+        {
             DownloadUrl = dowloadUrl,
             FileName = fileName
         };
-
-
     }
 }

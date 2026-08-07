@@ -533,6 +533,57 @@ CREATE TABLE IF NOT EXISTS mysolution."ApiKeyUsageLogs"
     ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS mysolution."TranslationJobs"
+(
+    "Id" UUID PRIMARY KEY,
+
+    "ProjectId" UUID NOT NULL,
+
+    "Type" INT NOT NULL,
+
+    "Status" INT NOT NULL,
+
+    "ExportFormat" INT NULL,
+
+    "BlobFileName" VARCHAR(500) NULL,
+
+    "FileName" VARCHAR(500) NULL,
+
+    "DownloadUrl" VARCHAR(1000) NULL,
+
+    "TotalRecords" INT NOT NULL DEFAULT 0,
+
+    "SuccessRecords" INT NOT NULL DEFAULT 0,
+
+    "FailedRecords" INT NOT NULL DEFAULT 0,
+
+    "ErrorMessage" VARCHAR(2000) NULL,
+
+    "CreatedBy" UUID NOT NULL,
+
+    "CreatedAt" TIMESTAMP NOT NULL,
+
+    "StartedAt" TIMESTAMP NULL,
+
+    "CompletedAt" TIMESTAMP NULL,
+
+    CONSTRAINT fk_translation_jobs_project
+        FOREIGN KEY ("ProjectId")
+            REFERENCES mysolution."Projects"("Id")
+            ON DELETE CASCADE
+);
+
+CREATE INDEX ix_translation_jobs_project_id
+    ON mysolution."TranslationJobs"("ProjectId");
+
+CREATE INDEX ix_translation_jobs_type
+    ON mysolution."TranslationJobs"("Type");
+
+CREATE INDEX ix_translation_jobs_status
+    ON mysolution."TranslationJobs"("Status");
+
+CREATE INDEX ix_translation_jobs_created_at
+    ON mysolution."TranslationJobs"("CreatedAt" DESC);
 
 CREATE INDEX IF NOT EXISTS "IX_ApiKeyUsageLogs_ApiKeyId"
     ON mysolution."ApiKeyUsageLogs" ("ApiKeyId");
