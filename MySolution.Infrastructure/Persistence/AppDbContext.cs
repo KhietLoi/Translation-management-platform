@@ -29,6 +29,7 @@ public class AppDbContext : DbContext
     public DbSet<ApiKeyPermission> ApiKeyPermissions => Set<ApiKeyPermission>();
     public DbSet<ApiKeyUsageLog> ApiKeyUsageLogs => Set<ApiKeyUsageLog>();
     public DbSet<Domain.Entities.Application> Applications => Set<Domain.Entities.Application>();
+    public DbSet<TranslationJob> TranslationJobs => Set<TranslationJob>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

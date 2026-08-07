@@ -5,6 +5,5 @@ namespace Shared.MassTransit.IntegrationEvents;
 
 public class ExportTranslationsEvent
 {
-    public Guid ProjectId { get; set; }
-    public ExportFileType Format  { get; set; }
+   public Guid JobId { get; set; }
 }
