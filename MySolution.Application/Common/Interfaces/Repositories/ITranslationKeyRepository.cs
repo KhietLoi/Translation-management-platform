@@ -14,7 +14,7 @@ public interface ITranslationKeyRepository : IRepository<TranslationKey>
     
     //Get project id from Translation key:
     Task<Guid> GetProjectIdAsync(Guid translationKeyId);
-    //
+    // Get translation keys by project id and namespace id
     Task <(List<TranslationKey> Items, int TotalCount)> GetByGridAsync(
         Guid? projectId,
         Guid? namespaceId,
@@ -24,5 +24,10 @@ public interface ITranslationKeyRepository : IRepository<TranslationKey>
         int pageNumber,
         int pageSize
     );
+    
+    // Get translation keys by project id with translation values
+    Task<List<TranslationKey>> GetByProjectWithTranslationValuesAsync(Guid projectId, CancellationToken cancellationToken);
+    
+    
     
 }

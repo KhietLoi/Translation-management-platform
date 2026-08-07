@@ -114,13 +114,10 @@ public class TranslationKeyRepository (AppDbContext context, ILogger logger) :
 
         if (status.HasValue)
         {
-            query = query.Where(x =>
-                x.TranslationValues.Any(v =>
-                    v.Status == status.Value));
+            query = query.Where(x => x.TranslationValues.Any(v => v.Status == status.Value));
         }
 
         var totalCount = await query.CountAsync();
-        
         var items = await query
             .OrderBy(x => x.Key)
             .Skip((pageNumber - 1) * pageSize)
@@ -135,5 +132,14 @@ public class TranslationKeyRepository (AppDbContext context, ILogger logger) :
                 .ToList();
         }
         return (items, totalCount);
+    }
+
+    public async Task<List<TranslationKey>> GetByProjectWithTranslationValuesAsync(Guid projectId, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .AsNoTracking()
+            .Where(x => x.ProjectId == projectId)
+            .Include(x => x.TranslationValues)
+            .ToListAsync(cancellationToken);
     }
 }
