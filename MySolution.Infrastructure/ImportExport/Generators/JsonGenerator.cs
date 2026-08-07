@@ -2,11 +2,14 @@
 using System.Text.Json;
 using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Models;
+using MySolution.Domain.Enums;
 
 namespace MySolution.Infrastructure.ImportExport.Generators;
 
 public class JsonGenerator : ITranslationGenerator
 {
+    public ExportFileType Format  => ExportFileType.Json;
+
     public async Task<MemoryStream> GenerateAsync(IReadOnlyCollection<TranslationExportData> data, CancellationToken cancellationToken)
     {
         var zipStream = new MemoryStream();

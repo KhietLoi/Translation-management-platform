@@ -13,20 +13,20 @@ public class ExportService : IExportService
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ExportService> _logger;
     private readonly IAzureBlobService _azureBlobService;
-    private readonly ITranslationGenerator _translationGenerator;
+    private readonly ITranslationGeneratorFactory _translationGeneratorFactory;
     
     public ExportService
     (
         IUnitOfWork unitOfWork,
         ILogger<ExportService> logger,
         IAzureBlobService azureBlobService,
-        ITranslationGenerator translationGenerator
+        ITranslationGeneratorFactory translationGeneratorFactory
     )
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
         _azureBlobService = azureBlobService;
-        _translationGenerator = translationGenerator;
+        _translationGeneratorFactory = translationGeneratorFactory;
     }
     public async Task<ExportTranslationResult> ExportAsync(Guid projectId, ExportFileType format, CancellationToken cancellationToken)
     {
@@ -74,7 +74,8 @@ public class ExportService : IExportService
             }
             exportDataList.Add(exportData);
         }
-        var stream = await _translationGenerator.GenerateAsync(
+        var generator = _translationGeneratorFactory.GetGenerator(format);
+        var stream = await generator.GenerateAsync(
             exportDataList,
             cancellationToken);
         

@@ -8,6 +8,7 @@ using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Infrastructure.Authentication;
 using MySolution.Infrastructure.Authorization;
 using MySolution.Infrastructure.BackgroundServices;
+using MySolution.Infrastructure.ImportExport;
 using MySolution.Infrastructure.ImportExport.Generators;
 using MySolution.Infrastructure.ImportExport.Services;
 using MySolution.Infrastructure.MassTransit;
@@ -104,6 +105,10 @@ public static class DependencyInjection
         services.AddScoped<IApiKeyContextAccessor, ApiKeyContextAccessor>();
         services.AddScoped<ITranslationGenerator, JsonGenerator>();
         services.AddScoped<IExportService, ExportService>();
+        services.AddScoped<ITranslationGenerator, JsonGenerator>();
+        services.AddScoped<ITranslationGenerator, CsvGenerator>();
+        services.AddScoped<ITranslationGenerator, ExcelGenerator>();
+        services.AddScoped<ITranslationGeneratorFactory, TranslationGeneratorFactory>();
         return services;
     }
 }

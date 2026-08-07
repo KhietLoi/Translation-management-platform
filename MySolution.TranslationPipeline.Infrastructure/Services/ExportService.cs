@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
-using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Common.Models;
-using Shared.Enums;
+using MySolution.TranslationPipeline.Application.Common.Interfaces.File;
+using MySolution.TranslationPipeline.Application.Common.Models;
 using SendGrid.Helpers.Errors.Model;
+using Shared.Enums;
 
-namespace MySolution.Infrastructure.ImportExport.Services;
+namespace MySolution.TranslationPipeline.Infrastructure.Services;
 
 public class ExportService : IExportService
 {

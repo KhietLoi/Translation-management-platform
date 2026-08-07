@@ -11,11 +11,6 @@
     <Project Path="MySolution.Email.Application/MySolution.Email.Application.csproj" />
     <Project Path="MySolution.Email.Infrastructure/MySolution.Email.Infrastructure.csproj" />
   </Folder>
-  <Folder Name="/Services/TranslationPipeline/">
-    <Project Path="MySolution.TranslationPipeline.Application/MySolution.TranslationPipeline.Application.csproj" />
-    <Project Path="MySolution.TranslationPipeline.Infrastructure/MySolution.TranslationPipeline.Infrastructure.csproj" />
-    <Project Path="MySolution.TranslationPipeline.Worker/MySolution.TranslationPipeline.Worker.csproj" />
-  </Folder>
   <Folder Name="/Tests/">
     <Project Path="AuthService.UnitTests/AuthService.UnitTests.csproj" />
     <Project Path="EmailService.UnitTests/EmailService.UnitTests.csproj" />
