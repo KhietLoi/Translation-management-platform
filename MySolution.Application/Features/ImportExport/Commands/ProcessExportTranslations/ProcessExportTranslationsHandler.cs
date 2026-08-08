@@ -44,7 +44,7 @@ public class ProcessExportTranslationsHandler : IRequestHandler<ProcessExportTra
 
             var result = await _exportService.ExportAsync(
                 job.ProjectId,
-                job.ExportFormat!.Value,
+                job.FileType!.Value,
                 cancellationToken);
 
             job.Status = TranslationJobStatus.Completed;

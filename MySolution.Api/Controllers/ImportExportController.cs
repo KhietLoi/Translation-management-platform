@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Helpers;
 using MySolution.Application.Features.ImportExport.Commands.ExportTranslations;
+using MySolution.Application.Features.ImportExport.Commands.ImportTranslations;
 
 namespace MySolution.Api.Controllers;
 
@@ -17,4 +18,11 @@ public class ImportExportController (IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    [HttpPost("import")]
+    public async Task<IActionResult> ImportTranslations([FromForm] ImportTranslationsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new ImportTranslationsCommand(request), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
 }

@@ -49,7 +49,7 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
                 ProjectId = payload.ProjectId,
                 Type = TranslationJobType.Export,
                 Status = TranslationJobStatus.Pending,
-                ExportFormat = payload.Format,
+                FileType = payload.Format,
                 CreatedAt = DateTime.UtcNow
             };
             await _unitOfWork.TranslationJob.Add(job);
