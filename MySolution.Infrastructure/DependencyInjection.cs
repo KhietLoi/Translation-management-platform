@@ -11,6 +11,7 @@ using MySolution.Infrastructure.BackgroundServices;
 using MySolution.Infrastructure.ImportExport;
 using MySolution.Infrastructure.ImportExport.Factories;
 using MySolution.Infrastructure.ImportExport.Generators;
+using MySolution.Infrastructure.ImportExport.Parsers;
 using MySolution.Infrastructure.ImportExport.Services;
 using MySolution.Infrastructure.MassTransit;
 using MySolution.Infrastructure.Options;
@@ -110,6 +111,11 @@ public static class DependencyInjection
         services.AddScoped<ITranslationGenerator, CsvGenerator>();
         services.AddScoped<ITranslationGenerator, ExcelGenerator>();
         services.AddScoped<ITranslationGeneratorFactory, TranslationGeneratorFactory>();
+        
+        
+        services.AddScoped<ITranslationParserFactory, TranslationParserFactory>();
+        services.AddScoped<ITranslationParser, JsonParser>();
+        services.AddScoped<IImportService, ImportService>();
         return services;
     }
 }

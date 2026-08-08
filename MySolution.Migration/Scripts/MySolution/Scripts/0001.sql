@@ -533,17 +533,22 @@ CREATE TABLE IF NOT EXISTS mysolution."ApiKeyUsageLogs"
     ON DELETE CASCADE
 );
 
+-- TranslationJobs
 CREATE TABLE IF NOT EXISTS mysolution."TranslationJobs"
 (
     "Id" UUID PRIMARY KEY,
 
     "ProjectId" UUID NOT NULL,
 
+    "LanguageId" UUID NULL,
+    
+    "NamespaceId" UUID NULL,
+
     "Type" INT NOT NULL,
 
     "Status" INT NOT NULL,
 
-    "ExportFormat" INT NULL,
+    "FileType" INT NULL,
 
     "BlobFileName" VARCHAR(500) NULL,
 
@@ -568,22 +573,51 @@ CREATE TABLE IF NOT EXISTS mysolution."TranslationJobs"
     "CompletedAt" TIMESTAMP NULL,
 
     CONSTRAINT fk_translation_jobs_project
-        FOREIGN KEY ("ProjectId")
-            REFERENCES mysolution."Projects"("Id")
-            ON DELETE CASCADE
+    FOREIGN KEY ("ProjectId")
+    REFERENCES mysolution."Projects"("Id")
+    ON DELETE CASCADE,
+
+    CONSTRAINT fk_translation_jobs_language
+    FOREIGN KEY ("LanguageId")
+    REFERENCES mysolution."Languages"("Id")
+    ON DELETE SET NULL,
+
+    CONSTRAINT fk_translation_jobs_namespace
+    FOREIGN KEY ("NamespaceId")
+    REFERENCES mysolution."ProjectNamespaces"("Id")
+    ON DELETE SET NULL
 );
 
-CREATE INDEX ix_translation_jobs_project_id
+CREATE INDEX IF NOT EXISTS ix_translation_jobs_project_id
     ON mysolution."TranslationJobs"("ProjectId");
 
-CREATE INDEX ix_translation_jobs_type
+CREATE INDEX IF NOT EXISTS ix_translation_jobs_language_id
+    ON mysolution."TranslationJobs"("LanguageId");
+
+CREATE INDEX IF NOT EXISTS ix_translation_jobs_type
     ON mysolution."TranslationJobs"("Type");
 
-CREATE INDEX ix_translation_jobs_status
+CREATE INDEX IF NOT EXISTS ix_translation_jobs_status
     ON mysolution."TranslationJobs"("Status");
 
-CREATE INDEX ix_translation_jobs_created_at
+CREATE INDEX IF NOT EXISTS ix_translation_jobs_created_at
     ON mysolution."TranslationJobs"("CreatedAt" DESC);
+
+CREATE INDEX IF NOT EXISTS ix_translation_jobs_project_status
+    ON mysolution."TranslationJobs"
+    (
+    "ProjectId",
+    "Status"
+    );
+
+
+
+CREATE INDEX IF NOT EXISTS ix_translation_jobs_project_type
+    ON mysolution."TranslationJobs"
+    (
+    "ProjectId",
+    "Type"
+    );
 
 CREATE INDEX IF NOT EXISTS "IX_ApiKeyUsageLogs_ApiKeyId"
     ON mysolution."ApiKeyUsageLogs" ("ApiKeyId");

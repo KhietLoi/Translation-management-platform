@@ -1,11 +1,69 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Logging;
+using MySolution.Application.Common.Interfaces.File;
+using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Features.ImportExport.Commands.ProcessImportTranslations;
 
 public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTranslationsCommand>
 {
-    public Task Handle(ProcessImportTranslationsCommand request, CancellationToken cancellationToken)
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IImportService _importService;
+    private readonly ILogger<ProcessImportTranslationsHandler> _logger;
+    
+    public ProcessImportTranslationsHandler(IUnitOfWork unitOfWork, IImportService importService, ILogger<ProcessImportTranslationsHandler> logger)
     {
-        throw new NotImplementedException();
+        _unitOfWork = unitOfWork;
+        _importService = importService;
+        _logger = logger;
+    }
+    
+    public async Task Handle(ProcessImportTranslationsCommand request, CancellationToken cancellationToken)
+    {
+        var job = await _unitOfWork.TranslationJob.GetByIdAsync(request.JobId);
+        if (job == null)
+        {
+            throw new Exception($"Job with id {request.JobId} not found");
+        }
+        
+        job.Status =TranslationJobStatus.Processing;
+        job.StartedAt = DateTime.UtcNow;
+        await _unitOfWork.SaveAsync(cancellationToken);
+        
+        if (job.LanguageId == null)
+        {
+            throw new InvalidOperationException(
+                $"Import job {job.Id} missing LanguageId.");
+        }
+
+        if (job.NamespaceId == null)
+        {
+            throw new InvalidOperationException(
+                $"Import job {job.Id} missing NamespaceId.");
+        }
+
+        if (string.IsNullOrWhiteSpace(job.BlobFileName))
+        {
+            throw new InvalidOperationException(
+                $"Import job {job.Id} missing BlobFileName.");
+        }
+        await _importService.ImportAsync(
+            job.ProjectId,
+            job.LanguageId.Value,
+            job.NamespaceId.Value,
+            job.BlobFileName!,
+            job.FileType!.Value,
+            cancellationToken);
+
+        job.Status = TranslationJobStatus.Completed;
+        job.CompletedAt = DateTime.UtcNow;
+
+        await _unitOfWork.SaveAsync(
+            cancellationToken);
+
+        _logger.LogInformation(
+            "Import job {JobId} completed",
+            job.Id);
     }
 }

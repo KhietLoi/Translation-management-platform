@@ -142,4 +142,15 @@ public class TranslationKeyRepository (AppDbContext context, ILogger logger) :
             .Include(x => x.TranslationValues)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<List<TranslationKey>> GetByProjectAndNamespaceWithTranslationValuesAsync(Guid projectId, Guid namespaceId,
+        CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .Include(x => x.TranslationValues)
+            .Where(x =>
+                x.ProjectId == projectId &&
+                x.NamespaceId == namespaceId)
+            .ToListAsync(cancellationToken);
+    }
 }

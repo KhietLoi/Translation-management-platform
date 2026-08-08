@@ -25,6 +25,7 @@ public static class MassTransitRegistration
         services.AddMassTransit(x =>
         {
             x.AddConsumer<ExportTranslationsConsumer>();
+            x.AddConsumer<ImportTranslationsConsumer>();
             x.UsingRabbitMq((context, cfg) =>
             {
                 cfg.Host(
@@ -54,6 +55,13 @@ public static class MassTransitRegistration
                 ConfigureRetry(e);
                 e.ConfigureConsumer<
                     ExportTranslationsConsumer>(context);
+            });
+        cfg.ReceiveEndpoint(
+            QueueNameHelper.Get<ImportTranslationsEvent>(),
+            e =>
+            {
+                ConfigureRetry(e);
+                e.ConfigureConsumer<ImportTranslationsConsumer>(context);
             });
     }
     //Retry RabbitMq:

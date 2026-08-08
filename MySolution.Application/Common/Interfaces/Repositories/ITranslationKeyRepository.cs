@@ -28,6 +28,10 @@ public interface ITranslationKeyRepository : IRepository<TranslationKey>
     // Get translation keys by project id with translation values
     Task<List<TranslationKey>> GetByProjectWithTranslationValuesAsync(Guid projectId, CancellationToken cancellationToken);
     
-    
+    Task<List<TranslationKey>>
+        GetByProjectAndNamespaceWithTranslationValuesAsync(
+            Guid projectId,
+            Guid namespaceId,
+            CancellationToken cancellationToken);
     
 }
