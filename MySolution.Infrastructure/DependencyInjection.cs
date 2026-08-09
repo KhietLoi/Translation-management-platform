@@ -8,7 +8,6 @@ using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Infrastructure.Authentication;
 using MySolution.Infrastructure.Authorization;
 using MySolution.Infrastructure.BackgroundServices;
-using MySolution.Infrastructure.ImportExport;
 using MySolution.Infrastructure.ImportExport.Factories;
 using MySolution.Infrastructure.ImportExport.Generators;
 using MySolution.Infrastructure.ImportExport.Parsers;
@@ -114,8 +113,13 @@ public static class DependencyInjection
         
         
         services.AddScoped<ITranslationParserFactory, TranslationParserFactory>();
-        services.AddScoped<ITranslationParser, JsonParser>();
         services.AddScoped<IImportService, ImportService>();
+        services.AddScoped<ITranslationParser, JsonParser>();
+        services.AddScoped<ITranslationParser, CsvParser>();
+        services.AddScoped<ITranslationParser, ExcelParser>();
+        
+       
+        
         return services;
     }
 }

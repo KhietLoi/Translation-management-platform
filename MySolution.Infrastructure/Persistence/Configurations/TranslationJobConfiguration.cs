@@ -27,6 +27,8 @@ public class TranslationJobConfiguration
             .HasDefaultValue(0);
         builder.Property(x => x.FailedRecords)
             .HasDefaultValue(0);
+        builder.Property(x => x.SkippedRecords)
+            .HasDefaultValue(0);
         builder.Property(x => x.FileType);
         builder.Property(x => x.BlobFileName)
             .HasMaxLength(500);

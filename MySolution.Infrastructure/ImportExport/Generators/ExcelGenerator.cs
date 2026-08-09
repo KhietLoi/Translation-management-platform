@@ -1,4 +1,5 @@
-﻿using ClosedXML.Excel;
+﻿using System.IO.Compression;
+using ClosedXML.Excel;
 using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Models;
 using MySolution.Domain.Enums;
@@ -9,30 +10,53 @@ public class ExcelGenerator : ITranslationGenerator
 {
     public FileType Format => FileType.Excel;
 
-    public async Task<MemoryStream> GenerateAsync(IReadOnlyCollection<TranslationExportData> data, CancellationToken cancellationToken)
+    public async Task<MemoryStream> GenerateAsync(
+        IReadOnlyCollection<TranslationExportData> data,
+        CancellationToken cancellationToken)
     {
-        var workbook = new XLWorkbook();
-        
-        foreach (var language in data)
+        var zipStream = new MemoryStream();
+
+        using (var archive = new ZipArchive(
+                   zipStream,
+                   ZipArchiveMode.Create,
+                   leaveOpen: true))
         {
-            var worksheet = workbook.Worksheets.Add(language.LanguageCode);
-
-            worksheet.Cell(1, 1).Value = "Key";
-            worksheet.Cell(1, 2).Value = "Value";
-            var row = 2;
-
-            foreach (var item in language.Translations)
+            foreach (var language in data)
             {
-                worksheet.Cell(row, 1).Value = item.Key;
-                worksheet.Cell(row, 2).Value = item.Value;
-                row++;
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var entry = archive.CreateEntry(
+                    $"{language.LanguageCode}.xlsx",
+                    CompressionLevel.Optimal);
+
+                await using var entryStream = entry.Open();
+
+                using var workbook = new XLWorkbook();
+
+                var worksheet = workbook.Worksheets.Add("Translations");
+
+                worksheet.Cell(1, 1).Value = "Key";
+                worksheet.Cell(1, 2).Value = "Value";
+
+                worksheet.Row(1).Style.Font.Bold = true;
+
+                var row = 2;
+
+                foreach (var item in language.Translations)
+                {
+                    worksheet.Cell(row, 1).Value = item.Key;
+                    worksheet.Cell(row, 2).Value = item.Value;
+                    row++;
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                workbook.SaveAs(entryStream);
             }
         }
 
-        var stream = new MemoryStream();
-        workbook.SaveAs(stream);
-        stream.Position = 0;
+        zipStream.Position = 0;
 
-        return await Task.FromResult(stream);
+        return zipStream;
     }
 }

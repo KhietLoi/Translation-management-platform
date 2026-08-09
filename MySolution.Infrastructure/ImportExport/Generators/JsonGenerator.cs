@@ -1,4 +1,5 @@
 ﻿using System.IO.Compression;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Models;
@@ -30,7 +31,8 @@ public class JsonGenerator : ITranslationGenerator
                     languageData.Translations,
                     new JsonSerializerOptions
                     {
-                        WriteIndented = true
+                        WriteIndented = true,
+                        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
                     },
                     cancellationToken);
             }

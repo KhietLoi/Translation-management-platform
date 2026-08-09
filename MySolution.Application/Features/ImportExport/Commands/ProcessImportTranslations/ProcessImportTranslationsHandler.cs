@@ -33,22 +33,19 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
         
         if (job.LanguageId == null)
         {
-            throw new InvalidOperationException(
-                $"Import job {job.Id} missing LanguageId.");
+            throw new InvalidOperationException($"Import job {job.Id} missing LanguageId.");
         }
 
         if (job.NamespaceId == null)
         {
-            throw new InvalidOperationException(
-                $"Import job {job.Id} missing NamespaceId.");
+            throw new InvalidOperationException($"Import job {job.Id} missing NamespaceId.");
         }
 
         if (string.IsNullOrWhiteSpace(job.BlobFileName))
         {
-            throw new InvalidOperationException(
-                $"Import job {job.Id} missing BlobFileName.");
+            throw new InvalidOperationException($"Import job {job.Id} missing BlobFileName.");
         }
-        await _importService.ImportAsync(
+        var result = await _importService.ImportAsync(
             job.ProjectId,
             job.LanguageId.Value,
             job.NamespaceId.Value,
@@ -56,14 +53,14 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
             job.FileType!.Value,
             cancellationToken);
 
+        job.TotalRecords = result.TotalRecords;
+        job.SuccessRecords = result.CreatedKeys + result.CreatedValues + result.UpdatedValues;
+        job.SkippedRecords = result.SkippedRecords;
+        job.FailedRecords = result.FailedRecords;
         job.Status = TranslationJobStatus.Completed;
         job.CompletedAt = DateTime.UtcNow;
+        await _unitOfWork.SaveAsync(cancellationToken);
 
-        await _unitOfWork.SaveAsync(
-            cancellationToken);
-
-        _logger.LogInformation(
-            "Import job {JobId} completed",
-            job.Id);
+        _logger.LogInformation("Import job {JobId} completed", job.Id);
     }
 }
