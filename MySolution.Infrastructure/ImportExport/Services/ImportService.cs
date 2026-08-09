@@ -2,6 +2,7 @@
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Application.Common.Models;
 using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
 using SendGrid.Helpers.Errors.Model;
@@ -15,13 +16,11 @@ public class ImportService : IImportService
     private readonly IAzureBlobService _azureBlobService;
     private readonly ITranslationParserFactory _translationParserFactory;
 
-    public ImportService
-    (
+    public ImportService(
         ILogger<ImportService> logger,
         IUnitOfWork unitOfWork,
         IAzureBlobService azureBlobService,
-        ITranslationParserFactory translationParserFactory
-    )
+        ITranslationParserFactory translationParserFactory)
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
@@ -29,48 +28,37 @@ public class ImportService : IImportService
         _translationParserFactory = translationParserFactory;
     }
 
-    public async Task ImportAsync
-    (
+    public async Task<ImportStatistics> ImportAsync(
         Guid projectId,
         Guid languageId,
         Guid namespaceId,
         string fileName,
         FileType format,
-        CancellationToken cancellationToken
-    )
+        CancellationToken cancellationToken)
     {
         // Validate project
-        var project =
-            await _unitOfWork.Project.GetByIdAsync(projectId);
-
+        var project = await _unitOfWork.Project.GetByIdAsync(projectId);
         if (project == null)
         {
-            throw new NotFoundException(
-                $"Project with ID {projectId} not found.");
+            throw new NotFoundException($"Project with ID {projectId} not found.");
         }
 
         // Validate language
-        var language =
-            await _unitOfWork.Language.GetByIdAsync(languageId);
-
+        var language = await _unitOfWork.Language.GetByIdAsync(languageId);
         if (language == null)
         {
-            throw new NotFoundException(
-                $"Language with ID {languageId} not found.");
+            throw new NotFoundException($"Language with ID {languageId} not found.");
         }
-        var projectNamespace =
-            await _unitOfWork.Namespace.GetByIdAsync(namespaceId);
+
+        // Validate namespace
+        var projectNamespace = await _unitOfWork.Namespace.GetByIdAsync(namespaceId);
         if (projectNamespace == null)
         {
-            throw new NotFoundException(
-                $"Namespace with ID {namespaceId} not found.");
+            throw new NotFoundException($"Namespace with ID {namespaceId} not found.");
         }
-        // Download file from blob
-        await using var stream =
-            await _azureBlobService.DownloadFileAsync(
-                fileName,
-                cancellationToken);
 
+        // Download file from Blob Storage
+        await using var stream = await _azureBlobService.DownloadFileAsync(fileName, cancellationToken);
         if (stream == null)
         {
             throw new NotFoundException(
@@ -78,15 +66,13 @@ public class ImportService : IImportService
         }
 
         // Get parser
-        var parser =
-            _translationParserFactory.GetParser(format);
-
+        var parser = _translationParserFactory.GetParser(format);
         // Parse file
-        var translations =
-            await parser.ParseAsync(
-                stream,
-                cancellationToken);
+        var translations = await parser.ParseAsync(stream, cancellationToken);
 
+        _logger.LogInformation("Parsed {Count} translations from file {FileName}", translations.Count, fileName);
+        
+        
         if (!translations.Any())
         {
             throw new BadRequestException(
@@ -94,28 +80,42 @@ public class ImportService : IImportService
         }
 
         // Save translations
-        await SaveTranslationsAsync(
-            projectId,
-            languageId,
-            namespaceId,
-            translations,
-            cancellationToken);
+        var result =
+            await SaveTranslationsAsync(
+                projectId,
+                languageId,
+                namespaceId,
+                translations,
+                cancellationToken);
 
         _logger.LogInformation(
-            "Imported {Count} translations into project {ProjectId}",
-            translations.Count,
-            projectId);
+            "Import completed for project {ProjectId}. " +
+            "Total={Total}, CreatedKeys={CreatedKeys}, " +
+            "CreatedValues={CreatedValues}, UpdatedValues={UpdatedValues}, " +
+            "Skipped={Skipped}, Failed={Failed}",
+            projectId,
+            result.TotalRecords,
+            result.CreatedKeys,
+            result.CreatedValues,
+            result.UpdatedValues,
+            result.SkippedRecords,
+            result.FailedRecords);
+
+        return result;
     }
 
-    private async Task SaveTranslationsAsync
-    (
+    private async Task<ImportStatistics> SaveTranslationsAsync(
         Guid projectId,
         Guid languageId,
         Guid namespaceId,
         Dictionary<string, string> translations,
-        CancellationToken cancellationToken
-    )
+        CancellationToken cancellationToken)
     {
+        var result = new ImportStatistics
+        {
+            TotalRecords = translations.Count
+        };
+
         var translationKeys =
             await _unitOfWork.TranslationKey
                 .GetByProjectAndNamespaceWithTranslationValuesAsync(
@@ -123,23 +123,25 @@ public class ImportService : IImportService
                     namespaceId,
                     cancellationToken);
 
-        var keyLookup =
-            translationKeys.ToDictionary(
-                x => x.Key,
-                x => x);    
+        var keyLookup = translationKeys.ToDictionary(x => x.Key, x => x);
 
         foreach (var item in translations)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            // Skip empty key
             if (string.IsNullOrWhiteSpace(item.Key))
             {
+                result.SkippedRecords++;
+                _logger.LogWarning("Skipped import record because translation key is empty.");
                 continue;
             }
 
             var key = item.Key.Trim();
-            var value = item.Value?.Trim() ?? string.Empty;
-
+            var value = item.Value.Trim();
+            // Find existing TranslationKey
             if (!keyLookup.TryGetValue(key, out var translationKey))
             {
+                // Create new TranslationKey
                 translationKey = new TranslationKey
                 {
                     Id = Guid.CreateVersion7(),
@@ -148,17 +150,17 @@ public class ImportService : IImportService
                     Key = key
                 };
 
-                await _unitOfWork.TranslationKey.Add(
-                    translationKey);
-
+                await _unitOfWork.TranslationKey.Add(translationKey);
                 keyLookup[key] = translationKey;
+                result.CreatedKeys++;
+                _logger.LogInformation("Created translation key {Key}", key);
             }
 
+            // Find TranslationValue for target language
             var translationValue =
-                translationKey.TranslationValues
-                    .FirstOrDefault(x =>
-                        x.LanguageId == languageId);
+                translationKey.TranslationValues.FirstOrDefault(x => x.LanguageId == languageId);
 
+            // New TranslationValue
             if (translationValue == null)
             {
                 translationValue = new TranslationValue
@@ -167,37 +169,43 @@ public class ImportService : IImportService
                     TranslationKeyId = translationKey.Id,
                     LanguageId = languageId,
                     Value = value,
-
                     Status = TranslationStatus.Draft,
-
                     CreatedAt = DateTime.UtcNow
                 };
 
-                translationKey.TranslationValues
-                    .Add(translationValue);
-
-                await _unitOfWork.TranslationValue.Add(
-                    translationValue);
-
+                translationKey.TranslationValues.Add(translationValue);
+                await _unitOfWork.TranslationValue.Add(translationValue);
+                result.CreatedValues++;
+                _logger.LogInformation(
+                    "Created translation value for key {Key}, language {LanguageId}", key, languageId);
                 continue;
             }
 
+            // Do not overwrite Reviewed / Published/ Translated translation
+            if (translationValue.Status == TranslationStatus.Reviewed ||
+                translationValue.Status == TranslationStatus.Published||
+                translationValue.Status == TranslationStatus.Translated)
+            {
+                result.SkippedRecords++;
+                _logger.LogWarning("Skipped translation key {Key} because current status is {Status}", key, translationValue.Status);
+                continue;
+            }
+
+            // Update existing Draft / Rejected translation
             translationValue.Value = value;
-
             translationValue.Status = TranslationStatus.Draft;
-
             translationValue.ReviewedAt = null;
             translationValue.ReviewedBy = null;
-
             translationValue.PublishedAt = null;
             translationValue.PublishedBy = null;
-
             translationValue.RejectionReason = null;
-
             translationValue.UpdatedAt = DateTime.UtcNow;
-        }
+            result.UpdatedValues++;
 
-        await _unitOfWork.SaveAsync(
-            cancellationToken);
+            _logger.LogInformation("Updated translation value for key {Key}, language {LanguageId}", key, languageId);
+        }
+        
+        await _unitOfWork.SaveAsync(cancellationToken);
+        return result;
     }
 }

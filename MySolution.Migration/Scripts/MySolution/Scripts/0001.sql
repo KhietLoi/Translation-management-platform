@@ -561,6 +561,8 @@ CREATE TABLE IF NOT EXISTS mysolution."TranslationJobs"
     "SuccessRecords" INT NOT NULL DEFAULT 0,
 
     "FailedRecords" INT NOT NULL DEFAULT 0,
+    
+    "SkippedRecords" INT NOT NULL DEFAULT 0,
 
     "ErrorMessage" VARCHAR(2000) NULL,
 

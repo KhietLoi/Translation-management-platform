@@ -47,10 +47,7 @@ public class ImportTranslationsHandler : IRequestHandler<ImportTranslationsComma
         try
         {    
             var blobFileName =  $"imports/{Guid.NewGuid()}_{payload.File.FileName}";
-            await _azureBlobService.UploadFileAsync(
-                payload.File.OpenReadStream(),
-                blobFileName,
-                cancellationToken);
+            await _azureBlobService.UploadFileAsync(payload.File.OpenReadStream(), blobFileName, cancellationToken);
             var job = new TranslationJob
             {
                 Id = Guid.CreateVersion7(),

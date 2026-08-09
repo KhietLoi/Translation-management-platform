@@ -20,6 +20,7 @@
         public int TotalRecords { get; set; }
         public int SuccessRecords { get; set; }
         public int FailedRecords { get; set; }
+        public int SkippedRecords { get; set; }
         public string? ErrorMessage { get; set; }
         public Guid CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
