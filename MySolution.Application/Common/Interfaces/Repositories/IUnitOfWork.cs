@@ -28,6 +28,8 @@ public interface IUnitOfWork
     IApiKeyRepository ApiKey { get; }
     IApplicationRepository Application { get; }
     IApiKeyUsageLogRepository ApiKeyUsageLog { get; }
+    
+    ITranslationReleaseRepository TranslationRelease { get; }
 
     Task SaveAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> OpenTransactionAsync(CancellationToken cancellationToken = default);

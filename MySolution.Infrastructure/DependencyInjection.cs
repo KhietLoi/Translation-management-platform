@@ -15,6 +15,7 @@ using MySolution.Infrastructure.ImportExport.Services;
 using MySolution.Infrastructure.MassTransit;
 using MySolution.Infrastructure.Options;
 using MySolution.Infrastructure.Persistence;
+using MySolution.Infrastructure.Publish.Services;
 using MySolution.Infrastructure.Services;
 using StackExchange.Redis;
 
@@ -117,6 +118,8 @@ public static class DependencyInjection
         services.AddScoped<ITranslationParser, JsonParser>();
         services.AddScoped<ITranslationParser, CsvParser>();
         services.AddScoped<ITranslationParser, ExcelParser>();
+
+        services.AddScoped<IPublishService, PublishService>();
         
        
         

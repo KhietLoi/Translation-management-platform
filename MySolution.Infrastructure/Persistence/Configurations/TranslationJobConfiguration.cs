@@ -38,9 +38,15 @@ public class TranslationJobConfiguration
             .HasMaxLength(1000);
         builder.Property(x => x.ErrorMessage)
             .HasMaxLength(2000);
+        
+        builder.Property(x => x.TotalSteps)
+            .HasDefaultValue(0);
+        builder.Property(x => x.CurrentStep)
+            .HasDefaultValue(0);
+        builder.Property(x => x.ResultBlobFileName)
+            .HasMaxLength(500);
 
         // Project
-
         builder
             .HasOne(x => x.Project)
             .WithMany(x => x.TranslationJobs)
@@ -48,7 +54,6 @@ public class TranslationJobConfiguration
             .OnDelete(DeleteBehavior.Cascade);
 
         // Language
-
         builder
             .HasOne(x => x.Language)
             .WithMany()
@@ -62,7 +67,6 @@ public class TranslationJobConfiguration
             .OnDelete(DeleteBehavior.SetNull);
 
         // Indexes
-
         builder.HasIndex(x => x.ProjectId);
         builder.HasIndex(x => x.LanguageId);
         builder.HasIndex(x => x.Type);
