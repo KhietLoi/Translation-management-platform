@@ -153,4 +153,14 @@ public class TranslationKeyRepository (AppDbContext context, ILogger logger) :
                 x.NamespaceId == namespaceId)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<List<TranslationKey>> GetPublishedTranslationsByProjectAsync(Guid projectId, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .Include(x => x.TranslationValues)
+            .ThenInclude(x => x.Language)
+            .Where(x => x.ProjectId == projectId)
+            .ToListAsync(cancellationToken);
+    }
+    
 }

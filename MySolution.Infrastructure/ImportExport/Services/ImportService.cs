@@ -61,8 +61,7 @@ public class ImportService : IImportService
         await using var stream = await _azureBlobService.DownloadFileAsync(fileName, cancellationToken);
         if (stream == null)
         {
-            throw new NotFoundException(
-                $"Unable to download file '{fileName}'.");
+            throw new NotFoundException($"Unable to download file '{fileName}'.");
         }
 
         // Get parser
@@ -72,11 +71,9 @@ public class ImportService : IImportService
 
         _logger.LogInformation("Parsed {Count} translations from file {FileName}", translations.Count, fileName);
         
-        
         if (!translations.Any())
         {
-            throw new BadRequestException(
-                "Import file contains no translation data.");
+            throw new BadRequestException("Import file contains no translation data.");
         }
 
         // Save translations

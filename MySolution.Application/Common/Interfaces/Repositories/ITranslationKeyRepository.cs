@@ -34,4 +34,5 @@ public interface ITranslationKeyRepository : IRepository<TranslationKey>
             Guid namespaceId,
             CancellationToken cancellationToken);
     
+    Task<List<TranslationKey>> GetPublishedTranslationsByProjectAsync(Guid projectId, CancellationToken cancellationToken);
 }

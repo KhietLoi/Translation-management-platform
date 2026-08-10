@@ -30,6 +30,7 @@ public class AppDbContext : DbContext
     public DbSet<ApiKeyUsageLog> ApiKeyUsageLogs => Set<ApiKeyUsageLog>();
     public DbSet<Domain.Entities.Application> Applications => Set<Domain.Entities.Application>();
     public DbSet<TranslationJob> TranslationJobs => Set<TranslationJob>();
+    public DbSet<TranslationRelease> TranslationReleases => Set<TranslationRelease>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -573,6 +573,13 @@ CREATE TABLE IF NOT EXISTS mysolution."TranslationJobs"
     "StartedAt" TIMESTAMP NULL,
 
     "CompletedAt" TIMESTAMP NULL,
+    
+    "Notes" VARCHAR(1000) NULL,
+    
+    "CurrentStep" INT NOT NULL DEFAULT 0,
+    "TotalSteps" INT NOT NULL DEFAULT 0,
+    "ReleaseVersion" INT NULL,
+    "ResultBlobFileName" VARCHAR(5000) NULL,
 
     CONSTRAINT fk_translation_jobs_project
     FOREIGN KEY ("ProjectId")
@@ -589,6 +596,57 @@ CREATE TABLE IF NOT EXISTS mysolution."TranslationJobs"
     REFERENCES mysolution."ProjectNamespaces"("Id")
     ON DELETE SET NULL
 );
+
+-- TranslationRealease:
+CREATE TABLE IF NOT EXISTS mysolution."TranslationReleases"
+(
+    "Id" UUID NOT NULL,
+    "ProjectId" UUID NOT NULL,
+
+    "Version" INTEGER NOT NULL,
+
+    "BlobFileName" VARCHAR(500) NOT NULL,
+    "DownloadUrl" VARCHAR(1000),
+    "Checksum" VARCHAR(256),
+
+    "IsActive" BOOLEAN NOT NULL DEFAULT TRUE,
+
+    "Notes" VARCHAR(1000),
+
+    "PublishedBy" UUID NOT NULL,
+    "PublishedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+
+    CONSTRAINT "PK_TranslationReleases"
+    PRIMARY KEY ("Id"),
+
+    CONSTRAINT "FK_TranslationReleases_Projects_ProjectId"
+    FOREIGN KEY ("ProjectId")
+    REFERENCES mysolution."Projects" ("Id")
+    ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS
+    "IX_TranslationReleases_ProjectId"
+    ON mysolution."TranslationReleases"
+    (
+    "ProjectId"
+    );
+
+CREATE INDEX IF NOT EXISTS
+    "IX_TranslationReleases_ProjectId_Version"
+    ON mysolution."TranslationReleases"
+    (
+    "ProjectId",
+    "Version"
+    );
+
+CREATE INDEX IF NOT EXISTS
+    "IX_TranslationReleases_ProjectId_IsActive"
+    ON mysolution."TranslationReleases"
+    (
+    "ProjectId",
+    "IsActive"
+    );
 
 CREATE INDEX IF NOT EXISTS ix_translation_jobs_project_id
     ON mysolution."TranslationJobs"("ProjectId");

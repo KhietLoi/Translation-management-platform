@@ -29,4 +29,11 @@
         public Project Project { get; set; } = null!;
         public Language Language { get; set; } = null!;
         public ProjectNamespace Namespace { get; set; } = null!;
+        
+        //Publish:
+        public string? Notes { get; set; }
+        public int CurrentStep { get; set; }
+        public int TotalSteps { get; set; }
+        public int? ReleaseVersion { get; set; }
+        public string? ResultBlobFileName { get; set; }
     }

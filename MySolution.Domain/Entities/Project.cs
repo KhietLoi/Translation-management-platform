@@ -15,4 +15,5 @@ public class Project
     public ICollection<TranslationKey> TranslationKeys { get; set; } = new List<TranslationKey>();
     public ICollection<Application> Applications { get; set; } = new List<Application>();
     public ICollection<TranslationJob> TranslationJobs { get; set; } = new List<TranslationJob>();
+    public ICollection<TranslationRelease> TranslationReleases { get; set; } = new List<TranslationRelease>();
 }

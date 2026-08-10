@@ -46,6 +46,24 @@ public class ImportTranslationsHandler : IRequestHandler<ImportTranslationsComma
 
         try
         {    
+            // Validate project and namespace:
+            var isProjectNamespaceValid = await _unitOfWork.Namespace.GetByIdAndProjectIdAsync(payload.NamespaceId, payload.ProjectId);
+            if (isProjectNamespaceValid == null)
+            {
+                response.ErrorMessage = "Invalid project or namespace.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
+            
+            //Check language
+            var isLanguageValid = await _unitOfWork.ProjectLanguage.IsLanguageBelongsToProjectAsync(payload.LanguageId, payload.ProjectId);
+            if (!isLanguageValid)
+            {
+                response.ErrorMessage = "Language is not valid or does not belong to the specified project.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
+            
             var blobFileName =  $"imports/{Guid.NewGuid()}_{payload.File.FileName}";
             await _azureBlobService.UploadFileAsync(payload.File.OpenReadStream(), blobFileName, cancellationToken);
             var job = new TranslationJob

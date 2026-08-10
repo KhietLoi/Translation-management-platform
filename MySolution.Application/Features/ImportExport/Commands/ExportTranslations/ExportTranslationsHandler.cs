@@ -15,20 +15,17 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
 {
     private readonly ILogger<ExportTranslationsHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
-    private readonly IExportService _exportService;
     private readonly IMessageSender _messageSender;
 
     public ExportTranslationsHandler
     (
         ILogger<ExportTranslationsHandler> logger,
 		IUnitOfWork unitOfWork,
-        IExportService exportService,
         IMessageSender messageSender
     )
     {
         _logger = logger;
 		_unitOfWork = unitOfWork;
-        _exportService = exportService;
         _messageSender = messageSender;
     }
 
@@ -43,6 +40,15 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
 
         try
         {
+            // Validate project:
+            var isProjectValid = await _unitOfWork.Project.ExistsAsync(payload.ProjectId);
+            if (!isProjectValid)
+            {
+                response.ErrorMessage = "Project not found.";
+                response.WithStatus(HttpStatusCode.NotFound);
+                return response;
+            }
+            
             var job = new TranslationJob
             {
                 Id = Guid.CreateVersion7(),
@@ -52,6 +58,7 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
                 FileType = payload.Format,
                 CreatedAt = DateTime.UtcNow
             };
+            
             await _unitOfWork.TranslationJob.Add(job);
             await _unitOfWork.SaveAsync(cancellationToken);
             
@@ -60,7 +67,6 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
                 JobId = job.Id,
             }, cancellationToken);
             
-            //var result = await _exportService.ExportAsync(payload.ProjectId, payload.Format, cancellationToken);
             response.Data = new ExportTranslationData
             {
                 JobId = job.Id
