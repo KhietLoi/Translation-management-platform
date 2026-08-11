@@ -29,4 +29,17 @@ public class TranslationReleaseRepository (AppDbContext context, ILogger logger)
     {
         return await DbSet.AnyAsync(x => x.ProjectId == projectId && x.Checksum == checksum, cancellationToken);
     }
+
+    public async Task<(List<TranslationRelease> Items, int TotalCount)> GetReleaseHistoryAsync(Guid projectId, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        var query = DbSet.AsNoTracking().Where(x => x.ProjectId == projectId);
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderByDescending(x => x.Version)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
 }

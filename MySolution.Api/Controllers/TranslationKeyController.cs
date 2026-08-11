@@ -6,6 +6,8 @@ using MySolution.Application.Features.TranslationKey.Queries.GetTranslationKeyBy
 using MySolution.Application.Features.TranslationKey.Queries.GetTranslationKeys;
 using MySolution.Application.Features.TranslationManagement.Commands.CreateTranslationKey;
 using MySolution.Application.Features.TranslationManagement.Commands.UpdateTranslationKey;
+using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationKeyById;
+using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationKeys;
 
 namespace MySolution.Api.Controllers;
 

@@ -1,6 +1,7 @@
 ﻿using MediatR;
+using MySolution.Application.Features.TranslationKey.Queries.GetTranslationKeys;
 
-namespace MySolution.Application.Features.TranslationKey.Queries.GetTranslationKeys;
+namespace MySolution.Application.Features.TranslationManagement.Queries.GetTranslationKeys;
 
 public class GetTranslationKeysQuery : IRequest<GetTranslationKeysResponse>
 {
