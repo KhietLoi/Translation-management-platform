@@ -24,4 +24,9 @@ public class TranslationReleaseRepository (AppDbContext context, ILogger logger)
             .Where(x => x.IsActive == true)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<bool> ExistReleaseWithChecksumAsync(Guid projectId, string checksum, CancellationToken cancellationToken)
+    {
+        return await DbSet.AnyAsync(x => x.ProjectId == projectId && x.Checksum == checksum, cancellationToken);
+    }
 }

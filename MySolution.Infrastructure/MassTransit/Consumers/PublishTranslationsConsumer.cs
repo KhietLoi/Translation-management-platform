@@ -38,7 +38,7 @@ public class PublishTranslationsConsumer : IConsumer<PublishTranslationsEvent>
         await using var lockHandle =  await _distributedLockService.AcquireAsync(lockey,
             TimeSpan.FromMinutes(5), context.CancellationToken);
 
-        if (!lockHandle.IsRequired)
+        if (!lockHandle.IsAcquired)
         {
             job.Status = TranslationJobStatus.Failed;
             job.ErrorMessage = "Project is currently being published";

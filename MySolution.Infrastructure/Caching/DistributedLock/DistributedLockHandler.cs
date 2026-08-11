@@ -16,6 +16,6 @@ public class DistributedLockHandler : IDistributedLockHandler
         _redLock.Dispose();
         return ValueTask.CompletedTask;
     }
-
-    public bool IsRequired => _redLock.IsAcquired;
+    
+    public bool IsAcquired => _redLock.IsAcquired;
 }

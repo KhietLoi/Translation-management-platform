@@ -6,4 +6,5 @@ public interface ITranslationReleaseRepository : IRepository <TranslationRelease
 {
     Task<int> GetLatestVersionAsync(Guid projectId, CancellationToken cancellationToken);
     Task<List<TranslationRelease>> GetActiveByProjectAsync(Guid projectId, CancellationToken cancellationToken);
+    Task<bool> ExistReleaseWithChecksumAsync(Guid projectId, string checksum, CancellationToken cancellationToken);
 }
