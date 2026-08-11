@@ -2,5 +2,5 @@
 
 public interface IDistributedLockHandler : IAsyncDisposable
 {
-    bool IsRequired { get; }
+    bool IsAcquired { get; }
 }

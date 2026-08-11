@@ -72,8 +72,7 @@ public static class DependencyInjection
         
         services.AddSingleton<RedLockFactory>(sp =>
         {
-            var multiplexer =
-                sp.GetRequiredService<IConnectionMultiplexer>();
+            var multiplexer = sp.GetRequiredService<IConnectionMultiplexer>();
 
             return RedLockFactory.Create(
                 new List<RedLockMultiplexer>
