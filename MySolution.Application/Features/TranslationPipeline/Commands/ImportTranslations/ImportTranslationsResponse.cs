@@ -1,7 +1,7 @@
 ﻿using MySolution.Application.Common.Models;
 using MySolution.Domain.Enums;
 
-namespace MySolution.Application.Features.ImportExport.Commands.ImportTranslations;
+namespace MySolution.Application.Features.TranslationPipeline.Commands.ImportTranslations;
 
 public class ImportTranslationsResponse : BaseResponse <ImportTranslationsData>
 {

@@ -2,7 +2,7 @@
 using MediatR;
 using MySolution.Application.Common.Interfaces.DistributedLock;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Features.Publish.Commands.ProcessPublishTranslations;
+using MySolution.Application.Features.TranslationPipeline.Commands.ProcessPublishTranslations;
 using MySolution.Domain.Enums;
 using Shared.MassTransit.IntegrationEvents;
 

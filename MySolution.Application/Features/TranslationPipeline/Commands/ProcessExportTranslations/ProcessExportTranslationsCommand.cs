@@ -1,7 +1,7 @@
 using MediatR;
 using Shared.MassTransit.IntegrationEvents;
 
-namespace MySolution.Application.Features.ImportExport.Commands.ProcessExportTranslations;
+namespace MySolution.Application.Features.TranslationPipeline.Commands.ProcessExportTranslations;
 
 public class ProcessExportTranslationsCommand : IRequest
 {
