@@ -3,11 +3,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
+using MySolution.Application.Common.Interfaces.DistributedLock;
 using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Infrastructure.Authentication;
 using MySolution.Infrastructure.Authorization;
 using MySolution.Infrastructure.BackgroundServices;
+using MySolution.Infrastructure.Caching.DistributedLock;
 using MySolution.Infrastructure.ImportExport.Factories;
 using MySolution.Infrastructure.ImportExport.Generators;
 using MySolution.Infrastructure.ImportExport.Parsers;
@@ -17,6 +19,8 @@ using MySolution.Infrastructure.Options;
 using MySolution.Infrastructure.Persistence;
 using MySolution.Infrastructure.Publish.Services;
 using MySolution.Infrastructure.Services;
+using RedLockNet.SERedis;
+using RedLockNet.SERedis.Configuration;
 using StackExchange.Redis;
 
 namespace MySolution.Infrastructure;
@@ -65,6 +69,20 @@ public static class DependencyInjection
                 redisOptions.ConnectionString);
         });
         services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
+        
+        services.AddSingleton<RedLockFactory>(sp =>
+        {
+            var multiplexer =
+                sp.GetRequiredService<IConnectionMultiplexer>();
+
+            return RedLockFactory.Create(
+                new List<RedLockMultiplexer>
+                {
+                    new RedLockMultiplexer(multiplexer)
+                });
+        });
+
+        services.AddSingleton<IDistributedLockService, RedisDistributedLockService>();
         //services.AddScoped<ITokenBlacklistService, FakeTokenBlacklistService>();
         //Frontend Url:
         services.AddOptions<FrontendOptions>()
@@ -112,7 +130,6 @@ public static class DependencyInjection
         services.AddScoped<ITranslationGenerator, ExcelGenerator>();
         services.AddScoped<ITranslationGeneratorFactory, TranslationGeneratorFactory>();
         
-        
         services.AddScoped<ITranslationParserFactory, TranslationParserFactory>();
         services.AddScoped<IImportService, ImportService>();
         services.AddScoped<ITranslationParser, JsonParser>();
@@ -120,8 +137,6 @@ public static class DependencyInjection
         services.AddScoped<ITranslationParser, ExcelParser>();
 
         services.AddScoped<IPublishService, PublishService>();
-        
-       
         
         return services;
     }
