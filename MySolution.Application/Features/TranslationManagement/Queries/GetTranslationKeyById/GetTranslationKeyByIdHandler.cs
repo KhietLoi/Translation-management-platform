@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationKeyById;
 using Shared.Extensions;
 namespace MySolution.Application.Features.TranslationKey.Queries.GetTranslationKeyById;
 
