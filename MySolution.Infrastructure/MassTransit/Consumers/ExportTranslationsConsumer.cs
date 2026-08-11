@@ -1,6 +1,6 @@
 ﻿using MassTransit;
 using MediatR;
-using MySolution.Application.Features.ImportExport.Commands.ProcessExportTranslations;
+using MySolution.Application.Features.TranslationPipeline.Commands.ProcessExportTranslations;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Infrastructure.MassTransit.Consumers;

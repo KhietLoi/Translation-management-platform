@@ -4,7 +4,7 @@ using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Enums;
 
-namespace MySolution.Application.Features.ImportExport.Commands.ProcessExportTranslations;
+namespace MySolution.Application.Features.TranslationPipeline.Commands.ProcessExportTranslations;
 
 public class ProcessExportTranslationsHandler : IRequestHandler<ProcessExportTranslationsCommand>
 {

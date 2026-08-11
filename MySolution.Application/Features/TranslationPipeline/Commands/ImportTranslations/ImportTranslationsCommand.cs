@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MySolution.Application.Features.ImportExport.Commands.ImportTranslations;
+namespace MySolution.Application.Features.TranslationPipeline.Commands.ImportTranslations;
 
 public class ImportTranslationsCommand : IRequest<ImportTranslationsResponse>
 {

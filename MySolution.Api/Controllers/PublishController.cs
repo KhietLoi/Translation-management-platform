@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Helpers;
-using MySolution.Application.Features.Publish.Commands.PublishTranslations;
+using MySolution.Application.Features.TranslationPipeline.Commands.PublishTranslations;
 
 namespace MySolution.Api.Controllers;
 

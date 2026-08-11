@@ -21,7 +21,6 @@
         <Folder Include="Features\Language\Commands\" />
         <Folder Include="Features\Language\Queries\" />
         <Folder Include="Features\Project\Queries\" />
-        <Folder Include="Features\Publish\Commands\" />
         <Folder Include="Features\TranslationManagement\Queries\" />
         <Folder Include="Features\UsageLog\Commands\" />
         <Folder Include="Features\User\UserProfile\Queries\" />
