@@ -21,7 +21,7 @@ public class AzureBlobService : IAzureBlobService
         await _container.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
         var blobClient = _container.GetBlobClient(fileName);
         await blobClient.UploadAsync(stream, true, cancellationToken);
-
+        
         return fileName;
     }
 
@@ -29,6 +29,7 @@ public class AzureBlobService : IAzureBlobService
     {
         var blobClient = _container.GetBlobClient(fileName);
         var response = await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
+        
         return response.Value;
     }
 
@@ -36,6 +37,7 @@ public class AzureBlobService : IAzureBlobService
     {
         var blobClient = _container.GetBlobClient(fileName);
         var response = await blobClient.DownloadContentAsync(cancellationToken);
+        
         return response.Value.Content.ToStream();
     }
 
@@ -43,6 +45,7 @@ public class AzureBlobService : IAzureBlobService
     {
         var blobClient = _container.GetBlobClient(fileName);
         var exists = await blobClient.ExistsAsync(cancellationToken);
+        
         return exists.Value;
     }
 
