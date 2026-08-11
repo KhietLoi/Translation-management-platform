@@ -62,13 +62,15 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
                 throw new InvalidOperationException($"Import job {job.Id} missing FileType.");
             }
             
-            var result = await _importService.ImportAsync(
+            var result = await _importService.ImportAsync
+            (
                 job.ProjectId,
                 job.LanguageId.Value,
                 job.NamespaceId.Value,
                 job.BlobFileName!,
                 job.FileType!.Value,
-                cancellationToken);
+                cancellationToken
+            );
 
             job.TotalRecords = result.TotalRecords;
             job.SuccessRecords = result.CreatedKeys + result.CreatedValues + result.UpdatedValues;

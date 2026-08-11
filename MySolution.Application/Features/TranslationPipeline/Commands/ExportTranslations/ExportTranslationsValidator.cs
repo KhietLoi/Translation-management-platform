@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace MySolution.Application.Features.ImportExport.Commands.ExportTranslations;
+namespace MySolution.Application.Features.TranslationPipeline.Commands.ExportTranslations;
 
 public class ExportTranslationsValidator : AbstractValidator<ExportTranslationsCommand>
 {

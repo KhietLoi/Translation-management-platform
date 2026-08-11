@@ -70,7 +70,6 @@ public class PublishTranslationsHandler : IRequestHandler<PublishTranslationsCom
             {
                 JobId = job.Id,
             }, cancellationToken);
-
             
             response.Data = new PublishTranslationsData
             {

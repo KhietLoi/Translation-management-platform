@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Authorization.User;
 using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
-using MySolution.Application.Features.ImportExport.Commands.ExportTranslations;
+using MySolution.Application.Features.TranslationPipeline.Commands.ExportTranslations;
 using MySolution.Application.Features.TranslationPipeline.Commands.ImportTranslations;
 using MySolution.Application.Features.TranslationPipeline.Commands.PublishTranslations;
 using MySolution.Application.Features.TranslationPipeline.Queries.GetReleaseHistory;

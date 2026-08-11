@@ -1,15 +1,13 @@
 ﻿using System.Net;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
-
 using Shared.MassTransit.IntegrationEvents;
 
-namespace MySolution.Application.Features.ImportExport.Commands.ExportTranslations;
+namespace MySolution.Application.Features.TranslationPipeline.Commands.ExportTranslations;
 
 public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsCommand, ExportTranslationsResponse>
 {
