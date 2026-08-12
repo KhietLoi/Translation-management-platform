@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
 namespace MySolution.Application.Features.TranslationPipeline.Queries.GetTranslationJob;
 
 public class GetTranslationJobHandler : IRequestHandler<GetTranslationJobQuery, GetTranslationJobResponse>
@@ -30,10 +29,43 @@ public class GetTranslationJobHandler : IRequestHandler<GetTranslationJobQuery, 
 
         try
         {
+            //Check projectId:
+            var project = await _unitOfWork.Project.ExistsAsync(request.ProjectId);
+            if (!project)
+            {
+                response.ErrorMessage = "Project not found.";
+                response.WithStatus(HttpStatusCode.NotFound);
+                return response;
+            }
+            
+            var (items, totalCount) =
+                await _unitOfWork.TranslationJob
+                    .GetHistoryAsync(request.ProjectId, request.PageNumber, request.PageSize, cancellationToken);
+            
+            response.Data = new GetTranslationJobResponseData
+            {
+                Items = items
+                    .Select(x => new GetTranslationJobHistoryItem
+                    {
+                        Id = x.Id,
+                        ProjectId = x.ProjectId,
+                        LanguageId = x.LanguageId,
+                        NamespaceId = x.NamespaceId,
+                        TranslationJobType = x.Type,
+                        Status = x.Status,
+                        FileType = x.FileType,
+                        FileName = x.FileName,
+                        DownloadUrl = x.DownloadUrl,
+                        CompletedAt = x.CreatedAt
+                    }).ToList(),
 
+                TotalCount = totalCount,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize
+            };
             response
-                            .WithSuccess(true)
-                            .WithStatus(HttpStatusCode.OK);
+                .WithSuccess(true)
+                .WithStatus(HttpStatusCode.OK);
         }
         catch (Exception ex)
         {

@@ -8,6 +8,7 @@ public class TranslationRelease
     public string BlobFileName { get; set; } = null!;
     public string? DownloadUrl { get; set; }
     public string? Checksum { get; set; }
+    public int TotalKey {get; set;}
     public bool IsActive { get; set; }
     public string? Notes { get; set; }
     public Guid PublishedBy { get; set; }

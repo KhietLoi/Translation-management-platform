@@ -53,10 +53,15 @@ public class GetReleaseHistoryHandler : IRequestHandler<GetReleaseHistoryQuery, 
                     {
                         ReleaseId = x.Id,
                         ProjectId = x.ProjectId,
+                        BlobFileName = x.BlobFileName,
+                        DownloadUrl = x.DownloadUrl,
                         VersionNumber = x.Version,
                         PublishingUserId = x.PublishedBy,
+                        PublishingUserName = x.PublishedByName,
                         ReleaseDate = x.PublishedAt,
-                        Notes = x.Notes
+                        Notes = x.Notes,
+                        TotalKey = x.TotalKey,
+                        IsActive = x.IsActive
                     })
                     .ToList(),
 

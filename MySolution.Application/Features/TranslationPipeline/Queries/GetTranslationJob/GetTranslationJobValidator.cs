@@ -6,6 +6,8 @@ public class GetTranslationJobValidator : AbstractValidator<GetTranslationJobQue
 {
     public GetTranslationJobValidator()
     {
-        // Add validation rules here if needed
+        RuleFor(x => x.ProjectId)
+            .NotEmpty()
+            .WithMessage("Please specify a project ID");
     }
 }

@@ -550,8 +550,6 @@ CREATE TABLE IF NOT EXISTS mysolution."TranslationJobs"
 
     "FileType" INT NULL,
 
-    "BlobFileName" VARCHAR(500) NULL,
-
     "FileName" VARCHAR(500) NULL,
 
     "DownloadUrl" VARCHAR(1000) NULL,
@@ -575,12 +573,7 @@ CREATE TABLE IF NOT EXISTS mysolution."TranslationJobs"
     "CompletedAt" TIMESTAMP NULL,
     
     "Notes" VARCHAR(1000) NULL,
-    
-    "CurrentStep" INT NOT NULL DEFAULT 0,
-    "TotalSteps" INT NOT NULL DEFAULT 0,
-    "ReleaseVersion" INT NULL,
-    "ResultBlobFileName" VARCHAR(5000) NULL,
-
+  
     CONSTRAINT fk_translation_jobs_project
     FOREIGN KEY ("ProjectId")
     REFERENCES mysolution."Projects"("Id")
@@ -608,9 +601,9 @@ CREATE TABLE IF NOT EXISTS mysolution."TranslationReleases"
     "BlobFileName" VARCHAR(500) NOT NULL,
     "DownloadUrl" VARCHAR(1000),
     "Checksum" VARCHAR(256),
-
+    "TotalKey" INT NOT NULL DEFAULT 0,
     "IsActive" BOOLEAN NOT NULL DEFAULT TRUE,
-
+    
     "Notes" VARCHAR(1000),
 
     "PublishedBy" UUID NOT NULL,

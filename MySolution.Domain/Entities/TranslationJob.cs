@@ -10,11 +10,7 @@
             
         public TranslationJobType Type { get; set; }
         public TranslationJobStatus Status { get; set; }
-        // Export
-        public FileType? FileType { get; set; }
-        // Import
-        public string? BlobFileName { get; set; }
-        // Result
+        public FileType FileType { get; set; } 
         public string? FileName { get; set; }
         public string? DownloadUrl { get; set; }
         public int TotalRecords { get; set; }
@@ -32,8 +28,5 @@
         
         //Publish:
         public string? Notes { get; set; }
-        public int CurrentStep { get; set; }
-        public int TotalSteps { get; set; }
-        public int? ReleaseVersion { get; set; }
-        public string? ResultBlobFileName { get; set; }
+
     }

@@ -173,8 +173,7 @@ public class ImportService : IImportService
                 translationKey.TranslationValues.Add(translationValue);
                 await _unitOfWork.TranslationValue.Add(translationValue);
                 result.CreatedValues++;
-                _logger.LogInformation(
-                    "Created translation value for key {Key}, language {LanguageId}", key, languageId);
+                _logger.LogInformation("Created translation value for key {Key}, language {LanguageId}", key, languageId);
                 continue;
             }
 

@@ -51,11 +51,10 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
                 throw new InvalidOperationException($"Import job {job.Id} missing NamespaceId.");
             }
             
-            if (string.IsNullOrWhiteSpace(job.BlobFileName))
+            if (string.IsNullOrWhiteSpace(job.FileName))
             {
-                throw new InvalidOperationException($"Import job {job.Id} missing BlobFileName.");
+                throw new InvalidOperationException($"Import job {job.Id} missing FileName.");
             }
-            
             
             if (job.FileType == null)
             {
@@ -67,13 +66,13 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
                 job.ProjectId,
                 job.LanguageId.Value,
                 job.NamespaceId.Value,
-                job.BlobFileName!,
-                job.FileType!.Value,
+                job.FileName!,
+                job.FileType,
                 cancellationToken
             );
 
             job.TotalRecords = result.TotalRecords;
-            job.SuccessRecords = result.CreatedKeys + result.CreatedValues + result.UpdatedValues;
+            job.SuccessRecords = result.CreatedValues+ result.UpdatedValues;
             job.SkippedRecords = result.SkippedRecords;
             job.FailedRecords = result.FailedRecords;
             job.Status = TranslationJobStatus.Completed;
