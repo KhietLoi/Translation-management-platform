@@ -7,6 +7,8 @@ using MySolution.Application.Constants;
 using MySolution.Application.Features.TranslationPipeline.Commands.ExportTranslations;
 using MySolution.Application.Features.TranslationPipeline.Commands.ImportTranslations;
 using MySolution.Application.Features.TranslationPipeline.Commands.PublishTranslations;
+using MySolution.Application.Features.TranslationPipeline.Commands.RollbackRelease;
+using MySolution.Application.Features.TranslationPipeline.Queries.GetReleaseDiff;
 using MySolution.Application.Features.TranslationPipeline.Queries.GetReleaseHistory;
 using MySolution.Application.Features.TranslationPipeline.Queries.GetTranslationJob;
 
@@ -58,4 +60,25 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    //Rollback:
+    [HttpPost("releases/{releaseId:guid}/rollback")]
+    [Authorize]
+    public async Task<IActionResult> RollbackRelease(Guid releaseId, CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new RollbackReleaseCommand(releaseId),cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    
+    //Diff:
+    [HttpGet("release-diff")]
+    public async Task<IActionResult> GetReleaseDiff
+    (
+        Guid sourceReleaseId,
+        Guid targetReleaseId,
+        CancellationToken cancellationToken
+    )
+    {
+        var response = await mediator.Send(new GetReleaseDiffQuery(sourceReleaseId, targetReleaseId), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
 }

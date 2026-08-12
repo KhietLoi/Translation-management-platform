@@ -56,10 +56,10 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
                 throw new InvalidOperationException($"Import job {job.Id} missing FileName.");
             }
             
-            if (job.FileType == null)
+            /*if (job.FileType == null)
             {
                 throw new InvalidOperationException($"Import job {job.Id} missing FileType.");
-            }
+            }*/
             
             var result = await _importService.ImportAsync
             (

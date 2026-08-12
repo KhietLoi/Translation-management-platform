@@ -105,6 +105,8 @@ public static class DependencyInjection
         services.AddScoped<ISecurityStampService, SecurityStampService>();
         //AuditLog
         services.AddScoped<IAuditLogService, AuditLogService>();
+        //Release:
+        services.AddScoped<IReleaseDiffService, ReleaseDiffService>();
         
         
         return services;
