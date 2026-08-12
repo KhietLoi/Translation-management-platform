@@ -4,10 +4,10 @@ namespace MySolution.Application.Features.TranslationPipeline.Commands.RollbackR
 
 public class RollbackReleaseCommand : IRequest<RollbackReleaseResponse>
 {
-    public RollbackReleaseRequest Payload { get; set; }
+   public Guid ReleaseId { get; set; }
 
-    public RollbackReleaseCommand(RollbackReleaseRequest payload)
-    {
-        Payload = payload;
-    }
+   public RollbackReleaseCommand(Guid releaseId)
+   {
+      ReleaseId = releaseId;
+   }
 }

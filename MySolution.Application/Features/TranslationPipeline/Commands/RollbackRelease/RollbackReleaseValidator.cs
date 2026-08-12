@@ -6,6 +6,8 @@ public class RollbackReleaseValidator : AbstractValidator<RollbackReleaseCommand
 {
     public RollbackReleaseValidator()
     {
-        // Add validation rules here if needed
+        RuleFor(x => x.ReleaseId)
+            .NotEmpty()
+            .WithMessage("{PropertyName} can not be empty");
     }
 }

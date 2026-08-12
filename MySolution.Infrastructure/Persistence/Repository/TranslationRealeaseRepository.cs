@@ -9,6 +9,16 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 public class TranslationReleaseRepository (AppDbContext context, ILogger logger)
     : Repository<TranslationRelease>(context, logger), ITranslationReleaseRepository
 {
+    public async Task<TranslationRelease?> GetByIdAsync(Guid releaseId, CancellationToken cancellationToken)
+    {
+        return await DbSet.FirstOrDefaultAsync(x => x.Id == releaseId, cancellationToken);
+    }
+
+    public async Task<TranslationRelease?> GetCurrentActiveAsync(Guid projectId, CancellationToken cancellationToken)
+    {
+        return await DbSet.FirstOrDefaultAsync(x => x.ProjectId == projectId && x.IsActive, cancellationToken);
+    }
+
     public async Task<int> GetLatestVersionAsync(Guid projectId, CancellationToken cancellationToken)
     {
         return await DbSet

@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
 namespace MySolution.Application.Features.TranslationPipeline.Commands.RollbackRelease;
 
 public class RollbackReleaseHandler : IRequestHandler<RollbackReleaseCommand, RollbackReleaseResponse>
@@ -30,10 +29,55 @@ public class RollbackReleaseHandler : IRequestHandler<RollbackReleaseCommand, Ro
 
         try
         {
+            var targetRelease = await _unitOfWork.TranslationRelease.GetByIdAsync(request.ReleaseId, cancellationToken);
+            if (targetRelease is null)
+            {
+                response.ErrorMessage = "Release not found.";
+                response.WithStatus(HttpStatusCode.NotFound);
+                return response;
+            }
 
-            response
-                            .WithSuccess(true)
-                            .WithStatus(HttpStatusCode.OK);
+            if (targetRelease.IsActive)
+            {
+                response.ErrorMessage = "Release is already active.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
+            }
+
+         
+            var currentActiveRelease =
+                await _unitOfWork.TranslationRelease.GetCurrentActiveAsync(targetRelease.ProjectId, cancellationToken);
+
+
+            await _unitOfWork.OpenTransactionAsync(cancellationToken);
+
+            try
+            {  
+                if (currentActiveRelease is not null)
+                {
+                    currentActiveRelease.IsActive = false;
+                }
+
+                targetRelease.IsActive = true;
+                await _unitOfWork.SaveAsync(cancellationToken);
+                await _unitOfWork.CommitAsync(cancellationToken);
+                
+                response.Data = new RollbackReleaseData
+                {
+                    ReleaseId = targetRelease.Id,
+                    ProjectId = targetRelease.ProjectId,
+                    Version = targetRelease.Version,
+                    IsActive = true
+                };
+                response
+                    .WithSuccess(true)
+                    .WithStatus(HttpStatusCode.OK);
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync(cancellationToken);
+                throw;
+            }
         }
         catch (Exception ex)
         {
@@ -41,7 +85,7 @@ public class RollbackReleaseHandler : IRequestHandler<RollbackReleaseCommand, Ro
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
-
+        
         return response;
     }
 
