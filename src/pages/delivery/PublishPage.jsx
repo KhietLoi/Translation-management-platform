@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Modal, Form, Spinner } from "react-bootstrap";
 import {
@@ -14,15 +15,25 @@ import {
   rollbackRelease,
 } from "../../services/translationPipelineService";
 import ReleaseDiffModal from "../../components/delivery/ReleaseDiffModal";
-import TopControlBar from "../../components/delivery/TopControlBar";
 import "./delivery.css";
 
 export default function PublishPage() {
+  const outletContext = useOutletContext() || {};
+  const {
+    projects: contextProjects = [],
+    selectedProjectId: contextProjectId = "",
+    setSelectedProjectId: setContextProjectId,
+    env: contextEnv = "Production",
+  } = outletContext;
+
   const [loading, setLoading] = useState(false);
-  const [projects, setProjects] = useState([]);
-  const [selectedProjectId, setSelectedProjectId] = useState("");
-  const [env, setEnv] = useState("Production");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [localProjects, setLocalProjects] = useState([]);
+  const [localProjectId, setLocalProjectId] = useState("");
+
+  const projects = contextProjects.length > 0 ? contextProjects : localProjects;
+  const selectedProjectId = contextProjectId || localProjectId;
+  const setSelectedProjectId = setContextProjectId || setLocalProjectId;
+  const env = contextEnv;
 
   // History & Release State
   const [releases, setReleases] = useState([]);
@@ -37,14 +48,20 @@ export default function PublishPage() {
   const [diffSourceRelease, setDiffSourceRelease] = useState(null);
   const [diffTargetRelease, setDiffTargetRelease] = useState(null);
 
-  // Load Projects
+  // Load Projects if context is not present
+  useEffect(() => {
+    if (contextProjects.length === 0) {
+      loadProjects();
+    }
+  }, [contextProjects]);
+
   const loadProjects = async () => {
     try {
       const res = await getProjects();
       const list = res.data?.projects || res.data || [];
-      setProjects(list);
-      if (list.length > 0) {
-        setSelectedProjectId(list[0].id);
+      setLocalProjects(list);
+      if (list.length > 0 && !selectedProjectId) {
+        setLocalProjectId(list[0].id);
       }
     } catch (error) {
       console.error(error);
@@ -70,10 +87,6 @@ export default function PublishPage() {
   };
 
   useEffect(() => {
-    loadProjects();
-  }, []);
-
-  useEffect(() => {
     if (selectedProjectId) {
       loadReleaseHistory(selectedProjectId);
     }
@@ -91,7 +104,7 @@ export default function PublishPage() {
       setIsPublishing(true);
       setPublishStep(1);
 
-      // Stepper animation sequence matching backend job execution
+      // Stepper animation sequence
       setTimeout(() => setPublishStep(2), 1200);
       setTimeout(() => setPublishStep(3), 2400);
 
@@ -117,7 +130,7 @@ export default function PublishPage() {
       setPublishStep(0);
       toast.error(
         error?.response?.data?.errorMessage ||
-          "Publish failed. Please ensure translations are Reviewed."
+        "Publish failed. Please ensure translations are Reviewed."
       );
     }
   };
@@ -140,7 +153,7 @@ export default function PublishPage() {
       console.error(error);
       toast.error(
         error?.response?.data?.errorMessage ||
-          `Failed to rollback to version v${release.version}.`
+        `Failed to rollback to version v${release.version}.`
       );
     }
   };
@@ -157,7 +170,7 @@ export default function PublishPage() {
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
   const currentProjectName = selectedProject?.name || "Project";
 
-  // Stepper definition in English matching screenshot 1
+  // Stepper definition in English
   const steps = [
     { id: 1, name: "Validate", sub: "128 valid keys" },
     { id: 2, name: "Queue", sub: "Job #4821" },
@@ -197,18 +210,7 @@ export default function PublishPage() {
   };
 
   return (
-    <div className="container-fluid py-4 px-4 delivery-container">
-      {/* TOP CONTROL BAR MATCHING SCREENSHOT 1 STRUCTURE */}
-      <TopControlBar
-        projects={projects}
-        selectedProjectId={selectedProjectId}
-        onProjectChange={setSelectedProjectId}
-        env={env}
-        onEnvChange={setEnv}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
-
+    <div className="container-fluid py-2 px-3 delivery-container">
       {/* PAGE TITLE BAR */}
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
@@ -239,8 +241,8 @@ export default function PublishPage() {
               {isPublishing
                 ? `Processing — version v1.8.3`
                 : releases.length > 0
-                ? `Publish Status — Current Version v${releases[0].version}`
-                : "Processing — version v1.8.3"}
+                  ? `Publish Status — Current Version v${releases[0].version}`
+                  : "Processing — version v1.8.3"}
             </h6>
             {isPublishing && (
               <span className="badge bg-purple-pill">
@@ -249,7 +251,7 @@ export default function PublishPage() {
             )}
           </div>
 
-          {/* Stepper Workflow */}
+          {/* Stepper Workflow Visual */}
           <div className="stepper-container px-2 px-md-4">
             <div className="stepper-line">
               <div
@@ -269,9 +271,8 @@ export default function PublishPage() {
               return (
                 <div
                   key={step.id}
-                  className={`step-item ${isCompleted ? "completed" : ""} ${
-                    isActive ? "active" : ""
-                  }`}
+                  className={`step-item ${isCompleted ? "completed" : ""} ${isActive ? "active" : ""
+                    }`}
                 >
                   <div className="step-node">
                     {isCompleted ? (

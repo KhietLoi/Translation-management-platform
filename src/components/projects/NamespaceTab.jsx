@@ -198,11 +198,11 @@ function NamespacesTab({
 
             <div className="card-body">
 
-                <table className="table align-middle">
+                <table className="table table-hover align-middle table-bordered">
 
-                    <thead>
+                    <thead className="table-light">
 
-                        <tr>
+                        <tr className="table-warning">
 
                             <th>Name</th>
 

@@ -274,7 +274,7 @@ function CreateProjectModal({ show, onClose, onSuccess }) {
                                 </select>
 
                                 {form.members.length > 0 && (
-                                    <table className="table mt-3 mb-0">
+                                    <table className="table table-hover align-middle table-bordered mt-3 mb-0">
                                         <tbody>
                                             {form.members.map((member) => (
                                                 <tr key={member.id}>

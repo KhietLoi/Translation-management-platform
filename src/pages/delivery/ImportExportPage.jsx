@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useOutletContext } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Spinner, Form } from "react-bootstrap";
 import {
@@ -20,19 +21,24 @@ import {
   exportTranslations,
   getTranslationHistory,
 } from "../../services/translationPipelineService";
-import TopControlBar from "../../components/delivery/TopControlBar";
 import "./delivery.css";
 
 export default function ImportExportPage() {
-  const [loadingProjects, setLoadingProjects] = useState(false);
-  const [projects, setProjects] = useState([]);
+  const outletContext = useOutletContext() || {};
+  const {
+    projects: contextProjects = [],
+    selectedProjectId: contextProjectId = "",
+    setSelectedProjectId: setContextProjectId,
+  } = outletContext;
+
+  const [localProjects, setLocalProjects] = useState([]);
   const [languages, setLanguages] = useState([]);
   const [namespaces, setNamespaces] = useState([]);
-  const [env, setEnv] = useState("Production");
-  const [searchQuery, setSearchQuery] = useState("");
+
+  const projects = contextProjects.length > 0 ? contextProjects : localProjects;
 
   // Import State
-  const [importProjectId, setImportProjectId] = useState("");
+  const [importProjectId, setImportProjectId] = useState(contextProjectId);
   const [importLanguageId, setImportLanguageId] = useState("");
   const [importNamespaceId, setImportNamespaceId] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -42,7 +48,7 @@ export default function ImportExportPage() {
   const fileInputRef = useRef(null);
 
   // Export State
-  const [exportProjectId, setExportProjectId] = useState("");
+  const [exportProjectId, setExportProjectId] = useState(contextProjectId);
   const [exportFormat, setExportFormat] = useState(0); // 0: JSON (.zip), 2: Excel, 1: CSV
   const [isExporting, setIsExporting] = useState(false);
 
@@ -50,26 +56,33 @@ export default function ImportExportPage() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [history, setHistory] = useState([]);
 
-  // Load Initial Projects
+  // Sync contextProjectId
   useEffect(() => {
-    loadProjects();
-  }, []);
+    if (contextProjectId) {
+      setImportProjectId(contextProjectId);
+      setExportProjectId(contextProjectId);
+    }
+  }, [contextProjectId]);
+
+  // Load Projects if not present in context
+  useEffect(() => {
+    if (contextProjects.length === 0) {
+      loadProjects();
+    }
+  }, [contextProjects]);
 
   const loadProjects = async () => {
     try {
-      setLoadingProjects(true);
       const res = await getProjects();
       const list = res.data?.projects || res.data || [];
-      setProjects(list);
-      if (list.length > 0) {
+      setLocalProjects(list);
+      if (list.length > 0 && !importProjectId) {
         setImportProjectId(list[0].id);
         setExportProjectId(list[0].id);
       }
     } catch (error) {
       console.error(error);
       toast.error("Failed to load projects list.");
-    } finally {
-      setLoadingProjects(false);
     }
   };
 
@@ -248,21 +261,7 @@ export default function ImportExportPage() {
   };
 
   return (
-    <div className="container-fluid py-4 px-4 delivery-container">
-      {/* TOP CONTROL BAR MATCHING SCREENSHOT 1 STRUCTURE */}
-      <TopControlBar
-        projects={projects}
-        selectedProjectId={importProjectId}
-        onProjectChange={(val) => {
-          setImportProjectId(val);
-          setExportProjectId(val);
-        }}
-        env={env}
-        onEnvChange={setEnv}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
-
+    <div className="container-fluid py-2 px-3 delivery-container">
       {/* HEADER SECTION */}
       <div className="mb-4">
         <h2 className="fw-bold mb-1 fs-3 text-dark">Import / Export</h2>
@@ -292,7 +291,10 @@ export default function ImportExportPage() {
                       size="sm"
                       className="rounded-3 border-secondary-subtle"
                       value={importProjectId}
-                      onChange={(e) => setImportProjectId(e.target.value)}
+                      onChange={(e) => {
+                        setImportProjectId(e.target.value);
+                        if (setContextProjectId) setContextProjectId(e.target.value);
+                      }}
                     >
                       {projects.map((p) => (
                         <option key={p.id} value={p.id}>
@@ -468,7 +470,10 @@ export default function ImportExportPage() {
                     size="sm"
                     className="rounded-3 border-secondary-subtle"
                     value={exportProjectId}
-                    onChange={(e) => setExportProjectId(e.target.value)}
+                    onChange={(e) => {
+                      setExportProjectId(e.target.value);
+                      if (setContextProjectId) setContextProjectId(e.target.value);
+                    }}
                   >
                     {projects.map((p) => (
                       <option key={p.id} value={p.id}>
@@ -571,9 +576,9 @@ export default function ImportExportPage() {
             </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
+              <table className="table table-hover align-middle table-bordered mb-0">
                 <thead className="table-light">
-                  <tr className="text-uppercase text-muted" style={{ fontSize: "0.75rem" }}>
+                  <tr className="table-warning text-uppercase fw-bold text-dark" style={{ fontSize: "0.75rem" }}>
                     <th className="ps-4 py-3">FILE</th>
                     <th className="py-3">TYPE</th>
                     <th className="py-3">RESULT</th>

@@ -136,9 +136,9 @@ function MembersTab({ projectId, members = [], onUpdated }) {
                 </div>
 
                 {/* Member table */}
-                <table className="table table-hover">
-                    <thead>
-                        <tr>
+                <table className="table table-hover align-middle table-bordered">
+                    <thead className="table-light">
+                        <tr className="table-warning">
                             <th>Username</th>
                             <th>Email</th>
                             <th>Action</th>
