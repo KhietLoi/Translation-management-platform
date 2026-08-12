@@ -252,9 +252,9 @@ function ApiKeyGrid({
   return (
     <div className="apikey-table-card mb-4">
       <div className="table-responsive">
-        <table className="table align-middle apikey-table">
-          <thead>
-            <tr>
+        <table className="table table-hover align-middle table-bordered apikey-table">
+          <thead className="table-light">
+            <tr className="table-warning">
               <th style={{ width: "22%" }}>APPLICATION</th>
               <th style={{ width: "22%" }}>API KEY</th>
               <th style={{ width: "20%" }}>QUYỀN</th>
