@@ -8,8 +8,8 @@ using MySolution.Application.Features.ApiKey.Queries.GetApiKeyGrid;
 
 namespace MySolution.Api.Controllers;
 
+[Route("api/[controller]")]
 [ApiController]
-[Route("api-keys")]
 public class ApiKeyController (IMediator mediator) : Controller
 {
     [HttpPut("{id:guid}/permissions")]
