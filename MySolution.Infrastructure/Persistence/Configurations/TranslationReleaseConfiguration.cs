@@ -23,6 +23,8 @@ public class TranslationReleaseConfiguration : IEntityTypeConfiguration<Translat
             .HasMaxLength(1000);
         builder.Property(x => x.Checksum)
             .HasMaxLength(256);
+        builder.Property(x => x.TotalKey)
+            .HasDefaultValue(0);
         builder.Property(x => x.Notes)
             .HasMaxLength(1000);
         builder.Property(x => x.PublishedBy)

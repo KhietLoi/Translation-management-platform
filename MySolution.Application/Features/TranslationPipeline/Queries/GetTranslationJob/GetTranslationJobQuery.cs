@@ -4,10 +4,7 @@ namespace MySolution.Application.Features.TranslationPipeline.Queries.GetTransla
 
 public class GetTranslationJobQuery : IRequest<GetTranslationJobResponse>
 {
-    public GetTranslationJobRequest Payload { get; set; }
-
-    public GetTranslationJobQuery(GetTranslationJobRequest payload)
-    {
-        Payload = payload;
-    }
+    public Guid ProjectId { get; set; }
+    public int PageNumber { get; set; } = 1;
+    public int PageSize { get; set; } = 20;
 }

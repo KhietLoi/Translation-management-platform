@@ -8,6 +8,7 @@ using MySolution.Application.Features.TranslationPipeline.Commands.ExportTransla
 using MySolution.Application.Features.TranslationPipeline.Commands.ImportTranslations;
 using MySolution.Application.Features.TranslationPipeline.Commands.PublishTranslations;
 using MySolution.Application.Features.TranslationPipeline.Queries.GetReleaseHistory;
+using MySolution.Application.Features.TranslationPipeline.Queries.GetTranslationJob;
 
 namespace MySolution.Api.Controllers;
 
@@ -47,6 +48,14 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
         var response = await mediator.Send(query, cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-    
+
+    [HttpGet("translations-history")]
+    public async Task<IActionResult> GetTranslationHistory(
+        [FromQuery] GetTranslationJobQuery query,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(query, cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
     
 }

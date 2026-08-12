@@ -65,6 +65,7 @@ public class ImportTranslationsHandler : IRequestHandler<ImportTranslationsComma
             }
             
             var blobFileName =  $"imports/{Guid.NewGuid()}_{payload.File.FileName}";
+            var dowloadUrl = _azureBlobService.GetFileUrl(blobFileName);
             await _azureBlobService.UploadFileAsync(payload.File.OpenReadStream(), blobFileName, cancellationToken);
             var job = new TranslationJob
             {
@@ -75,7 +76,8 @@ public class ImportTranslationsHandler : IRequestHandler<ImportTranslationsComma
                 Type = TranslationJobType.Import,
                 Status = TranslationJobStatus.Pending,
                 FileType = payload.Format,
-                BlobFileName = blobFileName,
+                DownloadUrl = dowloadUrl,
+                FileName = blobFileName,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = _currentUser.UserId
             };

@@ -30,21 +30,12 @@ public class TranslationJobConfiguration
         builder.Property(x => x.SkippedRecords)
             .HasDefaultValue(0);
         builder.Property(x => x.FileType);
-        builder.Property(x => x.BlobFileName)
-            .HasMaxLength(500);
         builder.Property(x => x.FileName)
             .HasMaxLength(500);
         builder.Property(x => x.DownloadUrl)
             .HasMaxLength(1000);
         builder.Property(x => x.ErrorMessage)
             .HasMaxLength(2000);
-        
-        builder.Property(x => x.TotalSteps)
-            .HasDefaultValue(0);
-        builder.Property(x => x.CurrentStep)
-            .HasDefaultValue(0);
-        builder.Property(x => x.ResultBlobFileName)
-            .HasMaxLength(500);
 
         // Project
         builder

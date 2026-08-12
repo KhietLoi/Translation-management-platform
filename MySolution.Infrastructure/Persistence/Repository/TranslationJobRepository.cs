@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
@@ -12,5 +13,20 @@ public class TranslationJobRepository (AppDbContext context, ILogger logger) :
     public async Task<TranslationJob?> GetByIdAsync(Guid id)
     {
         return await DbSet.FindAsync(id);
+    }
+
+    public async Task<(List<TranslationJob> Items, int TotalCount)> GetHistoryAsync(Guid projectId, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        var query = DbSet
+            .AsNoTracking()
+            .Where(x => x.ProjectId == projectId);
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
     }
 }
