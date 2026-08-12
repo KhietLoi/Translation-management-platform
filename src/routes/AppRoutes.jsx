@@ -20,6 +20,9 @@ import CreateProject from "../components/projects/CreateProject";
 // import Permissions from "../pages/Permissions/Permissions";
 import ProjectDetailPage from "../pages/projects/ProjectDetailPage";
 import TranslationManagementPage from "../pages/translations/TranslationManagementPage";
+import ApiKeyManagementPage from "../pages/apikeys/ApiKeyManagementPage";
+import ImportExportPage from "../pages/delivery/ImportExportPage";
+import PublishPage from "../pages/delivery/PublishPage";
 
 export default function AppRoutes() {
   return (
@@ -57,7 +60,18 @@ export default function AppRoutes() {
           path="/translations"
           element={<TranslationManagementPage />}
         />
-
+        <Route
+          path="/import-export"
+          element={<ImportExportPage />}
+        />
+        <Route
+          path="/publish"
+          element={<PublishPage />}
+        />
+        <Route
+          path="/api-keys"
+          element={<ApiKeyManagementPage />}
+        />
       </Route>
 
     </Routes>
