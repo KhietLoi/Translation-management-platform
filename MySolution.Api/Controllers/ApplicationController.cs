@@ -34,7 +34,12 @@ public class ApplicationController (IMediator mediator) : Controller
     }
     
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateApplication(Guid id, [FromBody] UpdateApplicationRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateApplication
+    (
+        Guid id,
+        [FromBody] UpdateApplicationRequest request,
+        CancellationToken cancellationToken
+    )
     {
         var response = await mediator.Send(new UpdateApplicationCommand(request, id), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
