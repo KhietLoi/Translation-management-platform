@@ -19,26 +19,27 @@ export default function ReleaseDiffModal({
   const [diffData, setDiffData] = useState(null);
   const [activeTab, setActiveTab] = useState("all");
 
+  const targetId = targetRelease?.releaseId || targetRelease?.id;
+
   useEffect(() => {
-    if (show && sourceRelease && targetRelease) {
+    if (show && targetId) {
       loadDiff();
     }
-  }, [show, sourceRelease, targetRelease]);
+  }, [show, targetId]);
 
   const loadDiff = async () => {
+    if (!targetId) return;
     try {
       setLoading(true);
-      const response = await getReleaseDiff(
-        sourceRelease.id,
-        targetRelease.id
-      );
+      const response = await getReleaseDiff(targetId);
       setDiffData(response.data || response);
     } catch (error) {
       console.error(error);
       toast.error(
         error?.response?.data?.errorMessage ||
-          "Failed to load release diff comparison."
+        "Failed to load release diff comparison."
       );
+      setDiffData(null);
     } finally {
       setLoading(false);
     }
@@ -60,15 +61,15 @@ export default function ReleaseDiffModal({
         <div className="bg-light p-3 rounded-3 mb-3 d-flex justify-content-between align-items-center">
           <div>
             <span className="badge bg-secondary me-2">
-              Source Release: {sourceRelease?.version ? `v${sourceRelease.version}` : "v1.0"}
+              Source Release: {sourceRelease?.versionNumber || sourceRelease?.version ? `v${sourceRelease.versionNumber || sourceRelease.version}` : "Previous"}
             </span>
             <span className="text-muted fs-7">→</span>
             <span className="badge bg-purple-pill ms-2">
-              Target Release: {targetRelease?.version ? `v${targetRelease.version}` : "Latest"}
+              Target Release: {targetRelease?.versionNumber || targetRelease?.version ? `v${targetRelease.versionNumber || targetRelease.version}` : "Latest"}
             </span>
           </div>
           <div className="text-muted small">
-            {sourceRelease?.notes || "Comparing translation changes"}
+            {targetRelease?.notes || sourceRelease?.notes || "Comparing translation changes"}
           </div>
         </div>
 

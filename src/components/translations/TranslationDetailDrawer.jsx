@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import {
     getTranslationValueById,
@@ -20,7 +21,8 @@ import {
 function TranslationDetailDrawer({
     show,
     translationValue,
-    onClose
+    onClose,
+    onSuccess
 }) {
 
     const { user } = useAuth();
@@ -97,74 +99,65 @@ function TranslationDetailDrawer({
 
 
 
-    const execute = async (action) => {
-
+    const execute = async (action, successMessage = "Operation successful") => {
         try {
-
             setProcessing(true);
-
             await action();
-
+            toast.success(successMessage);
             await loadDetail();
-
-
+            if (onSuccess) {
+                await onSuccess();
+            }
         } catch (error) {
-
             console.error(error);
-
+            toast.error(
+                error?.response?.data?.errorMessage || "Action failed. Please try again."
+            );
         } finally {
-
             setProcessing(false);
-
         }
-
     };
 
-
-
-
-
     const handleSave = () =>
-        execute(() =>
-            updateTranslationValue(
-                detail.id,
-                {
-                    value
-                }
-            )
+        execute(
+            () =>
+                updateTranslationValue(
+                    detail.id,
+                    {
+                        value
+                    }
+                ),
+            "Translation saved successfully"
         );
-
-
-
 
     const handleSubmit = () =>
-        execute(() =>
-            submitTranslation(
-                detail.id
-            )
+        execute(
+            () =>
+                submitTranslation(
+                    detail.id
+                ),
+            "Translation submitted for review"
         );
-
-
-
 
     const handleReview = () =>
-        execute(() =>
-            reviewTranslation(
-                detail.id
-            )
+        execute(
+            () =>
+                reviewTranslation(
+                    detail.id
+                ),
+            "Translation reviewed & approved"
         );
 
-
-
-
     const handleReject = () =>
-        execute(() =>
-            rejectTranslation(
-                detail.id,
-                {
-                    reason
-                }
-            )
+        execute(
+            () =>
+                rejectTranslation(
+                    detail.id,
+                    {
+                        reason
+                    }
+                ),
+            "Translation rejected"
         );
 
 

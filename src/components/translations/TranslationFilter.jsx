@@ -54,6 +54,9 @@ function TranslationFilter({
                                     {project.name}
                                 </option>
                             ))}
+                            {projects.length === 0 && (
+                                <option value="">-- Select Project --</option>
+                            )}
                         </select>
                     </div>
 

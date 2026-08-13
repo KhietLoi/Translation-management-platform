@@ -11,7 +11,7 @@ export const importTranslations = async (formData) => {
 };
 
 // Export Translations (JSON payload)
-export const exportTranslations = async ({ projectId, format = 0 }) => {
+export const exportTranslations = async ({ projectId, format = 1 }) => {
   const response = await api.post("/TranslationPipeline/export", {
     projectId,
     format: Number(format),
@@ -51,10 +51,9 @@ export const rollbackRelease = async (releaseId) => {
 };
 
 // Get Release Diff
-export const getReleaseDiff = async (sourceReleaseId, targetReleaseId) => {
+export const getReleaseDiff = async (targetReleaseId) => {
   const response = await api.get("/TranslationPipeline/release-diff", {
     params: {
-      sourceReleaseId,
       targetReleaseId,
     },
   });

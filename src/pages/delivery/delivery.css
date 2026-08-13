@@ -189,6 +189,18 @@
   gap: 0.35rem;
 }
 
+.badge-danger-pill {
+  background-color: #fef2f2;
+  color: #ef4444;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 /* Stepper Component - Responsive Horizontal Scroll */
 .stepper-scroll-wrapper {
   width: 100%;
