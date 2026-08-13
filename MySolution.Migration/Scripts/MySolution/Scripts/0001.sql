@@ -625,6 +625,8 @@ CREATE TABLE IF NOT EXISTS mysolution."Notifications"
 
     "UserId" UUID NOT NULL,
     
+    "TriggeredByUserId" UUID NOT NULL,
+    
     "ProjectId" UUID NOT NULL,
 
     "Title" VARCHAR(200) NOT NULL,
@@ -650,6 +652,11 @@ CREATE TABLE IF NOT EXISTS mysolution."Notifications"
     CONSTRAINT "FK_Notifications_Projects_ProjectId"
     FOREIGN KEY ("ProjectId")
     REFERENCES mysolution."Projects" ("Id")
+    ON DELETE CASCADE,
+    
+    CONSTRAINT "FK_Notifications_TriggeredByUser"
+    FOREIGN KEY ("TriggeredByUserId")
+    REFERENCES mysolution."Users" ("Id")
     ON DELETE CASCADE
 );
 
@@ -684,6 +691,10 @@ CREATE INDEX IF NOT EXISTS "IX_Notifications_UserId_CreatedAt"
     "UserId",
     "CreatedAt" DESC
     );
+CREATE INDEX IF NOT EXISTS
+    "IX_Notifications_TriggeredByUserId"
+    ON mysolution."Notifications"
+    ("TriggeredByUserId");
 
 CREATE INDEX IF NOT EXISTS
     "IX_TranslationReleases_ProjectId"

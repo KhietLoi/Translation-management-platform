@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Common.Interfaces.Realtime;
@@ -24,9 +24,10 @@ public class NotificationService : INotificationService
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
-
     public async Task NotifyUserAsync(
         Guid userId,
+        Guid projectId,
+        Guid? triggeredByUserId,
         string title,
         string message,
         NotificationType type,
@@ -35,76 +36,150 @@ public class NotificationService : INotificationService
     {
         var notification = new Notification
         {
+            Id = Guid.CreateVersion7(),
+
             UserId = userId,
+
+            ProjectId = projectId,
+
+            TriggeredByUserId = triggeredByUserId ?? Guid.Empty,
+
             Title = title,
+
             Message = message,
+
             Type = type,
+
             NavigationUrl = navigationUrl,
+
             IsRead = false,
+
             CreatedAt = DateTime.UtcNow
         };
-        
+
         await _unitOfWork.Notification.Add(notification);
+
         await _unitOfWork.SaveAsync(cancellationToken);
+
+        string createdBy = string.Empty;
+
+        if (triggeredByUserId.HasValue)
+        {
+            createdBy = await _unitOfWork.User
+                .GetUserNameAsync(triggeredByUserId.Value);
+        }
 
         var payload = new NotificationMessage
         {
+            NotificationId = notification.Id,
+
+            ProjectId = notification.ProjectId,
+
             Title = notification.Title,
+
             Message = notification.Message,
-            Type = type.ToString(),
+
+            Type = notification.Type.ToString(),
+
             IsRead = notification.IsRead,
+
             NavigationUrl = notification.NavigationUrl,
-            CreatedAt = notification.CreatedAt
+
+            CreatedAt = notification.CreatedAt,
+
+            CreatedBy = createdBy
         };
 
         await _hub.Clients
             .User(userId.ToString())
-            .SendAsync("NotificationReceived", payload, cancellationToken);
+            .SendAsync(
+                "NotificationReceived",
+                payload,
+                cancellationToken);
     }
+   
 
     public async Task NotifyProjectAsync(
-        Guid projectId,
-        string title,
-        string message,
-        string createdBy,
-        NotificationType type,
-        string? navigationUrl,
-        CancellationToken cancellationToken)
+    Guid projectId,
+    Guid? triggeredByUserId,
+    string title,
+    string message,
+    NotificationType type,
+    string? navigationUrl,
+    CancellationToken cancellationToken)
+{
+    var members = await _unitOfWork.ProjectMember
+        .GetByProjectIdAsync(projectId);
+
+    if (!members.Any())
     {
-        var members = await _unitOfWork.ProjectMember
-            .GetByProjectIdAsync(projectId);
-        
-        _logger.LogInformation($"Members for project {projectId}: {members}");
-        var notifications = members
-            .Select(member => new Notification
-            {
-                UserId = member.UserId,
-                ProjectId = projectId,
-                Title = title,
-                Message = message,
-                Type = type,
-                NavigationUrl = navigationUrl,
-                IsRead = false,
-                CreatedAt = DateTime.UtcNow
-            })
-            .ToList();
+        _logger.LogWarning(
+            "No members found for project {ProjectId}",
+            projectId);
 
-        await _unitOfWork.Notification.AddRange(notifications);
-        await _unitOfWork.SaveAsync(cancellationToken);
+        return;
+    }
 
+    var createdAt = DateTime.UtcNow;
+
+    var notifications = members
+        .Select(member => new Notification
+        {
+            Id = Guid.CreateVersion7(),
+
+            UserId = member.UserId,
+
+            ProjectId = projectId,
+
+            TriggeredByUserId = triggeredByUserId ?? Guid.Empty,
+
+            Title = title,
+
+            Message = message,
+
+            Type = type,
+
+            NavigationUrl = navigationUrl,
+
+            IsRead = false,
+
+            CreatedAt = createdAt
+        })
+        .ToList();
+
+    await _unitOfWork.Notification.AddRange(notifications);
+
+    await _unitOfWork.SaveAsync(cancellationToken);
+
+    string createdBy = string.Empty;
+
+    if (triggeredByUserId.HasValue)
+    {
+        createdBy = await _unitOfWork.User
+            .GetUserNameAsync(triggeredByUserId.Value);
+    }
+
+    foreach (var notification in notifications)
+    {
         var payload = new NotificationMessage
         {
-            Title = title,
-            Message = message,
-            CreatedBy = createdBy,
-            IsRead = false,
-            Type =  type.ToString(),
-            NavigationUrl = navigationUrl,
-            CreatedAt = DateTime.UtcNow
+            NotificationId = notification.Id,
+            ProjectId = notification.ProjectId,
+            Title = notification.Title,
+            Message = notification.Message,
+            Type = notification.Type.ToString(),
+            IsRead = notification.IsRead,
+            NavigationUrl = notification.NavigationUrl,
+            CreatedAt = notification.CreatedAt,
+            CreatedBy = createdBy
         };
 
         await _hub.Clients
-            .Group(projectId.ToString())
-            .SendAsync("NotificationReceived", payload, cancellationToken);
+            .User(notification.UserId.ToString())
+            .SendAsync(
+                "NotificationReceived",
+                payload,
+                cancellationToken);
     }
+}
 }
