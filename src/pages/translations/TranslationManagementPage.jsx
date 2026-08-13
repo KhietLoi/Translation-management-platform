@@ -203,6 +203,17 @@ function TranslationManagementPage() {
         numberOfLanguages,
         pageNumber
     ]);
+
+    // Auto refresh grid on SignalR notification
+    useEffect(() => {
+        const handleNotification = () => {
+            if (selectedProjectId) {
+                loadGrid();
+            }
+        };
+        window.addEventListener("translationNotification", handleNotification);
+        return () => window.removeEventListener("translationNotification", handleNotification);
+    }, [selectedProjectId]);
     // ==========================
     // DYNAMIC LANGUAGES & STATS
     // ==========================

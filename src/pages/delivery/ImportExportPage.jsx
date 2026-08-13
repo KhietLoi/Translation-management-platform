@@ -94,6 +94,17 @@ export default function ImportExportPage() {
     }
   }, [importProjectId]);
 
+  // Auto refresh history on SignalR notification
+  useEffect(() => {
+    const handleNotification = () => {
+      if (importProjectId) {
+        loadHistory(importProjectId);
+      }
+    };
+    window.addEventListener("translationNotification", handleNotification);
+    return () => window.removeEventListener("translationNotification", handleNotification);
+  }, [importProjectId]);
+
   const loadLanguagesAndNamespaces = async (projectId) => {
     try {
       // Fetch Languages
