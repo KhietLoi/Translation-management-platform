@@ -42,14 +42,14 @@ export default function ImportExportPage() {
   const [importLanguageId, setImportLanguageId] = useState("");
   const [importNamespaceId, setImportNamespaceId] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
-  const [fileFormat, setFileFormat] = useState(0); // 0: JSON, 2: Excel, 1: CSV
+  const [fileFormat, setFileFormat] = useState(1); // 1: JSON, 2: CSV, 3: Excel
   const [isImporting, setIsImporting] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
   // Export State
   const [exportProjectId, setExportProjectId] = useState(contextProjectId);
-  const [exportFormat, setExportFormat] = useState(0); // 0: JSON (.zip), 2: Excel, 1: CSV
+  const [exportFormat, setExportFormat] = useState(1); // 1: JSON (.zip), 2: CSV, 3: Excel
   const [isExporting, setIsExporting] = useState(false);
 
   // History State
@@ -167,9 +167,9 @@ export default function ImportExportPage() {
     setSelectedFile(file);
     // Auto-detect format by extension
     const ext = file.name.split(".").pop().toLowerCase();
-    if (ext === "json") setFileFormat(0);
-    else if (ext === "xlsx" || ext === "xls") setFileFormat(2);
-    else if (ext === "csv") setFileFormat(1);
+    if (ext === "json") setFileFormat(1);
+    else if (ext === "csv") setFileFormat(2);
+    else if (ext === "xlsx" || ext === "xls") setFileFormat(3);
   };
 
   // Submit Import
@@ -209,7 +209,7 @@ export default function ImportExportPage() {
       console.error(error);
       toast.error(
         error?.response?.data?.errorMessage ||
-          "Import failed. Please check your file format and try again."
+        "Import failed. Please check your file format and try again."
       );
     } finally {
       setIsImporting(false);
@@ -245,6 +245,102 @@ export default function ImportExportPage() {
     } finally {
       setIsExporting(false);
     }
+  };
+
+  // TranslationJobType Enum: 1: Export, 2: Import, 3: Publish
+  const getJobTypeLabel = (type) => {
+    if (type === 1 || type === "Export") return "Export";
+    if (type === 2 || type === "Import") return "Import";
+    if (type === 3 || type === "Publish") return "Publish";
+    return type || "Unknown";
+  };
+
+  const getJobTypeBadgeClass = (type) => {
+    const label = getJobTypeLabel(type);
+    if (label === "Import") return "bg-primary-subtle text-primary";
+    if (label === "Export") return "bg-warning-subtle text-warning";
+    if (label === "Publish") return "bg-success-subtle text-success";
+    return "bg-secondary-subtle text-secondary";
+  };
+
+  // TranslationJobStatus Enum: 1: Pending, 2: Processing, 3: Completed, 4: Failed
+  const getStatusLabel = (status) => {
+    if (status === 1 || status === "Pending") return "Pending";
+    if (status === 2 || status === "Processing") return "Processing";
+    if (status === 3 || status === "Completed") return "Completed";
+    if (status === 4 || status === "Failed") return "Failed";
+    return status || "Completed";
+  };
+
+  const getStatusBadgeClass = (status) => {
+    const label = getStatusLabel(status);
+    if (label === "Completed") return "badge-success-pill";
+    if (label === "Failed") return "badge-danger-pill";
+    if (label === "Processing" || label === "Pending") return "badge-warning-pill";
+    return "badge-success-pill";
+  };
+
+  // Result badge helper considering successRecords, skipRecords, failedRecords, and status
+  const renderResultBadge = (row) => {
+    const statusVal = row.status !== undefined ? row.status : row.result;
+    const { successRecords, skipRecords, failedRecords } = row;
+
+    // Status: Failed (4)
+    if (statusVal === 4 || statusVal === "Failed") {
+      const failText = typeof failedRecords === "number" && failedRecords > 0
+        ? `• Failed (${failedRecords} failed)`
+        : "• Failed";
+      return <span className="badge-danger-pill">{failText}</span>;
+    }
+
+    // Status: Pending (1)
+    if (statusVal === 1 || statusVal === "Pending") {
+      return <span className="badge-warning-pill">• Pending</span>;
+    }
+
+    // Status: Processing (2)
+    if (statusVal === 2 || statusVal === "Processing") {
+      return <span className="badge-warning-pill">• Processing</span>;
+    }
+
+    // Status: Completed (3) or Default
+    const hasSkip = typeof skipRecords === "number" && skipRecords > 0;
+    const hasFail = typeof failedRecords === "number" && failedRecords > 0;
+    const hasSuccess = typeof successRecords === "number";
+
+    // If there are skipped records -> show warning badge with skip count
+    if (hasSkip) {
+      const parts = [];
+      if (hasSuccess) parts.push(`${successRecords} Success`);
+      parts.push(`${skipRecords} Skipped`);
+      if (hasFail) parts.push(`${failedRecords} Failed`);
+      return <span className="badge-warning-pill">• {parts.join(", ")}</span>;
+    }
+
+    // If there are failed records in completed job -> show danger badge
+    if (hasFail) {
+      const parts = [];
+      if (hasSuccess) parts.push(`${successRecords} Success`);
+      parts.push(`${failedRecords} Failed`);
+      return <span className="badge-danger-pill">• {parts.join(", ")}</span>;
+    }
+
+    // If successRecords is available and no skip/fail -> show success badge
+    if (hasSuccess) {
+      return <span className="badge-success-pill">• {successRecords} Success</span>;
+    }
+
+    // Fallback for custom result string or default
+    if (typeof row.result === "string") {
+      const isWarn = row.result.toLowerCase().includes("warning") || row.result.toLowerCase().includes("skip");
+      return (
+        <span className={isWarn ? "badge-warning-pill" : "badge-success-pill"}>
+          • {row.result}
+        </span>
+      );
+    }
+
+    return <span className="badge-success-pill">• Completed</span>;
   };
 
   // Helper for time ago in English
@@ -357,9 +453,8 @@ export default function ImportExportPage() {
 
               {/* DROPZONE AREA */}
               <div
-                className={`dropzone-container mb-3 ${
-                  isDragging ? "drag-over" : ""
-                }`}
+                className={`dropzone-container mb-3 ${isDragging ? "drag-over" : ""
+                  }`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
@@ -415,8 +510,8 @@ export default function ImportExportPage() {
               {/* FORMAT TOGGLE PILLS */}
               <div className="format-pills mb-4">
                 <button
-                  className={`format-pill-btn ${fileFormat === 0 ? "active" : ""}`}
-                  onClick={() => setFileFormat(0)}
+                  className={`format-pill-btn ${fileFormat === 1 ? "active" : ""}`}
+                  onClick={() => setFileFormat(1)}
                 >
                   JSON
                 </button>
@@ -424,13 +519,13 @@ export default function ImportExportPage() {
                   className={`format-pill-btn ${fileFormat === 2 ? "active" : ""}`}
                   onClick={() => setFileFormat(2)}
                 >
-                  Excel
+                  CSV
                 </button>
                 <button
-                  className={`format-pill-btn ${fileFormat === 1 ? "active" : ""}`}
-                  onClick={() => setFileFormat(1)}
+                  className={`format-pill-btn ${fileFormat === 3 ? "active" : ""}`}
+                  onClick={() => setFileFormat(3)}
                 >
-                  CSV
+                  Excel
                 </button>
               </div>
 
@@ -497,11 +592,11 @@ export default function ImportExportPage() {
                   <div className="d-flex justify-content-between py-2 border-bottom">
                     <span className="text-muted small">Format</span>
                     <span className="fw-bold text-dark small">
-                      {exportFormat === 0
+                      {exportFormat === 1
                         ? ".zip (JSON)"
                         : exportFormat === 2
-                        ? ".xlsx (Excel)"
-                        : ".csv (CSV)"}
+                          ? ".csv (CSV)"
+                          : ".xlsx (Excel)"}
                     </span>
                   </div>
                   <div className="d-flex justify-content-between py-2 border-bottom">
@@ -525,9 +620,9 @@ export default function ImportExportPage() {
                     value={exportFormat}
                     onChange={(e) => setExportFormat(Number(e.target.value))}
                   >
-                    <option value={0}>.zip (JSON files per language)</option>
-                    <option value={2}>.xlsx (Full Excel sheet)</option>
-                    <option value={1}>.csv (Standard CSV file)</option>
+                    <option value={1}>.zip (JSON files per language)</option>
+                    <option value={2}>.csv (Standard CSV file)</option>
+                    <option value={3}>.xlsx (Full Excel sheet)</option>
                   </Form.Select>
                 </Form.Group>
               </div>
@@ -586,40 +681,40 @@ export default function ImportExportPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {history.map((row, idx) => (
-                    <tr key={row.id || idx}>
-                      <td className="ps-4 fw-semibold text-dark font-monospace">
-                        <DocumentIcon width={16} className="me-2 text-muted inline" />
-                        {row.fileName || row.name || `file_${idx}.json`}
-                      </td>
-                      <td>
-                        <span
-                          className={`badge ${
-                            row.type === "Import" || row.type === 0
-                              ? "bg-primary-subtle text-primary"
-                              : "bg-purple-pill"
-                          }`}
-                        >
-                          {row.type === 0 ? "Import" : row.type === 1 ? "Export" : row.type}
-                        </span>
-                      </td>
-                      <td>
-                        <span
-                          className={
-                            row.status === "warning" || row.result?.includes("warning")
-                              ? "badge-warning-pill"
-                              : "badge-success-pill"
+                  {history.map((row, idx) => {
+                    const rawType = row.translationJobType !== undefined ? row.translationJobType : row.type;
+                    const rawStatus = row.status !== undefined ? row.status : row.result;
+                    const dateStr = row.completedAt || row.createdAt;
+
+                    return (
+                      <tr
+                        key={row.id || idx}
+                        onClick={() => {
+                          if (row.downloadUrl) {
+                            window.open(row.downloadUrl, "_blank");
                           }
-                        >
-                          • {row.result || row.status || "Completed"}
-                        </span>
-                      </td>
-                      <td className="pe-4 text-end text-muted small">
-                        <ClockIcon width={13} className="me-1 inline" />
-                        {row.timeAgo || (row.createdAt ? getTimeAgo(row.createdAt) : "Recently")}
-                      </td>
-                    </tr>
-                  ))}
+                        }}
+                        style={{ cursor: row.downloadUrl ? "pointer" : "default" }}
+                      >
+                        <td className="ps-4 fw-semibold text-dark font-monospace">
+                          <DocumentIcon width={16} className="me-2 text-muted inline" />
+                          {row.fileName || row.name || `file_${idx}.json`}
+                        </td>
+                        <td>
+                          <span className={`badge ${getJobTypeBadgeClass(rawType)}`}>
+                            {getJobTypeLabel(rawType)}
+                          </span>
+                        </td>
+                        <td>
+                          {renderResultBadge(row)}
+                        </td>
+                        <td className="pe-4 text-end text-muted small">
+                          <ClockIcon width={13} className="me-1 inline" />
+                          {row.timeAgo || (dateStr ? getTimeAgo(dateStr) : "Recently")}
+                        </td>
+                      </tr>
+                    );
+                  })}
 
                   {history.length === 0 && (
                     <tr>

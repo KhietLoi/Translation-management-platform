@@ -161,7 +161,7 @@ export default function PublishPage() {
   // Handle View Diff
   const handleOpenDiff = (releaseIndex) => {
     const currentRel = releases[releaseIndex];
-    const prevRel = releases[releaseIndex + 1] || releases[releaseIndex];
+    const prevRel = releases[releaseIndex + 1] || null;
     setDiffSourceRelease(prevRel);
     setDiffTargetRelease(currentRel);
     setShowDiffModal(true);
@@ -318,42 +318,50 @@ export default function PublishPage() {
             <div className="list-group list-group-flush">
               {releases.map((rel, index) => (
                 <div
-                  key={rel.id || index}
+                  key={rel.releaseId || rel.id || index}
                   className="list-group-item p-3 d-flex align-items-center justify-content-between hover-bg-light border-bottom"
                 >
                   <div className="d-flex align-items-center gap-3">
-                    <span className="badge-version">v{rel.version}</span>
+                    <span className="badge-version">
+                      v{rel.versionNumber || rel.version || "1.0"}
+                    </span>
+                    {(rel.isActive || index === 0) && (
+                      <span className="badge bg-success-subtle text-success small fw-semibold px-2 py-1 rounded-pill">
+                        Active
+                      </span>
+                    )}
                     <div>
                       <div className="fw-semibold text-dark fs-6">
                         {rel.environment || env}
-                        {rel.totalKey !== undefined && (
+                        {rel.totalKey !== undefined && rel.totalKey !== null && (
                           <span className="text-muted fw-normal">
                             {" "}· {rel.totalKey.toLocaleString()} keys
                           </span>
                         )}
-                        {(rel.publishedByName || rel.publishedBy) && (
+                        {(rel.publishingUserName || rel.publishedByName || rel.publishedBy) && (
                           <span className="text-muted fw-normal">
-                            {" "}· published by {rel.publishedByName || rel.publishedBy}
+                            {" "}· published by {rel.publishingUserName || rel.publishedByName || rel.publishedBy}
                           </span>
                         )}
                       </div>
                       <div className="text-muted small d-flex align-items-center gap-1">
                         <ClockIcon width={13} />
-                        {getTimeAgo(rel.publishedAt)}
+                        {getTimeAgo(rel.releaseDate || rel.publishedAt)}
                         {rel.notes && <span className="ms-2">({rel.notes})</span>}
                       </div>
                     </div>
                   </div>
 
                   <div className="d-flex align-items-center gap-2">
-                    {index === 0 ? (
+                    {index < releases.length - 1 && (
                       <button
                         className="btn btn-sm btn-outline-custom px-3 py-1 text-dark fw-medium"
                         onClick={() => handleOpenDiff(index)}
                       >
                         View Diff
                       </button>
-                    ) : (
+                    )}
+                    {index > 0 && (
                       <button
                         className="btn btn-sm btn-outline-custom px-3 py-1 text-dark fw-medium"
                         onClick={() => handleRollback(rel)}

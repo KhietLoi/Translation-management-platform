@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import { getProjects, getProjectNamespaces } from "../../services/projectService";
 import { getTranslationGrid, createTranslationKey, updateTranslationKey, deleteTranslationKey, getTranslationValueById } from "../../services/translationManagementService";
 
@@ -12,10 +13,19 @@ import TranslationDetailDrawer from "../../components/translations/TranslationDe
 import { toast } from "react-toastify";
 
 function TranslationManagementPage() {
+    const outletContext = useOutletContext() || {};
+    const {
+        projects: contextProjects = [],
+        selectedProjectId: contextProjectId = "",
+        setSelectedProjectId: setContextProjectId,
+    } = outletContext;
+
     const [loading, setLoading] = useState(false);
-    const [projects, setProjects] = useState([]);
+    const [localProjects, setLocalProjects] = useState([]);
     const [namespaces, setNamespaces] = useState([]);
-    const [selectedProjectId, setSelectedProjectId] = useState("");
+    const [selectedProjectId, setSelectedProjectId] = useState(contextProjectId || "");
+
+    const projects = contextProjects.length > 0 ? contextProjects : localProjects;
     const [selectedNamespaceId, setSelectedNamespaceId] = useState("");
     const [keyword, setKeyword] = useState("");
     const [status, setStatus] = useState("");
@@ -34,18 +44,26 @@ function TranslationManagementPage() {
     const [selectedTranslationValue, setSelectedTranslationValue] =
         useState(null);
 
+    // Sync with contextProjectId
+    useEffect(() => {
+        if (contextProjectId) {
+            setSelectedProjectId(contextProjectId);
+        }
+    }, [contextProjectId]);
+
     // ==========================
     // LOAD PROJECTS
     // ==========================
     const loadProjects = async () => {
         try {
             const response = await getProjects();
-            const projectList = response.data?.projects || [];
+            const projectList = response.data?.projects || response.data || [];
+            const list = Array.isArray(projectList) ? projectList : [];
 
-            setProjects(projectList);
+            setLocalProjects(list);
 
-            if (projectList.length > 0) {
-                setSelectedProjectId(projectList[0].id);
+            if (list.length > 0 && !selectedProjectId && !contextProjectId) {
+                setSelectedProjectId(list[0].id);
             }
         } catch (error) {
             console.error(error);
@@ -166,8 +184,10 @@ function TranslationManagementPage() {
     // EFFECTS
     // ==========================
     useEffect(() => {
-        loadProjects();
-    }, []);
+        if (contextProjects.length === 0) {
+            loadProjects();
+        }
+    }, [contextProjects]);
 
     useEffect(() => {
         if (selectedProjectId) {
@@ -229,6 +249,7 @@ function TranslationManagementPage() {
                 numberOfLanguages={numberOfLanguages}
                 onProjectChange={(value) => {
                     setSelectedProjectId(value);
+                    if (setContextProjectId) setContextProjectId(value);
                     setPageNumber(1);
                 }}
                 onNamespaceChange={(value) => {
@@ -301,6 +322,7 @@ function TranslationManagementPage() {
                     setShowDrawer(false);
                     setSelectedTranslationValue(null);
                 }}
+                onSuccess={loadGrid}
             />
         </div>
     );
