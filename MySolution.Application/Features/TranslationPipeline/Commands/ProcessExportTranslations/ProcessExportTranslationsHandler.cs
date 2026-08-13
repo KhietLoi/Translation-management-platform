@@ -44,13 +44,17 @@ public class ProcessExportTranslationsHandler : IRequestHandler<ProcessExportTra
 
             var result = await _exportService.ExportAsync(
                 job.ProjectId,
-                job.FileType!,
+                job.FileType,
                 cancellationToken);
 
             job.Status = TranslationJobStatus.Completed;
             job.FileName = result.FileName;
             job.DownloadUrl = result.DownloadUrl;
             job.CompletedAt = DateTime.UtcNow;
+            job.TotalRecords = result.TotalRecords;
+            job.SkippedRecords = result.SkippedRecords;
+            job.FailedRecords = result.FailedRecords;
+            job.SuccessRecords  = result.SuccessRecords;
 
             await _unitOfWork.SaveAsync(cancellationToken);
         }

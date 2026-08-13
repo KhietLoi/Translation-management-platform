@@ -29,4 +29,8 @@ public class GetTranslationJobHistoryItem
     public string? DownloadUrl { get; set; } 
     public DateTime CompletedAt {get; set;}
     
+    public int SuccessRecords  { get; set; }
+    public int FailedRecords  { get; set; }
+    public int TotalRecords  { get; set; }
+    public int SkipRecords  { get; set; }
 }

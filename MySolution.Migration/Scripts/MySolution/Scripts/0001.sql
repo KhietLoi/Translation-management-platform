@@ -607,7 +607,7 @@ CREATE TABLE IF NOT EXISTS mysolution."TranslationReleases"
     "Notes" VARCHAR(1000),
 
     "PublishedBy" UUID NOT NULL,
-    "PublishedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    "PublishedAt" TIMESTAMP WITH TIME ZONE,
 
     CONSTRAINT "PK_TranslationReleases"
     PRIMARY KEY ("Id"),

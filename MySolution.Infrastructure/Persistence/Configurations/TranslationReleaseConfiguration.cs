@@ -30,7 +30,8 @@ public class TranslationReleaseConfiguration : IEntityTypeConfiguration<Translat
         builder.Property(x => x.PublishedBy)
             .IsRequired();
         builder.Property(x => x.PublishedAt)
-            .IsRequired();
+            .IsRequired()
+            .HasColumnType("timestamp with time zone");
         builder.HasOne(x => x.Project)
             .WithMany(x => x.TranslationReleases)
             .HasForeignKey(x => x.ProjectId)

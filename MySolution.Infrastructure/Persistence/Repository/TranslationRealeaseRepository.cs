@@ -73,4 +73,14 @@ public class TranslationReleaseRepository (AppDbContext context, ILogger logger)
 
         return (items, totalCount);
     }
-}
+
+    public async Task<TranslationRelease?> GetPreviousReleaseAsync(Guid projectId, DateTime currentReleasePublishedAt, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .Where(x =>
+                x.ProjectId == projectId &&
+                x.PublishedAt < currentReleasePublishedAt)
+            .OrderByDescending(x => x.PublishedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+}   

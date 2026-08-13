@@ -33,14 +33,6 @@ public class GetReleaseDiffHandler : IRequestHandler<GetReleaseDiffQuery, GetRel
 
         try
         {
-            var sourceRelease = await _unitOfWork.TranslationRelease.GetByIdAsync(request.SourceReleaseId, cancellationToken);
-            if (sourceRelease == null)
-            {
-                response.ErrorMessage = "The source release was not found.";
-                response.WithStatus(HttpStatusCode.NotFound);
-                return response;
-            }
-            
             var targetRelease = await _unitOfWork.TranslationRelease.GetByIdAsync(request.TargetReleaseId, cancellationToken);
             if (targetRelease == null)
             {
@@ -48,11 +40,13 @@ public class GetReleaseDiffHandler : IRequestHandler<GetReleaseDiffQuery, GetRel
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
+            var sourceRelease = await _unitOfWork.TranslationRelease
+                .GetPreviousReleaseAsync(targetRelease.ProjectId, targetRelease.PublishedAt, cancellationToken);
             
-            if (sourceRelease.ProjectId != targetRelease.ProjectId)
+            if (sourceRelease == null)
             {
-                response.ErrorMessage = "Releases must belong to the same project.";
-                response.WithStatus(HttpStatusCode.BadRequest);
+                response.ErrorMessage = "No previous release found.";
+                response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
             

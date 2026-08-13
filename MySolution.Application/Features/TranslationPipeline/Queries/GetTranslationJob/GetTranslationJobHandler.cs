@@ -56,7 +56,11 @@ public class GetTranslationJobHandler : IRequestHandler<GetTranslationJobQuery, 
                         FileType = x.FileType,
                         FileName = x.FileName,
                         DownloadUrl = x.DownloadUrl,
-                        CompletedAt = x.CreatedAt
+                        CompletedAt = x.CreatedAt,
+                        SuccessRecords = x.SuccessRecords,
+                        FailedRecords = x.FailedRecords,
+                        TotalRecords = x.TotalRecords,
+                        SkipRecords = x.SkippedRecords
                     }).ToList(),
 
                 TotalCount = totalCount,
