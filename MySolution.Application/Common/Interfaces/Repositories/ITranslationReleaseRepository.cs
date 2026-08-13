@@ -12,4 +12,5 @@ public interface ITranslationReleaseRepository : IRepository <TranslationRelease
     Task<bool> ExistReleaseWithChecksumAsync(Guid projectId, string checksum, CancellationToken cancellationToken);
     Task<(List<ReleaseHistoryItemDto> Items, int TotalCount)> GetReleaseHistoryAsync(Guid projectId, int pageNumber,
         int pageSize, CancellationToken cancellationToken);
+    Task <TranslationRelease?> GetPreviousReleaseAsync(Guid projectId, DateTime currentReleasePublishedAt, CancellationToken cancellationToken);
 }

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
+using MySolution.Domain.Enums;
 
 namespace MySolution.Infrastructure.Persistence.Repository;
 
@@ -18,8 +19,9 @@ public class TranslationJobRepository (AppDbContext context, ILogger logger) :
     public async Task<(List<TranslationJob> Items, int TotalCount)> GetHistoryAsync(Guid projectId, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         var query = DbSet
-            .AsNoTracking()
-            .Where(x => x.ProjectId == projectId);
+            .AsNoTracking()     
+            .Where(x => x.ProjectId == projectId && 
+                        (x.Type == TranslationJobType.Export || x.Type == TranslationJobType.Import ));
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
             .OrderByDescending(x => x.CreatedAt)

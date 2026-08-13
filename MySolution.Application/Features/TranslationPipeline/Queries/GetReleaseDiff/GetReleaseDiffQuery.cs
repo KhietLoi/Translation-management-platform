@@ -4,12 +4,12 @@ namespace MySolution.Application.Features.TranslationPipeline.Queries.GetRelease
 
 public class GetReleaseDiffQuery : IRequest<GetReleaseDiffResponse>
 {
-    public Guid SourceReleaseId { get; set; }
+    //public Guid SourceReleaseId { get; set; }
     public Guid TargetReleaseId { get; set; }
 
-    public GetReleaseDiffQuery(Guid sourceReleaseId, Guid targetReleaseId)
+    public GetReleaseDiffQuery(Guid targetReleaseId)
     {
-        SourceReleaseId = sourceReleaseId;
+       // SourceReleaseId = sourceReleaseId;
         TargetReleaseId = targetReleaseId;
     }
 }

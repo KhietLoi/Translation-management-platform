@@ -50,6 +50,12 @@ public class ExportService : IExportService
         {
             throw new BadRequestException("No translations found.");
         }
+        
+        var totalRecords = 0;
+        var successRecords = 0;
+        var skippedRecords = 0;
+        var failedRecords = 0;
+        
         var exportDataList = new List <TranslationExportData>();
 
         foreach (var language in languages)
@@ -67,10 +73,22 @@ public class ExportService : IExportService
 
                 if (translationValue == null)
                 {
+                    skippedRecords++;
                     continue;
                 }
+                totalRecords++;
                 
-                exportData.Translations.Add(translationKey.Key, translationValue.Value);
+                try
+                {
+                    exportData.Translations.Add(translationKey.Key, translationValue.Value);
+                    successRecords++;
+                }
+                catch (Exception ex)
+                {
+                    failedRecords++;
+                    _logger.LogError(ex, "Failed to export translation key {Key} for language {LanguageCode}", translationKey.Key, language.Code);
+                }
+                
             }
             exportDataList.Add(exportData);
         }
@@ -90,9 +108,12 @@ public class ExportService : IExportService
         return new ExportTranslationResult
         { 
             DownloadUrl = dowloadUrl,
-            FileName = fileName
+            FileName = fileName,
+            TotalRecords = totalRecords,
+            SuccessRecords = successRecords,
+            FailedRecords = failedRecords,
+            SkippedRecords = skippedRecords
         };
-
 
     }
 }

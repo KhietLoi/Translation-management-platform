@@ -6,8 +6,8 @@ public class GetReleaseDiffValidator : AbstractValidator<GetReleaseDiffQuery>
 {
     public GetReleaseDiffValidator()
     {
-        RuleFor(x => x.SourceReleaseId)
+        RuleFor(x => x.TargetReleaseId)
             .NotEmpty()
-            .WithMessage("The source release id cannot be empty");
+            .WithMessage("The target release id cannot be empty");
     }
 }

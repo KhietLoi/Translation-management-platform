@@ -73,12 +73,11 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
     [HttpGet("release-diff")]
     public async Task<IActionResult> GetReleaseDiff
     (
-        Guid sourceReleaseId,
         Guid targetReleaseId,
         CancellationToken cancellationToken
     )
     {
-        var response = await mediator.Send(new GetReleaseDiffQuery(sourceReleaseId, targetReleaseId), cancellationToken);
+        var response = await mediator.Send(new GetReleaseDiffQuery(targetReleaseId), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 }
