@@ -4,6 +4,7 @@ using MySolution.Api.StartupRegistrations;
 using MySolution.Api.StartupRegistrations.Swagger;
 using MySolution.Application.ServiceRegistration;
 using MySolution.Infrastructure;
+using MySolution.Infrastructure.Realtime.Hubs;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,7 +43,8 @@ app.UseRateLimiter();
 app.UseAuthorization();
 // ApiKey Usage
 app.UseMiddleware<UsageLoggingMiddleware>();
-
+app.MapHub<TranslationHub>(
+    "/hubs/translation");
 app.MapControllers();
 app.MapGet("/", () => { return Results.Redirect("/swagger"); });
 app.Run();

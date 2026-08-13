@@ -30,6 +30,7 @@ public interface IUnitOfWork
     IApiKeyUsageLogRepository ApiKeyUsageLog { get; }
     
     ITranslationReleaseRepository TranslationRelease { get; }
+    INotificationRepository  Notification { get; }
 
     Task SaveAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> OpenTransactionAsync(CancellationToken cancellationToken = default);

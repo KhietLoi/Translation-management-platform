@@ -618,6 +618,73 @@ CREATE TABLE IF NOT EXISTS mysolution."TranslationReleases"
     ON DELETE CASCADE
 );
 
+-- Notification:
+CREATE TABLE IF NOT EXISTS mysolution."Notifications"
+(
+    "Id" UUID NOT NULL,
+
+    "UserId" UUID NOT NULL,
+    
+    "ProjectId" UUID NOT NULL,
+
+    "Title" VARCHAR(200) NOT NULL,
+
+    "Message" TEXT NOT NULL,
+
+    "Type" INT NOT NULL,
+
+    "IsRead" BOOLEAN NOT NULL DEFAULT FALSE,
+
+    "NavigationUrl" VARCHAR(500) NULL,
+
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT "PK_Notifications"
+    PRIMARY KEY ("Id"),
+
+    CONSTRAINT "FK_Notifications_Users_UserId"
+    FOREIGN KEY ("UserId")
+    REFERENCES mysolution."Users" ("Id")
+    ON DELETE CASCADE,
+    
+    CONSTRAINT "FK_Notifications_Projects_ProjectId"
+    FOREIGN KEY ("ProjectId")
+    REFERENCES mysolution."Projects" ("Id")
+    ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS "IX_Notifications_UserId"
+    ON mysolution."Notifications" ("UserId");
+
+CREATE INDEX IF NOT EXISTS "IX_Notifications_UserId_ProjectId"
+    ON mysolution."Notifications"
+    (
+    "UserId",
+    "ProjectId"
+    );
+
+CREATE INDEX IF NOT EXISTS "IX_Notifications_UserId_IsRead"
+    ON mysolution."Notifications"
+    (
+    "UserId",
+    "IsRead"
+    );
+
+CREATE INDEX IF NOT EXISTS "IX_Notifications_UserId_ProjectId_IsRead"
+    ON mysolution."Notifications"
+    (
+    "UserId",
+    "ProjectId",
+    "IsRead"
+    );
+
+CREATE INDEX IF NOT EXISTS "IX_Notifications_UserId_CreatedAt"
+    ON mysolution."Notifications"
+    (
+    "UserId",
+    "CreatedAt" DESC
+    );
+
 CREATE INDEX IF NOT EXISTS
     "IX_TranslationReleases_ProjectId"
     ON mysolution."TranslationReleases"

@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.File;
+using MySolution.Application.Common.Interfaces.Realtime;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Enums;
 
@@ -12,17 +13,20 @@ public class ProcessPublishTranslationsHandler
     private readonly ILogger<ProcessPublishTranslationsHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPublishService _publishService;
+    private readonly INotificationService _notificationService;
 
     public ProcessPublishTranslationsHandler
     (
         ILogger<ProcessPublishTranslationsHandler> logger,
         IUnitOfWork unitOfWork,
-        IPublishService publishService
+        IPublishService publishService,
+        INotificationService notificationService
     )
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _publishService = publishService;
+        _notificationService =  notificationService;
     }
 
     public async Task Handle(ProcessPublishTranslationsCommand request, CancellationToken cancellationToken)
@@ -36,6 +40,7 @@ public class ProcessPublishTranslationsHandler
             throw new Exception($"{nameof(ProcessPublishTranslationsHandler)} job with id {request.JobId} not found");
         }
 
+        var username = await _unitOfWork.User.GetUserNameAsync(job.CreatedBy);
         try
         {
             job.Status = TranslationJobStatus.Processing;
@@ -58,7 +63,14 @@ public class ProcessPublishTranslationsHandler
             job.ErrorMessage = null;
 
             await _unitOfWork.SaveAsync(cancellationToken);
-            
+            await _notificationService.NotifyProjectAsync(
+                job.ProjectId,
+                "Publish Completed",
+                "Translations published successfully.",
+                username,
+                NotificationType.Success,
+                $"/projects/{job.ProjectId}/releases",
+                cancellationToken);
             _logger.LogInformation("{FunctionName} Publish job {JobId} completed successfully", functionName, request.JobId);
         }
         catch (Exception ex)
@@ -69,6 +81,14 @@ public class ProcessPublishTranslationsHandler
             job.CompletedAt = DateTime.UtcNow;
             job.FailedRecords = job.TotalRecords -job.SuccessRecords - job.SkippedRecords;
             await _unitOfWork.SaveAsync(cancellationToken);
+            await _notificationService.NotifyProjectAsync(
+                job.ProjectId,
+                "Publish Failed",
+                ex.Message,
+                username,
+                NotificationType.Error,
+                $"/projects/{job.ProjectId}/releases",
+                cancellationToken);
             throw;
         }
     }

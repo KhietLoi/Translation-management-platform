@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.File;
+using MySolution.Application.Common.Interfaces.Realtime;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Enums;
 
@@ -11,17 +12,20 @@ public class ProcessExportTranslationsHandler : IRequestHandler<ProcessExportTra
     private readonly ILogger<ProcessExportTranslationsHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
     private readonly IExportService _exportService;
+    private readonly INotificationService _notificationService;
 
     public ProcessExportTranslationsHandler
     (
         ILogger<ProcessExportTranslationsHandler> logger,
 		IUnitOfWork unitOfWork,
-        IExportService exportService
+        IExportService exportService,
+        INotificationService notificationService
     )
     {
         _logger = logger;
 		_unitOfWork = unitOfWork;
         _exportService = exportService;
+        _notificationService = notificationService;
     }
 
     #region Implementation of IRequestHandler<in ProcessExportTranslationsCommand, ProcessExportTranslationsResponse>
@@ -34,7 +38,7 @@ public class ProcessExportTranslationsHandler : IRequestHandler<ProcessExportTra
             _logger.LogError($"Job with id {request.Message.JobId} not found");
             return;
         }
-        
+        var username = await _unitOfWork.User.GetUserNameAsync(job.CreatedBy);
         try
         {
             job.Status = TranslationJobStatus.Processing;
@@ -57,6 +61,15 @@ public class ProcessExportTranslationsHandler : IRequestHandler<ProcessExportTra
             job.SuccessRecords  = result.SuccessRecords;
 
             await _unitOfWork.SaveAsync(cancellationToken);
+          
+            await _notificationService.NotifyProjectAsync(
+                job.ProjectId,
+                "Export Completed",
+                $"Export file '{job.FileName}' completed successfully.",
+                username,
+                NotificationType.Success,
+                $"/translation-jobs/{job.Id}",
+                cancellationToken);
         }
         catch (Exception ex)
         {
@@ -65,8 +78,16 @@ public class ProcessExportTranslationsHandler : IRequestHandler<ProcessExportTra
             job.Status = TranslationJobStatus.Failed;
             job.ErrorMessage = ex.Message;
             job.CompletedAt = DateTime.UtcNow;
-
+            
             await _unitOfWork.SaveAsync(cancellationToken);
+            await _notificationService.NotifyProjectAsync(
+                    job.ProjectId,
+                    "Export Failed",
+                    ex.Message, 
+                    username,
+                NotificationType.Error,
+                $"/translation-jobs/{job.Id}",
+                cancellationToken);
         }
     }
 

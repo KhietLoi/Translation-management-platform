@@ -43,6 +43,7 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
     }
     
     [HttpGet("release-history")]
+    [Permission(PermissionConstants.Translation.Publish)]
     public async Task<IActionResult> GetReleaseHistory(
         [FromQuery] GetReleaseHistoryQuery query,
         CancellationToken cancellationToken)
@@ -52,6 +53,7 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("translations-history")]
+    [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetTranslationHistory(
         [FromQuery] GetTranslationJobQuery query,
         CancellationToken cancellationToken)
@@ -61,8 +63,9 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
     }
     
     //Rollback:
+    
     [HttpPost("releases/{releaseId:guid}/rollback")]
-    [Authorize]
+    [Permission(PermissionConstants.Translation.Publish)]
     public async Task<IActionResult> RollbackRelease(Guid releaseId, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new RollbackReleaseCommand(releaseId),cancellationToken);
@@ -71,6 +74,7 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
     
     //Diff:
     [HttpGet("release-diff")]
+    [Permission(PermissionConstants.Translation.Publish)]
     public async Task<IActionResult> GetReleaseDiff
     (
         Guid targetReleaseId,

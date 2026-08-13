@@ -95,4 +95,12 @@ public class UserRepository(AppDbContext context, ILogger logger) : Repository<U
             .Where(x => ids.Contains(x.Id))
             .ToListAsync();
     }
+
+    public async Task<string> GetUserNameAsync(Guid userId)
+    {
+        var user = await DbSet
+            .FirstOrDefaultAsync(x => x.Id == userId);
+
+        return user?.Username ?? string.Empty;
+    }
 }

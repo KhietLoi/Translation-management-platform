@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
@@ -14,17 +15,20 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
     private readonly ILogger<ExportTranslationsHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
     private readonly IMessageSender _messageSender;
+    private readonly ICurrentUser _currentUser;
 
     public ExportTranslationsHandler
     (
         ILogger<ExportTranslationsHandler> logger,
 		IUnitOfWork unitOfWork,
-        IMessageSender messageSender
+        IMessageSender messageSender,
+        ICurrentUser currentUser
     )
     {
         _logger = logger;
 		_unitOfWork = unitOfWork;
         _messageSender = messageSender;
+        _currentUser = currentUser;
     }
 
     #region Implementation of IRequestHandler<in ExportTranslationsCommand, ExportTranslationsResponse>
@@ -54,7 +58,8 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
                 Type = TranslationJobType.Export,
                 Status = TranslationJobStatus.Pending,
                 FileType = payload.Format,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = _currentUser.UserId
             };
             
             await _unitOfWork.TranslationJob.Add(job);

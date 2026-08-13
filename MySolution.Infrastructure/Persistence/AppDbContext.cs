@@ -31,7 +31,7 @@ public class AppDbContext : DbContext
     public DbSet<Domain.Entities.Application> Applications => Set<Domain.Entities.Application>();
     public DbSet<TranslationJob> TranslationJobs => Set<TranslationJob>();
     public DbSet<TranslationRelease> TranslationReleases => Set<TranslationRelease>();
-
+    public DbSet<Notification> Notifications => Set<Notification>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
