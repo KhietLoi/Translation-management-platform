@@ -65,9 +65,9 @@ public class ProcessPublishTranslationsHandler
             await _unitOfWork.SaveAsync(cancellationToken);
             await _notificationService.NotifyProjectAsync(
                 job.ProjectId,
+                job.CreatedBy,
                 "Publish Completed",
                 "Translations published successfully.",
-                username,
                 NotificationType.Success,
                 $"/projects/{job.ProjectId}/releases",
                 cancellationToken);
@@ -83,9 +83,9 @@ public class ProcessPublishTranslationsHandler
             await _unitOfWork.SaveAsync(cancellationToken);
             await _notificationService.NotifyProjectAsync(
                 job.ProjectId,
+                job.CreatedBy,
                 "Publish Failed",
                 ex.Message,
-                username,
                 NotificationType.Error,
                 $"/projects/{job.ProjectId}/releases",
                 cancellationToken);

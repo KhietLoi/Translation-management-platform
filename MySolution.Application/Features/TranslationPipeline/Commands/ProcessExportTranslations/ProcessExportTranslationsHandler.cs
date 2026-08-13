@@ -7,69 +7,71 @@ using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Features.TranslationPipeline.Commands.ProcessExportTranslations;
 
-public class ProcessExportTranslationsHandler : IRequestHandler<ProcessExportTranslationsCommand>
+public class ProcessExportTranslationsHandler
+    : IRequestHandler<ProcessExportTranslationsCommand>
 {
     private readonly ILogger<ProcessExportTranslationsHandler> _logger;
-	private readonly IUnitOfWork _unitOfWork;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IExportService _exportService;
     private readonly INotificationService _notificationService;
 
-    public ProcessExportTranslationsHandler
-    (
+    public ProcessExportTranslationsHandler(
         ILogger<ProcessExportTranslationsHandler> logger,
-		IUnitOfWork unitOfWork,
+        IUnitOfWork unitOfWork,
         IExportService exportService,
-        INotificationService notificationService
-    )
+        INotificationService notificationService)
     {
         _logger = logger;
-		_unitOfWork = unitOfWork;
+        _unitOfWork = unitOfWork;
         _exportService = exportService;
         _notificationService = notificationService;
     }
 
-    #region Implementation of IRequestHandler<in ProcessExportTranslationsCommand, ProcessExportTranslationsResponse>
-
-    public async Task Handle(ProcessExportTranslationsCommand request, CancellationToken cancellationToken)
+    public async Task Handle(
+        ProcessExportTranslationsCommand request,
+        CancellationToken cancellationToken)
     {
-        var job = await _unitOfWork.TranslationJob.GetByIdAsync(request.Message.JobId);
+        var job = await _unitOfWork.TranslationJob
+            .GetByIdAsync(request.Message.JobId);
+
         if (job == null)
         {
-            _logger.LogError($"Job with id {request.Message.JobId} not found");
+            _logger.LogError(
+                "Translation job {JobId} not found",
+                request.Message.JobId);
+
             return;
         }
-        var username = await _unitOfWork.User.GetUserNameAsync(job.CreatedBy);
+
         try
         {
             job.Status = TranslationJobStatus.Processing;
             job.StartedAt = DateTime.UtcNow;
-
             await _unitOfWork.SaveAsync(cancellationToken);
-
-            var result = await _exportService.ExportAsync(
-                job.ProjectId,
-                job.FileType,
-                cancellationToken);
-
+            
+            var result = await _exportService.ExportAsync(job.ProjectId, job.FileType, cancellationToken);
             job.Status = TranslationJobStatus.Completed;
             job.FileName = result.FileName;
             job.DownloadUrl = result.DownloadUrl;
             job.CompletedAt = DateTime.UtcNow;
+
             job.TotalRecords = result.TotalRecords;
-            job.SkippedRecords = result.SkippedRecords;
+            job.SuccessRecords = result.SuccessRecords;
             job.FailedRecords = result.FailedRecords;
-            job.SuccessRecords  = result.SuccessRecords;
+            job.SkippedRecords = result.SkippedRecords;
 
             await _unitOfWork.SaveAsync(cancellationToken);
-          
+
             await _notificationService.NotifyProjectAsync(
                 job.ProjectId,
+                job.CreatedBy,
                 "Export Completed",
                 $"Export file '{job.FileName}' completed successfully.",
-                username,
                 NotificationType.Success,
                 $"/translation-jobs/{job.Id}",
                 cancellationToken);
+
+            _logger.LogInformation("Export job {JobId} completed successfully", job.Id);
         }
         catch (Exception ex)
         {
@@ -78,18 +80,17 @@ public class ProcessExportTranslationsHandler : IRequestHandler<ProcessExportTra
             job.Status = TranslationJobStatus.Failed;
             job.ErrorMessage = ex.Message;
             job.CompletedAt = DateTime.UtcNow;
-            
+
             await _unitOfWork.SaveAsync(cancellationToken);
+
             await _notificationService.NotifyProjectAsync(
-                    job.ProjectId,
-                    "Export Failed",
-                    ex.Message, 
-                    username,
+                job.ProjectId,
+                job.CreatedBy,
+                "Export Failed",
+                ex.Message,
                 NotificationType.Error,
                 $"/translation-jobs/{job.Id}",
                 cancellationToken);
         }
     }
-
-    #endregion
 }

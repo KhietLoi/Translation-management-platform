@@ -40,6 +40,10 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
             .WithMany()
             .HasForeignKey(x => x.ProjectId)
             .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.TriggeredByUser)
+            .WithMany()
+            .HasForeignKey(x => x.TriggeredByUserId)
+            .OnDelete(DeleteBehavior.SetNull);
         
         builder.HasIndex(x => x.UserId);
         builder.HasIndex(x => new

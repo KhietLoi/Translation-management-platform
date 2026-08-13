@@ -48,4 +48,35 @@ public class NotificationRepository (AppDbContext context, ILogger logger)
                     .SetProperty(x => x.IsRead, true),
                 cancellationToken);
     }
+
+    public async Task<(List<Notification> Notifications, int TotalCount)>
+        GetAsync(Guid userId, Guid? projectId, bool? isRead, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        var query = DbSet
+            .AsNoTracking()
+            .Include(x => x.TriggeredByUser)
+            .Where(x => x.UserId == userId);
+
+        if (projectId.HasValue)
+        {
+            query = query.Where(x => x.ProjectId == projectId.Value);
+        }
+
+        if (isRead.HasValue)
+        {
+            query = query.Where(x => x.IsRead == isRead.Value);
+        }
+
+        var totalCount =
+            await query.CountAsync(cancellationToken);
+
+        var notifications =
+            await query
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+        return (notifications, totalCount);
+    }
 }

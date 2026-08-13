@@ -38,12 +38,11 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
         {
             throw new Exception($"Job with id {request.JobId} not found");
         }
-        var username = await _unitOfWork.User.GetUserNameAsync(job.CreatedBy);
+        
         try
         {
             job.Status =TranslationJobStatus.Processing;
             job.StartedAt = DateTime.UtcNow;
-            
             await _unitOfWork.SaveAsync(cancellationToken);
             if (job.LanguageId == null)
             {
@@ -81,9 +80,9 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
             await _unitOfWork.SaveAsync(cancellationToken);
             await _notificationService.NotifyProjectAsync(
                 job.ProjectId,
+                job.CreatedBy,
                 "Import Completed",
                 $"File '{job.FileName}' imported successfully.",
-                username,
                 NotificationType.Success,
                 $"/translation-jobs/{job.Id}",
                 cancellationToken);
@@ -99,9 +98,9 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
             await _unitOfWork.SaveAsync(cancellationToken);
             await _notificationService.NotifyProjectAsync(
                 job.ProjectId,
+                job.CreatedBy,
                 "Import Failed",
                 e.Message,
-                username,
                 NotificationType.Error,
                 $"/translation-jobs/{job.Id}",
                 cancellationToken);
