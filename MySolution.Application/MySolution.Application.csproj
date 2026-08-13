@@ -20,6 +20,8 @@
         <Folder Include="Features\AuditLogs\Queries\" />
         <Folder Include="Features\Language\Commands\" />
         <Folder Include="Features\Language\Queries\" />
+        <Folder Include="Features\Notification\Commands\" />
+        <Folder Include="Features\Notification\Queries\" />
         <Folder Include="Features\Project\Queries\" />
         <Folder Include="Features\TranslationManagement\Queries\" />
         <Folder Include="Features\TranslationPipeline\Queries\" />

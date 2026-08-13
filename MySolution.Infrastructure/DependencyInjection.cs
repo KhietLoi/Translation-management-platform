@@ -5,6 +5,7 @@ using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.DistributedLock;
 using MySolution.Application.Common.Interfaces.File;
+using MySolution.Application.Common.Interfaces.Realtime;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Infrastructure.Authentication;
 using MySolution.Infrastructure.Authorization;
@@ -18,6 +19,7 @@ using MySolution.Infrastructure.MassTransit;
 using MySolution.Infrastructure.Options;
 using MySolution.Infrastructure.Persistence;
 using MySolution.Infrastructure.Publish.Services;
+using MySolution.Infrastructure.Realtime.Services;
 using MySolution.Infrastructure.Services;
 using RedLockNet.SERedis;
 using RedLockNet.SERedis.Configuration;
@@ -108,6 +110,9 @@ public static class DependencyInjection
         //Release:
         services.AddScoped<IReleaseDiffService, ReleaseDiffService>();
         
+        //Realtime:
+        services.AddSignalR();
+        services.AddScoped<INotificationService, NotificationService>();
         
         return services;
     }

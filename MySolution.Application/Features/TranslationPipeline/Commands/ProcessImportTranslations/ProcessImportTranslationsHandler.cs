@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.File;
+using MySolution.Application.Common.Interfaces.Realtime;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Enums;
 
@@ -11,17 +12,20 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
     private readonly IUnitOfWork _unitOfWork;
     private readonly IImportService _importService;
     private readonly ILogger<ProcessImportTranslationsHandler> _logger;
+    private readonly INotificationService _notificationService;
     
     public ProcessImportTranslationsHandler
     (
         IUnitOfWork unitOfWork,
         IImportService importService,
-        ILogger<ProcessImportTranslationsHandler> logger
+        ILogger<ProcessImportTranslationsHandler> logger,
+        INotificationService notificationService
     )
     {
         _unitOfWork = unitOfWork;
         _importService = importService;
         _logger = logger;
+        _notificationService = notificationService;
     }
     
     public async Task Handle(ProcessImportTranslationsCommand request, CancellationToken cancellationToken)
@@ -34,7 +38,7 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
         {
             throw new Exception($"Job with id {request.JobId} not found");
         }
-
+        var username = await _unitOfWork.User.GetUserNameAsync(job.CreatedBy);
         try
         {
             job.Status =TranslationJobStatus.Processing;
@@ -56,11 +60,6 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
                 throw new InvalidOperationException($"Import job {job.Id} missing FileName.");
             }
             
-            /*if (job.FileType == null)
-            {
-                throw new InvalidOperationException($"Import job {job.Id} missing FileType.");
-            }*/
-            
             var result = await _importService.ImportAsync
             (
                 job.ProjectId,
@@ -80,7 +79,14 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
             job.ErrorMessage = null;
             
             await _unitOfWork.SaveAsync(cancellationToken);
-            
+            await _notificationService.NotifyProjectAsync(
+                job.ProjectId,
+                "Import Completed",
+                $"File '{job.FileName}' imported successfully.",
+                username,
+                NotificationType.Success,
+                $"/translation-jobs/{job.Id}",
+                cancellationToken);
             _logger.LogInformation("Import job {JobId} completed", job.Id);
         }
         catch (Exception e)
@@ -91,6 +97,14 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
             job.CompletedAt = DateTime.UtcNow;
             
             await _unitOfWork.SaveAsync(cancellationToken);
+            await _notificationService.NotifyProjectAsync(
+                job.ProjectId,
+                "Import Failed",
+                e.Message,
+                username,
+                NotificationType.Error,
+                $"/translation-jobs/{job.Id}",
+                cancellationToken);
             _logger.LogWarning("Import job {JobId} failed: {ErrorMessage}", job.Id, e.Message);
         }
     }
