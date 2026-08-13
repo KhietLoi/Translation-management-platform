@@ -92,6 +92,17 @@ export default function PublishPage() {
     }
   }, [selectedProjectId]);
 
+  // Auto refresh release history on SignalR notification
+  useEffect(() => {
+    const handleNotification = () => {
+      if (selectedProjectId) {
+        loadReleaseHistory(selectedProjectId);
+      }
+    };
+    window.addEventListener("translationNotification", handleNotification);
+    return () => window.removeEventListener("translationNotification", handleNotification);
+  }, [selectedProjectId]);
+
   // Handle Submit Publish
   const handleStartPublish = async () => {
     if (!selectedProjectId) {

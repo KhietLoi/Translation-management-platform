@@ -20,6 +20,7 @@ import { ToastContainer } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
 import { getProjects } from "../services/projectService";
 import { logout } from "../services/authService";
+import signalRService from "../services/signalrService";
 import "react-toastify/dist/ReactToastify.css";
 import "./MainLayout.css";
 
@@ -46,6 +47,20 @@ export default function MainLayout() {
   useEffect(() => {
     loadProjects();
   }, []);
+
+  // Initialize SignalR & Join Selected Project Group
+  useEffect(() => {
+    signalRService.startConnection();
+    return () => {
+      signalRService.stopConnection();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (selectedProjectId) {
+      signalRService.joinProject(selectedProjectId);
+    }
+  }, [selectedProjectId]);
 
   const loadProjects = async () => {
     try {
