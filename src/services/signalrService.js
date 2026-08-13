@@ -9,6 +9,7 @@ class SignalRService {
   connection = null;
   currentProjectId = null;
   listeners = new Set();
+  processedIds = new Set();
 
   async startConnection() {
     if (this.connection && this.connection.state !== signalR.HubConnectionState.Disconnected) {
@@ -25,21 +26,48 @@ class SignalRService {
       .configureLogging(signalR.LogLevel.Warning)
       .build();
 
-    // Register NotificationReceived handler
+    // Register NotificationReceived handler (off first to prevent duplicates)
+    this.connection.off("NotificationReceived");
     this.connection.on("NotificationReceived", (data) => {
-      console.log(" [SignalR] NotificationReceived:", data);
+      if (!data) return;
 
-      // Display Toast
-      if (data?.title) {
-        const isFailed = data.title.toLowerCase().includes("failed") || data.type === "Error";
-        if (isFailed) {
-          toast.error(`${data.title}: ${data.message || ""}`);
+      // Deduplicate by notificationId
+      const notifId = data.notificationId || data.NotificationId;
+      if (notifId) {
+        if (this.processedIds.has(notifId)) {
+          return;
+        }
+        this.processedIds.add(notifId);
+        setTimeout(() => this.processedIds.delete(notifId), 10000);
+      }
+
+      console.log("🔔 [SignalR] NotificationReceived:", data);
+
+      const title = data.title || data.Title || "";
+      const message = data.message || data.Message || "";
+      const type = (data.type || data.Type || "Info").toString().toLowerCase();
+      const createdBy = data.createdBy || data.CreatedBy;
+
+      const displayMessage = createdBy ? `${message} (by ${createdBy})` : message;
+
+      // Toast handling based on NotificationType
+      if (title || message) {
+        if (type === "error" || type === "failed" || title.toLowerCase().includes("failed")) {
+          toast.error(`${title}: ${displayMessage}`);
+        } else if (type === "warning") {
+          toast.warning(`${title}: ${displayMessage}`);
+        } else if (
+          type === "success" ||
+          title.toLowerCase().includes("completed") ||
+          title.toLowerCase().includes("success")
+        ) {
+          toast.success(`${title}: ${displayMessage}`);
         } else {
-          toast.success(`${data.title}: ${data.message || ""}`);
+          toast.info(`${title}: ${displayMessage}`);
         }
       }
 
-      // Notify window event listeners
+      // Notify window event listeners for pages (ImportExport, Publish, Management)
       window.dispatchEvent(
         new CustomEvent("translationNotification", { detail: data })
       );
@@ -50,12 +78,12 @@ class SignalRService {
 
     try {
       await this.connection.start();
-      console.log("[SignalR] Connected to TranslationHub");
+      console.log("✅ [SignalR] Connected to TranslationHub");
       if (this.currentProjectId) {
         await this.joinProject(this.currentProjectId);
       }
     } catch (err) {
-      console.error("[SignalR] Connection Error:", err);
+      console.error("❌ [SignalR] Connection Error:", err);
     }
   }
 
@@ -66,7 +94,7 @@ class SignalRService {
       }
       await this.connection.stop();
       this.connection = null;
-      console.log("[SignalR] Connection stopped");
+      console.log("⏹️ [SignalR] Connection stopped");
     }
   }
 
@@ -80,9 +108,9 @@ class SignalRService {
     if (this.connection && this.connection.state === signalR.HubConnectionState.Connected) {
       try {
         await this.connection.invoke("JoinProject", projectId);
-        console.log(` [SignalR] Joined project group: ${projectId}`);
+        console.log(`📌 [SignalR] Joined project group: ${projectId}`);
       } catch (err) {
-        console.error(" [SignalR] JoinProject Error:", err);
+        console.warn("⚠️ [SignalR] JoinProject call notice:", err?.message || err);
       }
     }
   }
@@ -92,9 +120,9 @@ class SignalRService {
     if (this.connection && this.connection.state === signalR.HubConnectionState.Connected) {
       try {
         await this.connection.invoke("LeaveProject", projectId);
-        console.log(`[SignalR] Left project group: ${projectId}`);
+        console.log(`👋 [SignalR] Left project group: ${projectId}`);
       } catch (err) {
-        console.error(" [SignalR] LeaveProject Error:", err);
+        console.warn("⚠️ [SignalR] LeaveProject call notice:", err?.message || err);
       }
     }
     if (this.currentProjectId === projectId) {

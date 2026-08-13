@@ -148,6 +148,7 @@ export default function PublishPage() {
 
   // Handle Rollback
   const handleRollback = async (release) => {
+    console.log("qua dep trai", release.releaseId);
     if (
       !window.confirm(
         `Are you sure you want to rollback to release v${release.version}?`
@@ -157,7 +158,7 @@ export default function PublishPage() {
     }
 
     try {
-      await rollbackRelease(release.id);
+      await rollbackRelease(release.releaseId);
       toast.success(`Successfully rolled back to version v${release.version}!`);
       loadReleaseHistory(selectedProjectId);
     } catch (error) {
@@ -364,14 +365,12 @@ export default function PublishPage() {
                   </div>
 
                   <div className="d-flex align-items-center gap-2">
-                    {index < releases.length - 1 && (
-                      <button
-                        className="btn btn-sm btn-outline-custom px-3 py-1 text-dark fw-medium"
-                        onClick={() => handleOpenDiff(index)}
-                      >
-                        View Diff
-                      </button>
-                    )}
+                    <button
+                      className="btn btn-sm btn-outline-custom px-3 py-1 text-dark fw-medium"
+                      onClick={() => handleOpenDiff(index)}
+                    >
+                      View Diff
+                    </button>
                     {index > 0 && (
                       <button
                         className="btn btn-sm btn-outline-custom px-3 py-1 text-dark fw-medium"
@@ -433,6 +432,7 @@ export default function PublishPage() {
         onClose={() => setShowDiffModal(false)}
         sourceRelease={diffSourceRelease}
         targetRelease={diffTargetRelease}
+        releases={releases}
       />
     </div>
   );
