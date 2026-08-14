@@ -66,6 +66,7 @@ public class TranslationValueRepository (AppDbContext context, ILogger logger) :
         return await DbSet
             .Include(x => x.TranslationKey)
             .Include(x => x.Language)
+            .Include(x => x.Reviewer)
             .FirstAsync(x => x.Id == id);
     }
 

@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
+using MySolution.Application.Common.Interfaces.Realtime;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Constants;
 using MySolution.Domain.Enums;
@@ -15,13 +16,15 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
 	private readonly IUnitOfWork _unitOfWork;
     private readonly IAuditLogService _auditLogService;
     private readonly ICurrentUser _currentUser;
+    private readonly INotificationService _notificationService;
     
     public RejectTranslationHandler
     (
         ILogger<RejectTranslationHandler> logger,
 		IUnitOfWork unitOfWork,
         IAuditLogService auditLogService,
-        ICurrentUser currentUser
+        ICurrentUser currentUser,
+        INotificationService notificationService
 
     )
     {
@@ -29,6 +32,7 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
 		_unitOfWork = unitOfWork;
         _auditLogService = auditLogService;
         _currentUser = currentUser;
+        _notificationService = notificationService;
     }
 
     #region Implementation of IRequestHandler<in RejectTranslationCommand, RejectTranslationResponse>
@@ -93,6 +97,14 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
             );
 
             await _unitOfWork.SaveAsync(cancellationToken);
+            await _notificationService.NotifyProjectAsync(
+                entity.TranslationKey.ProjectId,
+                _currentUser.UserId,
+                "Review Rejected",
+                $"Rejected translation key '{entity.TranslationKey.Key}'.",
+                NotificationType.Error,
+                $"/projects/{entity.TranslationKey.ProjectId}/translations",
+                cancellationToken);
 
             response.Data = new RejectTranslationData
             {

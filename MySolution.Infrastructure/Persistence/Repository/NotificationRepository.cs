@@ -22,10 +22,7 @@ public class NotificationRepository (AppDbContext context, ILogger logger)
     public async Task<int> CountUnreadAsync(Guid userId, CancellationToken cancellationToken)
     {
         return await DbSet
-            .CountAsync(
-                x => x.UserId == userId &&
-                     !x.IsRead,
-                cancellationToken);
+            .CountAsync(x => x.UserId == userId && !x.IsRead, cancellationToken);
     }
 
     public async Task<List<Notification>> GetUnreadAsync(Guid userId, CancellationToken cancellationToken)
@@ -79,4 +76,12 @@ public class NotificationRepository (AppDbContext context, ILogger logger)
 
         return (notifications, totalCount);
     }
+
+    public async Task<Notification?> GetUserNotificationAsync(Guid notificationId, Guid userId, CancellationToken cancellationToken)
+    {
+        return await DbSet 
+            .FirstOrDefaultAsync(x => x.UserId == userId &&
+                                      x.Id == notificationId, cancellationToken);
+    }
+    
 }

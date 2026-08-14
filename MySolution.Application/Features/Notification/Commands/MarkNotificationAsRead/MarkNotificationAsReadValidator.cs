@@ -6,6 +6,8 @@ public class MarkNotificationAsReadValidator : AbstractValidator<MarkNotificatio
 {
     public MarkNotificationAsReadValidator()
     {
-        // Add validation rules here if needed
+        RuleFor(x => x.Payload.NotificationId)
+            .NotEmpty()
+            .WithMessage("{PropertyName} can not be empty");
     }
 }

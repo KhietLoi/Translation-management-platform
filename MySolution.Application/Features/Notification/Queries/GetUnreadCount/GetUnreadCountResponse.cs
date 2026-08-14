@@ -2,7 +2,12 @@
 
 namespace MySolution.Application.Features.Notification.Queries.GetUnreadCount;
 
-public class GetUnreadCountResponse : BaseResponse
+public class GetUnreadCountResponse : BaseResponse <GetUnreadCountData>
 {
+  
+}
 
+public class GetUnreadCountData
+{
+    public int Count { get; set; }
 }

@@ -16,4 +16,5 @@ public interface ITranslationValueRepository : IRepository<TranslationValue>
     Task<Guid?> GetExistingIdAsync(Guid id);
     Task<TranslationValue?> GetByIdTrackingAsync(Guid id);
     Task<bool> ExistsAsync(Guid id);
+    
 }

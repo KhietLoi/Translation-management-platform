@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
+using MySolution.Application.Common.Interfaces.Realtime;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Constants;
 using MySolution.Domain.Enums;
@@ -15,19 +16,22 @@ public class ReviewTranslationHandler : IRequestHandler<ReviewTranslationCommand
 	private readonly IUnitOfWork _unitOfWork;
     private readonly IAuditLogService _auditLogService;
     private readonly ICurrentUser _currentUser;
+    private readonly INotificationService _notificationService;
 
     public ReviewTranslationHandler
     (
         ILogger<ReviewTranslationHandler> logger,
 		IUnitOfWork unitOfWork,
         IAuditLogService auditLogService,
-        ICurrentUser currentUser
+        ICurrentUser currentUser,
+        INotificationService notificationService
     )
     {
         _logger = logger;
 		_unitOfWork = unitOfWork;
         _auditLogService = auditLogService;
         _currentUser = currentUser;
+        _notificationService = notificationService;
     }
 
     #region Implementation of IRequestHandler<in ReviewTranslationCommand, ReviewTranslationResponse>
@@ -82,12 +86,20 @@ public class ReviewTranslationHandler : IRequestHandler<ReviewTranslationCommand
             {
                 Id = entity.Id,
                 Status = entity.Status,
-                ReviewerId = entity.ReviewedBy ?? Guid.Empty,
-                ReviewedAt = entity.ReviewedAt ?? DateTime.MinValue,
-
+                ReviewerId = entity.ReviewedBy.Value,
+                ReviewedAt = entity.ReviewedAt.Value,
             };
             
             await _unitOfWork.SaveAsync(cancellationToken);
+
+            await _notificationService.NotifyProjectAsync(
+                entity.TranslationKey.ProjectId,
+                _currentUser.UserId,
+                "Review Approved",
+                $"Approved translation key '{entity.TranslationKey.Key}'.",
+                NotificationType.Success,
+                $"/projects/{entity.TranslationKey.ProjectId}/translations",
+                cancellationToken);
             
             response
                 .WithSuccess(true)
