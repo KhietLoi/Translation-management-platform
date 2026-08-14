@@ -23,6 +23,7 @@ import TranslationManagementPage from "../pages/translations/TranslationManageme
 import ApiKeyManagementPage from "../pages/apikeys/ApiKeyManagementPage";
 import ImportExportPage from "../pages/delivery/ImportExportPage";
 import PublishPage from "../pages/delivery/PublishPage";
+import NotificationCenterPage from "../components/notifications/NotificationCenterPage";
 
 export default function AppRoutes() {
   return (
@@ -71,6 +72,10 @@ export default function AppRoutes() {
         <Route
           path="/api-keys"
           element={<ApiKeyManagementPage />}
+        />
+        <Route
+          path="/notifications"
+          element={<NotificationCenterPage />}
         />
       </Route>
 

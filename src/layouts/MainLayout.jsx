@@ -21,6 +21,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { getProjects } from "../services/projectService";
 import { logout } from "../services/authService";
 import signalRService from "../services/signalrService";
+import NotificationBell from "../components/notifications/NotificationBell";
+import { useUnreadCountQuery } from "../hooks/useNotifications";
 import "react-toastify/dist/ReactToastify.css";
 import "./MainLayout.css";
 
@@ -32,9 +34,14 @@ export default function MainLayout() {
   // Mobile sidebar state
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Unread notifications count from React Query
+  const { data: unreadCount = 0 } = useUnreadCountQuery();
+
   // Projects & Top Bar Global State
   const [projects, setProjects] = useState([]);
-  const [selectedProjectId, setSelectedProjectId] = useState("");
+  const [selectedProjectId, setSelectedProjectId] = useState(
+    () => localStorage.getItem("selectedProjectId") || ""
+  );
   const [env, setEnv] = useState("Production");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -57,10 +64,11 @@ export default function MainLayout() {
   }, []);
 
   useEffect(() => {
-    if (selectedProjectId) {
-      signalRService.joinProject(selectedProjectId);
+    if (projects.length > 0) {
+      const allProjectIds = projects.map((p) => p.id).filter(Boolean);
+      signalRService.joinProjects(allProjectIds);
     }
-  }, [selectedProjectId]);
+  }, [projects]);
 
   const loadProjects = async () => {
     try {
@@ -68,11 +76,24 @@ export default function MainLayout() {
       const list = res.data?.projects || res.data || [];
       setProjects(list);
       if (list.length > 0) {
-        setSelectedProjectId(list[0].id);
+        const savedId = localStorage.getItem("selectedProjectId");
+        const exists = list.some((p) => p.id === savedId);
+        const activeId = exists ? savedId : list[0].id;
+        setSelectedProjectId(activeId);
+        localStorage.setItem("selectedProjectId", activeId);
+
+        // Join all project groups user belongs to on SignalR
+        const allProjectIds = list.map((p) => p.id).filter(Boolean);
+        signalRService.joinProjects(allProjectIds);
       }
     } catch (error) {
       console.error("Failed to load projects for header:", error);
     }
+  };
+
+  const handleProjectSelect = (id) => {
+    setSelectedProjectId(id);
+    localStorage.setItem("selectedProjectId", id);
   };
 
   // Access control logic
@@ -111,7 +132,12 @@ export default function MainLayout() {
       title: "PLATFORM",
       items: [
         { label: "API Keys", path: "/api-keys", icon: KeyIcon },
-        { label: "Notifications", path: "/notifications", icon: BellIcon, badge: 5 },
+        {
+          label: "Notifications",
+          path: "/notifications",
+          icon: BellIcon,
+          badge: unreadCount > 0 ? unreadCount : undefined,
+        },
         { label: "Settings", path: "/settings", icon: Cog6ToothIcon },
       ],
     },
@@ -288,7 +314,7 @@ export default function MainLayout() {
                 className="form-select border-0 bg-light fw-bold text-dark rounded-3 px-2 px-md-3 py-1.5 cursor-pointer"
                 style={{ width: "170px", maxWidth: "200px", fontSize: "0.85rem" }}
                 value={selectedProjectId}
-                onChange={(e) => setSelectedProjectId(e.target.value)}
+                onChange={(e) => handleProjectSelect(e.target.value)}
               >
                 {projects.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -342,13 +368,8 @@ export default function MainLayout() {
                 />
               </div>
 
-              <button
-                className="btn btn-light btn-sm rounded-circle p-2 border-0 text-muted"
-                onClick={() => navigate("/notifications")}
-                title="Notifications"
-              >
-                <BellIcon width={18} height={18} />
-              </button>
+              {/* Notification Bell Component */}
+              <NotificationBell projectId={selectedProjectId} />
 
               <button
                 onClick={() => navigate("/profile")}
