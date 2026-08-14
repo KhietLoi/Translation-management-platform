@@ -5,10 +5,62 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5182/api";
 // Derive hub URL from API_URL (replace /api suffix with /hubs/translation)
 const HUB_URL = API_URL.replace(/\/api\/?$/, "") + "/hubs/translation";
 
+// Helper regex to validate Guid format before sending to C# Hub
+const GUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+export function isValidGuid(id) {
+  return typeof id === "string" && GUID_REGEX.test(id);
+}
+
+/**
+ * Decode user ID and username directly from JWT access token if user object is incomplete
+ */
+export function getAuthUser(user) {
+  let userId = user?.id || user?.userId || user?.sub;
+  let username = user?.userName || user?.username || user?.name;
+
+  if (isValidGuid(userId) && username) {
+    return { userId, username };
+  }
+
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    try {
+      const payloadBase64 = token.split(".")[1];
+      if (payloadBase64) {
+        const decodedJson = atob(payloadBase64.replace(/-/g, "+").replace(/_/g, "/"));
+        const payload = JSON.parse(decodedJson);
+        const tokenUserId =
+          payload.sub ||
+          payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ||
+          payload.nameidentifier ||
+          payload.id;
+        const tokenUsername =
+          payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
+          payload.name ||
+          payload.username ||
+          "User";
+
+        if (isValidGuid(tokenUserId)) {
+          return {
+            userId: tokenUserId,
+            username: username || tokenUsername,
+          };
+        }
+      }
+    } catch (e) {
+      console.warn("[Auth] Failed to decode JWT token payload:", e);
+    }
+  }
+
+  return isValidGuid(userId) ? { userId, username: username || "User" } : null;
+}
+
 class SignalRService {
   connection = null;
   joinedProjectIds = new Set();
   listeners = new Set();
+  presenceListeners = new Set();
+  lockListeners = new Set();
   processedIds = new Set();
   startPromise = null;
 
@@ -40,18 +92,15 @@ class SignalRService {
 
         // Handle auto-reconnect event
         this.connection.onreconnected(async (connectionId) => {
-          console.log("[SignalR] Reconnected to Hub. Re-joining all project groups...", connectionId);
-          if (this.joinedProjectIds.size > 0) {
-            await this.joinProjects(Array.from(this.joinedProjectIds));
-          }
+          console.log("[SignalR] Reconnected to Hub. ConnectionId:", connectionId);
         });
 
+        // 1. Notification Received Handler
         const handleSignalRNotification = (data) => {
           if (!data) return;
 
           console.log("[SignalR] 🔥 Incoming notification raw payload:", data);
 
-          // Deduplicate by notificationId
           const notifId = data.notificationId || data.NotificationId || data.id;
           if (notifId) {
             if (this.processedIds.has(notifId)) {
@@ -72,7 +121,6 @@ class SignalRService {
 
           const displayMessage = createdBy ? `${message} (bởi ${createdBy})` : message;
 
-          // Toast notification handling
           if (title || message) {
             if (
               type === "error" ||
@@ -94,22 +142,19 @@ class SignalRService {
             }
           }
 
-          // Notify window custom event listeners
           window.dispatchEvent(
             new CustomEvent("translationNotification", { detail: data })
           );
 
-          // Notify registered subscriber hooks
           this.listeners.forEach((callback) => {
             try {
               callback(data);
             } catch (err) {
-              console.error("[SignalR] Error in subscriber callback:", err);
+              console.error("[SignalR] Error in notification callback:", err);
             }
           });
         };
 
-        // Register handlers for various event casing conventions & hub method names
         const eventNames = [
           "NotificationReceived",
           "ReceiveNotification",
@@ -125,6 +170,56 @@ class SignalRService {
           this.connection.off(evt);
           this.connection.on(evt, handleSignalRNotification);
         });
+
+        // 2. Presence Event Handler: OnlineUsersUpdated
+        this.connection.off("OnlineUsersUpdated");
+        this.connection.on("OnlineUsersUpdated", (onlineUsers) => {
+          console.log("[SignalR] 👥 OnlineUsersUpdated received:", onlineUsers);
+          this.presenceListeners.forEach((cb) => {
+            try {
+              cb(onlineUsers);
+            } catch (err) {
+              console.error("[SignalR] Error in presence callback:", err);
+            }
+          });
+        });
+
+        // 3. Translation Lock Event Handlers
+        this.connection.off("TranslationLocked");
+        this.connection.on("TranslationLocked", (lockInfo) => {
+          console.log("[SignalR] 🔒 TranslationLocked received:", lockInfo);
+          this.lockListeners.forEach((cb) => {
+            try {
+              cb({ type: "LOCKED", lockInfo });
+            } catch (err) {
+              console.error("[SignalR] Error in lock callback:", err);
+            }
+          });
+        });
+
+        this.connection.off("TranslationUnlocked");
+        this.connection.on("TranslationUnlocked", (translationValueId) => {
+          console.log("[SignalR] 🔓 TranslationUnlocked received:", translationValueId);
+          this.lockListeners.forEach((cb) => {
+            try {
+              cb({ type: "UNLOCKED", translationValueId });
+            } catch (err) {
+              console.error("[SignalR] Error in lock callback:", err);
+            }
+          });
+        });
+
+        this.connection.off("LockFailed");
+        this.connection.on("LockFailed", (existingLock) => {
+          console.log("[SignalR] ⚠️ LockFailed received:", existingLock);
+          this.lockListeners.forEach((cb) => {
+            try {
+              cb({ type: "LOCK_FAILED", existingLock });
+            } catch (err) {
+              console.error("[SignalR] Error in lock callback:", err);
+            }
+          });
+        });
       }
 
       if (
@@ -133,16 +228,13 @@ class SignalRService {
         try {
           await this.connection.start();
           console.log("[SignalR] Connected successfully to TranslationHub");
-          if (this.joinedProjectIds.size > 0) {
-            await this.joinProjects(Array.from(this.joinedProjectIds));
-          }
         } catch (err) {
           if (
             err?.name === "AbortError" ||
             err?.message?.includes("stopped during negotiation")
           ) {
             console.log(
-              "[SignalR] Connection start aborted during negotiation (React StrictMode mount reset)"
+              "[SignalR] Connection start aborted during negotiation (React StrictMode reset)"
             );
           } else {
             console.error("[SignalR] Connection Error:", err);
@@ -163,7 +255,7 @@ class SignalRService {
       try {
         await this.startPromise;
       } catch (e) {
-        // Safe catch on aborted connection
+        // Safe catch
       }
     }
 
@@ -183,20 +275,21 @@ class SignalRService {
   }
 
   /**
-   * Join multiple project groups on SignalR server so notifications
-   * for all user's projects arrive real-time regardless of current active project
-   * @param {string[]|string} projectIds
+   * Join project on SignalR Hub matching C# TranslationHub:
+   * public async Task JoinProject(Guid projectId, Guid userId, string username)
    */
-  async joinProjects(projectIds) {
-    const ids = Array.isArray(projectIds) ? projectIds : [projectIds];
-    const validIds = ids.filter(Boolean);
-    if (validIds.length === 0) return;
-
-    validIds.forEach((id) => this.joinedProjectIds.add(id));
+  async joinProject(projectId, userId, username) {
+    if (!isValidGuid(projectId) || !isValidGuid(userId)) {
+      console.warn("[SignalR] joinProject skipped: invalid projectId or userId", { projectId, userId });
+      return;
+    }
 
     if (this.startPromise) {
       await this.startPromise;
-    } else if (!this.connection || this.connection.state === signalR.HubConnectionState.Disconnected) {
+    } else if (
+      !this.connection ||
+      this.connection.state === signalR.HubConnectionState.Disconnected
+    ) {
       await this.startConnection();
     }
 
@@ -204,24 +297,21 @@ class SignalRService {
       this.connection &&
       this.connection.state === signalR.HubConnectionState.Connected
     ) {
-      for (const projectId of validIds) {
-        try {
-          await this.connection.invoke("JoinProject", projectId);
-          console.log(`[SignalR] ✅ Joined project group: ${projectId}`);
-        } catch (err) {
+      try {
+        const uName = username || "User";
+        await this.connection.invoke("JoinProject", projectId, userId, uName);
+        this.joinedProjectIds.add(projectId);
+        console.log(`[SignalR] ✅ Joined project group: ${projectId} as user ${uName}`);
+      } catch (err) {
+        if (!err?.message?.includes("connection being closed") && !err?.message?.includes("error on close")) {
           console.warn(`[SignalR] ⚠️ JoinProject invoke warning for ${projectId}:`, err?.message || err);
         }
       }
     }
   }
 
-  async joinProject(projectId) {
-    if (!projectId) return;
-    await this.joinProjects([projectId]);
-  }
-
   async leaveProject(projectId) {
-    if (!projectId) return;
+    if (!isValidGuid(projectId)) return;
     this.joinedProjectIds.delete(projectId);
 
     if (
@@ -237,9 +327,70 @@ class SignalRService {
     }
   }
 
+  /**
+   * Acquire lock on a translation value matching C# TranslationHub:
+   * public async Task AcquireLock(Guid translationValueId, Guid userId, string username)
+   */
+  async acquireLock(translationValueId, userId, username) {
+    if (!isValidGuid(translationValueId) || !isValidGuid(userId)) {
+      console.log("[SignalR] acquireLock skipped: invalid translationValueId or userId", { translationValueId, userId });
+      return;
+    }
+
+    if (
+      !this.connection ||
+      this.connection.state !== signalR.HubConnectionState.Connected
+    ) {
+      await this.startConnection();
+    }
+
+    if (
+      this.connection &&
+      this.connection.state === signalR.HubConnectionState.Connected
+    ) {
+      try {
+        const uName = username || "User";
+        await this.connection.invoke("AcquireLock", translationValueId, userId, uName);
+        console.log(`[SignalR] 🔒 Requested lock for translation value: ${translationValueId}`);
+      } catch (err) {
+        console.warn("[SignalR] AcquireLock invoke error:", err?.message || err);
+      }
+    }
+  }
+
+  /**
+   * Release lock on a translation value matching C# TranslationHub:
+   * public async Task ReleaseLock(Guid translationValueId, Guid userId)
+   */
+  async releaseLock(translationValueId, userId) {
+    if (!isValidGuid(translationValueId) || !isValidGuid(userId)) return;
+
+    if (
+      this.connection &&
+      this.connection.state === signalR.HubConnectionState.Connected
+    ) {
+      try {
+        await this.connection.invoke("ReleaseLock", translationValueId, userId);
+        console.log(`[SignalR] 🔓 Released lock for translation value: ${translationValueId}`);
+      } catch (err) {
+        console.warn("[SignalR] ReleaseLock invoke error:", err?.message || err);
+      }
+    }
+  }
+
   subscribe(callback) {
     this.listeners.add(callback);
     return () => this.listeners.delete(callback);
+  }
+
+  subscribePresence(callback) {
+    this.presenceListeners.add(callback);
+    return () => this.presenceListeners.delete(callback);
+  }
+
+  subscribeLock(callback) {
+    this.lockListeners.add(callback);
+    return () => this.lockListeners.delete(callback);
   }
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   ShieldCheckIcon,
@@ -20,8 +20,9 @@ import { ToastContainer } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
 import { getProjects } from "../services/projectService";
 import { logout } from "../services/authService";
-import signalRService from "../services/signalrService";
+import signalRService, { getAuthUser } from "../services/signalrService";
 import NotificationBell from "../components/notifications/NotificationBell";
+import ProjectPresence from "../components/presence/ProjectPresence";
 import { useUnreadCountQuery } from "../hooks/useNotifications";
 import "react-toastify/dist/ReactToastify.css";
 import "./MainLayout.css";
@@ -55,20 +56,28 @@ export default function MainLayout() {
     loadProjects();
   }, []);
 
-  // Initialize SignalR & Join Selected Project Group
+  // Initialize SignalR Connection
   useEffect(() => {
     signalRService.startConnection();
-    return () => {
-      signalRService.stopConnection();
-    };
   }, []);
 
+  const prevProjectIdRef = useRef(null);
+
   useEffect(() => {
-    if (projects.length > 0) {
-      const allProjectIds = projects.map((p) => p.id).filter(Boolean);
-      signalRService.joinProjects(allProjectIds);
+    if (!selectedProjectId) return;
+
+    const auth = getAuthUser(user);
+    if (!auth || !auth.userId) return;
+
+    // Leave previous project group when switching
+    if (prevProjectIdRef.current && prevProjectIdRef.current !== selectedProjectId) {
+      signalRService.leaveProject(prevProjectIdRef.current);
     }
-  }, [projects]);
+    prevProjectIdRef.current = selectedProjectId;
+
+    // Join active selected project group on SignalR
+    signalRService.joinProject(selectedProjectId, auth.userId, auth.username);
+  }, [selectedProjectId, user]);
 
   const loadProjects = async () => {
     try {
@@ -81,10 +90,6 @@ export default function MainLayout() {
         const activeId = exists ? savedId : list[0].id;
         setSelectedProjectId(activeId);
         localStorage.setItem("selectedProjectId", activeId);
-
-        // Join all project groups user belongs to on SignalR
-        const allProjectIds = list.map((p) => p.id).filter(Boolean);
-        signalRService.joinProjects(allProjectIds);
       }
     } catch (error) {
       console.error("Failed to load projects for header:", error);
@@ -180,9 +185,8 @@ export default function MainLayout() {
 
         {/* Sidebar */}
         <aside
-          className={`sidebar text-white d-flex flex-column border-end ${
-            sidebarOpen ? "show" : ""
-          }`}
+          className={`sidebar text-white d-flex flex-column border-end ${sidebarOpen ? "show" : ""
+            }`}
           style={{
             width: "260px",
             backgroundColor: "#161822",
@@ -223,9 +227,8 @@ export default function MainLayout() {
                     <button
                       key={item.path}
                       onClick={() => navigate(item.path)}
-                      className={`btn w-100 text-start d-flex align-items-center justify-content-between mb-1 py-2 px-3 border-0 rounded sidebar-link ${
-                        active ? "text-white fw-semibold" : "text-white-50"
-                      }`}
+                      className={`btn w-100 text-start d-flex align-items-center justify-content-between mb-1 py-2 px-3 border-0 rounded sidebar-link ${active ? "text-white fw-semibold" : "text-white-50"
+                        }`}
                       style={{
                         backgroundColor: active ? "#282a3a" : "transparent",
                       }}
@@ -325,6 +328,9 @@ export default function MainLayout() {
                   <option value="">-- Select Project --</option>
                 )}
               </select>
+
+              {/* Online Users Presence Component */}
+              <ProjectPresence />
 
               <div className="env-selector">
                 <button
