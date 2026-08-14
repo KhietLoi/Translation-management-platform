@@ -20,6 +20,7 @@ public class TranslationHub :Hub
     {
         await base.OnConnectedAsync();
     }
+    
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         var projectId = await _presenceService.GetProjectIdAsync(Context.ConnectionId);
@@ -41,7 +42,6 @@ public class TranslationHub :Hub
         await Groups.AddToGroupAsync(Context.ConnectionId, projectId.ToString());
         await _presenceService.UserConnectedAsync(projectId, userId, username, Context.ConnectionId);
         var onlineUsers = await _presenceService.GetOnlineUsersAsync(projectId);
-
         await Clients.Group(projectId.ToString()).SendAsync("OnlineUsersUpdated",onlineUsers);
     }
 
@@ -50,7 +50,6 @@ public class TranslationHub :Hub
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, projectId.ToString());
         await _presenceService.UserDisconnectedAsync(Context.ConnectionId);
         var onlineUsers = await _presenceService.GetOnlineUsersAsync(projectId);
-        
         await Clients.Group(projectId.ToString()).SendAsync("OnlineUsersUpdated", onlineUsers);
     }
     public async Task AcquireLock(Guid translationValueId, Guid userId, string username)

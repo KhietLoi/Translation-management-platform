@@ -1,7 +1,8 @@
 ﻿using MediatR;
+using MySolution.Application.Features.TranslationValue.Queries.GetTranslationValues;
 using MySolution.Domain.Enums;
 
-namespace MySolution.Application.Features.TranslationValue.Queries.GetTranslationValues;
+namespace MySolution.Application.Features.TranslationManagement.Queries.GetTranslationValues;
 
 public class GetTranslationValuesQuery : IRequest<GetTranslationValuesResponse>
 {
