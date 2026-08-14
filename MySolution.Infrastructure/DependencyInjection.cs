@@ -113,6 +113,8 @@ public static class DependencyInjection
         //Realtime:
         services.AddSignalR();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddSingleton<IPresenceService, PresenceService>();
+        services.AddSingleton<ITranslationLockService, TranslationLockService>();
         
         return services;
     }

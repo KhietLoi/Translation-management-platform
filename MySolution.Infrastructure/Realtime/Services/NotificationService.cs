@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Common.Interfaces.Realtime;
-
+using MySolution.Application.Common.Models.Realtime;
 using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
 using MySolution.Infrastructure.Realtime.Hubs;
-using NotificationMessage = MySolution.Infrastructure.Realtime.Models.NotificationMessage;
+
 
 namespace MySolution.Infrastructure.Realtime.Services;
 
