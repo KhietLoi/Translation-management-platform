@@ -1,0 +1,150 @@
+/* Project Presence Stacked Avatars & Online Modal Styling */
+
+.project-presence-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.avatar-stack {
+  display: flex;
+  align-items: center;
+  margin-left: 4px;
+}
+
+.avatar-stack-item {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-left: -8px;
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: #ffffff;
+  background-color: #4f46e5;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease, z-index 0.15s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dark-theme .avatar-stack-item {
+  border-color: #161822;
+}
+
+.avatar-stack-item:first-child {
+  margin-left: 0;
+}
+
+.avatar-stack-item:hover {
+  transform: translateY(-2px) scale(1.1);
+  z-index: 10;
+}
+
+.online-dot-indicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 9px;
+  height: 9px;
+  background-color: #22c55e;
+  border: 1.5px solid #ffffff;
+  border-radius: 50%;
+}
+
+.dark-theme .online-dot-indicator {
+  border-color: #161822;
+}
+
+.avatar-counter-badge {
+  background: #3b82f6;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.7rem;
+  padding: 0 6px;
+  min-width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -8px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.dark-theme .avatar-counter-badge {
+  border-color: #161822;
+}
+
+.avatar-counter-badge:hover {
+  background-color: #2563eb;
+  transform: scale(1.08);
+}
+
+/* Custom Tooltip Styling */
+.presence-tooltip {
+  position: relative;
+}
+
+.presence-tooltip .tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  max-width: 180px;
+  background-color: #0f172a;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.725rem;
+  position: absolute;
+  z-index: 100;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+.presence-tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Lock Badge Indicator Styling */
+.translation-lock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  font-size: 0.725rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.dark-theme .translation-lock-badge {
+  background-color: rgba(220, 38, 38, 0.2);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.cell-locked-overlay {
+  position: relative;
+  background-color: rgba(254, 242, 242, 0.5) !important;
+}
+
+.dark-theme .cell-locked-overlay {
+  background-color: rgba(220, 38, 38, 0.1) !important;
+}
