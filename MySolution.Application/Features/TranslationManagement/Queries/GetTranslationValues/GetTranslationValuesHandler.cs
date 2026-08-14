@@ -2,6 +2,8 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationValues;
+
 namespace MySolution.Application.Features.TranslationValue.Queries.GetTranslationValues;
 
 public class GetTranslationValuesHandler : IRequestHandler<GetTranslationValuesQuery, GetTranslationValuesResponse>

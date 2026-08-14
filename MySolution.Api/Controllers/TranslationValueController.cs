@@ -5,6 +5,7 @@ using MySolution.Api.Authorization.User;
 using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
 using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationValueById;
+using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationValues;
 using MySolution.Application.Features.TranslationValue.Commands.CreateTranslationValue;
 using MySolution.Application.Features.TranslationValue.Commands.DeleteTranslationValue;
 using MySolution.Application.Features.TranslationValue.Commands.UpdateTranslationValue;
@@ -17,7 +18,6 @@ namespace MySolution.Api.Controllers;
 [ApiController]
 public class TranslationValueController (IMediator mediator) : Controller
 {
-    
     [HttpPost]
     [Permission(PermissionConstants.Translation.Create)]
     public async Task<IActionResult> CreateTranslationValue([FromBody] CreateTranslationValueRequest request,

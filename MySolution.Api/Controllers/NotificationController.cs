@@ -22,6 +22,7 @@ public class NotificationController (IMediator mediator) : Controller
 
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
+    
     [HttpGet("unread-count")]
     [Authorize]
     public async Task<IActionResult> GetUnreadCount(CancellationToken cancellationToken)
@@ -48,6 +49,5 @@ public class NotificationController (IMediator mediator) : Controller
         var response = await mediator.Send(new MarkAllNotificationAsReadCommand(new MarkAllNotificationAsReadRequest()), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
-    
     
 }
