@@ -190,7 +190,7 @@ public class ImportService : IImportService
             // Update existing Draft / Rejected translation
             translationValue.Value = value;
             translationValue.Status = TranslationStatus.Draft;
-            translationValue.ReviewedAt = null;
+            translationValue.ReviewedAt = new DateTime();
             translationValue.ReviewedBy = null;
             translationValue.PublishedAt = null;
             translationValue.PublishedBy = null;

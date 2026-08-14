@@ -1,4 +1,4 @@
-﻿namespace MySolution.Application.Common.Models.Realtime;
+﻿namespace MySolution.Infrastructure.Realtime.Models;
 
 public class NotificationMessage
 {

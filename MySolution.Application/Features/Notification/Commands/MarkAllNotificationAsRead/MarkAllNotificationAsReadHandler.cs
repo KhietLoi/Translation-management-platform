@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 using Shared.Extensions;
 namespace MySolution.Application.Features.Notification.Commands.MarkAllNotificationAsRead;
@@ -9,15 +10,18 @@ public class MarkAllNotificationAsReadHandler : IRequestHandler<MarkAllNotificat
 {
     private readonly ILogger<MarkAllNotificationAsReadHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUser _currentUser;
 
     public MarkAllNotificationAsReadHandler
     (
         ILogger<MarkAllNotificationAsReadHandler> logger,
-		IUnitOfWork unitOfWork
+		IUnitOfWork unitOfWork,
+        ICurrentUser currentUser
     )
     {
         _logger = logger;
 		_unitOfWork = unitOfWork;
+        _currentUser = currentUser;
     }
 
     #region Implementation of IRequestHandler<in MarkAllNotificationAsReadCommand, MarkAllNotificationAsReadResponse>
@@ -30,10 +34,10 @@ public class MarkAllNotificationAsReadHandler : IRequestHandler<MarkAllNotificat
 
         try
         {
-
+            await _unitOfWork.Notification.MarkAllAsReadAsync(_currentUser.UserId, cancellationToken);
             response
-                            .WithSuccess(true)
-                            .WithStatus(HttpStatusCode.OK);
+                .WithSuccess(true)
+                .WithStatus(HttpStatusCode.OK);
         }
         catch (Exception ex)
         {

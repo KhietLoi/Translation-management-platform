@@ -2,5 +2,5 @@
 
 public class MarkNotificationAsReadRequest
 {
-
+    public Guid NotificationId { get; set; }
 }

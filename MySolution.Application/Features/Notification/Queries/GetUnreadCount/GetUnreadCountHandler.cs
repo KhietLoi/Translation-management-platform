@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 using Shared.Extensions;
 namespace MySolution.Application.Features.Notification.Queries.GetUnreadCount;
@@ -9,15 +10,18 @@ public class GetUnreadCountHandler : IRequestHandler<GetUnreadCountQuery, GetUnr
 {
     private readonly ILogger<GetUnreadCountHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUser _currentUser;
 
     public GetUnreadCountHandler
     (
         ILogger<GetUnreadCountHandler> logger,
-		IUnitOfWork unitOfWork
+		IUnitOfWork unitOfWork,
+        ICurrentUser currentUser
     )
     {
         _logger = logger;
 		_unitOfWork = unitOfWork;
+        _currentUser = currentUser;
     }
 
     #region Implementation of IRequestHandler<in GetUnreadCountQuery, GetUnreadCountResponse>
@@ -30,10 +34,14 @@ public class GetUnreadCountHandler : IRequestHandler<GetUnreadCountQuery, GetUnr
 
         try
         {
-
+            int count = await _unitOfWork.Notification.CountUnreadAsync(_currentUser.UserId,cancellationToken);
+            response.Data = new GetUnreadCountData
+            {
+                Count = count
+            };
             response
-                            .WithSuccess(true)
-                            .WithStatus(HttpStatusCode.OK);
+                .WithSuccess(true)
+                .WithStatus(HttpStatusCode.OK);
         }
         catch (Exception ex)
         {
