@@ -17,4 +17,10 @@ public interface ITranslationValueRepository : IRepository<TranslationValue>
     Task<TranslationValue?> GetByIdTrackingAsync(Guid id);
     Task<bool> ExistsAsync(Guid id);
     
-}
+    Task<List<TranslationValue>> GetReviewTranslationsAsync(Guid projectId, Guid languageId, Guid namespaceId, CancellationToken cancellationToken);
+    Task<List<TranslationValue>> GetForBatchReviewAsync(
+        List<Guid> translationValueIds,
+        Guid projectId,
+        Guid languageId,
+        Guid namespaceId);
+    }

@@ -98,4 +98,29 @@ public class TranslationValueRepository (AppDbContext context, ILogger logger) :
     {
         return await DbSet.AnyAsync(x => x.Id == id);
     }
+
+    public async Task<List<TranslationValue>> GetReviewTranslationsAsync(Guid projectId, Guid languageId, Guid namespaceId, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .Include(x => x.TranslationKey)
+            .Where(x =>
+                x.TranslationKey.ProjectId == projectId &&
+                x.TranslationKey.NamespaceId == namespaceId &&
+                x.LanguageId == languageId &&
+                x.Status == TranslationStatus.Translated)
+            .OrderBy(x => x.TranslationKey.Key)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<TranslationValue>> GetForBatchReviewAsync(List<Guid> translationValueIds, Guid projectId, Guid languageId, Guid namespaceId)
+    {
+        return await DbSet
+            .Include (x => x.TranslationKey)
+            .Where(x =>
+                translationValueIds.Contains(x.Id) &&
+                x.LanguageId == languageId &&
+                x.TranslationKey.ProjectId == projectId &&
+                x.TranslationKey.NamespaceId == namespaceId)
+            .ToListAsync();
+    }
 }

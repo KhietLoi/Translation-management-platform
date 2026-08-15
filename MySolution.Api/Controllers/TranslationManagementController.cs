@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Helpers;
+using MySolution.Application.Features.TranslationManagement.Commands.BatchReviewTranslation;
 using MySolution.Application.Features.TranslationManagement.Commands.RejectTranslation;
 using MySolution.Application.Features.TranslationManagement.Commands.ReviewTranslation;
 using MySolution.Application.Features.TranslationManagement.Commands.SubmitTranslation;
+using MySolution.Application.Features.TranslationManagement.Queries.GetReviewTranslations;
 using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationGrid;
 using MySolution.Domain.Enums;
 
@@ -12,7 +14,7 @@ namespace MySolution.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class TranslationManagementController (IMediator mediator) : Controller
+public class TranslationManagementController(IMediator mediator) : Controller
 {
     [HttpGet("grid")]
     [Authorize]
@@ -39,10 +41,11 @@ public class TranslationManagementController (IMediator mediator) : Controller
 
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-    
+
     [HttpPost("{id:guid}/reject")]
     [Authorize]
-    public async Task<IActionResult> RejectTranslation(Guid id,[FromBody] RejectTranslationRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> RejectTranslation(Guid id, [FromBody] RejectTranslationRequest request,
+        CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new RejectTranslationCommand(request, id), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
@@ -61,6 +64,29 @@ public class TranslationManagementController (IMediator mediator) : Controller
     public async Task<IActionResult> SubmitTranslation(Guid id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new SubmitTranslationCommand(id), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+
+    //GetReviewTranslations endpoint
+    [HttpGet("review")]
+    [Authorize]
+    public async Task<IActionResult> GetReviewTranslations(
+        [FromQuery] GetReviewTranslationsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new GetReviewTranslationsQuery(request), cancellationToken);
+
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    //Update batch review endpoint
+    [HttpPost("batch-review")]
+    [Authorize]
+    public async Task<IActionResult> BatchReviewTranslations(
+        [FromBody] BatchReviewTranslationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new BatchReviewTranslationCommand(request), cancellationToken);
+
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 }

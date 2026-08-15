@@ -50,7 +50,7 @@ public class NotificationController (IMediator mediator) : Controller
         var response = await mediator.Send(new MarkAllNotificationAsReadCommand(new MarkAllNotificationAsReadRequest()), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
-        
+            
         [HttpGet("{notificationId:guid}")]
         [Authorize] 
         public async Task<IActionResult> GetNotificationDetail(Guid notificationId, CancellationToken cancellationToken)
