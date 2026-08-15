@@ -1,0 +1,132 @@
+/* Review row transition states */
+.review-row {
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.review-row-approved {
+  background-color: rgba(25, 135, 84, 0.04) !important;
+  border-left: 4px solid #198754 !important;
+}
+
+.review-row-rejected {
+  background-color: rgba(220, 53, 69, 0.04) !important;
+  border-left: 4px solid #dc3545 !important;
+}
+
+/* Button groups for decisions */
+.decision-btn-group .btn {
+  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.decision-btn-group .btn-approve {
+  color: #198754;
+  border-color: rgba(25, 135, 84, 0.3);
+  background-color: transparent;
+}
+
+.decision-btn-group .btn-approve:hover,
+.decision-btn-group .btn-approve.active {
+  color: #fff;
+  background-color: #198754;
+  border-color: #198754;
+  box-shadow: 0 4px 10px rgba(25, 135, 84, 0.2);
+}
+
+.decision-btn-group .btn-reject {
+  color: #dc3545;
+  border-color: rgba(220, 53, 69, 0.3);
+  background-color: transparent;
+}
+
+.decision-btn-group .btn-reject:hover,
+.decision-btn-group .btn-reject.active {
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2);
+}
+
+.decision-btn-group .btn-neutral {
+  color: #6c757d;
+  border-color: rgba(108, 117, 125, 0.3);
+  background-color: transparent;
+}
+
+.decision-btn-group .btn-neutral:hover,
+.decision-btn-group .btn-neutral.active {
+  color: #fff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+/* Inline reject form */
+.reject-reason-container {
+  animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Sticky floating review bar at bottom */
+.sticky-review-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.05);
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+  margin-top: 1.5rem;
+  padding: 1rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+/* Glassmorphic blank states */
+.review-empty-state {
+  padding: 4rem 2rem;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px dashed #e2e8f0;
+  text-align: center;
+}
+
+.review-empty-state-icon {
+  width: 64px;
+  height: 64px;
+  background: #f8fafc;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  color: #64748b;
+  border: 1px solid #f1f5f9;
+}
+
+/* Custom Table Design improvements */
+.review-table th {
+  font-weight: 600;
+  color: #475569;
+  letter-spacing: 0.03em;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.review-table td {
+  border-bottom: 1px solid #f1f5f9;
+}
