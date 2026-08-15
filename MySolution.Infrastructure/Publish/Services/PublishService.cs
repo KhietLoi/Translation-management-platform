@@ -166,6 +166,7 @@ public class PublishService : IPublishService
                 
                 return new PublishStatistics
                 {
+                    ReleaseId = release.Id,
                     TotalRecords = exportData.Count,
                     SuccessRecords = reviewedCount,
                     SkippedRecords = publishedCount,

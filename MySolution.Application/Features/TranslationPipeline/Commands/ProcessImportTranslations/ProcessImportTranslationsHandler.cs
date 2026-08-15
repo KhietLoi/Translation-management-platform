@@ -85,6 +85,8 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
                 $"File '{job.FileName}' imported successfully.",
                 NotificationType.Success,
                 $"/translation-jobs/{job.Id}",
+                NotificationReferenceType.TranslationJob,
+                job.Id,
                 cancellationToken);
             _logger.LogInformation("Import job {JobId} completed", job.Id);
         }
@@ -103,6 +105,8 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
                 e.Message,
                 NotificationType.Error,
                 $"/translation-jobs/{job.Id}",
+                NotificationReferenceType.TranslationJob,
+                job.Id,
                 cancellationToken);
             _logger.LogWarning("Import job {JobId} failed: {ErrorMessage}", job.Id, e.Message);
         }

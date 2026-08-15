@@ -104,6 +104,8 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
                 $"Rejected translation key '{entity.TranslationKey.Key}'.",
                 NotificationType.Error,
                 $"/projects/{entity.TranslationKey.ProjectId}/translations",
+                NotificationReferenceType.TranslationValue,
+                entity.Id,
                 cancellationToken);
 
             response.Data = new RejectTranslationData

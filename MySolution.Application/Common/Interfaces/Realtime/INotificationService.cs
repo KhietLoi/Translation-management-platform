@@ -12,6 +12,8 @@ public interface INotificationService
             string message,
             NotificationType type,
             string? navigationUrl,
+            NotificationReferenceType? notificationReferenceType,
+            Guid? referenceId,
             CancellationToken cancellationToken);
 
         Task NotifyProjectAsync(
@@ -21,6 +23,8 @@ public interface INotificationService
             string message,
             NotificationType type,
             string? navigationUrl,
+            NotificationReferenceType? notificationReferenceType,
+            Guid? referenceId,
             CancellationToken cancellationToken);
     
 }
