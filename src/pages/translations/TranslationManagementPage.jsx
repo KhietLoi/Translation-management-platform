@@ -10,6 +10,7 @@ import CreateTranslationKeyModal from "../../components/translations/CreateTrans
 import UpdateTranslationKeyModal from "../../components/translations/UpdateTranslationKeyModal";
 import DeleteTranslationKeyModal from "../../components/translations/DeleteTranslationKeyModal";
 import TranslationDetailDrawer from "../../components/translations/TranslationDetailDrawer";
+import TranslationReviewTab from "../../components/translations/TranslationReviewTab";
 import { toast } from "react-toastify";
 
 function TranslationManagementPage() {
@@ -33,6 +34,7 @@ function TranslationManagementPage() {
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize] = useState(20);
     const [gridData, setGridData] = useState(null);
+    const [activeTab, setActiveTab] = useState("grid"); // "grid" | "review"
 
     const [showCreateKeyModal, setShowCreateKeyModal] = useState(false);
     const [selectedTranslationKey, setSelectedTranslationKey] = useState(null);
@@ -238,67 +240,108 @@ function TranslationManagementPage() {
                 <div>
                     <h2 className="fw-bold mb-1 fs-4">Translations · {currentProjectName}</h2>
                     <p className="text-muted mb-0 fs-6">
-                        Namespace: {currentNamespaceName} · {totalCount} keys
+                        {activeTab === "grid"
+                            ? `Namespace: ${currentNamespaceName} · ${totalCount} keys`
+                            : "Batch review and approve/reject namespace translations"}
                     </p>
                 </div>
-                <button
-                    className="btn btn-dark fw-medium px-4 py-2 rounded-3"
-                    onClick={() => setShowCreateKeyModal(true)}
-                >
-                    + Create Key
-                </button>
+                {activeTab === "grid" && (
+                    <button
+                        className="btn btn-dark fw-medium px-4 py-2 rounded-3"
+                        onClick={() => setShowCreateKeyModal(true)}
+                    >
+                        + Create Key
+                    </button>
+                )}
             </div>
 
-            {/* FILTER COMPONENT */}
-            <TranslationFilter
-                projects={projects}
-                namespaces={namespaces}
-                selectedProjectId={selectedProjectId}
-                selectedNamespaceId={selectedNamespaceId}
-                keyword={keyword}
-                status={status}
-                numberOfLanguages={numberOfLanguages}
-                onProjectChange={(value) => {
-                    setSelectedProjectId(value);
-                    if (setContextProjectId) setContextProjectId(value);
-                    setPageNumber(1);
-                }}
-                onNamespaceChange={(value) => {
-                    setSelectedNamespaceId(value);
-                    setPageNumber(1);
-                }}
-                onKeywordChange={setKeyword}
-                onStatusChange={setStatus}
-                onNumberOfLanguagesChange={setNumberOfLanguages}
-                onSearch={() => {
-                    setPageNumber(1);
-                    loadGrid();
-                }}
-            />
+            {/* TABS FOR SWITCHING MODES */}
+            <ul className="nav nav-pills mb-4 gap-2 bg-white p-2 rounded-3 border-0 shadow-sm d-inline-flex">
+                <li className="nav-item">
+                    <button
+                        className={`nav-link px-4 py-2 fw-medium rounded-3 border-0 transition ${
+                            activeTab === "grid"
+                                ? "active bg-dark text-white shadow-sm"
+                                : "bg-transparent text-secondary hover-text-dark"
+                        }`}
+                        onClick={() => setActiveTab("grid")}
+                    >
+                        Translations Grid
+                    </button>
+                </li>
+                <li className="nav-item">
+                    <button
+                        className={`nav-link px-4 py-2 fw-medium rounded-3 border-0 transition ${
+                            activeTab === "review"
+                                ? "active bg-dark text-white shadow-sm"
+                                : "bg-transparent text-secondary hover-text-dark"
+                        }`}
+                        onClick={() => setActiveTab("review")}
+                    >
+                        Batch Review
+                    </button>
+                </li>
+            </ul>
 
-            {/* GRID COMPONENT */}
-            <TranslationGrid
-                loading={loading}
-                gridData={gridData}
-                languages={languages}
-                onEdit={item => {
-                    setSelectedTranslationKey(item);
-                    setShowUpdateModal(true);
-                }}
-                onDelete={item => {
-                    setSelectedTranslationKey(item);
-                    setShowDeleteModal(true);
-                }}
-                onCellClick={handleCellClick}
-            />
+            {activeTab === "grid" ? (
+                <>
+                    {/* FILTER COMPONENT */}
+                    <TranslationFilter
+                        projects={projects}
+                        namespaces={namespaces}
+                        selectedProjectId={selectedProjectId}
+                        selectedNamespaceId={selectedNamespaceId}
+                        keyword={keyword}
+                        status={status}
+                        numberOfLanguages={numberOfLanguages}
+                        onProjectChange={(value) => {
+                            setSelectedProjectId(value);
+                            if (setContextProjectId) setContextProjectId(value);
+                            setPageNumber(1);
+                        }}
+                        onNamespaceChange={(value) => {
+                            setSelectedNamespaceId(value);
+                            setPageNumber(1);
+                        }}
+                        onKeywordChange={setKeyword}
+                        onStatusChange={setStatus}
+                        onNumberOfLanguagesChange={setNumberOfLanguages}
+                        onSearch={() => {
+                            setPageNumber(1);
+                            loadGrid();
+                        }}
+                    />
 
-            {/* PAGINATION COMPONENT */}
-            <TranslationPagination
-                pageNumber={pageNumber}
-                totalPages={totalPages}
-                onPrevious={() => setPageNumber(prev => prev - 1)}
-                onNext={() => setPageNumber(prev => prev + 1)}
-            />
+                    {/* GRID COMPONENT */}
+                    <TranslationGrid
+                        loading={loading}
+                        gridData={gridData}
+                        languages={languages}
+                        onEdit={item => {
+                            setSelectedTranslationKey(item);
+                            setShowUpdateModal(true);
+                        }}
+                        onDelete={item => {
+                            setSelectedTranslationKey(item);
+                            setShowDeleteModal(true);
+                        }}
+                        onCellClick={handleCellClick}
+                    />
+
+                    {/* PAGINATION COMPONENT */}
+                    <TranslationPagination
+                        pageNumber={pageNumber}
+                        totalPages={totalPages}
+                        onPrevious={() => setPageNumber(prev => prev - 1)}
+                        onNext={() => setPageNumber(prev => prev + 1)}
+                    />
+                </>
+            ) : (
+                <TranslationReviewTab
+                    projectId={selectedProjectId}
+                    namespaces={namespaces}
+                />
+            )}
 
             <CreateTranslationKeyModal
                 show={showCreateKeyModal}
@@ -339,4 +382,4 @@ function TranslationManagementPage() {
     );
 }
 
-export default TranslationManagementPage;
+export default TranslationManagementPage;

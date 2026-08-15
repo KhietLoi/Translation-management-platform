@@ -114,3 +114,32 @@ export const rejectTranslation = async (
 
     return response.data;
 };
+
+export const getReviewTranslations = async ({
+    projectId,
+    languageId,
+    namespaceId
+}) => {
+    const response = await api.get(
+        "/TranslationManagement/review",
+        {
+            params: {
+                ProjectId: projectId,
+                LanguageId: languageId,
+                NamespaceId: namespaceId
+            }
+        }
+    );
+
+    return response.data;
+};
+
+export const batchReviewTranslations = async (payload) => {
+    const response = await api.post(
+        "/TranslationManagement/batch-review",
+        payload
+    );
+
+    return response.data;
+};
+
