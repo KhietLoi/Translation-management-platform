@@ -23,7 +23,6 @@
         <Folder Include="Features\Notification\Commands\" />
         <Folder Include="Features\Notification\Queries\" />
         <Folder Include="Features\Project\Queries\" />
-        <Folder Include="Features\TranslationManagement\Queries\" />
         <Folder Include="Features\TranslationPipeline\Queries\" />
         <Folder Include="Features\UsageLog\Commands\" />
         <Folder Include="Features\User\UserProfile\Queries\" />

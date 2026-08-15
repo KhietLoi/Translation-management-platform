@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySolution.Application.Features.Project.Commands.CreateProject;
 using MediatR;
-using MySolution.Api.Authorization;
 using MySolution.Api.Authorization.User;
 using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
