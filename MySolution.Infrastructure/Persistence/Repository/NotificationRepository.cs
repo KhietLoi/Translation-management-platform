@@ -83,5 +83,14 @@ public class NotificationRepository (AppDbContext context, ILogger logger)
             .FirstOrDefaultAsync(x => x.UserId == userId &&
                                       x.Id == notificationId, cancellationToken);
     }
-    
+
+    public async Task<Notification?> GetDetailAsync(Guid notificationId, Guid userId, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .AsNoTracking()
+            .Include(x => x.TriggeredByUser)
+            .FirstOrDefaultAsync(x =>
+                x.Id == notificationId &&
+                x.UserId == userId, cancellationToken);     
+    }
 }

@@ -69,6 +69,8 @@ public class ProcessExportTranslationsHandler
                 $"Export file '{job.FileName}' completed successfully.",
                 NotificationType.Success,
                 $"/translation-jobs/{job.Id}",
+                NotificationReferenceType.TranslationJob,
+                job.Id,
                 cancellationToken);
 
             _logger.LogInformation("Export job {JobId} completed successfully", job.Id);
@@ -90,6 +92,8 @@ public class ProcessExportTranslationsHandler
                 ex.Message,
                 NotificationType.Error,
                 $"/translation-jobs/{job.Id}",
+                NotificationReferenceType.TranslationJob,
+                job.Id,
                 cancellationToken);
         }
     }

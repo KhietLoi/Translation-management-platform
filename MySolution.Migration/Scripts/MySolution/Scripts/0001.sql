@@ -640,6 +640,10 @@ CREATE TABLE IF NOT EXISTS mysolution."Notifications"
     "NavigationUrl" VARCHAR(500) NULL,
 
     "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    
+    "ReferenceId" UUID NULL,
+    
+    "ReferenceType" INT NULL,
 
     CONSTRAINT "PK_Notifications"
     PRIMARY KEY ("Id"),

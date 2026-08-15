@@ -70,6 +70,8 @@ public class ProcessPublishTranslationsHandler
                 "Translations published successfully.",
                 NotificationType.Success,
                 $"/projects/{job.ProjectId}/releases",
+                NotificationReferenceType.TranslationRelease,
+                result.ReleaseId,
                 cancellationToken);
             _logger.LogInformation("{FunctionName} Publish job {JobId} completed successfully", functionName, request.JobId);
         }
@@ -88,6 +90,8 @@ public class ProcessPublishTranslationsHandler
                 ex.Message,
                 NotificationType.Error,
                 $"/projects/{job.ProjectId}/releases",
+                null,
+                null,
                 cancellationToken);
             throw;
         }

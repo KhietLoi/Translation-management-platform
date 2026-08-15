@@ -31,6 +31,8 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
             .HasMaxLength(500);
         builder.Property(x => x.CreatedAt)
             .IsRequired();
+        builder.Property(x => x.ReferenceId);
+        builder.Property(x => x.ReferenceType);
         
         builder.HasOne(x => x.User)
             .WithMany()

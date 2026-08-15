@@ -17,4 +17,7 @@ public class Notification
     public virtual User User { get; set; } = null!;
     public virtual User? TriggeredByUser { get; set; }
     public virtual Project? Project { get; set; }
+    
+    public Guid? ReferenceId { get; set; }
+    public NotificationReferenceType? ReferenceType { get; set; }
 }

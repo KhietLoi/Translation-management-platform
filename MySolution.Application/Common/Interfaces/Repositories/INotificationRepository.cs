@@ -11,4 +11,5 @@ public interface INotificationRepository : IRepository<Notification>
     Task<(List<Notification> Notifications, int TotalCount)>
         GetAsync(Guid userId,Guid? projectId, bool? isRead, int pageNumber, int pageSize, CancellationToken cancellationToken);
     Task <Notification?> GetUserNotificationAsync (Guid notificationId, Guid userId, CancellationToken cancellationToken);
+    Task<Notification?> GetDetailAsync(Guid notificationId, Guid userId, CancellationToken cancellationToken);
 }

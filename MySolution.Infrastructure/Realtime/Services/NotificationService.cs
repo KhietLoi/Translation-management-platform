@@ -32,6 +32,8 @@ public class NotificationService : INotificationService
         string message,
         NotificationType type,
         string? navigationUrl,
+        NotificationReferenceType? notificationReferenceType,
+        Guid? referenceId,
         CancellationToken cancellationToken)
     {
         var notification = new Notification
@@ -82,6 +84,9 @@ public class NotificationService : INotificationService
         string message,
         NotificationType type,
         string? navigationUrl,
+        
+        NotificationReferenceType? referenceType,
+        Guid? referenceId,
         CancellationToken cancellationToken
     )
     {
@@ -105,6 +110,8 @@ public class NotificationService : INotificationService
                 Type = type,
                 NavigationUrl = navigationUrl,
                 IsRead = false,
+                ReferenceType = referenceType,
+                ReferenceId = referenceId,
                 CreatedAt = createdAt
             }).ToList();
 

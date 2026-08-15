@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Helpers;
 using MySolution.Application.Features.Notification.Commands.MarkAllNotificationAsRead;
 using MySolution.Application.Features.Notification.Commands.MarkNotificationAsRead;
+using MySolution.Application.Features.Notification.Queries.GetNotificationDetail;
 using MySolution.Application.Features.Notification.Queries.GetNotifications;
 using MySolution.Application.Features.Notification.Queries.GetUnreadCount;
 
@@ -49,5 +50,13 @@ public class NotificationController (IMediator mediator) : Controller
         var response = await mediator.Send(new MarkAllNotificationAsReadCommand(new MarkAllNotificationAsReadRequest()), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
+        
+        [HttpGet("{notificationId:guid}")]
+        [Authorize] 
+        public async Task<IActionResult> GetNotificationDetail(Guid notificationId, CancellationToken cancellationToken)
+        {
+            var response = await mediator.Send(new GetNotificationDetailQuery(new GetNotificationDetailRequest { NotificationId = notificationId }), cancellationToken);
+            return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+        }
     
 }

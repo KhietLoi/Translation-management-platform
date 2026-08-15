@@ -99,6 +99,8 @@ public class ReviewTranslationHandler : IRequestHandler<ReviewTranslationCommand
                 $"Approved translation key '{entity.TranslationKey.Key}'.",
                 NotificationType.Success,
                 $"/projects/{entity.TranslationKey.ProjectId}/translations",
+                NotificationReferenceType.TranslationValue,
+                entity.Id,
                 cancellationToken);
             
             response
