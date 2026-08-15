@@ -22,6 +22,7 @@ import { getProjects } from "../services/projectService";
 import { logout } from "../services/authService";
 import signalRService, { getAuthUser } from "../services/signalrService";
 import NotificationBell from "../components/notifications/NotificationBell";
+import NotificationDetailModal from "../components/notifications/NotificationDetailModal";
 import ProjectPresence from "../components/presence/ProjectPresence";
 import { useUnreadCountQuery } from "../hooks/useNotifications";
 import "react-toastify/dist/ReactToastify.css";
@@ -46,6 +47,9 @@ export default function MainLayout() {
   const [env, setEnv] = useState("Production");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Notification Detail Modal State
+  const [detailNotificationId, setDetailNotificationId] = useState(null);
+
   // Close sidebar on route change on mobile
   useEffect(() => {
     setSidebarOpen(false);
@@ -59,6 +63,19 @@ export default function MainLayout() {
   // Initialize SignalR Connection
   useEffect(() => {
     signalRService.startConnection();
+  }, []);
+
+  // Listen to showNotificationDetail events to open the detail modal
+  useEffect(() => {
+    const handleShowDetail = (event) => {
+      if (event.detail?.id) {
+        setDetailNotificationId(event.detail.id);
+      }
+    };
+    window.addEventListener("showNotificationDetail", handleShowDetail);
+    return () => {
+      window.removeEventListener("showNotificationDetail", handleShowDetail);
+    };
   }, []);
 
   const prevProjectIdRef = useRef(null);
@@ -429,6 +446,13 @@ export default function MainLayout() {
           draggable
           theme="light"
         />
+
+        {detailNotificationId && (
+          <NotificationDetailModal
+            notificationId={detailNotificationId}
+            onClose={() => setDetailNotificationId(null)}
+          />
+        )}
       </div>
     </>
   );

@@ -61,3 +61,14 @@ export const markAllNotificationsAsRead = async () => {
   const response = await api.put("/notification/read-all");
   return response.data;
 };
+
+/**
+ * Fetch detailed single notification including Reference details
+ * GET /api/notification/{id}
+ * @param {string} notificationId
+ */
+export const getNotificationDetail = async (notificationId) => {
+  const response = await api.get(`/notification/${notificationId}`);
+  return response.data;
+};
+

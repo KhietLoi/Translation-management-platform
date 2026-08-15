@@ -58,11 +58,11 @@ export function useNotificationSignalR() {
       // 2. PREPEND NEW NOTIFICATION TO LISTS EXACTLY ONCE
       queryClient.setQueriesData(
         { queryKey: NOTIFICATION_KEYS.all },
-        (oldData, query) => {
+        (oldData) => {
           if (!oldData) return oldData;
 
-          // Skip unread count queries here since step 1 handled it
-          if (query.queryKey.includes("unread-count")) {
+          // Skip unread count queries here (which are numbers) since step 1 handled it
+          if (typeof oldData === "number") {
             return oldData;
           }
 

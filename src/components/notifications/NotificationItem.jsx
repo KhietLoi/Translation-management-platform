@@ -92,8 +92,14 @@ export default function NotificationItem({ item, onItemClick, isDarkMode = false
       onItemClick(item);
     }
 
-    // 3. Navigate if navigationUrl exists
-    if (item.navigationUrl) {
+    // 3. Dispatch event to open detail modal
+    if (item.id) {
+      window.dispatchEvent(
+        new CustomEvent("showNotificationDetail", {
+          detail: { id: item.id }
+        })
+      );
+    } else if (item.navigationUrl) {
       navigate(item.navigationUrl);
     }
   };
