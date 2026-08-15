@@ -85,6 +85,7 @@ function NamespacesTab({
             setSaving(true);
 
             await updateProjectNamespace(
+                projectId,
                 editingId,
                 editingName
             );
@@ -136,7 +137,7 @@ function NamespacesTab({
 
             setSaving(true);
 
-            await deleteProjectNamespace(id);
+            await deleteProjectNamespace(projectId, id);
 
             setItems(prev =>
                 prev.filter(x => x.id !== id)

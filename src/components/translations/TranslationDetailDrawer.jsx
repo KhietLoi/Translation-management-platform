@@ -6,6 +6,7 @@ import {
   updateTranslationValue,
   submitTranslation,
   rejectTranslation,
+  reviewTranslation,
 } from "../../services/translationManagementService";
 
 import { useAuth } from "../../contexts/AuthContext";

@@ -110,15 +110,11 @@ export const getProjectNamespaces = async (projectId) => {
     return response.data;
 };
 
-export const createProjectNamespace = async (
-    projectId,
-    name
-) => {
-
+export const createProjectNamespace = async (projectId, name) => {
     const response = await api.post(
-        `/Project/namespaces?projectId=${projectId}`,
+        `/Project/${projectId}/namespaces`,
         {
-            name
+            Name: name
         }
     );
 
@@ -126,14 +122,16 @@ export const createProjectNamespace = async (
 };
 
 export const updateProjectNamespace = async (
+    projectId,
     namespaceId,
     name
 ) => {
 
     const response = await api.put(
-        `/Project/namespaces/${namespaceId}`,
+        `/Project/${projectId}/namespaces/${namespaceId}`,
         {
-            name
+            ProjectId: projectId,
+            Name: name
         }
     );
 
@@ -141,11 +139,12 @@ export const updateProjectNamespace = async (
 };
 
 export const deleteProjectNamespace = async (
+    projectId,
     namespaceId
 ) => {
 
     const response = await api.delete(
-        `/Project/namespaces/${namespaceId}`
+        `/Project/${projectId}/namespaces/${namespaceId}`
     );
 
     return response.data;

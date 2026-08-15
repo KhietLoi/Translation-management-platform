@@ -111,7 +111,7 @@ function TranslationGridRow({
           </button>
           <button
             className="btn btn-sm btn-outline-danger"
-            onClick={() => onDelete(item.translationKeyId)}
+            onClick={() => onDelete(item)}
           >
             Xóa
           </button>

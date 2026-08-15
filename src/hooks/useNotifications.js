@@ -4,6 +4,7 @@ import {
   getUnreadCount,
   markNotificationAsRead,
   markAllNotificationsAsRead,
+  getNotificationDetail,
 } from "../services/notificationService";
 
 export const NOTIFICATION_KEYS = {
@@ -166,9 +167,8 @@ export function useMarkAsReadMutation() {
       // 2. Mark item as isRead: true in cached notification lists
       queryClient.setQueriesData(
         { queryKey: NOTIFICATION_KEYS.all },
-        (oldData, query) => {
-          if (query.queryKey.includes("unread-count")) return oldData;
-          if (!oldData) return oldData;
+        (oldData) => {
+          if (typeof oldData === "number" || !oldData) return oldData;
 
           if (oldData.pages) {
             return {
@@ -225,8 +225,8 @@ export function useMarkAllAsReadMutation() {
       // 2. Mark all items as isRead: true in cached notification lists
       queryClient.setQueriesData(
         { queryKey: NOTIFICATION_KEYS.all },
-        (oldData, query) => {
-          if (query.queryKey.includes("unread-count")) return 0;
+        (oldData) => {
+          if (typeof oldData === "number") return 0;
           if (!oldData) return oldData;
 
           if (oldData.pages) {
@@ -259,3 +259,20 @@ export function useMarkAllAsReadMutation() {
     },
   });
 }
+
+/**
+ * Hook to retrieve a single notification's full details
+ */
+export function useNotificationDetailQuery(notificationId) {
+  return useQuery({
+    queryKey: ["notifications", "detail", notificationId],
+    queryFn: async () => {
+      if (!notificationId) return null;
+      const res = await getNotificationDetail(notificationId);
+      return res?.data ?? res;
+    },
+    enabled: !!notificationId,
+    staleTime: 1000 * 30, // 30 seconds
+  });
+}
+
