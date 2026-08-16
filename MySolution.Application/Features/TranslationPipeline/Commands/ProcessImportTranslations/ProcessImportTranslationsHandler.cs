@@ -1,9 +1,11 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.File;
+using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Realtime;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Enums;
+using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.TranslationPipeline.Commands.ProcessImportTranslations;
 
@@ -13,19 +15,22 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
     private readonly IImportService _importService;
     private readonly ILogger<ProcessImportTranslationsHandler> _logger;
     private readonly INotificationService _notificationService;
+    private readonly IMessageSender _messageSender;
     
     public ProcessImportTranslationsHandler
     (
         IUnitOfWork unitOfWork,
         IImportService importService,
         ILogger<ProcessImportTranslationsHandler> logger,
-        INotificationService notificationService
+        INotificationService notificationService,
+        IMessageSender messageSender
     )
     {
         _unitOfWork = unitOfWork;
         _importService = importService;
         _logger = logger;
         _notificationService = notificationService;
+        _messageSender = messageSender;
     }
     
     public async Task Handle(ProcessImportTranslationsCommand request, CancellationToken cancellationToken)
@@ -78,6 +83,26 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
             job.ErrorMessage = null;
             
             await _unitOfWork.SaveAsync(cancellationToken);
+                
+                
+            // Get User Email
+            var user = await _unitOfWork.User.GetByIdAsync(job.CreatedBy);
+            // Email:
+            await _messageSender.SendMessage<TranslationJobCompletedEmailEvent>(
+                new TranslationJobCompletedEmailEvent
+                {
+                    JobId = job.Id,
+                    UserId = job.CreatedBy,
+                    Email = user!.Email,
+                    ProjectId = job.ProjectId,
+                    JobType = job.Type == TranslationJobType.Import ? "Import" : "Export",
+                    FileName = job.FileName ?? string.Empty,
+                    TotalRecords = job.TotalRecords,
+                    SuccessRecords = job.SuccessRecords,
+                    FailedRecords = job.FailedRecords,
+                    SkippedRecords = job.SkippedRecords
+                }, cancellationToken);
+                        
             await _notificationService.NotifyProjectAsync(
                 job.ProjectId,
                 job.CreatedBy,

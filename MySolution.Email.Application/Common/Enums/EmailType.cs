@@ -4,5 +4,7 @@ public enum EmailType
 {
     VerifyEmail,
     ForgotPassword,
-    SetUpPassword
-}
+    SetUpPassword,
+    TranslationJobCompleted,
+    TranslationJobFailed
+}   
