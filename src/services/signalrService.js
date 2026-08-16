@@ -61,6 +61,8 @@ class SignalRService {
   listeners = new Set();
   presenceListeners = new Set();
   lockListeners = new Set();
+  publishProgressListeners = new Set();
+  typingListeners = new Set();
   processedIds = new Set();
   startPromise = null;
 
@@ -220,6 +222,43 @@ class SignalRService {
             }
           });
         });
+
+        // 4. Publish Progress Event Handler
+        const handlePublishProgress = (progressInfo) => {
+          console.log("[SignalR] 📦 PublishProgress received:", progressInfo);
+          this.publishProgressListeners.forEach((cb) => {
+            try {
+              cb(progressInfo);
+            } catch (err) {
+              console.error("[SignalR] Error in publish progress callback:", err);
+            }
+          });
+        };
+
+        const progressEvents = [
+          "PublishProgress",
+          "ReceivePublishProgress",
+          "publishProgress",
+          "ReceivePublishProgressAsync"
+        ];
+
+        progressEvents.forEach((evt) => {
+          this.connection.off(evt);
+          this.connection.on(evt, handlePublishProgress);
+        });
+
+        // 5. Typing Event Handler
+        this.connection.off("UserTyping");
+        this.connection.on("UserTyping", (userId, username, value) => {
+          console.log("[SignalR] ⌨️ UserTyping received:", { userId, username, value });
+          this.typingListeners.forEach((cb) => {
+            try {
+              cb({ userId, username, value });
+            } catch (err) {
+              console.error("[SignalR] Error in typing callback:", err);
+            }
+          });
+        });
       }
 
       if (
@@ -254,7 +293,7 @@ class SignalRService {
     if (this.startPromise) {
       try {
         await this.startPromise;
-      } catch (e) {
+      } catch {
         // Safe catch
       }
     }
@@ -378,6 +417,61 @@ class SignalRService {
     }
   }
 
+  async joinTranslationValueGroup(translationValueId) {
+    if (!isValidGuid(translationValueId)) return;
+
+    if (
+      !this.connection ||
+      this.connection.state !== signalR.HubConnectionState.Connected
+    ) {
+      await this.startConnection();
+    }
+
+    if (
+      this.connection &&
+      this.connection.state === signalR.HubConnectionState.Connected
+    ) {
+      try {
+        await this.connection.invoke("JoinTranslationValueGroup", translationValueId);
+        console.log(`[SignalR] Joined translation value group: ${translationValueId}`);
+      } catch (err) {
+        console.warn("[SignalR] JoinTranslationValueGroup invoke error:", err?.message || err);
+      }
+    }
+  }
+
+  async leaveTranslationValueGroup(translationValueId) {
+    if (!isValidGuid(translationValueId)) return;
+
+    if (
+      this.connection &&
+      this.connection.state === signalR.HubConnectionState.Connected
+    ) {
+      try {
+        await this.connection.invoke("LeaveTranslationValueGroup", translationValueId);
+        console.log(`[SignalR] Left translation value group: ${translationValueId}`);
+      } catch (err) {
+        console.warn("[SignalR] LeaveTranslationValueGroup invoke error:", err?.message || err);
+      }
+    }
+  }
+
+  async sendTyping(translationValueId, value) {
+    if (!isValidGuid(translationValueId)) return;
+
+    if (
+      this.connection &&
+      this.connection.state === signalR.HubConnectionState.Connected
+    ) {
+      try {
+        await this.connection.invoke("Typing", translationValueId, value);
+        console.log(`[SignalR] ⌨️ Sent typing status for translation value: ${translationValueId}`);
+      } catch (err) {
+        console.warn("[SignalR] Typing invoke error:", err?.message || err);
+      }
+    }
+  }
+
   subscribe(callback) {
     this.listeners.add(callback);
     return () => this.listeners.delete(callback);
@@ -391,6 +485,19 @@ class SignalRService {
   subscribeLock(callback) {
     this.lockListeners.add(callback);
     return () => this.lockListeners.delete(callback);
+  }
+
+  subscribePublishProgress(callback) {
+    this.publishProgressListeners.add(callback);
+    if (!this.connection || this.connection.state === signalR.HubConnectionState.Disconnected) {
+      this.startConnection();
+    }
+    return () => this.publishProgressListeners.delete(callback);
+  }
+
+  subscribeTyping(callback) {
+    this.typingListeners.add(callback);
+    return () => this.typingListeners.delete(callback);
   }
 }
 

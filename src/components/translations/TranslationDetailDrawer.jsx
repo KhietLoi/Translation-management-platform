@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 
 import {
@@ -50,6 +50,11 @@ function TranslationDetailDrawer({ show, translationValue, onClose, onSuccess })
   const [value, setValue] = useState("");
   const [reason, setReason] = useState("");
 
+  const [typingUser, setTypingUser] = useState(null);
+  const typingTimeoutRef = useRef(null);
+  const lastTypedRef = useRef(0);
+  const typingDebounceTimeoutRef = useRef(null);
+
   const valId = translationValue?.translationValueId;
   const activeLock = valId ? locks[valId] : null;
 
@@ -69,11 +74,86 @@ function TranslationDetailDrawer({ show, translationValue, onClose, onSuccess })
     // 1. Acquire Lock on SignalR Hub
     signalRService.acquireLock(valId, currentUserId, currentUserName);
 
-    // 2. Release Lock when closing or unmounting
+    // 2. Join the translation value group to receive typing events
+    signalRService.joinTranslationValueGroup(valId);
+
+    // 3. Release Lock and leave group when closing or unmounting
     return () => {
       signalRService.releaseLock(valId, currentUserId);
+      signalRService.leaveTranslationValueGroup(valId);
     };
   }, [show, valId, currentUserId, currentUserName]);
+
+  useEffect(() => {
+    if (!show || !valId) {
+      return;
+    }
+
+    const unsubscribe = signalRService.subscribeTyping((event) => {
+      const eventUserId = event?.userId?.toString().toLowerCase();
+      const myUserId = currentUserId?.toString().toLowerCase();
+
+      console.log("[SignalR] Typing Event Received:", {
+        eventUserId,
+        myUserId,
+        isSelf: eventUserId === myUserId,
+        value: event.value
+      });
+
+      // Sync only if event is from another user and both IDs are present
+      if (eventUserId && myUserId && eventUserId !== myUserId) {
+        setTypingUser(event.username || "Ai đó");
+
+        // Sync the value in real-time
+        if (event.value !== undefined) {
+          setValue(event.value);
+        }
+
+        // Reset the timeout to clear typing state
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
+
+        typingTimeoutRef.current = setTimeout(() => {
+          setTypingUser(null);
+        }, 3000); // 3 seconds timeout
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      if (typingDebounceTimeoutRef.current) {
+        clearTimeout(typingDebounceTimeoutRef.current);
+      }
+      setTypingUser(null);
+    };
+  }, [show, valId, currentUserId]);
+
+  const handleTextareaChange = (e) => {
+    const newVal = e.target.value;
+    setValue(newVal);
+
+    // Clear any previous debounce timer
+    if (typingDebounceTimeoutRef.current) {
+      clearTimeout(typingDebounceTimeoutRef.current);
+    }
+
+    // Send typing notification with value, throttled to once every 200ms
+    const now = Date.now();
+    if (now - lastTypedRef.current > 200) {
+      signalRService.sendTyping(valId, newVal);
+      lastTypedRef.current = now;
+    } else {
+      // Schedule a fallback update to ensure final typed characters are sent
+      typingDebounceTimeoutRef.current = setTimeout(() => {
+        signalRService.sendTyping(valId, newVal);
+        lastTypedRef.current = Date.now();
+      }, 250);
+    }
+  };
 
   const loadDetail = async () => {
     try {
@@ -121,7 +201,13 @@ function TranslationDetailDrawer({ show, translationValue, onClose, onSuccess })
     );
 
   const handleSubmit = () =>
-    execute(() => submitTranslation(detail.id), "Translation submitted for review");
+    execute(
+      async () => {
+        await updateTranslationValue(detail.id, { value });
+        await submitTranslation(detail.id);
+      },
+      "Translation submitted for review"
+    );
 
   const handleReject = () =>
     execute(
@@ -215,8 +301,14 @@ function TranslationDetailDrawer({ show, translationValue, onClose, onSuccess })
                       detail.status === TranslationStatus.Reviewed ||
                       detail.status === TranslationStatus.Published
                     }
-                    onChange={(e) => setValue(e.target.value)}
+                    onChange={handleTextareaChange}
                   />
+                  {typingUser && (
+                    <div className="text-muted small mt-1 d-flex align-items-center gap-1">
+                      <span className="spinner-grow spinner-grow-sm text-primary" role="status" style={{ width: "0.6rem", height: "0.6rem" }} />
+                      <span className="fst-italic"><strong>{typingUser}</strong> đang nhập...</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="mb-3">

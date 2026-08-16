@@ -7,6 +7,7 @@ import {
   ArrowPathIcon,
   PaperAirplaneIcon,
   ClockIcon,
+  XCircleIcon,
 } from "@heroicons/react/24/outline";
 import { getProjects } from "../../services/projectService";
 import {
@@ -15,6 +16,7 @@ import {
   rollbackRelease,
 } from "../../services/translationPipelineService";
 import ReleaseDiffModal from "../../components/delivery/ReleaseDiffModal";
+import { signalRService } from "../../services/signalrService";
 import "./delivery.css";
 
 export default function PublishPage() {
@@ -40,6 +42,8 @@ export default function PublishPage() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishStep, setPublishStep] = useState(0); // 0: Idle/Ready, 1..6: In progress, 6: Completed
   const [currentJobInfo, setCurrentJobInfo] = useState(null);
+  const [publishError, setPublishError] = useState(null);
+  const [currentProgress, setCurrentProgress] = useState(null);
 
   // Modals
   const [showPublishModal, setShowPublishModal] = useState(false);
@@ -103,6 +107,57 @@ export default function PublishPage() {
     return () => window.removeEventListener("translationNotification", handleNotification);
   }, [selectedProjectId]);
 
+  // Subscribe to SignalR Publish Progress updates
+  useEffect(() => {
+    const unsubscribe = signalRService.subscribePublishProgress((progress) => {
+      console.log("[PublishPage] Publish progress received via SignalR:", progress);
+      setCurrentProgress(progress);
+
+      // Map progress name to step index (1..5)
+      let stepNum = 1;
+      const lowerName = (progress.name || progress.Name || "").toLowerCase();
+
+      if (lowerName.includes("validate")) {
+        stepNum = 1;
+      } else if (lowerName.includes("generate package") || lowerName.includes("json")) {
+        stepNum = 2;
+      } else if (lowerName.includes("upload") || lowerName.includes("blob")) {
+        stepNum = 3;
+      } else if (lowerName.includes("create release") || lowerName.includes("database") || lowerName.includes("save")) {
+        stepNum = 4;
+      } else if (
+        lowerName.includes("complete") ||
+        lowerName.includes("finished") ||
+        lowerName.includes("success") ||
+        lowerName.includes("skipped")
+      ) {
+        stepNum = 5;
+      }
+
+      const status = progress.status || progress.Status || "";
+      if (status === "Failed" || status.toLowerCase().includes("failed")) {
+        setPublishError(progress.message || progress.Message || "Publish failed.");
+        setTimeout(() => {
+          setIsPublishing(false);
+        }, 2000);
+      } else {
+        setPublishStep(stepNum);
+        
+        // If final step completed, wait 2 seconds then finalize
+        if (stepNum === 5 && (status === "Completed" || status.toLowerCase().includes("complete"))) {
+          setTimeout(() => {
+            setIsPublishing(false);
+            if (selectedProjectId) {
+              loadReleaseHistory(selectedProjectId);
+            }
+          }, 2000);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [selectedProjectId]);
+
   // Handle Submit Publish
   const handleStartPublish = async () => {
     if (!selectedProjectId) {
@@ -114,31 +169,44 @@ export default function PublishPage() {
       setShowPublishModal(false);
       setIsPublishing(true);
       setPublishStep(1);
-
-      // Stepper animation sequence
-      setTimeout(() => setPublishStep(2), 1200);
-      setTimeout(() => setPublishStep(3), 2400);
+      setPublishError(null);
+      setCurrentProgress(null);
 
       const res = await publishTranslations({
         projectId: selectedProjectId,
         notes: publishNotes,
       });
 
-      setCurrentJobInfo(res.data);
+      setCurrentJobInfo(res.data || res);
       setPublishNotes("");
 
-      setTimeout(() => setPublishStep(4), 3600);
-      setTimeout(() => setPublishStep(5), 4800);
-      setTimeout(() => {
-        setPublishStep(6);
+      // Finalize progress on success - let the SignalR complete callback do it, or fallback after 2.5 seconds
+      setPublishStep(5);
+      
+      const stats = res.data || res;
+      if (stats && stats.skippedRecords > 0 && stats.successRecords === 0) {
+        toast.info("Publish skipped: No changes detected.");
+      } else {
         toast.success("New version published successfully!");
-        loadReleaseHistory(selectedProjectId);
-        setIsPublishing(false);
-      }, 6000);
+      }
+      
+      setTimeout(() => {
+        setIsPublishing((prev) => {
+          if (prev) {
+            loadReleaseHistory(selectedProjectId);
+            return false;
+          }
+          return prev;
+        });
+      }, 2500);
     } catch (error) {
       console.error(error);
       setIsPublishing(false);
-      setPublishStep(0);
+      setPublishError(
+        error?.response?.data?.errorMessage ||
+        error?.message ||
+        "Publish failed."
+      );
       toast.error(
         error?.response?.data?.errorMessage ||
         "Publish failed. Please ensure translations are Reviewed."
@@ -182,30 +250,13 @@ export default function PublishPage() {
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
   const currentProjectName = selectedProject?.name || "Project";
 
-  // Stepper definition in English
+  // Stepper definition using dynamic C# progress tracking
   const steps = [
-    { id: 1, name: "Validate", sub: "128 valid keys" },
-    { id: 2, name: "Queue", sub: "Job #4821" },
-    {
-      id: 3,
-      name: "Generate JSON",
-      sub: publishStep === 3 ? "Running..." : publishStep > 3 ? "Completed" : "Pending",
-    },
-    {
-      id: 4,
-      name: "Compress",
-      sub: publishStep === 4 ? "Compressing..." : publishStep > 4 ? "Completed" : "Pending",
-    },
-    {
-      id: 5,
-      name: "Upload Blob",
-      sub: publishStep === 5 ? "Uploading..." : publishStep > 5 ? "Completed" : "Pending",
-    },
-    {
-      id: 6,
-      name: "Notify",
-      sub: publishStep >= 6 ? "Notification sent" : "Pending",
-    },
+    { id: 1, name: "Validate", sub: "Xác thực dữ liệu" },
+    { id: 2, name: "Generate Package", sub: "Tạo JSON bản dịch" },
+    { id: 3, name: "Upload Blob", sub: "Tải lên Cloud Storage" },
+    { id: 4, name: "Create Release", sub: "Lưu phiên bản DB" },
+    { id: 5, name: "Complete", sub: "Hoàn tất phát hành" },
   ];
 
   // Helper for time ago in English
@@ -251,14 +302,14 @@ export default function PublishPage() {
           <div className="d-flex align-items-center justify-content-between mb-3">
             <h6 className="fw-bold mb-0 text-dark fs-6">
               {isPublishing
-                ? `Processing — version v1.8.3`
+                ? `Processing — version v${releases.length > 0 ? (releases[0].version + 1) : '1.0.0'}`
                 : releases.length > 0
                   ? `Publish Status — Current Version v${releases[0].version}`
-                  : "Processing — version v1.8.3"}
+                  : "Publish Status — Ready to Publish"}
             </h6>
             {isPublishing && (
-              <span className="badge bg-purple-pill">
-                <Spinner animation="grow" size="sm" className="me-1" /> Executing...
+              <span className="badge bg-purple-pill" style={{ color: "#7c3aed", backgroundColor: "#f3e8ff", padding: "6px 12px", borderRadius: "9999px", fontWeight: "600" }}>
+                <Spinner animation="grow" size="sm" className="me-1 text-purple" style={{ width: "12px", height: "12px" }} /> Executing...
               </span>
             )}
           </div>
@@ -271,30 +322,52 @@ export default function PublishPage() {
                 style={{
                   width: isPublishing
                     ? `${((publishStep - 1) / (steps.length - 1)) * 100}%`
-                    : "40%",
+                    : publishError
+                      ? `${((publishStep - 1) / (steps.length - 1)) * 100}%`
+                      : releases.length > 0
+                        ? "100%"
+                        : "0%",
                 }}
               />
             </div>
 
             {steps.map((step) => {
-              const isCompleted = isPublishing ? publishStep > step.id : step.id <= 2;
-              const isActive = isPublishing ? publishStep === step.id : step.id === 3;
+              const isCompleted = isPublishing
+                ? (publishStep > step.id || (publishStep === 5 && step.id === 5 && !publishError))
+                : (releases.length > 0);
+              const isActive = isPublishing && publishStep === step.id && !publishError;
+              const isFailed = isPublishing && publishStep === step.id && publishError;
+
+              let nodeContent = <span>{step.id}</span>;
+              let stepClass = "";
+              let subText = step.sub;
+
+              if (isCompleted) {
+                nodeContent = <CheckCircleIcon width={24} className="text-white" />;
+                stepClass = "completed";
+                subText = "Completed";
+              } else if (isFailed) {
+                nodeContent = <XCircleIcon width={24} className="text-white" />;
+                stepClass = "failed";
+                subText = publishError;
+              } else if (isActive) {
+                nodeContent = <Spinner animation="border" size="sm" className="text-white" style={{ width: "16px", height: "16px" }} />;
+                stepClass = "active";
+                subText = currentProgress?.message || currentProgress?.Message || "Processing...";
+              }
 
               return (
                 <div
                   key={step.id}
-                  className={`step-item ${isCompleted ? "completed" : ""} ${isActive ? "active" : ""
-                    }`}
+                  className={`step-item ${stepClass}`}
                 >
-                  <div className="step-node">
-                    {isCompleted ? (
-                      <CheckCircleIcon width={24} />
-                    ) : (
-                      <span>{step.id}</span>
-                    )}
+                  <div className="step-node d-flex align-items-center justify-content-center">
+                    {nodeContent}
                   </div>
-                  <div className="step-title">{step.name}</div>
-                  <div className="step-subtext">{step.sub}</div>
+                  <div className="step-title fw-semibold mt-2">{step.name}</div>
+                  <div className="step-subtext text-muted small mt-1" style={{ fontSize: "0.725rem", wordBreak: "break-word", maxWidth: "120px" }}>
+                    {subText}
+                  </div>
                 </div>
               );
             })}

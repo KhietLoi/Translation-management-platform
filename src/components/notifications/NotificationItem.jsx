@@ -9,6 +9,7 @@ import {
   KeyIcon,
   ChatBubbleLeftIcon,
   ArrowUpTrayIcon,
+  ClipboardDocumentCheckIcon,
 } from "@heroicons/react/24/outline";
 import { formatTimeAgo } from "../../utils/timeUtils";
 import { useMarkAsReadMutation } from "../../hooks/useNotifications";
@@ -19,6 +20,10 @@ import "./Notification.css";
  */
 function getNotificationIcon(type, title = "") {
   const lowerTitle = (title || "").toLowerCase();
+
+  if (lowerTitle.includes("batch review") || lowerTitle.includes("duyệt hàng loạt")) {
+    return <ClipboardDocumentCheckIcon width={18} height={18} />;
+  }
 
   if (lowerTitle.includes("import")) {
     return <ArrowDownTrayIcon width={18} height={18} />;
@@ -56,6 +61,10 @@ function getNotificationIcon(type, title = "") {
  */
 function getTypeIconClass(type, title = "") {
   const lowerTitle = (title || "").toLowerCase();
+
+  if (lowerTitle.includes("batch review") || lowerTitle.includes("duyệt hàng loạt")) {
+    return "info";
+  }
 
   if (type === 2 || type === "Success" || lowerTitle.includes("completed")) {
     return "success";

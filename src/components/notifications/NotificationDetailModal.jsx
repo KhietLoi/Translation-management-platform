@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useNotificationDetailQuery } from "../../hooks/useNotifications";
 import {
   XMarkIcon,
@@ -13,6 +14,10 @@ import {
   TagIcon,
   GlobeAltIcon,
   ArchiveBoxIcon,
+  ClipboardDocumentCheckIcon,
+  XCircleIcon,
+  FolderIcon,
+  CheckIcon,
 } from "@heroicons/react/24/outline";
 import { formatTimeAgo, formatDateTime } from "../../utils/timeUtils";
 import "./Notification.css";
@@ -23,6 +28,9 @@ import "./Notification.css";
 function getNotificationIcon(type, title = "") {
   const lowerTitle = (title || "").toLowerCase();
 
+  if (lowerTitle.includes("batch review") || lowerTitle.includes("duyệt hàng loạt")) {
+    return <ClipboardDocumentCheckIcon className="w-6 h-6 text-purple-500" />;
+  }
   if (lowerTitle.includes("import")) {
     return <ArchiveBoxIcon className="w-6 h-6 text-indigo-500" />;
   }
@@ -42,12 +50,160 @@ function getNotificationIcon(type, title = "") {
 }
 
 export default function NotificationDetailModal({ notificationId, onClose, isDarkMode = false }) {
+  const navigate = useNavigate();
   const { data: notification, isLoading, isError, refetch } = useNotificationDetailQuery(notificationId);
 
   if (!notificationId) return null;
 
   // Detect which layout to render inside detail
-  const renderDetailContent = (detail) => {
+  const renderDetailContent = (detail, notification) => {
+    if (!notification) return null;
+
+    // Helper for parsing batch reviews
+    const parseBatchReviewMessage = (message) => {
+      if (!message) return null;
+      const regex = /Reviewed\s+(\d+)\s+translation\(s\)\s+in\s+project\s+'([^']*)',\s+namespace\s+'([^']*)'\s+\(Approved:\s+(\d+),\s+Rejected:\s+(\d+)\)/i;
+      const match = message.match(regex);
+      if (match) {
+        return {
+          total: parseInt(match[1], 10),
+          projectName: match[2],
+          namespaceName: match[3],
+          approved: parseInt(match[4], 10),
+          rejected: parseInt(match[5], 10)
+        };
+      }
+      return null;
+    };
+
+    // 4. Batch Review Completed
+    const parsedBatch = parseBatchReviewMessage(notification.message);
+    const hasBatchDetail = detail && (detail.approved !== undefined || detail.rejected !== undefined || detail.total !== undefined);
+
+    if (
+      (notification.title || "").toLowerCase().includes("batch review") ||
+      hasBatchDetail ||
+      parsedBatch
+    ) {
+      const projectName = detail?.projectName || parsedBatch?.projectName || "N/A";
+      const namespaceName = detail?.namespaceName || parsedBatch?.namespaceName || "N/A";
+      const total = detail?.total || parsedBatch?.total || 0;
+      const approved = detail?.approved || parsedBatch?.approved || 0;
+      const rejected = detail?.rejected || parsedBatch?.rejected || 0;
+
+      // Calculate percentages
+      const approvedPercent = total > 0 ? Math.round((approved / total) * 100) : 0;
+      const rejectedPercent = total > 0 ? Math.round((rejected / total) * 100) : 0;
+
+      return (
+        <div className="detail-card-section border rounded-3 p-4 mb-3 bg-light-subtle">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <span className="fw-semibold text-secondary small text-uppercase tracking-wider">
+              Kết quả duyệt hàng loạt
+            </span>
+            <span className="badge px-2.5 py-1 rounded-pill fw-bold" style={{ color: "#9333ea", borderColor: "#e9d5ff", backgroundColor: "#f3e8ff", borderWidth: "1px", borderStyle: "solid" }}>
+              Batch Review
+            </span>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="row g-3 mb-4">
+            <div className="col-md-6">
+              <div className="card border-0 bg-white dark-bg-gray-800 p-3 rounded-3 shadow-sm border-start border-4 border-success h-100">
+                <div className="d-flex align-items-center gap-2 mb-1">
+                  <CheckIcon className="w-5 h-5 text-success" style={{ width: "20px", height: "20px" }} />
+                  <span className="text-secondary small fw-semibold">Đã chấp nhận (Approved)</span>
+                </div>
+                <div className="h3 mb-0 fw-bold text-success">{approved}</div>
+                <div className="text-muted small mt-1">{approvedPercent}% tổng số bản dịch</div>
+              </div>
+            </div>
+
+            <div className="col-md-6">
+              <div className="card border-0 bg-white dark-bg-gray-800 p-3 rounded-3 shadow-sm border-start border-4 border-danger h-100">
+                <div className="d-flex align-items-center gap-2 mb-1">
+                  <XCircleIcon className="w-5 h-5 text-danger" style={{ width: "20px", height: "20px" }} />
+                  <span className="text-secondary small fw-semibold">Đã từ chối (Rejected)</span>
+                </div>
+                <div className="h3 mb-0 fw-bold text-danger">{rejected}</div>
+                <div className="text-muted small mt-1">{rejectedPercent}% tổng số bản dịch</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Visual Progress Bar */}
+          <div className="card border-0 bg-white dark-bg-gray-800 p-3 rounded-3 shadow-sm mb-4">
+            <div className="d-flex align-items-center justify-content-between mb-2">
+              <span className="small text-muted fw-semibold">Phân bổ quyết định ({total} bản dịch)</span>
+              <span className="small text-muted fw-bold">
+                {approved} Duyệt / {rejected} Từ chối
+              </span>
+            </div>
+            <div className="progress mb-2" style={{ height: "10px", display: "flex" }}>
+              <div
+                className="bg-success"
+                role="progressbar"
+                style={{ width: `${approvedPercent}%` }}
+                aria-valuenow={approvedPercent}
+                aria-valuemin="0"
+                aria-valuemax="100"
+              />
+              <div
+                className="bg-danger"
+                role="progressbar"
+                style={{ width: `${rejectedPercent}%` }}
+                aria-valuenow={rejectedPercent}
+                aria-valuemin="0"
+                aria-valuemax="100"
+              />
+            </div>
+            <div className="d-flex justify-content-between small text-muted">
+              <span>Thành công: {approvedPercent}%</span>
+              <span>Từ chối: {rejectedPercent}%</span>
+            </div>
+          </div>
+
+          {/* Project & Namespace details */}
+          <div className="row g-3 mb-3 border-top pt-3">
+            <div className="col-md-6">
+              <div className="d-flex align-items-start gap-2">
+                <FolderIcon className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" style={{ width: "20px", height: "20px" }} />
+                <div>
+                  <div className="text-secondary small">Dự án</div>
+                  <div className="fw-semibold text-dark dark-text-white">{projectName}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-6">
+              <div className="d-flex align-items-start gap-2">
+                <TagIcon className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" style={{ width: "20px", height: "20px" }} />
+                <div>
+                  <div className="text-secondary small">Namespace</div>
+                  <code className="text-primary fw-semibold fs-6 text-break">{namespaceName}</code>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Direct Navigation Button */}
+          {notification.navigationUrl && (
+            <button
+              onClick={() => {
+                navigate(notification.navigationUrl);
+                onClose();
+              }}
+              className="btn btn-primary btn-sm w-100 py-2.5 rounded-3 d-flex align-items-center justify-content-center gap-2 fw-semibold shadow-sm mt-3"
+              style={{ backgroundColor: "#9333ea", borderColor: "#9333ea" }}
+            >
+              <ClipboardDocumentCheckIcon className="w-4 h-4 text-white" style={{ width: "18px", height: "18px" }} />
+              <span>Đi tới quản lý bản dịch của Namespace này</span>
+            </button>
+          )}
+        </div>
+      );
+    }
+
     if (!detail) return null;
 
     // 1. Translation Job
@@ -103,12 +259,12 @@ export default function NotificationDetailModal({ notificationId, onClose, isDar
               <span className="small text-muted fw-bold">{progressPercent}% ({success}/{total} dòng)</span>
             </div>
             <div className="progress mb-3" style={{ height: "6px" }}>
-              <div 
+              <div
                 className={`progress-bar ${failed > 0 ? "bg-warning" : "bg-success"}`}
-                role="progressbar" 
-                style={{ width: `${progressPercent}%` }} 
-                aria-valuenow={progressPercent} 
-                aria-valuemin="0" 
+                role="progressbar"
+                style={{ width: `${progressPercent}%` }}
+                aria-valuenow={progressPercent}
+                aria-valuemin="0"
                 aria-valuemax="100"
               />
             </div>
@@ -143,10 +299,10 @@ export default function NotificationDetailModal({ notificationId, onClose, isDar
 
           {/* Download Button */}
           {detail.downloadUrl && (
-            <a 
-              href={detail.downloadUrl} 
-              target="_blank" 
-              rel="noreferrer" 
+            <a
+              href={detail.downloadUrl}
+              target="_blank"
+              rel="noreferrer"
               className="btn btn-primary btn-sm w-100 py-2 rounded-3 d-flex align-items-center justify-content-center gap-2 fw-semibold shadow-sm"
             >
               <ArrowDownTrayIcon className="w-4 h-4" style={{ width: "16px", height: "16px" }} />
@@ -179,7 +335,7 @@ export default function NotificationDetailModal({ notificationId, onClose, isDar
                 <div className="fw-medium text-dark dark-text-white">{formatDateTime(detail.publishedAt)}</div>
               </div>
             )}
-            
+
             {detail.notes && (
               <div className="col-12">
                 <div className="text-secondary small mb-1">Ghi chú phát hành</div>
@@ -191,10 +347,10 @@ export default function NotificationDetailModal({ notificationId, onClose, isDar
           </div>
 
           {detail.downloadUrl && (
-            <a 
-              href={detail.downloadUrl} 
-              target="_blank" 
-              rel="noreferrer" 
+            <a
+              href={detail.downloadUrl}
+              target="_blank"
+              rel="noreferrer"
               className="btn btn-outline-primary btn-sm w-100 py-2 rounded-3 d-flex align-items-center justify-content-center gap-2 fw-semibold"
             >
               <ArrowDownTrayIcon className="w-4 h-4" style={{ width: "16px", height: "16px" }} />
@@ -211,11 +367,10 @@ export default function NotificationDetailModal({ notificationId, onClose, isDar
         <div className="detail-card-section border rounded-3 p-3 mb-3 bg-light-subtle">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <span className="fw-semibold text-secondary small text-uppercase tracking-wider">Thông tin bản dịch</span>
-            <span className={`badge ${
-              detail.status === "Approved" || detail.status === "Published" 
-                ? "bg-success text-white" 
-                : "bg-warning text-dark"
-            } px-2.5 py-1 rounded-pill fw-semibold`}>
+            <span className={`badge ${detail.status === "Approved" || detail.status === "Published"
+              ? "bg-success text-white"
+              : "bg-warning text-dark"
+              } px-2.5 py-1 rounded-pill fw-semibold`}>
               {detail.status || "Chờ duyệt"}
             </span>
           </div>
@@ -248,7 +403,7 @@ export default function NotificationDetailModal({ notificationId, onClose, isDar
               </div>
             </div>
 
-            {/* Workflow logs */}
+            {/* Workflow logs
             <div className="col-12 border-top pt-3 mt-2">
               <span className="fw-semibold text-secondary small text-uppercase tracking-wider d-block mb-2">Nhật ký xử lý</span>
               <div className="workflow-timeline d-flex flex-column gap-2 small">
@@ -271,7 +426,7 @@ export default function NotificationDetailModal({ notificationId, onClose, isDar
                   </div>
                 )}
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       );
@@ -298,7 +453,7 @@ export default function NotificationDetailModal({ notificationId, onClose, isDar
     <div className={`modal d-block notification-detail-modal-overlay ${isDarkMode ? "dark-theme" : ""}`} style={{ background: "rgba(0,0,0,.6)", zIndex: 1100 }}>
       <div className="modal-dialog modal-dialog-centered modal-lg">
         <div className="modal-content border-0 rounded-4 overflow-hidden shadow bg-white">
-          
+
           {/* Modal Header */}
           {isLoading ? (
             <div className="modal-header border-bottom px-4 py-3 justify-content-between">
@@ -310,28 +465,37 @@ export default function NotificationDetailModal({ notificationId, onClose, isDar
               <h5 className="modal-title fw-bold">Lỗi tải thông tin</h5>
               <button type="button" className="btn-close" onClick={onClose} aria-label="Close" />
             </div>
-          ) : (
-            <div className={`modal-header border-start border-4 px-4 py-3.5 d-flex align-items-center justify-content-between ${getModalHeaderClass(notification.type, notification.title)}`}>
-              <div className="d-flex align-items-center gap-3">
-                <div className="p-2 bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style={{ width: "40px", height: "40px" }}>
-                  {getNotificationIcon(notification.type, notification.title)}
-                </div>
-                <div>
-                  <h5 className="modal-title fw-bold mb-0 text-dark">{notification.title}</h5>
-                  <span className="small text-muted">{formatTimeAgo(notification.createdAt)}</span>
-                </div>
-              </div>
-              <button 
-                type="button" 
-                className="btn-close border-0 bg-transparent p-1.5 text-secondary hover-text-dark rounded-circle"
-                onClick={onClose}
-                aria-label="Close"
-                style={{ outline: "none", boxShadow: "none" }}
+          ) : (() => {
+            const isBatch = (notification.title || "").toLowerCase().includes("batch review") || (notification.title || "").toLowerCase().includes("duyệt hàng loạt");
+            const headerStyle = isBatch
+              ? { borderLeft: "4px solid #9333ea", backgroundColor: isDarkMode ? "rgba(147, 51, 234, 0.15)" : "#f3e8ff" }
+              : {};
+            return (
+              <div
+                className={`modal-header border-start border-4 px-4 py-3.5 d-flex align-items-center justify-content-between ${isBatch ? "" : getModalHeaderClass(notification.type, notification.title)}`}
+                style={headerStyle}
               >
-                <XMarkIcon className="w-5 h-5" style={{ width: "20px", height: "20px" }} />
-              </button>
-            </div>
-          )}
+                <div className="d-flex align-items-center gap-3">
+                  <div className="p-2 bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style={{ width: "40px", height: "40px" }}>
+                    {getNotificationIcon(notification.type, notification.title)}
+                  </div>
+                  <div>
+                    <h5 className="modal-title fw-bold mb-0 text-dark">{notification.title}</h5>
+                    <span className="small text-muted">{formatTimeAgo(notification.createdAt)}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="btn-close border-0 bg-transparent p-1.5 text-secondary hover-text-dark rounded-circle"
+                  onClick={onClose}
+                  aria-label="Close"
+                  style={{ outline: "none", boxShadow: "none" }}
+                >
+                  <XMarkIcon className="w-5 h-5" style={{ width: "20px", height: "20px" }} />
+                </button>
+              </div>
+            );
+          })()}
 
           {/* Modal Body */}
           <div className="modal-body p-4" style={{ maxHeight: "70vh", overflowY: "auto" }}>
@@ -370,15 +534,15 @@ export default function NotificationDetailModal({ notificationId, onClose, isDar
                 </div>
 
                 {/* Sub-detail Content cards */}
-                {renderDetailContent(notification.detail)}
+                {renderDetailContent(notification.detail, notification)}
               </div>
             )}
           </div>
 
           {/* Modal Footer */}
           <div className="modal-footer px-4 py-3 bg-light-subtle d-flex justify-content-end gap-2">
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="btn btn-secondary px-4 py-2 rounded-3 fw-semibold shadow-sm"
               onClick={onClose}
             >
