@@ -80,4 +80,35 @@ public class TranslationHub :Hub
         await _translationLockService.ReleaseLockAsync(translationValueId, userId);
         await Clients.All.SendAsync("TranslationUnlocked", translationValueId);
     }
-}
+    
+    //Create group for translation value
+    public async Task JoinTranslationValueGroup(Guid translationValueId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, GetTranslationGroupName(translationValueId));
+    }
+    
+    public async Task LeaveTranslationValueGroup(Guid translationValueId)
+    {
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, GetTranslationGroupName(translationValueId));
+    }
+    
+    private static string GetTranslationGroupName(Guid translationValueId)
+    {
+        return $"translation-value: {translationValueId}";
+    }
+
+    // Cập nhật: Thêm tham số string value ở đây
+    public async Task Typing(Guid translationValueId, string value)
+    {
+        var lockInfo = await _translationLockService.GetLockAsync(translationValueId);
+        if (lockInfo == null)
+        {
+            return;
+        }
+        
+        // Cập nhật: Truyền thêm value vào SendAsync để gửi sang cho người khác
+        await Clients.OthersInGroup(GetTranslationGroupName(translationValueId))
+            .SendAsync("UserTyping", lockInfo.UserId, lockInfo.Username, value);
+    }
+
+}   
