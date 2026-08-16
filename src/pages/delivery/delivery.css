@@ -272,6 +272,13 @@
   box-shadow: 0 0 0 4px var(--brand-primary-light, #f3e8ff);
 }
 
+.step-item.failed .step-node {
+  background-color: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px #fee2e2;
+}
+
 .step-title {
   font-weight: 600;
   font-size: 0.875rem;
