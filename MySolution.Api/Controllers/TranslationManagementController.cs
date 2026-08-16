@@ -15,8 +15,8 @@ namespace MySolution.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class TranslationManagementController(IMediator mediator) : Controller
-{
-    [HttpGet("grid")]
+        {
+            [HttpGet("grid")]
     [Authorize]
     public async Task<IActionResult> GetTranslationGrid(
         [FromQuery] Guid projectId,

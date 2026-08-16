@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using MySolution.Application.Common.Interfaces.Authentication;
+using MySolution.Application.Common.Interfaces.Realtime;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Enums;
 
@@ -11,15 +13,21 @@ public class BatchReviewTranslationHandler : IRequestHandler<BatchReviewTranslat
 {
     private readonly ILogger<BatchReviewTranslationHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUser _currentUser;
+    private readonly INotificationService _notificationService;
 
     public BatchReviewTranslationHandler
     (
         ILogger<BatchReviewTranslationHandler> logger,
-		IUnitOfWork unitOfWork
+		IUnitOfWork unitOfWork,
+        ICurrentUser currentUser,
+        INotificationService notificationService
     )
     {
         _logger = logger;
 		_unitOfWork = unitOfWork;
+        _currentUser = currentUser;
+        _notificationService = notificationService;
     }
 
     #region Implementation of IRequestHandler<in BatchReviewTranslationCommand, BatchReviewTranslationResponse>
@@ -127,10 +135,34 @@ public class BatchReviewTranslationHandler : IRequestHandler<BatchReviewTranslat
                     rejected++;
                 }
 
-                translation.UpdatedAt = DateTime.UtcNow;
+                translation.ReviewedAt = DateTime.UtcNow;
+                translation.ReviewedBy = _currentUser.UserId;
+                
             }
-            
+              
             await _unitOfWork.SaveAsync(cancellationToken);
+            
+            var sample = translations.First();
+            var projectName = sample.TranslationKey.Project.Name;
+            var namespaceName = sample.TranslationKey.Namespace.Name;
+
+            await _notificationService.NotifyProjectAsync(
+                payload.ProjectId,
+                _currentUser.UserId,
+                "Batch Review Completed",
+                $"Reviewed {approved + rejected} translation(s) in project '{projectName}', " +
+                $"namespace '{namespaceName}' " +
+                $"(Approved: {approved}, Rejected: {rejected}).",
+                NotificationType.Infor,
+                $"/projects/{payload.ProjectId}/translations" +
+                $"?languageId={payload.LanguageId}" +
+                $"&namespaceId={payload.NamespaceId}",
+                NotificationReferenceType.TranslationValue,
+                payload.ProjectId,
+                cancellationToken);
+            
+            //Notify project members:
+            
 
             response.Data = new BatchReviewTranslationData
             {

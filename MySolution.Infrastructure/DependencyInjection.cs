@@ -115,6 +115,7 @@ public static class DependencyInjection
         services.AddScoped<INotificationService, NotificationService>();
         services.AddSingleton<IPresenceService, PresenceService>();
         services.AddSingleton<ITranslationLockService, TranslationLockService>();
+        services.AddScoped <IPublishRealtimeService, PublishRealtimeService>();
         
         return services;
     }
