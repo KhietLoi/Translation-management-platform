@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.File;
+using MySolution.Application.Common.Interfaces.Realtime;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Common.Models;
+using MySolution.Application.Common.Models.Realtime;
+using MySolution.Application.Constants;
 using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
 using MySolution.Infrastructure.Common.Helpers;
@@ -15,26 +18,36 @@ public class PublishService : IPublishService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAzureBlobService _azureBlobService;
     private readonly ITranslationGeneratorFactory _translationGeneratorFactory;
+    private readonly IPublishRealtimeService _publishRealtimeService;
 
     public PublishService(
         ILogger<PublishService> logger,
         IUnitOfWork unitOfWork,
         IAzureBlobService azureBlobService,
-        ITranslationGeneratorFactory translationGeneratorFactory)
+        ITranslationGeneratorFactory translationGeneratorFactory,
+        IPublishRealtimeService publishRealtimeService)
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _azureBlobService = azureBlobService;
         _translationGeneratorFactory = translationGeneratorFactory;
+        _publishRealtimeService = publishRealtimeService;
     }
 
     public async Task<PublishStatistics> PublishAsync(
+        Guid jobId,
         Guid projectId,
         Guid publishedBy,
         string? notes,
         CancellationToken cancellationToken)
     {
         _logger.LogInformation("Starting publish for project {ProjectId}", projectId);
+        await SendProgressAsync(
+            projectId,
+            jobId,
+            PublishSteps.Validate,
+            "Validate",
+            "Processing");
        
         // Load translations
         var translationKeys =
@@ -50,6 +63,12 @@ public class PublishService : IPublishService
         {
             throw new InvalidOperationException("No reviewed translations available for publish.");
         }
+        await SendProgressAsync(
+            projectId,
+            jobId,
+            PublishSteps.Validate,
+            "Validate",
+            "Completed");
 
         var reviewedCount = exportData.Count(x => x.Status == TranslationStatus.Reviewed);
         _logger.LogInformation($"Number of reviewCount: {reviewedCount}");
@@ -68,8 +87,22 @@ public class PublishService : IPublishService
 
         _logger.LogInformation("Generating publish package for project {ProjectId}", projectId);
 
+        
+        await SendProgressAsync(
+            projectId,
+            jobId,
+            PublishSteps.GenerateJson,
+            "Generate Package",
+            "Processing");
         var generator = _translationGeneratorFactory.GetGenerator(FileType.Json);
         var packageStream = await generator.GenerateAsync(languageLookup, cancellationToken);
+        await SendProgressAsync(
+            projectId,
+            jobId,
+            PublishSteps.GenerateJson,
+            "Generate Package",
+            "Completed");
+        
         var checksum = PublishChecksumHelper.Calculate(languageLookup);
             
         //Duplicate Release Check:
@@ -80,6 +113,13 @@ public class PublishService : IPublishService
         _logger.LogWarning("Duplicated: {Duplicated}", duplicated);
         if (duplicated)
         {
+            await SendProgressAsync(
+                projectId,
+                jobId,
+                PublishSteps.Complete,
+                "Publish Skipped",
+                "Completed",
+                "No changes detected");
             _logger.LogInformation("Publish skipped because no changes detected. Project {ProjectId}", projectId);
             return new PublishStatistics
             {
@@ -99,6 +139,14 @@ public class PublishService : IPublishService
             // Upload package to Azure Blob
             _logger.LogInformation("Uploading publish package for project {ProjectId}", projectId);
 
+            
+            await SendProgressAsync(
+                projectId,
+                jobId,
+                PublishSteps.UploadBlob,
+                "Upload Blob",
+                "Processing");
+            
             var fileName = await _azureBlobService.UploadFileAsync(packageStream, blobName, cancellationToken);
             uploadedBlobName = fileName;
             var downloadUrl = _azureBlobService.GetFileUrl(fileName);
@@ -108,7 +156,12 @@ public class PublishService : IPublishService
             // PHASE 3: Database transaction
             _logger.LogInformation("Opening publish transaction for project {ProjectId}", projectId);
             await _unitOfWork.OpenTransactionAsync(cancellationToken);
-
+            await SendProgressAsync(
+                projectId,
+                jobId,
+                PublishSteps.CreateRelease,
+                "Create Release",
+                "Processing");
             try
             {
                 // Deactivate current active releases
@@ -162,8 +215,22 @@ public class PublishService : IPublishService
                 
                 // Commit transaction
                 await _unitOfWork.CommitAsync(cancellationToken);
+                
+                await SendProgressAsync(
+                    projectId,
+                    jobId,
+                    PublishSteps.CreateRelease,
+                    "Create Release",
+                    "Completed");
                 _logger.LogInformation("Release v{Version} created successfully for project {ProjectId}", nextVersion, projectId);
                 
+                await SendProgressAsync(
+                    projectId,
+                    jobId,
+                    PublishSteps.Complete,
+                    "Publish Completed",
+                    "Completed",
+                    $"Release v{nextVersion} published successfully");
                 return new PublishStatistics
                 {
                     ReleaseId = release.Id,
@@ -178,6 +245,14 @@ public class PublishService : IPublishService
             }
             catch (Exception ex)
             {
+                
+                await SendProgressAsync(
+                    projectId,
+                    jobId,
+                    0,
+                    "Publish Failed",
+                    "Failed",
+                    ex.Message);
                 // Rollback database transaction
                 await _unitOfWork.RollbackAsync(cancellationToken);
                 _logger.LogError(ex, "Database transaction failed while publishing project {ProjectId}", projectId);
@@ -206,5 +281,27 @@ public class PublishService : IPublishService
             throw;
         }
     }
+    
+    //Helper:
+    private async Task SendProgressAsync(
+        Guid projectId,
+        Guid releaseId,
+        int step,
+        string name,
+        string status,
+        string? message = null)
+    {
+        await _publishRealtimeService.SendProgressAsync(
+            projectId,
+            new PublishProgressInfo
+            {
+                JobId = releaseId,
+                Step = step,    
+                Name = name,
+                Status = status,
+                Message = message
+            });
+    }
 }
+
 

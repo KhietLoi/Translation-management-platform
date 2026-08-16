@@ -144,4 +144,5 @@ public class NotificationService : INotificationService
                 .SendAsync("NotificationReceived", payload, cancellationToken);
         }
     }
+    
 }

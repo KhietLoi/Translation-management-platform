@@ -15,4 +15,5 @@ public class BatchReviewTranslationItem
     public Guid TranslationValueId { get; set; }
     public TranslationStatus Status { get; set; }
     public string? RejectReason { get; set; }
+    
 }

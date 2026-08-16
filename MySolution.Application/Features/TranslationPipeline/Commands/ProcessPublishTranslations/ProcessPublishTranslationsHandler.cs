@@ -48,7 +48,7 @@ public class ProcessPublishTranslationsHandler
             
             await _unitOfWork.SaveAsync(cancellationToken);
             _logger.LogInformation($"CreatedBy: {job.CreatedBy}");
-            var result = await _publishService.PublishAsync(job.ProjectId, job.CreatedBy,job.Notes,cancellationToken);
+            var result = await _publishService.PublishAsync(job.Id, job.ProjectId, job.CreatedBy, job.Notes, cancellationToken);
 
             job.TotalRecords = result.TotalRecords;
             job.SuccessRecords = result.SuccessRecords;

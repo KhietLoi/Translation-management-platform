@@ -112,10 +112,17 @@ public class TranslationValueRepository (AppDbContext context, ILogger logger) :
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<TranslationValue>> GetForBatchReviewAsync(List<Guid> translationValueIds, Guid projectId, Guid languageId, Guid namespaceId)
+    public async Task<List<TranslationValue>> GetForBatchReviewAsync(
+        List<Guid> translationValueIds,
+        Guid projectId,
+        Guid languageId,
+        Guid namespaceId)
     {
         return await DbSet
-            .Include (x => x.TranslationKey)
+            .Include(x => x.TranslationKey)
+            .ThenInclude(x => x.Project)
+            .Include(x => x.TranslationKey)
+            .ThenInclude(x => x.Namespace)
             .Where(x =>
                 translationValueIds.Contains(x.Id) &&
                 x.LanguageId == languageId &&
