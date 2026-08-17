@@ -92,7 +92,7 @@ export default function Dashboard() {
           onClick={() => navigate("/projects")}
         >
           <PlusIcon width={18} />
-          + Dự án mới
+          Dự án mới
         </button>
       </div>
 
@@ -107,11 +107,10 @@ export default function Dashboard() {
                     {stat.label}
                   </span>
                   <span
-                    className={`badge rounded-pill px-2 py-1 fw-semibold ${
-                      stat.badgeType === "success"
+                    className={`badge rounded-pill px-2 py-1 fw-semibold ${stat.badgeType === "success"
                         ? "bg-success-subtle text-success"
                         : "bg-warning-subtle text-warning-emphasis"
-                    }`}
+                      }`}
                     style={{ fontSize: "0.75rem" }}
                   >
                     {stat.badge}
@@ -195,9 +194,8 @@ export default function Dashboard() {
                 {recentActivities.map((act, idx) => (
                   <div
                     key={idx}
-                    className={`pb-3 ${
-                      idx !== recentActivities.length - 1 ? "border-bottom" : ""
-                    }`}
+                    className={`pb-3 ${idx !== recentActivities.length - 1 ? "border-bottom" : ""
+                      }`}
                   >
                     <div className="d-flex align-items-start gap-2 mb-1">
                       <span

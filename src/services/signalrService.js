@@ -1,7 +1,8 @@
 import * as signalR from "@microsoft/signalr";
 import { toast } from "react-toastify";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5182/api";
+const API_URL = import.meta.env.VITE_API_URL;
+console.log(API_URL, "env");
 // Derive hub URL from API_URL (replace /api suffix with /hubs/translation)
 const HUB_URL = API_URL.replace(/\/api\/?$/, "") + "/hubs/translation";
 
@@ -101,7 +102,7 @@ class SignalRService {
         const handleSignalRNotification = (data) => {
           if (!data) return;
 
-          console.log("[SignalR] 🔥 Incoming notification raw payload:", data);
+          console.log("[SignalR] Incoming notification raw payload:", data);
 
           const notifId = data.notificationId || data.NotificationId || data.id;
           if (notifId) {
@@ -176,7 +177,7 @@ class SignalRService {
         // 2. Presence Event Handler: OnlineUsersUpdated
         this.connection.off("OnlineUsersUpdated");
         this.connection.on("OnlineUsersUpdated", (onlineUsers) => {
-          console.log("[SignalR] 👥 OnlineUsersUpdated received:", onlineUsers);
+          console.log("[SignalR] OnlineUsersUpdated received:", onlineUsers);
           this.presenceListeners.forEach((cb) => {
             try {
               cb(onlineUsers);
@@ -189,7 +190,7 @@ class SignalRService {
         // 3. Translation Lock Event Handlers
         this.connection.off("TranslationLocked");
         this.connection.on("TranslationLocked", (lockInfo) => {
-          console.log("[SignalR] 🔒 TranslationLocked received:", lockInfo);
+          console.log("[SignalR] TranslationLocked received:", lockInfo);
           this.lockListeners.forEach((cb) => {
             try {
               cb({ type: "LOCKED", lockInfo });
@@ -201,7 +202,7 @@ class SignalRService {
 
         this.connection.off("TranslationUnlocked");
         this.connection.on("TranslationUnlocked", (translationValueId) => {
-          console.log("[SignalR] 🔓 TranslationUnlocked received:", translationValueId);
+          console.log("[SignalR] TranslationUnlocked received:", translationValueId);
           this.lockListeners.forEach((cb) => {
             try {
               cb({ type: "UNLOCKED", translationValueId });
@@ -213,7 +214,7 @@ class SignalRService {
 
         this.connection.off("LockFailed");
         this.connection.on("LockFailed", (existingLock) => {
-          console.log("[SignalR] ⚠️ LockFailed received:", existingLock);
+          console.log("[SignalR] LockFailed received:", existingLock);
           this.lockListeners.forEach((cb) => {
             try {
               cb({ type: "LOCK_FAILED", existingLock });
@@ -225,7 +226,7 @@ class SignalRService {
 
         // 4. Publish Progress Event Handler
         const handlePublishProgress = (progressInfo) => {
-          console.log("[SignalR] 📦 PublishProgress received:", progressInfo);
+          console.log("[SignalR] PublishProgress received:", progressInfo);
           this.publishProgressListeners.forEach((cb) => {
             try {
               cb(progressInfo);
@@ -250,7 +251,7 @@ class SignalRService {
         // 5. Typing Event Handler
         this.connection.off("UserTyping");
         this.connection.on("UserTyping", (userId, username, value) => {
-          console.log("[SignalR] ⌨️ UserTyping received:", { userId, username, value });
+          console.log("[SignalR] UserTyping received:", { userId, username, value });
           this.typingListeners.forEach((cb) => {
             try {
               cb({ userId, username, value });
@@ -340,10 +341,10 @@ class SignalRService {
         const uName = username || "User";
         await this.connection.invoke("JoinProject", projectId, userId, uName);
         this.joinedProjectIds.add(projectId);
-        console.log(`[SignalR] ✅ Joined project group: ${projectId} as user ${uName}`);
+        console.log(`[SignalR] Joined project group: ${projectId} as user ${uName}`);
       } catch (err) {
         if (!err?.message?.includes("connection being closed") && !err?.message?.includes("error on close")) {
-          console.warn(`[SignalR] ⚠️ JoinProject invoke warning for ${projectId}:`, err?.message || err);
+          console.warn(`[SignalR] JoinProject invoke warning for ${projectId}:`, err?.message || err);
         }
       }
     }
@@ -390,7 +391,7 @@ class SignalRService {
       try {
         const uName = username || "User";
         await this.connection.invoke("AcquireLock", translationValueId, userId, uName);
-        console.log(`[SignalR] 🔒 Requested lock for translation value: ${translationValueId}`);
+        console.log(`[SignalR] Requested lock for translation value: ${translationValueId}`);
       } catch (err) {
         console.warn("[SignalR] AcquireLock invoke error:", err?.message || err);
       }
@@ -410,7 +411,7 @@ class SignalRService {
     ) {
       try {
         await this.connection.invoke("ReleaseLock", translationValueId, userId);
-        console.log(`[SignalR] 🔓 Released lock for translation value: ${translationValueId}`);
+        console.log(`[SignalR] Released lock for translation value: ${translationValueId}`);
       } catch (err) {
         console.warn("[SignalR] ReleaseLock invoke error:", err?.message || err);
       }
@@ -465,7 +466,7 @@ class SignalRService {
     ) {
       try {
         await this.connection.invoke("Typing", translationValueId, value);
-        console.log(`[SignalR] ⌨️ Sent typing status for translation value: ${translationValueId}`);
+        console.log(`[SignalR] Sent typing status for translation value: ${translationValueId}`);
       } catch (err) {
         console.warn("[SignalR] Typing invoke error:", err?.message || err);
       }
