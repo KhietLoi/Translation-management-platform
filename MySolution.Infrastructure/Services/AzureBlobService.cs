@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Sas;
 using Microsoft.Extensions.Options;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Models;
@@ -72,5 +73,28 @@ public class AzureBlobService : IAzureBlobService
     public string GetFileUrl(string fileName)
     {
         return _container.GetBlobClient(fileName).Uri.ToString();
+    }
+
+    public async Task<string> GenerateReadSasUrlAsync(string fileName, TimeSpan lifetime, CancellationToken cancellationToken)
+    {
+        var blobClient = _container.GetBlobClient(fileName);
+        if (!await blobClient.ExistsAsync(cancellationToken))
+        {
+            throw new FileNotFoundException($"Blob '{fileName}' does not exist.");
+        }
+
+        var sasBuilder = new BlobSasBuilder
+        {
+            BlobContainerName = _container.Name,
+            BlobName = fileName,
+            Resource = "b",
+            ExpiresOn = DateTimeOffset.UtcNow.Add(lifetime)
+        };
+
+        sasBuilder.SetPermissions(BlobSasPermissions.Read);
+        var sasUri = blobClient.GenerateSasUri(sasBuilder);
+
+        return sasUri.ToString();
+
     }
 }
