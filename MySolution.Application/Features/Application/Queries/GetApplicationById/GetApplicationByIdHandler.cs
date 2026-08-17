@@ -30,7 +30,7 @@ public class GetApplicationByIdHandler : IRequestHandler<GetApplicationByIdQuery
 
         try
         {
-            var application = await _unitOfWork.Application.GetByIdAsync(request.Id);
+            var application = await _unitOfWork.Application.GetByIdAsync(request.Id, cancellationToken);
             if (application == null)
             {
                 response.ErrorMessage = "Application not found.";

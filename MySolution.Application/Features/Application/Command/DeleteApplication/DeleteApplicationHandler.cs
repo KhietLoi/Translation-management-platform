@@ -31,7 +31,7 @@ public class DeleteApplicationHandler : IRequestHandler<DeleteApplicationCommand
         try
         {
             //Check if application exists
-            var application = await _unitOfWork.Application.GetByIdAsync(request.Id);
+            var application = await _unitOfWork.Application.GetByIdAsync(request.Id, cancellationToken);
             if (application == null)
             {
                 response.ErrorMessage = "Application not found.";

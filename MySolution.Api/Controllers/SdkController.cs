@@ -1,19 +1,33 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Authorization.Application;
+using MySolution.Api.Helpers;
+using MySolution.Application.Features.Sdk.Queries.GetApplicationTranslations;
 using MySolution.Domain.Enums;
 
 namespace MySolution.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
-public class SdkController : Controller
+[Route("api/sdk")]
+public class SdkController (IMediator mediator) : ControllerBase
 {
-   //Test api:
-   [HttpGet("translations")]
-   [ApiKeyAuthorize]
-   [ApiKeyPermission(ApiKeyPermissionType.TranslationRead)]
-   public IActionResult GetTranslations()
-   {
-      return Ok(new { Message = "Success" });
-   }
+    [HttpGet("projects/{projectId:guid}/translations")]
+    [ApiKeyAuthorize]
+    [ApiKeyPermission(ApiKeyPermissionType.TranslationRead)]
+    public async Task<IActionResult> GetTranslations(
+        Guid projectId,
+        [FromQuery] string language,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(
+            new GetApplicationTranslationsQuery
+            {
+                ProjectId = projectId,
+                Language = language
+            }, cancellationToken);
+
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    
+    
 }
