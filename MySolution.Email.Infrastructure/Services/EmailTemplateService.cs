@@ -18,7 +18,7 @@ public class EmailTemplateService : IEmailTemplateService
         _emailService = emailService;
     }
 
-    public async Task SendAsync(
+    /*public async Task SendAsync(
         EmailType emailType,
         string email,
         EmailTemplateModel model,
@@ -39,5 +39,12 @@ public class EmailTemplateService : IEmailTemplateService
                 cancellationToken);
 
         await _emailService.SendEmailAsync(email, definition.Subject, html, cancellationToken);
+    }*/
+
+    public async Task SendAsync<TModel>(EmailType emailType, string email, TModel model, CancellationToken cancellationToken = default) where TModel : class
+    {
+        var definition = EmailTemplateDefinitions.Get(emailType);
+        var html = await _renderer.RenderAsync(definition.Template, model, cancellationToken);
+        await _emailService.SendEmailAsync(email, definition.Subject, html, cancellationToken );
     }
 }

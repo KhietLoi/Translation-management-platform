@@ -6,29 +6,22 @@ namespace MySolution.Email.Application.Common.Bases;
 public abstract class BaseEmailHandler
 {
     protected readonly IApplicationUrlProvider UrlProvider;
-    protected readonly IEmailTemplateFactory EmailTemplateFactory;
     protected readonly IEmailTemplateService EmailTemplateService;
 
     protected BaseEmailHandler(
         IApplicationUrlProvider urlProvider,
-        IEmailTemplateFactory emailTemplateFactory,
         IEmailTemplateService emailTemplateService)
     {
         UrlProvider = urlProvider;
-        EmailTemplateFactory = emailTemplateFactory;
         EmailTemplateService = emailTemplateService;
     }
 
-    protected Task SendTemplateAsync(
+    protected Task SendTemplateAsync <TModel>(
         EmailType emailType,
         string email,
-        string userName,
-        string actionUrl,
-        int expiryMinutes,
-        CancellationToken cancellationToken)
+        TModel model,
+        CancellationToken cancellationToken) where TModel : class
     {
-        var model = EmailTemplateFactory.Create(userName, actionUrl, expiryMinutes);
-        
-        return EmailTemplateService.SendAsync( emailType, email, model, cancellationToken);
+        return EmailTemplateService.SendAsync(emailType, email, model, cancellationToken);
     }
 }

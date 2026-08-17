@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Translation Job Completed</title>
+</head>
+
+<body>
+
+<h2>Translation Job Completed</h2>
+
+<p>Hello {{ user_name }},</p>
+
+<p>
+    Your translation job has been completed successfully.
+</p>
+
+<p>
+    <strong>Project:</strong> {{ project_name }}
+</p>
+
+<p>
+    <strong>File:</strong> {{ file_name }}
+</p>
+
+<p>
+    <strong>Job Type:</strong> {{ job_type }}
+</p>
+
+<h3>Statistics</h3>
+
+<ul>
+    <li>Total Records: {{ total_records }}</li>
+    <li>Successful: {{ success_records }}</li>
+    <li>Failed: {{ failed_records }}</li>
+    <li>Skipped: {{ skipped_records }}</li>
+</ul>
+
+<p>
+    You can download the exported translation file using the button below:
+</p>
+
+<p>
+    <a href="{{ download_url }}"
+       style="
+           display: inline-block;
+           padding: 10px 20px;
+           background-color: #2563eb;
+           color: white;
+           text-decoration: none;
+           border-radius: 5px;
+       ">
+        Download Translation File
+    </a>
+</p>
+
+<p>
+    This is an automated notification.
+</p>
+
+<p>
+    © {{ year }} MySolution
+</p>
+
+</body>
+</html>

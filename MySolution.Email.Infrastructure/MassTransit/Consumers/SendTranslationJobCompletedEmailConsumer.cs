@@ -5,11 +5,11 @@ using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Email.Infrastructure.MassTransit.Consumers;
 
-public class TranslationJobCompletedEmailConsumer : IConsumer<TranslationJobCompletedEmailEvent>
+public class SendTranslationJobCompletedEmailConsumer : IConsumer<TranslationJobCompletedEmailEvent>
 {
     private readonly IMediator _mediator;
     
-    public TranslationJobCompletedEmailConsumer(IMediator mediator)
+    public SendTranslationJobCompletedEmailConsumer(IMediator mediator)
     {
         _mediator = mediator;
     }

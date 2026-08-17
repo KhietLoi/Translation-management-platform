@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using MySolution.Email.Application.Common.Factories;
 using MySolution.Email.Application.Common.Interfaces;
+using MySolution.Email.Application.Common.Models;
 using MySolution.Email.Infrastructure.MassTransit.Registration;
 using MySolution.Email.Infrastructure.Options;
 using MySolution.Email.Infrastructure.Services;
@@ -35,7 +36,8 @@ public static class DependencyInjection
         //MassTransit:
         services.AddMassTransitServices(configuration);
         //Email common:
-        services.AddScoped<IEmailTemplateFactory, EmailTemplateFactory>();
+        services.AddScoped<IEmailTemplateFactory<StandardEmailTemplateData, EmailTemplateModel>, StandardEmailTemplateFactory>();
+        services.AddScoped<IEmailTemplateFactory<TranslationJobCompletedEmailData, TranslationJobCompletedEmailModel>, TranslationJobCompletedEmailTemplateFactory>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
         return services;
     }

@@ -8,4 +8,7 @@ public class QueueNames
     public const string ExportTranslations = "export-translations-event";
     public const string ImportTranslations = "import-translations-event";
     public const string PublishTranslations = "publish-translations-event";
+    public const string TranslationJobCompletedEmail = "translation-job-completed-email-event";
+    public const string TranslationJobFailedEmail = "translation-job-failed-email-event";
+    
 }

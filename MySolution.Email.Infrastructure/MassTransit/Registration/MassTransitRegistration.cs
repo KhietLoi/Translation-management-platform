@@ -26,6 +26,7 @@ public static class MassTransitRegistration
             x.AddConsumer<SendVerifyEmailConsumer>();
             x.AddConsumer<SendSetupPasswordEmailConsumer>();
             x.AddConsumer<SendForgotPasswordEmailConsumer>();
+            x.AddConsumer<SendTranslationJobCompletedEmailConsumer>();
 
             x.UsingRabbitMq((context, cfg) =>
             {
@@ -72,6 +73,14 @@ public static class MassTransitRegistration
             {
                 ConfigureRetry(e);
                 e.ConfigureConsumer<SendForgotPasswordEmailConsumer>(context);
+            });
+        
+        cfg.ReceiveEndpoint(
+            QueueNameHelper.Get<TranslationJobCompletedEmailEvent>(),
+            e =>
+            {
+                ConfigureRetry(e);
+                e.ConfigureConsumer<SendTranslationJobCompletedEmailConsumer>(context);
             });
     }
 
