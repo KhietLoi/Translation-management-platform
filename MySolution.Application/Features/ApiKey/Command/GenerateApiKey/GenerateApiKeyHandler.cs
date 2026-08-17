@@ -41,7 +41,7 @@ public class GenerateApiKeyHandler : IRequestHandler<GenerateApiKeyCommand, Gene
 
         try
         {
-            var application = await _unitOfWork.Application.GetByIdAsync(request.ApplicationId);
+            var application = await _unitOfWork.Application.GetByIdAsync(request.ApplicationId, cancellationToken);
             if (application == null)
             {
                 response.ErrorMessage = "Application not found.";

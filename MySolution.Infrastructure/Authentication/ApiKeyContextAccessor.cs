@@ -8,19 +8,13 @@ public class ApiKeyContextAccessor : IApiKeyContextAccessor
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public ApiKeyContextAccessor
-    (
-        IHttpContextAccessor httpContextAccessor
-    )
+    public ApiKeyContextAccessor(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
     }
 
     public ApiKeyContext? Current
     {
-        get
-        {
-            return _httpContextAccessor.HttpContext?.Items["ApiKey"] as ApiKeyContext;
-        }
+        get { return _httpContextAccessor.HttpContext?.Items["ApiKey"] as ApiKeyContext; }
     }
 }

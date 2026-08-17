@@ -83,4 +83,10 @@ public class TranslationReleaseRepository (AppDbContext context, ILogger logger)
             .OrderByDescending(x => x.PublishedAt)
             .FirstOrDefaultAsync(cancellationToken);
     }
+
+    public async Task<TranslationRelease?> GetActiveReleaseAsync(Guid projectId, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .FirstOrDefaultAsync(x => x.ProjectId == projectId && x.IsActive, cancellationToken);
+    }
 }   

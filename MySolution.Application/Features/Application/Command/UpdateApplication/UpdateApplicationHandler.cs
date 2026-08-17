@@ -35,7 +35,7 @@ public class UpdateApplicationHandler : IRequestHandler<UpdateApplicationCommand
 
         try
         {
-            var application = await _unitOfWork.Application.GetByIdAsync(request.ApplicationId);
+            var application = await _unitOfWork.Application.GetByIdAsync(request.ApplicationId, cancellationToken);
             if (application is null)
             {
                 response.ErrorMessage = "Application not found.";

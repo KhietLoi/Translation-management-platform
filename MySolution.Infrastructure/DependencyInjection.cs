@@ -132,6 +132,9 @@ public static class DependencyInjection
         services.AddScoped<IApiKeyGenerator, ApiKeyGenerator>();
         services.AddScoped<IApiKeyValidator, ApiKeyValidator>();
         services.AddScoped<IApiKeyContextAccessor, ApiKeyContextAccessor>();
+        services.AddScoped<IApplicationAccessService, ApplicationAccessService>();
+        services.AddScoped<IPublishedTranslationService, PublishedTranslationService>();
+        
         services.AddScoped<ITranslationGenerator, JsonGenerator>();
         services.AddScoped<IExportService, ExportService>();
         services.AddScoped<ITranslationGenerator, JsonGenerator>();

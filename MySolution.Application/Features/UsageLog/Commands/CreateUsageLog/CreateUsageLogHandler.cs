@@ -22,30 +22,53 @@ public class CreateUsageLogHandler : IRequestHandler<CreateUsageLogCommand>
 
     #region Implementation of IRequestHandler<in CreateUsageLogCommand, CreateUsageLogResponse>
 
-    public async Task Handle(CreateUsageLogCommand request, CancellationToken cancellationToken)
+    public async Task Handle(
+        CreateUsageLogCommand request,
+        CancellationToken cancellationToken)
     {
-        var payload = request.Payload;
-        var functionName = $"{nameof(CreateUsageLogHandler)} =>";
-        _logger.LogInformation("{functionName} Handling CreateUsageLogCommand: ", functionName);
+        var functionName = nameof(CreateUsageLogHandler);
 
-        await _unitOfWork.ApiKeyUsageLog.Add(
-            new ApiKeyUsageLog
+        _logger.LogInformation(
+            "{FunctionName} => Handling CreateUsageLogCommand",
+            functionName);
+
+        try
+        {
+            var payload = request.Payload;
+
+            var usageLog = new ApiKeyUsageLog
             {
-               Id = Guid.CreateVersion7(),
-               ApiKeyId = request.Payload.ApiKeyId,
-               ApplicationId = request.Payload.ApplicationId,
-               Endpoint = request.Payload.Endpoint,
-               Method = request.Payload.Method,
-               StatusCode = request.Payload.StatusCode,
-               DurationMs = request.Payload.DurationMs,
-               IpAddress = request.Payload.IpAddress,
-               UserAgent = request.Payload.UserAgent,
-               CreatedAt = DateTime.UtcNow
-            }
-        );
-        
-        await _unitOfWork.SaveAsync(cancellationToken);
+                Id = Guid.CreateVersion7(),
+                ApiKeyId = payload.ApiKeyId,
+                ApplicationId = payload.ApplicationId,
+                Endpoint = payload.Endpoint,
+                Method = payload.Method,
+                StatusCode = payload.StatusCode,
+                DurationMs = payload.DurationMs,
+                IpAddress = payload.IpAddress,
+                UserAgent = payload.UserAgent,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.ApiKeyUsageLog.Add(usageLog);
+
+            _logger.LogInformation(
+                "{FunctionName} => Before SaveAsync",
+                functionName);
+
+            await _unitOfWork.SaveAsync(cancellationToken);
+
+            _logger.LogInformation(
+                "{FunctionName} => After SaveAsync",
+                functionName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "{FunctionName} => Failed to create usage log", functionName);
+            throw;
+        }
     }
+    
 
     #endregion
 }

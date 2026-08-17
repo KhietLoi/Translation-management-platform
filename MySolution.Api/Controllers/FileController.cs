@@ -33,4 +33,7 @@ public class FileController(IMediator mediator) : Controller
         var result = await mediator.Send(new GetFileQuery(), cancellationToken);
         return ResponseHelper.ToResponse(result.StatusCode, result, result.Files);
     }
+    
+    //[HttpGet]
+    
 }

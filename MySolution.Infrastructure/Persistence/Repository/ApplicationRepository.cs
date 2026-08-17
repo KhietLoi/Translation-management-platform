@@ -6,9 +6,9 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 
 public class ApplicationRepository (AppDbContext context, ILogger logger) : Repository<Domain.Entities.Application>(context, logger), IApplicationRepository
 {
-    public async Task<Domain.Entities.Application?> GetByIdAsync(Guid id)
+    public async Task<Domain.Entities.Application?> GetByIdAsync(Guid applicationId, CancellationToken cancellationToken)
     {
-        return await DbSet.FindAsync(id);
+        return await DbSet.FindAsync(applicationId, cancellationToken);
     }
 
     public async Task<bool> IsApplicationNameExistsAsync(string name, Guid? excludeId = null)
