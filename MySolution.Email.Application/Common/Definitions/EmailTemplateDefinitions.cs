@@ -26,7 +26,15 @@ public static class EmailTemplateDefinitions
                 new(
                     "Set Up Your Password",
                     "SetUpPassword.html")
+            },
+
+            {
+                EmailType.TranslationJobCompleted,
+                new(
+                    "Translation Job Completed",
+                    "TranslationJobCompleted.html")
             }
+            
         };
 
     public static EmailTemplateDefinition Get(EmailType emailType)

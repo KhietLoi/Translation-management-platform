@@ -2,38 +2,38 @@
 using MySolution.Email.Application.Common.Bases;
 using MySolution.Email.Application.Common.Enums;
 using MySolution.Email.Application.Common.Interfaces;
+using MySolution.Email.Application.Common.Models;
 
 
 namespace MySolution.Email.Application.Features.SendForgotPasswordEmail;
 
-public class SendForgotPasswordEmailHandler
-    : BaseEmailHandler,
-        IRequestHandler<SendForgotPasswordEmailCommand>
+public class SendForgotPasswordEmailHandler : BaseEmailHandler, IRequestHandler<SendForgotPasswordEmailCommand>
 {
     private readonly ITokenSetting _tokenSettings;
-
+    private readonly IEmailTemplateFactory<StandardEmailTemplateData, EmailTemplateModel> _emailTemplateFactory;
+    
     public SendForgotPasswordEmailHandler(
         IApplicationUrlProvider urlProvider,
-        IEmailTemplateFactory emailTemplateFactory,
         IEmailTemplateService emailTemplateService,
-        ITokenSetting tokenSetting)
-        : base(
-            urlProvider,
-            emailTemplateFactory,
-            emailTemplateService)
+        ITokenSetting tokenSetting,
+        IEmailTemplateFactory<StandardEmailTemplateData, EmailTemplateModel> emailTemplateFactory)
+        : base(urlProvider,emailTemplateService)
     {
         _tokenSettings = tokenSetting;
+        _emailTemplateFactory = emailTemplateFactory;
     }
 
     public Task Handle(SendForgotPasswordEmailCommand request, CancellationToken cancellationToken)
     {
-        return SendTemplateAsync(
-            EmailType.ForgotPassword,
-            request.Message.Email,
-            request.Message.Username,
-            UrlProvider.GetResetPasswordUrl(
-                Uri.EscapeDataString(request.Message.Token)),
-            _tokenSettings.PasswordResetExpiryMinutes,
-            cancellationToken);
+        var data = new StandardEmailTemplateData
+        {
+            UserName = request.Message.Username,
+            ActionUrl = UrlProvider.GetResetPasswordUrl(Uri.EscapeDataString(request.Message.Token)),
+            ExpiryMinutes = _tokenSettings.PasswordResetExpiryMinutes
+        };
+
+        var model = _emailTemplateFactory.Create(data);
+        
+        return SendTemplateAsync(EmailType.ForgotPassword, request.Message.Email, model, cancellationToken);
     }
 }

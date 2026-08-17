@@ -67,6 +67,7 @@
 
                 await _unitOfWork.SaveAsync(cancellationToken);
                 
+                var downloadUrl = result.DownloadUrl;
                 var user = await _unitOfWork.User.GetByIdAsync(job.CreatedBy);
                 await _messageSender.SendMessage<TranslationJobCompletedEmailEvent>(
                     new TranslationJobCompletedEmailEvent
@@ -77,6 +78,7 @@
                         ProjectId = job.ProjectId,
                         JobType = job.Type == TranslationJobType.Export ? "Export" : "Import",
                         FileName = job.FileName ?? string.Empty,
+                        DownloadUrl = downloadUrl,
                         TotalRecords = job.TotalRecords,
                         SuccessRecords = job.SuccessRecords,
                         FailedRecords = job.FailedRecords,
@@ -103,9 +105,8 @@
                 job.Status = TranslationJobStatus.Failed;
                 job.ErrorMessage = ex.Message;
                 job.CompletedAt = DateTime.UtcNow;
-
                 await _unitOfWork.SaveAsync(cancellationToken);
-
+                
                 await _notificationService.NotifyProjectAsync(
                     job.ProjectId,
                     job.CreatedBy,
