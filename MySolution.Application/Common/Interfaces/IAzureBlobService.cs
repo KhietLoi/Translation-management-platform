@@ -10,4 +10,5 @@ public interface IAzureBlobService
     Task<bool> FileExistsAsync(string fileName, CancellationToken cancellationToken);
     Task<List<BlobFile>> GetAllFilesAsync(CancellationToken cancellationToken);
     string GetFileUrl (string fileName);
+    Task<string> GenerateReadSasUrlAsync(string fileName, TimeSpan lifetime, CancellationToken cancellationToken);
 }
