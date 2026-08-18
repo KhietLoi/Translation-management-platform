@@ -103,18 +103,23 @@ function TranslationGridRow({
       {/* ACTIONS */}
       <td className="py-3 text-center align-middle">
         <div className="btn-group">
-          <button
-            className="btn btn-sm btn-outline-secondary"
-            onClick={() => onEdit(item)}
-          >
-            Sửa Key
-          </button>
-          <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={() => onDelete(item)}
-          >
-            Xóa
-          </button>
+          {onEdit && (
+            <button
+              className="btn btn-sm btn-outline-secondary"
+              onClick={() => onEdit(item)}
+            >
+              Sửa Key
+            </button>
+          )}
+
+          {onDelete && (
+            <button
+              className="btn btn-sm btn-outline-danger"
+              onClick={() => onDelete(item)}
+            >
+              Xóa
+            </button>
+          )}
         </div>
       </td>
     </tr>

@@ -29,7 +29,7 @@ function Info({ label, children }) {
   );
 }
 
-function TranslationDetailDrawer({ show, translationValue, onClose, onSuccess }) {
+function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpdate, onClose, onSuccess }) {
   const { user } = useAuth();
   const { locks } = useTranslationLocks();
 
@@ -39,7 +39,7 @@ function TranslationDetailDrawer({ show, translationValue, onClose, onSuccess })
 
   const permissions = user?.permissions ?? [];
 
-  const canUpdate = permissions.includes("TRANSLATION_UPDATE");
+  const canUpdate = propCanUpdate !== undefined ? propCanUpdate : permissions.includes("TRANSLATION_UPDATE");
   const canReview = permissions.includes("TRANSLATION_REVIEW");
 
   const [loading, setLoading] = useState(false);

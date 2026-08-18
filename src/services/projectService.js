@@ -26,7 +26,7 @@ export const createProject = async (project) => {
 
 export const createProjectFull = async (data) => {
     const response = await api.post(
-        "/Project/full",
+        "/Project/Pipeline",
         data
     );
 

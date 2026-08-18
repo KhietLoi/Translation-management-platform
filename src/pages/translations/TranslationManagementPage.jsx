@@ -13,7 +13,22 @@ import TranslationDetailDrawer from "../../components/translations/TranslationDe
 import TranslationReviewTab from "../../components/translations/TranslationReviewTab";
 import { toast } from "react-toastify";
 
+import { usePermission } from "../../hooks/usePermission";
+import { PERMISSIONS } from "../../constants/permissions";
+
 function TranslationManagementPage() {
+    // ==========================
+    // PERMISSIONS
+    // ==========================
+    const { hasPermission } = usePermission();
+
+    const canViewTranslation = hasPermission(PERMISSIONS.TRANSLATION.VIEW);
+    const canCreateTranslation = hasPermission(PERMISSIONS.TRANSLATION.CREATE);
+    const canUpdateTranslation = hasPermission(PERMISSIONS.TRANSLATION.UPDATE);
+    const canDeleteTranslation = hasPermission(PERMISSIONS.TRANSLATION.DELETE);
+    const canReviewTranslation = hasPermission(PERMISSIONS.TRANSLATION.REVIEW);
+    const canPublishTranslation = hasPermission(PERMISSIONS.TRANSLATION.PUBLISH);
+
     const outletContext = useOutletContext() || {};
     const {
         projects: contextProjects = [],
@@ -41,10 +56,9 @@ function TranslationManagementPage() {
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-    //Detail drawer.
+    // Detail drawer
     const [showDrawer, setShowDrawer] = useState(false);
-    const [selectedTranslationValue, setSelectedTranslationValue] =
-        useState(null);
+    const [selectedTranslationValue, setSelectedTranslationValue] = useState(null);
 
     // Sync with contextProjectId
     useEffect(() => {
@@ -72,9 +86,6 @@ function TranslationManagementPage() {
         }
     };
 
-    // ==========================
-    // LOAD NAMESPACES
-    // ==========================
     const loadNamespaces = async (projectId) => {
         try {
             const response = await getProjectNamespaces(projectId);
@@ -86,11 +97,8 @@ function TranslationManagementPage() {
         }
     };
 
-    // ==========================
-    // LOAD GRID
-    // ==========================
     const loadGrid = async () => {
-        if (!selectedProjectId) return;
+        if (!selectedProjectId || !canViewTranslation) return;
 
         try {
             setLoading(true);
@@ -106,7 +114,7 @@ function TranslationManagementPage() {
 
             setGridData(response.data);
         } catch (error) {
-            console.error(error);
+            console.error("Failed to load translation grid:", error);
         } finally {
             setLoading(false);
         }
@@ -114,23 +122,18 @@ function TranslationManagementPage() {
 
     const handleCreateTranslationKey = async (payload) => {
         try {
-
             await createTranslationKey(payload);
             toast.success("Translation key created successfully");
             setShowCreateKeyModal(false);
             await loadGrid();
-
         } catch (error) {
             console.error(error);
             toast.error("Failed to create translation key");
         }
     };
 
-    const handleUpdateTranslationKey = async (
-        payload
-    ) => {
+    const handleUpdateTranslationKey = async (payload) => {
         try {
-
             await updateTranslationKey(
                 selectedTranslationKey.translationKeyId,
                 payload
@@ -141,31 +144,23 @@ function TranslationManagementPage() {
             setSelectedTranslationKey(null);
 
             await loadGrid();
-
         } catch (error) {
             console.error(error);
             toast.error("Failed to update translation key");
         }
     };
 
-    const handleDeleteTranslationKey = async (
-        id
-    ) => {
+    const handleDeleteTranslationKey = async (id) => {
         try {
-
             await deleteTranslationKey(id);
 
-            toast.success(
-                "Translation key deleted successfully."
-            );
+            toast.success("Translation key deleted successfully.");
 
             setShowDeleteModal(false);
             setSelectedTranslationKey(null);
 
             await loadGrid();
-
         } catch (error) {
-
             toast.error(
                 error?.response?.data?.errorMessage ||
                 "Failed to delete translation key."
@@ -175,13 +170,11 @@ function TranslationManagementPage() {
         }
     };
 
-    //Clilk cell:
     const handleCellClick = (data) => {
-
         setSelectedTranslationValue(data);
-
         setShowDrawer(true);
     };
+
     // ==========================
     // EFFECTS
     // ==========================
@@ -203,7 +196,8 @@ function TranslationManagementPage() {
         selectedProjectId,
         selectedNamespaceId,
         numberOfLanguages,
-        pageNumber
+        pageNumber,
+        canViewTranslation
     ]);
 
     // Auto refresh grid on SignalR notification
@@ -216,6 +210,7 @@ function TranslationManagementPage() {
         window.addEventListener("translationNotification", handleNotification);
         return () => window.removeEventListener("translationNotification", handleNotification);
     }, [selectedProjectId]);
+
     // ==========================
     // DYNAMIC LANGUAGES & STATS
     // ==========================
@@ -227,14 +222,26 @@ function TranslationManagementPage() {
     const totalCount = gridData?.totalCount || 0;
     const totalPages = Math.ceil(totalCount / pageSize);
 
-    // Tìm tên Project đang chọn để hiển thị trên Header
     const currentProjectName = projects.find(p => p.id === selectedProjectId)?.name || "Project";
-    // Tìm tên Namespace đang chọn
     const currentNamespaceName = namespaces.find(n => n.id === selectedNamespaceId)?.name || "All";
+
+    // ==========================
+    // ACCESS GUARD
+    // ==========================
+
+    if (!canViewTranslation) {
+        return (
+            <div className="container py-5 text-center">
+                <h4>Access Denied</h4>
+                <p className="text-muted">
+                    You do not have permission to view translations.
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div className="container-fluid py-4 px-4" style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}>
-
             {/* HEADER AREA */}
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div>
@@ -245,7 +252,7 @@ function TranslationManagementPage() {
                             : "Batch review and approve/reject namespace translations"}
                     </p>
                 </div>
-                {activeTab === "grid" && (
+                {activeTab === "grid" && canCreateTranslation && (
                     <button
                         className="btn btn-dark fw-medium px-4 py-2 rounded-3"
                         onClick={() => setShowCreateKeyModal(true)}
@@ -258,29 +265,35 @@ function TranslationManagementPage() {
             {/* TABS FOR SWITCHING MODES */}
             <ul className="nav nav-pills mb-4 gap-2 bg-white p-2 rounded-3 border-0 shadow-sm d-inline-flex">
                 <li className="nav-item">
-                    <button
-                        className={`nav-link px-4 py-2 fw-medium rounded-3 border-0 transition ${
-                            activeTab === "grid"
+                    {
+                        canReviewTranslation && (
+
+                            <button
+                                className={`nav-link px-4 py-2 fw-medium rounded-3 border-0 transition ${activeTab === "grid"
+                                    ? "active bg-dark text-white shadow-sm"
+                                    : "bg-transparent text-secondary hover-text-dark"
+                                    }`}
+                                onClick={() => setActiveTab("grid")}
+                            >
+                                Translations Grid
+                            </button>
+                        )
+                    }
+
+                </li>
+                {canReviewTranslation && (
+                    <li className="nav-item">
+                        <button
+                            className={`nav-link px-4 py-2 fw-medium rounded-3 border-0 transition ${activeTab === "review"
                                 ? "active bg-dark text-white shadow-sm"
                                 : "bg-transparent text-secondary hover-text-dark"
-                        }`}
-                        onClick={() => setActiveTab("grid")}
-                    >
-                        Translations Grid
-                    </button>
-                </li>
-                <li className="nav-item">
-                    <button
-                        className={`nav-link px-4 py-2 fw-medium rounded-3 border-0 transition ${
-                            activeTab === "review"
-                                ? "active bg-dark text-white shadow-sm"
-                                : "bg-transparent text-secondary hover-text-dark"
-                        }`}
-                        onClick={() => setActiveTab("review")}
-                    >
-                        Batch Review
-                    </button>
-                </li>
+                                }`}
+                            onClick={() => setActiveTab("review")}
+                        >
+                            Batch Review
+                        </button>
+                    </li>
+                )}
             </ul>
 
             {activeTab === "grid" ? (
@@ -317,14 +330,22 @@ function TranslationManagementPage() {
                         loading={loading}
                         gridData={gridData}
                         languages={languages}
-                        onEdit={item => {
-                            setSelectedTranslationKey(item);
-                            setShowUpdateModal(true);
-                        }}
-                        onDelete={item => {
-                            setSelectedTranslationKey(item);
-                            setShowDeleteModal(true);
-                        }}
+                        onEdit={
+                            canUpdateTranslation
+                                ? (item) => {
+                                    setSelectedTranslationKey(item);
+                                    setShowUpdateModal(true);
+                                }
+                                : undefined
+                        }
+                        onDelete={
+                            canDeleteTranslation
+                                ? (item) => {
+                                    setSelectedTranslationKey(item);
+                                    setShowDeleteModal(true);
+                                }
+                                : undefined
+                        }
                         onCellClick={handleCellClick}
                     />
 
@@ -340,6 +361,8 @@ function TranslationManagementPage() {
                 <TranslationReviewTab
                     projectId={selectedProjectId}
                     namespaces={namespaces}
+                    canReview={canReviewTranslation}
+                    canPublish={canPublishTranslation}
                 />
             )}
 
@@ -372,6 +395,7 @@ function TranslationManagementPage() {
             <TranslationDetailDrawer
                 show={showDrawer}
                 translationValue={selectedTranslationValue}
+                canUpdate={canUpdateTranslation}
                 onClose={() => {
                     setShowDrawer(false);
                     setSelectedTranslationValue(null);
@@ -382,4 +406,4 @@ function TranslationManagementPage() {
     );
 }
 
-export default TranslationManagementPage;
+export default TranslationManagementPage;

@@ -1,10 +1,26 @@
 import { useAuth } from "../contexts/AuthContext";
 
-export default function usePermission() {
+export function usePermission() {
     const { user } = useAuth();
-    const hasPermission = (permission) => user?.permissions?.includes(permission);
+    const permissions = user?.permissions || [];
+    const hasPermission = (permission) => {
+        return permissions.includes(permission);
+    };
+    const hasAnyPermission = (permissionList) => {
+        return permissionList.some(permission =>
+            permissions.includes(permission)
+        );
+    };
+    const hasAllPermissions = (permissionList) => {
+        return permissionList.every(permission =>
+            permissions.includes(permission)
+        );
+    };
 
     return {
-        hasPermission
+        permissions,
+        hasPermission,
+        hasAnyPermission,
+        hasAllPermissions
     };
 }

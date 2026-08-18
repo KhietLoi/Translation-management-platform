@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import signalRService from "../services/signalrService";
 
-/**
- * Custom hook to subscribe to real-time Translation Lock events from SignalR Hub.
- * Maintains map of active locks: { [translationValueId]: LockInfo }
- */
 export function useTranslationLocks() {
   const [locks, setLocks] = useState({});
 
