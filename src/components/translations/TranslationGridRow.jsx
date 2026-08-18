@@ -10,9 +10,11 @@ function TranslationGridRow({
   onEdit,
   onDelete,
   onCellClick,
+  showActions,
 }) {
   const { locks } = useTranslationLocks();
   const overallStatus = getOverallStatus(item.values);
+  const hasActions = showActions ?? Boolean(onEdit || onDelete);
 
   return (
     <tr className="bg-white">
@@ -20,7 +22,7 @@ function TranslationGridRow({
       <td
         className="py-3 px-3 align-middle"
         style={{
-          width: "25%",
+          minWidth: "200px",
         }}
       >
         <div
@@ -52,7 +54,7 @@ function TranslationGridRow({
               activeLock ? "cell-locked-overlay" : ""
             }`}
             style={{
-              width: "20%",
+              minWidth: "150px",
               cursor: "pointer",
             }}
             onClick={() =>
@@ -96,32 +98,34 @@ function TranslationGridRow({
       })}
 
       {/* OVERALL STATUS */}
-      <td className="py-3 text-center align-middle">
+      <td className="py-3 text-center align-middle" style={{ width: '1%', whiteSpace: 'nowrap' }}>
         <TranslationStatusBadge status={overallStatus} />
       </td>
 
       {/* ACTIONS */}
-      <td className="py-3 text-center align-middle">
-        <div className="btn-group">
-          {onEdit && (
-            <button
-              className="btn btn-sm btn-outline-secondary"
-              onClick={() => onEdit(item)}
-            >
-              Sửa Key
-            </button>
-          )}
+      {hasActions && (
+        <td className="py-3 text-center align-middle" style={{ width: '1%', whiteSpace: 'nowrap' }}>
+          <div className="btn-group">
+            {onEdit && (
+              <button
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => onEdit(item)}
+              >
+                Sửa Key
+              </button>
+            )}
 
-          {onDelete && (
-            <button
-              className="btn btn-sm btn-outline-danger"
-              onClick={() => onDelete(item)}
-            >
-              Xóa
-            </button>
-          )}
-        </div>
-      </td>
+            {onDelete && (
+              <button
+                className="btn btn-sm btn-outline-danger"
+                onClick={() => onDelete(item)}
+              >
+                Xóa
+              </button>
+            )}
+          </div>
+        </td>
+      )}
     </tr>
   );
 }

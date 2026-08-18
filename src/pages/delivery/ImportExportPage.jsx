@@ -21,9 +21,15 @@ import {
   exportTranslations,
   getTranslationHistory,
 } from "../../services/translationPipelineService";
+import { usePermission } from "../../hooks/usePermission";
+import { PERMISSIONS } from "../../constants/permissions";
 import "./delivery.css";
 
 export default function ImportExportPage() {
+  const { hasPermission } = usePermission();
+  const canImport = hasPermission(PERMISSIONS.TRANSLATION.CREATE);
+  const canExport = hasPermission(PERMISSIONS.TRANSLATION.VIEW);
+
   const outletContext = useOutletContext() || {};
   const {
     projects: contextProjects = [],
@@ -185,6 +191,7 @@ export default function ImportExportPage() {
 
   // Submit Import
   const handleExecuteImport = async () => {
+    if (!canImport) return;
     if (!importProjectId) {
       toast.warning("Please select a Project.");
       return;
@@ -229,6 +236,7 @@ export default function ImportExportPage() {
 
   // Submit Export
   const handleExecuteExport = async () => {
+    if (!canExport) return;
     if (!exportProjectId) {
       toast.warning("Please select a Project to export.");
       return;
@@ -541,20 +549,22 @@ export default function ImportExportPage() {
               </div>
 
               {/* SUBMIT IMPORT BUTTON */}
-              <button
-                className="btn btn-purple w-100 py-2 mt-auto fw-bold"
-                onClick={handleExecuteImport}
-                disabled={isImporting || !selectedFile}
-              >
-                {isImporting ? (
-                  <>
-                    <Spinner animation="border" size="sm" className="me-2" />
-                    Executing Import...
-                  </>
-                ) : (
-                  "Execute Import"
-                )}
-              </button>
+              {canImport && (
+                <button
+                  className="btn btn-purple w-100 py-2 mt-auto fw-bold"
+                  onClick={handleExecuteImport}
+                  disabled={isImporting || !selectedFile}
+                >
+                  {isImporting ? (
+                    <>
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      Executing Import...
+                    </>
+                  ) : (
+                    "Execute Import"
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -639,20 +649,22 @@ export default function ImportExportPage() {
               </div>
 
               {/* ACTION BUTTON */}
-              <button
-                className="btn btn-dark-custom w-100 py-2.5 mt-auto fw-bold"
-                onClick={handleExecuteExport}
-                disabled={isExporting}
-              >
-                {isExporting ? (
-                  <>
-                    <Spinner animation="border" size="sm" className="me-2" />
-                    Generating package...
-                  </>
-                ) : (
-                  "Generate & Download from Blob"
-                )}
-              </button>
+              {canExport && (
+                <button
+                  className="btn btn-dark-custom w-100 py-2.5 mt-auto fw-bold"
+                  onClick={handleExecuteExport}
+                  disabled={isExporting}
+                >
+                  {isExporting ? (
+                    <>
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      Generating package...
+                    </>
+                  ) : (
+                    "Generate & Download from Blob"
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -18,11 +18,18 @@ import {
     deleteProject
 } from "../../services/projectService";
 
+import { usePermission } from "../../hooks/usePermission";
+import { PERMISSIONS } from "../../constants/permissions";
+
 import "./ProjectDetailPage.css";
 
 function ProjectDetailPage() {
     const { id } = useParams();
     const navigate = useNavigate();
+
+    const { hasPermission } = usePermission();
+    const canUpdateProject = hasPermission(PERMISSIONS.PROJECT.UPDATE);
+    const canDeleteProject = hasPermission(PERMISSIONS.PROJECT.DELETE);
 
     const [project, setProject] = useState(null);
     const [languages, setLanguages] = useState([]);
@@ -68,6 +75,7 @@ function ProjectDetailPage() {
     }, [id]);
 
     const handleOpenEdit = () => {
+        if (!canUpdateProject) return;
         if (project) {
             setEditForm({
                 name: project.name || "",
@@ -79,7 +87,7 @@ function ProjectDetailPage() {
     };
 
     const handleSaveEdit = async () => {
-        if (!editForm.name.trim()) return;
+        if (!canUpdateProject || !editForm.name.trim()) return;
         try {
             setSaving(true);
             await updateProject(id, {
@@ -99,6 +107,7 @@ function ProjectDetailPage() {
     };
 
     const handleDeleteProject = async () => {
+        if (!canDeleteProject) return;
         if (window.confirm(`Are you sure you want to delete project "${project.name}"?`)) {
             try {
                 setDeleting(true);
@@ -155,19 +164,23 @@ function ProjectDetailPage() {
                     <span className={`badge badge-status me-2 ${project.isActive ? "bg-success" : "bg-secondary"}`}>
                         {project.isActive ? "Active" : "Inactive"}
                     </span>
-                    <button
-                        className="btn btn-outline-primary btn-sm me-2"
-                        onClick={handleOpenEdit}
-                    >
-                        Edit
-                    </button>
-                    <button
-                        className="btn btn-outline-danger btn-sm"
-                        onClick={handleDeleteProject}
-                        disabled={deleting}
-                    >
-                        {deleting ? "Deleting..." : "Delete"}
-                    </button>
+                    {canUpdateProject && (
+                        <button
+                            className="btn btn-outline-primary btn-sm me-2"
+                            onClick={handleOpenEdit}
+                        >
+                            Edit
+                        </button>
+                    )}
+                    {canDeleteProject && (
+                        <button
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={handleDeleteProject}
+                            disabled={deleting}
+                        >
+                            {deleting ? "Deleting..." : "Delete"}
+                        </button>
+                    )}
                 </div>
             </div>
 

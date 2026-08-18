@@ -122,7 +122,11 @@ export default function MainLayout() {
   const permissions = user?.permissions ?? [];
   const canViewUsers = permissions.includes("USER_VIEW");
   const canViewRoles = permissions.includes("ROLE_VIEW");
+  const canViewProjects = permissions.includes("PROJECT_VIEW");
   const canViewPermissions = permissions.includes("PERMISSION_VIEW");
+  const canViewPublish = permissions.includes("TRANSLATION_PUBLISH");
+  const canViewApiKey = permissions.includes("APIKEY_VIEW") || permissions.includes("API_KEY_VIEW");
+
   const hasAccessControlPermission =
     canViewUsers || canViewRoles || canViewPermissions;
 
@@ -132,9 +136,9 @@ export default function MainLayout() {
       title: "WORKSPACE",
       items: [
         { label: "Dashboard", path: "/dashboard", icon: Squares2X2Icon },
-        { label: "Projects", path: "/projects", icon: FolderIcon },
+        canViewProjects && { label: "Projects", path: "/projects", icon: FolderIcon },
         { label: "Translations", path: "/translations", icon: Bars3BottomLeftIcon },
-      ],
+      ].filter(Boolean),
     },
     hasAccessControlPermission && {
       title: "ACCESS CONTROL",
@@ -146,22 +150,21 @@ export default function MainLayout() {
     {
       title: "DELIVERY",
       items: [
-        { label: "Publish", path: "/publish", icon: ArrowDownTrayIcon },
+        canViewPublish && { label: "Publish", path: "/publish", icon: ArrowDownTrayIcon },
         { label: "Import / Export", path: "/import-export", icon: ArrowsUpDownIcon },
-      ],
+      ].filter(Boolean),
     },
     {
       title: "PLATFORM",
       items: [
-        { label: "API Keys", path: "/api-keys", icon: KeyIcon },
+        canViewApiKey && { label: "API Keys", path: "/api-keys", icon: KeyIcon },
         {
           label: "Notifications",
           path: "/notifications",
           icon: BellIcon,
           badge: unreadCount > 0 ? unreadCount : undefined,
-        },
-        { label: "Settings", path: "/settings", icon: Cog6ToothIcon },
-      ],
+        }
+      ].filter(Boolean),
     },
   ].filter(Boolean);
 
