@@ -2,7 +2,9 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Application.Constants;
 using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Features.Project.Queries.GetProjects;
@@ -11,15 +13,18 @@ public class GetProjectsHandler : IRequestHandler<GetProjectsQuery, GetProjectsR
 {
     private readonly ILogger<GetProjectsHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUser _currentUser;
 
     public GetProjectsHandler
     (
         ILogger<GetProjectsHandler> logger,
-        IUnitOfWork unitOfWork
+        IUnitOfWork unitOfWork,
+        ICurrentUser currentUser
     )
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
+        _currentUser = currentUser;
     }
 
     public async Task<GetProjectsResponse> Handle
@@ -29,16 +34,20 @@ public class GetProjectsHandler : IRequestHandler<GetProjectsQuery, GetProjectsR
     )
     {
         var functionName = $"{nameof(GetProjectsHandler)} =>";
-
         _logger.LogInformation(functionName);
-
         var response = new GetProjectsResponse();
 
         try
         {
-            var projects = await _unitOfWork.Project
-                .GetAll()
-                .AsNoTracking()
+            var query = _unitOfWork.Project.GetAll().AsNoTracking();
+            _logger.LogInformation("test : " + _currentUser.Roles.ToString());
+            if (_currentUser.Roles.Contains(RoleConstants.Translator) || _currentUser.Roles.Contains(RoleConstants.Reviewer))
+            {
+                query = query.Where(x => x.ProjectMembers.Any(pm =>
+                    pm.UserId == _currentUser.UserId));
+            }
+            
+            var projects = await query
                 .Select(x => new GetProjectData
                 {
                     Id = x.Id,
@@ -65,10 +74,9 @@ public class GetProjectsHandler : IRequestHandler<GetProjectsQuery, GetProjectsR
                                 v.Status == TranslationStatus.Published),
 
                     ProgressPercentage =
-                        x.ProjectNamespaces
+                        !x.ProjectNamespaces
                             .SelectMany(n => n.TranslationKeys)
-                            .SelectMany(k => k.TranslationValues)
-                            .Count() == 0
+                            .SelectMany(k => k.TranslationValues).Any()
                             ? 0
                             :
                             (
@@ -106,6 +114,7 @@ public class GetProjectsHandler : IRequestHandler<GetProjectsQuery, GetProjectsR
                 })
                 .ToListAsync(cancellationToken);
 
+            
             response.Data = new GetProjectsResult
             {
                 Projects = projects
