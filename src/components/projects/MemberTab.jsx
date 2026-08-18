@@ -2,12 +2,17 @@ import { useEffect, useState } from "react";
 import { userService } from "../../services/userService";
 import { updateProjectMembers } from "../../services/projectService";
 import { toast } from "react-toastify";
+import { usePermission } from "../../hooks/usePermission";
+import { PERMISSIONS } from "../../constants/permissions";
 import "./MemberTab.css";
 
 function MembersTab({ projectId, members = [], onUpdated }) {
+    const { hasPermission } = usePermission();
+    const canUpdateProject = hasPermission(PERMISSIONS.PROJECT.UPDATE);
+
     const [allUsers, setAllUsers] = useState([]);
     const [selectedMembers, setSelectedMembers] = useState([]);
-    const [selectedUsers, setSelectedUsers] = useState([]); // Chuyển thành mảng cho multi-select
+    const [selectedUsers, setSelectedUsers] = useState([]);
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
@@ -42,9 +47,8 @@ function MembersTab({ projectId, members = [], onUpdated }) {
     };
 
     const handleAddMember = () => {
-        if (selectedUsers.length === 0) return;
+        if (!canUpdateProject || selectedUsers.length === 0) return;
 
-        // Lọc ra các user hợp lệ (đã chọn và chưa tồn tại trong project)
         const usersToAdd = allUsers
             .filter((user) => selectedUsers.includes(String(user.id)))
             .filter((user) => !selectedMembers.some((member) => member.userId === user.id));
@@ -58,14 +62,16 @@ function MembersTab({ projectId, members = [], onUpdated }) {
         }));
 
         setSelectedMembers((prev) => [...prev, ...newMemberships]);
-        setSelectedUsers([]); // Reset form sau khi add
+        setSelectedUsers([]);
     };
 
     const removeMember = (userId) => {
+        if (!canUpdateProject) return;
         setSelectedMembers((prev) => prev.filter((x) => x.userId !== userId));
     };
 
     const handleSave = async () => {
+        if (!canUpdateProject) return;
         try {
             setSaving(true);
             await updateProjectMembers(
@@ -88,52 +94,56 @@ function MembersTab({ projectId, members = [], onUpdated }) {
             <div className="card-header bg-white">
                 <div className="d-flex justify-content-between align-items-center">
                     <h5 className="mb-0">Project Members</h5>
-                    <button
-                        className="btn btn-primary"
-                        disabled={saving}
-                        onClick={handleSave}
-                    >
-                        {saving ? "Saving..." : "Save Changes"}
-                    </button>
+                    {canUpdateProject && (
+                        <button
+                            className="btn btn-primary"
+                            disabled={saving}
+                            onClick={handleSave}
+                        >
+                            {saving ? "Saving..." : "Save Changes"}
+                        </button>
+                    )}
                 </div>
             </div>
 
             <div className="card-body">
                 {/* Add member section */}
-                <div className="row mb-4">
-                    <div className="col-md-8">
-                        <select
-                            multiple
-                            className="form-select"
-                            value={selectedUsers}
-                            onChange={(e) => {
-                                const options = Array.from(e.target.selectedOptions);
-                                setSelectedUsers(options.map((o) => o.value));
-                            }}
-                            style={{ height: "150px" }} // Giúp hiển thị danh sách nhiều item hơn
-                        >
-                            {allUsers
-                                .filter(
-                                    (user) =>
-                                        !selectedMembers.some((member) => member.userId === user.id)
-                                )
-                                .map((user) => (
-                                    <option key={user.id} value={user.id}>
-                                        {user.username} - {user.email}
-                                    </option>
-                                ))}
-                        </select>
-                        <small className="text-muted mt-1 d-block">
-                            * Giữ phím Ctrl (hoặc Cmd trên Mac) và click chuột để chọn nhiều người cùng lúc.
-                        </small>
-                    </div>
+                {canUpdateProject && (
+                    <div className="row mb-4">
+                        <div className="col-md-8">
+                            <select
+                                multiple
+                                className="form-select"
+                                value={selectedUsers}
+                                onChange={(e) => {
+                                    const options = Array.from(e.target.selectedOptions);
+                                    setSelectedUsers(options.map((o) => o.value));
+                                }}
+                                style={{ height: "150px" }}
+                            >
+                                {allUsers
+                                    .filter(
+                                        (user) =>
+                                            !selectedMembers.some((member) => member.userId === user.id)
+                                    )
+                                    .map((user) => (
+                                        <option key={user.id} value={user.id}>
+                                            {user.username} - {user.email}
+                                        </option>
+                                    ))}
+                            </select>
+                            <small className="text-muted mt-1 d-block">
+                                * Giữ phím Ctrl (hoặc Cmd trên Mac) và click chuột để chọn nhiều người cùng lúc.
+                            </small>
+                        </div>
 
-                    <div className="col-md-4 d-flex align-items-start">
-                        <button className="btn btn-success" onClick={handleAddMember}>
-                            Add Selected Members
-                        </button>
+                        <div className="col-md-4 d-flex align-items-start">
+                            <button className="btn btn-success" onClick={handleAddMember}>
+                                Add Selected Members
+                            </button>
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Member table */}
                 <table className="table table-hover align-middle table-bordered">
@@ -141,7 +151,7 @@ function MembersTab({ projectId, members = [], onUpdated }) {
                         <tr className="table-warning">
                             <th>Username</th>
                             <th>Email</th>
-                            <th>Action</th>
+                            {canUpdateProject && <th>Action</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -149,19 +159,21 @@ function MembersTab({ projectId, members = [], onUpdated }) {
                             <tr key={member.userId}>
                                 <td className="align-middle">{member.username}</td>
                                 <td className="align-middle">{member.email}</td>
-                                <td className="align-middle">
-                                    <button
-                                        className="btn btn-sm btn-danger"
-                                        onClick={() => removeMember(member.userId)}
-                                    >
-                                        Remove
-                                    </button>
-                                </td>
+                                {canUpdateProject && (
+                                    <td className="align-middle">
+                                        <button
+                                            className="btn btn-sm btn-danger"
+                                            onClick={() => removeMember(member.userId)}
+                                        >
+                                            Remove
+                                        </button>
+                                    </td>
+                                )}
                             </tr>
                         ))}
                         {selectedMembers.length === 0 && (
                             <tr>
-                                <td colSpan="3" className="text-center text-muted">
+                                <td colSpan={canUpdateProject ? "3" : "2"} className="text-center text-muted">
                                     No members added yet.
                                 </td>
                             </tr>

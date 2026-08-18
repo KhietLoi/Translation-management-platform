@@ -5,8 +5,13 @@ import ProjectCard from "../../components/projects/ProjectCard";
 import CreateProjectModal from "../../components/projects/CreateProject";
 import { getProjects } from "../../services/projectService";
 
+import { usePermission } from "../../hooks/usePermission";
+import { PERMISSIONS } from "../../constants/permissions";
+
 function ProjectListPage() {
     const navigate = useNavigate();
+    const { hasPermission } = usePermission();
+    const canCreateProject = hasPermission(PERMISSIONS.PROJECT.CREATE);
 
     const [projects, setProjects] = useState([]);
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -42,12 +47,14 @@ function ProjectListPage() {
                     </p>
                 </div>
 
-                <button
-                    className="btn btn-primary"
-                    onClick={() => setShowCreateModal(true)}
-                >
-                    Create Project
-                </button>
+                {canCreateProject && (
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => setShowCreateModal(true)}
+                    >
+                        Create Project
+                    </button>
+                )}
 
             </div>
 

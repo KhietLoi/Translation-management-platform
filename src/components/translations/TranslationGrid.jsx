@@ -1,6 +1,9 @@
 import TranslationGridRow from "./TranslationGridRow";
 
 function TranslationGrid({ loading, gridData, languages, onEdit, onDelete, onCellClick }) {
+    const showActions = Boolean(onEdit || onDelete);
+    const colSpan = (languages?.length || 0) + (showActions ? 2 : 1);
+
     return (
         <div className="card border-0 shadow-sm mb-3">
             <div className="card-body p-0">
@@ -15,12 +18,14 @@ function TranslationGrid({ loading, gridData, languages, onEdit, onDelete, onCel
                                         {language.languageCode}
                                     </th>
                                 ))}
-                                <th className="py-3 text-center px-3" style={{ width: '120px' }}>
+                                <th className="py-3 text-center px-3" style={{ width: '1%', whiteSpace: 'nowrap' }}>
                                     Status
                                 </th>
-                                <th className="py-3 text-center px-3" style={{ width: '120px' }}>
-                                    Actions
-                                </th>
+                                {showActions && (
+                                    <th className="py-3 text-center px-3" style={{ width: '1%', whiteSpace: 'nowrap' }}>
+                                        Actions
+                                    </th>
+                                )}
                             </tr>
                         </thead>
 
@@ -28,7 +33,7 @@ function TranslationGrid({ loading, gridData, languages, onEdit, onDelete, onCel
                             {loading ? (
                                 <tr>
                                     <td
-                                        colSpan={languages.length + 2}
+                                        colSpan={colSpan}
                                         className="text-center py-4 text-muted"
                                     >
                                         Loading...
@@ -37,7 +42,7 @@ function TranslationGrid({ loading, gridData, languages, onEdit, onDelete, onCel
                             ) : !gridData?.items || gridData.items.length === 0 ? (
                                 <tr>
                                     <td
-                                        colSpan={languages.length + 2}
+                                        colSpan={colSpan}
                                         className="text-center py-4 text-muted"
                                     >
                                         No translations found
@@ -52,6 +57,7 @@ function TranslationGrid({ loading, gridData, languages, onEdit, onDelete, onCel
                                         onEdit={onEdit}
                                         onDelete={onDelete}
                                         onCellClick={onCellClick}
+                                        showActions={showActions}
                                     />
                                 ))
                             )}

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { usePermission } from "../../hooks/usePermission";
+import { PERMISSIONS } from "../../constants/permissions";
 
 import {
     createProjectNamespace,
@@ -11,6 +13,8 @@ function NamespacesTab({
     projectId,
     namespaces
 }) {
+    const { hasPermission } = usePermission();
+    const canUpdateProject = hasPermission(PERMISSIONS.PROJECT.UPDATE);
 
     const [items, setItems] = useState([]);
     const [newName, setNewName] = useState("");
@@ -25,6 +29,7 @@ function NamespacesTab({
     }, [namespaces]);
 
     const handleCreate = async () => {
+        if (!canUpdateProject) return;
 
         if (!newName.trim()) {
             return;
@@ -75,6 +80,7 @@ function NamespacesTab({
     };
 
     const handleUpdate = async () => {
+        if (!canUpdateProject) return;
 
         if (!editingName.trim()) {
             return;
@@ -123,6 +129,7 @@ function NamespacesTab({
     };
 
     const handleDelete = async (id) => {
+        if (!canUpdateProject) return;
 
         const confirmed =
             window.confirm(
@@ -166,36 +173,38 @@ function NamespacesTab({
 
         <div className="card border-0 shadow-sm">
 
-            <div className="card-header bg-white">
+            {canUpdateProject && (
+                <div className="card-header bg-white">
 
-                <div className="d-flex gap-2">
+                    <div className="d-flex gap-2">
 
-                    <input
-                        className="form-control"
-                        placeholder="Namespace name"
-                        value={newName}
-                        onChange={(e) =>
-                            setNewName(
-                                e.target.value
-                            )
-                        }
-                    />
+                        <input
+                            className="form-control"
+                            placeholder="Namespace name"
+                            value={newName}
+                            onChange={(e) =>
+                                setNewName(
+                                    e.target.value
+                                )
+                            }
+                        />
 
-                    <button
-                        className="btn btn-primary"
-                        disabled={saving}
-                        onClick={handleCreate}
-                    >
-                        {
-                            saving
-                                ? "Saving..."
-                                : "Add"
-                        }
-                    </button>
+                        <button
+                            className="btn btn-primary"
+                            disabled={saving}
+                            onClick={handleCreate}
+                        >
+                            {
+                                saving
+                                    ? "Saving..."
+                                    : "Add"
+                            }
+                        </button>
+
+                    </div>
 
                 </div>
-
-            </div>
+            )}
 
             <div className="card-body">
 
@@ -207,9 +216,11 @@ function NamespacesTab({
 
                             <th>Name</th>
 
-                            <th width="220">
-                                Actions
-                            </th>
+                            {canUpdateProject && (
+                                <th width="220">
+                                    Actions
+                                </th>
+                            )}
 
                         </tr>
 
@@ -223,7 +234,7 @@ function NamespacesTab({
                                     <tr>
 
                                         <td
-                                            colSpan="2"
+                                            colSpan={canUpdateProject ? "2" : "1"}
                                             className="text-center text-muted"
                                         >
                                             No namespaces found
@@ -260,68 +271,70 @@ function NamespacesTab({
 
                                             </td>
 
-                                            <td>
+                                            {canUpdateProject && (
+                                                <td>
 
-                                                {
-                                                    editingId === namespace.id
-                                                        ? (
-                                                            <>
-                                                                <button
-                                                                    className="btn btn-success btn-sm"
-                                                                    disabled={saving}
-                                                                    onClick={handleUpdate}
-                                                                >
-                                                                    Save
-                                                                </button>
+                                                    {
+                                                        editingId === namespace.id
+                                                            ? (
+                                                                <>
+                                                                    <button
+                                                                        className="btn btn-success btn-sm"
+                                                                        disabled={saving}
+                                                                        onClick={handleUpdate}
+                                                                    >
+                                                                        Save
+                                                                    </button>
 
-                                                                <button
-                                                                    className="btn btn-secondary btn-sm ms-2"
-                                                                    onClick={() => {
+                                                                    <button
+                                                                        className="btn btn-secondary btn-sm ms-2"
+                                                                        onClick={() => {
 
-                                                                        setEditingId(null);
-                                                                        setEditingName("");
+                                                                            setEditingId(null);
+                                                                            setEditingName("");
 
-                                                                    }}
-                                                                >
-                                                                    Cancel
-                                                                </button>
-                                                            </>
-                                                        )
-                                                        : (
-                                                            <>
-                                                                <button
-                                                                    className="btn btn-warning btn-sm me-2"
-                                                                    onClick={() => {
+                                                                        }}
+                                                                    >
+                                                                        Cancel
+                                                                    </button>
+                                                                </>
+                                                            )
+                                                            : (
+                                                                <>
+                                                                    <button
+                                                                        className="btn btn-warning btn-sm me-2"
+                                                                        onClick={() => {
 
-                                                                        setEditingId(
-                                                                            namespace.id
-                                                                        );
+                                                                            setEditingId(
+                                                                                namespace.id
+                                                                            );
 
-                                                                        setEditingName(
-                                                                            namespace.name
-                                                                        );
+                                                                            setEditingName(
+                                                                                namespace.name
+                                                                            );
 
-                                                                    }}
-                                                                >
-                                                                    Edit
-                                                                </button>
+                                                                        }}
+                                                                    >
+                                                                        Edit
+                                                                    </button>
 
-                                                                <button
-                                                                    className="btn btn-danger btn-sm"
-                                                                    disabled={saving}
-                                                                    onClick={() =>
-                                                                        handleDelete(
-                                                                            namespace.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    Delete
-                                                                </button>
-                                                            </>
-                                                        )
-                                                }
+                                                                    <button
+                                                                        className="btn btn-danger btn-sm"
+                                                                        disabled={saving}
+                                                                        onClick={() =>
+                                                                            handleDelete(
+                                                                                namespace.id
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        Delete
+                                                                    </button>
+                                                                </>
+                                                            )
+                                                    }
 
-                                            </td>
+                                                </td>
+                                            )}
 
                                         </tr>
 

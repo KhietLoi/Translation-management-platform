@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { getLanguages } from "../../services/languageService";
 import { updateProjectLanguages } from "../../services/projectService";
 import { toast } from "react-toastify";
+import { usePermission } from "../../hooks/usePermission";
+import { PERMISSIONS } from "../../constants/permissions";
 
 import "./LanguageTab.css";
 
@@ -11,6 +13,8 @@ function LanguagesTab({
     languages,
     onUpdated
 }) {
+    const { hasPermission } = usePermission();
+    const canUpdateProject = hasPermission(PERMISSIONS.PROJECT.UPDATE);
 
     const [allLanguages, setAllLanguages] = useState([]);
     const [selectedIds, setSelectedIds] = useState([]);
@@ -56,6 +60,7 @@ function LanguagesTab({
     };
 
     const handleToggle = (id) => {
+        if (!canUpdateProject) return;
 
         setSelectedIds(prev => {
 
@@ -71,6 +76,7 @@ function LanguagesTab({
     };
 
     const handleSave = async () => {
+        if (!canUpdateProject) return;
 
         try {
 
@@ -126,17 +132,19 @@ function LanguagesTab({
 
                     </div>
 
-                    <button
-                        className="btn btn-primary"
-                        disabled={saving}
-                        onClick={handleSave}
-                    >
-                        {
-                            saving
-                                ? "Saving..."
-                                : "Save Changes"
-                        }
-                    </button>
+                    {canUpdateProject && (
+                        <button
+                            className="btn btn-primary"
+                            disabled={saving}
+                            onClick={handleSave}
+                        >
+                            {
+                                saving
+                                    ? "Saving..."
+                                    : "Save Changes"
+                            }
+                        </button>
+                    )}
 
                 </div>
 
