@@ -143,3 +143,31 @@ export const batchReviewTranslations = async (payload) => {
     return response.data;
 };
 
+export const getBatchTranslationValues = async ({
+    projectId,
+    languageId,
+    namespaceId
+}) => {
+    const response = await api.get(
+        "/TranslationManagement/update",
+        {
+            params: {
+                ProjectId: projectId,
+                LanguageId: languageId,
+                NamespaceId: namespaceId
+            }
+        }
+    );
+
+    return response.data;
+};
+
+export const batchUpdateTranslations = async (payload) => {
+    const response = await api.post(
+        "/TranslationManagement/batch-update",
+        payload
+    );
+
+    return response.data;
+};
+

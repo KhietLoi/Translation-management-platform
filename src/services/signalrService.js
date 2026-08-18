@@ -250,11 +250,18 @@ class SignalRService {
 
         // 5. Typing Event Handler
         this.connection.off("UserTyping");
-        this.connection.on("UserTyping", (userId, username, value) => {
-          console.log("[SignalR] UserTyping received:", { userId, username, value });
+        this.connection.on("UserTyping", (...args) => {
+          let translationValueId = null;
+          let userId, username, value;
+          if (args.length === 4) {
+            [translationValueId, userId, username, value] = args;
+          } else {
+            [userId, username, value] = args;
+          }
+          console.log("[SignalR] UserTyping received:", { translationValueId, userId, username, value });
           this.typingListeners.forEach((cb) => {
             try {
-              cb({ userId, username, value });
+              cb({ translationValueId, userId, username, value });
             } catch (err) {
               console.error("[SignalR] Error in typing callback:", err);
             }
