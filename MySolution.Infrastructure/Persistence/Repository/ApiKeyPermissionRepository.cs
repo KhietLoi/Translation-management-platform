@@ -7,7 +7,7 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 
 public class ApiKeyPermissionRepository (AppDbContext context, ILogger logger) : Repository<ApiKeyPermission>(context,logger), IApiKeyPermissionRepository
 {
-    public async Task<List<ApiKeyPermission>?> GetPermissionsByApiKeyId(Guid apiKeyId)
+    public async Task<List<ApiKeyPermission>> GetPermissionsByApiKeyId(Guid apiKeyId)
     {
         return await DbSet
             .Where(p => p.ApiKeyId == apiKeyId)

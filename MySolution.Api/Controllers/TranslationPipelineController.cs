@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySolution.Api.Authorization.User;
 using MySolution.Api.Helpers;
@@ -27,7 +26,7 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("export")]
-    [Permission(PermissionConstants.Translation.Create)]
+    [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> Export([FromBody] ExportTranslationsRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new ExportTranslationsCommand(request), cancellationToken);
@@ -35,7 +34,7 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("publish")]
-    [Authorize]
+    [Permission(PermissionConstants.Translation.Publish)]
     public async Task<IActionResult> Publish([FromBody] PublishTranslationsRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PublishTranslationsCommand(request), cancellationToken);
@@ -43,7 +42,7 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
     }
     
     [HttpGet("release-history")]
-    [Permission(PermissionConstants.Translation.Publish)]
+    [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetReleaseHistory(
         [FromQuery] GetReleaseHistoryQuery query,
         CancellationToken cancellationToken)
@@ -63,7 +62,6 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
     }
     
     //Rollback:
-    
     [HttpPost("releases/{releaseId:guid}/rollback")]
     [Permission(PermissionConstants.Translation.Publish)]
     public async Task<IActionResult> RollbackRelease(Guid releaseId, CancellationToken cancellationToken)
@@ -74,7 +72,7 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
     
     //Diff:
     [HttpGet("release-diff")]
-    [Permission(PermissionConstants.Translation.Publish)]
+    [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetReleaseDiff
     (
         Guid targetReleaseId,

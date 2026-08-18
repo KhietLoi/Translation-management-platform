@@ -1,6 +1,7 @@
--- ==========================================
+-- ============================================================
 -- ROLES
--- ==========================================
+-- ============================================================
+
 INSERT INTO mysolution."Roles"
 (
     "Id",
@@ -47,9 +48,11 @@ VALUES
     )
     ON CONFLICT DO NOTHING;
 
--- ==========================================
+
+-- ============================================================
 -- PERMISSIONS
--- ==========================================
+-- ============================================================
+
 INSERT INTO mysolution."Permissions"
 (
     "Id",
@@ -60,49 +63,246 @@ INSERT INTO mysolution."Permissions"
 )
 VALUES
 
--- User
-('10000000-0000-0000-0000-000000000001','USER_VIEW','View users',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000002','USER_CREATE','Create users',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000003','USER_UPDATE','Update users',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000004','USER_DELETE','Delete users',NOW(),NOW()),
+-- USER
+(
+    '10000000-0000-0000-0000-000000000001',
+    'USER_VIEW',
+    'View users',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000002',
+    'USER_CREATE',
+    'Create users',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000003',
+    'USER_UPDATE',
+    'Update users',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000004',
+    'USER_DELETE',
+    'Delete users',
+    NOW(),
+    NOW()
+),
 
--- Role
-('10000000-0000-0000-0000-000000000005','ROLE_VIEW','View roles',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000006','ROLE_CREATE','Create roles',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000007','ROLE_UPDATE','Update roles',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000008','ROLE_DELETE','Delete roles',NOW(),NOW()),
+-- ROLE
+(
+    '10000000-0000-0000-0000-000000000005',
+    'ROLE_VIEW',
+    'View roles',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000006',
+    'ROLE_CREATE',
+    'Create roles',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000007',
+    'ROLE_UPDATE',
+    'Update roles',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000008',
+    'ROLE_DELETE',
+    'Delete roles',
+    NOW(),
+    NOW()
+),
 
--- Permission
-('10000000-0000-0000-0000-000000000009','PERMISSION_VIEW','View permissions',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000010','PERMISSION_CREATE','Create permissions',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000011','PERMISSION_UPDATE','Update permissions',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000012','PERMISSION_DELETE','Delete permissions',NOW(),NOW()),
+-- PERMISSION
+(
+    '10000000-0000-0000-0000-000000000009',
+    'PERMISSION_VIEW',
+    'View permissions',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000010',
+    'PERMISSION_CREATE',
+    'Create permissions',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000011',
+    'PERMISSION_UPDATE',
+    'Update permissions',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000012',
+    'PERMISSION_DELETE',
+    'Delete permissions',
+    NOW(),
+    NOW()
+),
 
--- Project
-('10000000-0000-0000-0000-000000000013','PROJECT_VIEW','View projects',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000014','PROJECT_CREATE','Create projects',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000015','PROJECT_UPDATE','Update projects',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000016','PROJECT_DELETE','Delete projects',NOW(),NOW()),
+-- PROJECT
+(
+    '10000000-0000-0000-0000-000000000013',
+    'PROJECT_VIEW',
+    'View projects',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000014',
+    'PROJECT_CREATE',
+    'Create projects',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000015',
+    'PROJECT_UPDATE',
+    'Update projects',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000016',
+    'PROJECT_DELETE',
+    'Delete projects',
+    NOW(),
+    NOW()
+),
 
--- Language
-('10000000-0000-0000-0000-000000000017','LANGUAGE_VIEW','View languages',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000018','LANGUAGE_CREATE','Create languages',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000019','LANGUAGE_UPDATE','Update languages',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000020','LANGUAGE_DELETE','Delete languages',NOW(),NOW()),
+-- LANGUAGE
+(
+    '10000000-0000-0000-0000-000000000017',
+    'LANGUAGE_VIEW',
+    'View languages',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000018',
+    'LANGUAGE_CREATE',
+    'Create languages',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000019',
+    'LANGUAGE_UPDATE',
+    'Update languages',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000020',
+    'LANGUAGE_DELETE',
+    'Delete languages',
+    NOW(),
+    NOW()
+),
 
--- Translation
-('10000000-0000-0000-0000-000000000021','TRANSLATION_VIEW','View translations',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000022','TRANSLATION_CREATE','Create translations',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000023','TRANSLATION_UPDATE','Update translations',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000024','TRANSLATION_DELETE','Delete translations',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000025','TRANSLATION_REVIEW','Review translations',NOW(),NOW()),
-('10000000-0000-0000-0000-000000000026','TRANSLATION_PUBLISH','Publish translations',NOW(),NOW())
+-- TRANSLATION
+(
+    '10000000-0000-0000-0000-000000000021',
+    'TRANSLATION_VIEW',
+    'View translations',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000022',
+    'TRANSLATION_CREATE',
+    'Create translations',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000023',
+    'TRANSLATION_UPDATE',
+    'Update translations',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000024',
+    'TRANSLATION_DELETE',
+    'Delete translations',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000025',
+    'TRANSLATION_REVIEW',
+    'Review translations',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000026',
+    'TRANSLATION_PUBLISH',
+    'Publish translations',
+    NOW(),
+    NOW()
+),
 
-ON CONFLICT DO NOTHING;
+-- API KEY
+(
+    '10000000-0000-0000-0000-000000000027',
+    'APIKEY_VIEW',
+    'View API keys',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000028',
+    'APIKEY_CREATE',
+    'Create API keys',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000029',
+    'APIKEY_UPDATE',
+    'Update API keys',
+    NOW(),
+    NOW()
+),
+(
+    '10000000-0000-0000-0000-000000000030',
+    'APIKEY_DELETE',
+    'Delete API keys',
+    NOW(),
+    NOW()
+),
 
--- ==========================================
+-- AUDIT LOG
+(
+    '10000000-0000-0000-0000-000000000031',
+    'AUDITLOG_VIEW',
+    'View audit logs',
+    NOW(),
+    NOW()
+)
+
+    ON CONFLICT DO NOTHING;
+
+
+-- ============================================================
 -- USERS
--- ==========================================
+-- ============================================================
+
 INSERT INTO mysolution."Users"
 (
     "Id",
@@ -147,9 +347,11 @@ VALUES
     )
     ON CONFLICT DO NOTHING;
 
--- ==========================================
+
+-- ============================================================
 -- USER PROFILES
--- ==========================================
+-- ============================================================
+
 INSERT INTO mysolution."UserProfiles"
 (
     "UserId",
@@ -157,123 +359,144 @@ INSERT INTO mysolution."UserProfiles"
     "CreatedAt",
     "UpdatedAt"
 )
-VALUES
+SELECT
+    u."Id",
+    x."FullName",
+    NOW(),
+    NOW()
+FROM
     (
-        'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-        'System Administrator',
-        NOW(),
-        NOW()
-    ),
-    (
-        'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-        'Translator User',
-        NOW(),
-        NOW()
-    ),
-    (
-        'cccccccc-cccc-cccc-cccc-cccccccccccc',
-        'Reviewer User',
-        NOW(),
-        NOW()
-    )
+        VALUES
+            ('admin', 'System Administrator'),
+            ('translator1', 'Translator User'),
+            ('reviewer1', 'Reviewer User')
+    ) AS x("Username", "FullName")
+        JOIN mysolution."Users" u
+             ON u."Username" = x."Username"
     ON CONFLICT DO NOTHING;
 
--- ==========================================
+
+-- ============================================================
 -- USER ROLES
--- ==========================================
+-- ============================================================
+
+-- Admin
 INSERT INTO mysolution."UserRoles"
 (
     "UserId",
     "RoleId"
 )
-VALUES
-    (
-        'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-        '11111111-1111-1111-1111-111111111111'
-    ),
-    (
-        'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-        '33333333-3333-3333-3333-333333333333'
-    ),
-    (
-        'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-        '44444444-4444-4444-4444-444444444444'
-    ),
-    (
-        'cccccccc-cccc-cccc-cccc-cccccccccccc',
-        '55555555-5555-5555-5555-555555555555'
-    )
+SELECT
+    u."Id",
+    r."Id"
+FROM mysolution."Users" u
+         CROSS JOIN mysolution."Roles" r
+WHERE u."Username" = 'admin'
+  AND r."Name" = 'Admin'
     ON CONFLICT DO NOTHING;
 
--- ==========================================
--- ADMIN FULL PERMISSIONS
--- ==========================================
-INSERT INTO mysolution."RolePermissions"
-(
-    "RoleId",
-    "PermissionId"
-)
-SELECT
-    '11111111-1111-1111-1111-111111111111',
-    p."Id"
-FROM mysolution."Permissions" p
-    ON CONFLICT DO NOTHING;
-INSERT INTO mysolution."RolePermissions"
-(
-    "RoleId",
-    "PermissionId"
-)
---Project Manager:
-SELECT
-    '33333333-3333-3333-3333-333333333333',
-    p."Id"
-FROM mysolution."Permissions" p
-WHERE p."Code" IN
-      (
-       'PROJECT_VIEW',
-       'PROJECT_CREATE',
-       'PROJECT_UPDATE',
-       'PROJECT_DELETE',
 
-       'LANGUAGE_VIEW',
-       'LANGUAGE_CREATE',
-       'LANGUAGE_UPDATE',
-       'LANGUAGE_DELETE'
-          )
+-- Translator
+INSERT INTO mysolution."UserRoles"
+(
+    "UserId",
+    "RoleId"
+)
+SELECT
+    u."Id",
+    r."Id"
+FROM mysolution."Users" u
+         CROSS JOIN mysolution."Roles" r
+WHERE u."Username" = 'translator1'
+  AND r."Name" = 'Translator'
     ON CONFLICT DO NOTHING;
---Translator:
-INSERT INTO mysolution."RolePermissions"
-(
-    "RoleId",
-    "PermissionId"
-)
-SELECT
-    '44444444-4444-4444-4444-444444444444',
-    p."Id"
-FROM mysolution."Permissions" p
-WHERE p."Code" IN
-      (
-       'PROJECT_VIEW',
-       'LANGUAGE_VIEW'
-          )
-ON CONFLICT DO NOTHING;  
 
--- Reviewer:
+
+-- Reviewer
+INSERT INTO mysolution."UserRoles"
+(
+    "UserId",
+    "RoleId"
+)
+SELECT
+    u."Id",
+    r."Id"
+FROM mysolution."Users" u
+         CROSS JOIN mysolution."Roles" r
+WHERE u."Username" = 'reviewer1'
+  AND r."Name" = 'Reviewer'
+    ON CONFLICT DO NOTHING;
+
+
+-- ============================================================
+-- ADMIN PERMISSIONS
+-- All permissions EXCEPT AUDITLOG_VIEW
+-- ============================================================
+
 INSERT INTO mysolution."RolePermissions"
 (
     "RoleId",
     "PermissionId"
 )
 SELECT
-    '55555555-5555-5555-5555-555555555555',
+    r."Id",
     p."Id"
-FROM mysolution."Permissions" p
-WHERE p."Code" IN
-      (
-       'PROJECT_VIEW',
-       'LANGUAGE_VIEW'
-          )
-ON CONFLICT DO NOTHING;
+FROM mysolution."Roles" r
+         CROSS JOIN mysolution."Permissions" p
+WHERE r."Name" = 'Admin'
+  AND p."Code" <> 'AUDITLOG_VIEW'
+    ON CONFLICT DO NOTHING;
+
+
+-- ============================================================
+-- TRANSLATOR PERMISSIONS
+-- ============================================================
+
+INSERT INTO mysolution."RolePermissions"
+(
+    "RoleId",
+    "PermissionId"
+)
+SELECT
+    r."Id",
+    p."Id"
+FROM mysolution."Roles" r
+         JOIN mysolution."Permissions" p
+              ON p."Code" IN
+                 (
+                  'PROJECT_VIEW',
+                  'LANGUAGE_VIEW',
+                  'TRANSLATION_VIEW',
+                  'TRANSLATION_UPDATE'
+                     )
+WHERE r."Name" = 'Translator'
+    ON CONFLICT DO NOTHING;
+
+
+-- ============================================================
+-- REVIEWER PERMISSIONS
+-- ============================================================
+
+INSERT INTO mysolution."RolePermissions"
+(
+    "RoleId",
+    "PermissionId"
+)
+SELECT
+    r."Id",
+    p."Id"
+FROM mysolution."Roles" r
+         JOIN mysolution."Permissions" p
+              ON p."Code" IN
+                 (
+                  'PROJECT_VIEW',
+                  'LANGUAGE_VIEW',
+                  'TRANSLATION_VIEW',
+                  'TRANSLATION_REVIEW',
+                  'TRANSLATION_PUBLISH'
+                     )
+WHERE r."Name" = 'Reviewer'
+    ON CONFLICT DO NOTHING;
 -- ==========================================
 -- LANGUAGES
 -- ==========================================

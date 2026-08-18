@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using MySolution.Api.Authorization;
 using MySolution.Api.Authorization.User;
 using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
@@ -9,7 +8,6 @@ using MySolution.Application.Features.TranslationManagement.Queries.GetTranslati
 using MySolution.Application.Features.TranslationValue.Commands.CreateTranslationValue;
 using MySolution.Application.Features.TranslationValue.Commands.DeleteTranslationValue;
 using MySolution.Application.Features.TranslationValue.Commands.UpdateTranslationValue;
-using MySolution.Application.Features.TranslationValue.Queries.GetTranslationValues;
 using MySolution.Domain.Enums;
 
 namespace MySolution.Api.Controllers;
@@ -19,7 +17,7 @@ namespace MySolution.Api.Controllers;
 public class TranslationValueController (IMediator mediator) : Controller
 {
     [HttpPost]
-    [Permission(PermissionConstants.Translation.Create)]
+    [Permission(PermissionConstants.Translation.Update)]
     public async Task<IActionResult> CreateTranslationValue([FromBody] CreateTranslationValueRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -41,7 +39,7 @@ public class TranslationValueController (IMediator mediator) : Controller
     }
     
     [HttpDelete("{id:guid}")]
-    [Permission(PermissionConstants.Translation.Delete)]
+    [Permission(PermissionConstants.Translation.Update)]
     public async Task<IActionResult> DeleteTranslationValue(Guid id, CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new DeleteTranslationValueCommand(id), cancellationToken);
@@ -61,13 +59,13 @@ public class TranslationValueController (IMediator mediator) : Controller
                 translationKeyId,
                 namespaceId,
                 languageId,
-                status),
-            cancellationToken);
+                status), cancellationToken);
 
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
     [HttpGet("{id:guid}")]
+    [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetTranslationValueById(Guid id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new GetTranslationValueByIdQuery(id), cancellationToken);

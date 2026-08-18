@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using MySolution.Api.Authorization.User;
 using MySolution.Api.Helpers;
+using MySolution.Application.Constants;
 using MySolution.Application.Features.TranslationKey.Commands.DeleteTranslationKey;
-using MySolution.Application.Features.TranslationKey.Queries.GetTranslationKeyById;
-using MySolution.Application.Features.TranslationKey.Queries.GetTranslationKeys;
 using MySolution.Application.Features.TranslationManagement.Commands.CreateTranslationKey;
 using MySolution.Application.Features.TranslationManagement.Commands.UpdateTranslationKey;
 using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationKeyById;
@@ -16,6 +16,7 @@ namespace MySolution.Api.Controllers;
 public class TranslationKeyController (IMediator mediator) : Controller
 {
     [HttpPost]
+    [Permission(PermissionConstants.Translation.Create)]
     public async Task<IActionResult> CreateTranslationKey([FromBody] CreateTranslationKeyRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -24,6 +25,7 @@ public class TranslationKeyController (IMediator mediator) : Controller
     }
 
     [HttpPut("{id:guid}")]
+    [Permission(PermissionConstants.Translation.Update)]
     public async Task<IActionResult> UpdateTranslationKey
     (
         Guid id,
@@ -36,6 +38,7 @@ public class TranslationKeyController (IMediator mediator) : Controller
     }
 
     [HttpDelete("{id:guid}")]
+    [Permission(PermissionConstants.Translation.Delete)]
     public async Task<IActionResult> DeleteTranslationKey(Guid id, CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(new DeleteTranslationKeyCommand(id), cancellationToken);
@@ -43,6 +46,7 @@ public class TranslationKeyController (IMediator mediator) : Controller
     }
     
     [HttpGet]
+    [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetTranslationKeys(
         [FromQuery] Guid? projectId,
         [FromQuery] Guid? namespaceId,
@@ -54,6 +58,7 @@ public class TranslationKeyController (IMediator mediator) : Controller
     }
     
     [HttpGet("{id:guid}")]
+    [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetTranslationKeyById(Guid id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new GetTranslationKeyByIdQuery(id), cancellationToken);

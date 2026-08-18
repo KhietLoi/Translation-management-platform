@@ -1,7 +1,9 @@
 ﻿
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using MySolution.Api.Authorization.User;
 using MySolution.Api.Helpers;
+using MySolution.Application.Constants;
 using MySolution.Application.Features.ApiKey.Command.GenerateApiKey;
 using MySolution.Application.Features.Application.Command.CreateApplication;
 using MySolution.Application.Features.Application.Command.DeleteApplication;
@@ -16,6 +18,7 @@ namespace MySolution.Api.Controllers;
 public class ApplicationController (IMediator mediator) : Controller
 {
     [HttpPost]
+    [Permission(PermissionConstants.Permission.Create)]
     public async Task<IActionResult> CreateApplication
     (
         [FromBody] CreateApplicationRequest request,
@@ -27,6 +30,7 @@ public class ApplicationController (IMediator mediator) : Controller
     }
 
     [HttpDelete("{id:guid}")]
+    [Permission(PermissionConstants.Permission.Delete)]
     public async Task<IActionResult> DeleteApplication(Guid id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new DeleteApplicationCommand(id), cancellationToken);
@@ -34,6 +38,7 @@ public class ApplicationController (IMediator mediator) : Controller
     }
     
     [HttpPut("{id:guid}")]
+    [Permission(PermissionConstants.Permission.Update)]
     public async Task<IActionResult> UpdateApplication
     (
         Guid id,
@@ -46,6 +51,7 @@ public class ApplicationController (IMediator mediator) : Controller
     }
 
     [HttpGet("{id:guid}")]
+    [Permission(PermissionConstants.Permission.View)]
     public async Task<IActionResult> GetApplicationById(Guid id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new GetApplicationByIdQuery(id), cancellationToken);
@@ -53,6 +59,7 @@ public class ApplicationController (IMediator mediator) : Controller
     }
 
     [HttpGet]
+    [Permission(PermissionConstants.Permission.View)]
     public async Task<IActionResult> GetApplications(CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new GetApplicationsQuery(), cancellationToken);
@@ -62,6 +69,7 @@ public class ApplicationController (IMediator mediator) : Controller
     //ApiKey:
     [HttpPost]
     [Route("applications/{applicationId}/api-keys")]
+    [Permission(PermissionConstants.Permission.Create)]
     public async Task<IActionResult> GenerateApiKey
     (
         GenerateApiKeyRequest request,
