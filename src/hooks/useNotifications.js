@@ -58,10 +58,10 @@ export function useNotificationsQuery(params = {}) {
       const rawItems = Array.isArray(data.notifications)
         ? data.notifications
         : Array.isArray(data.items)
-        ? data.items
-        : Array.isArray(data)
-        ? data
-        : [];
+          ? data.items
+          : Array.isArray(data)
+            ? data
+            : [];
 
       // Deduplicate by ID
       const items = Array.from(
@@ -111,10 +111,10 @@ export function useNotificationsInfiniteQuery(filters = {}) {
       const rawItems = Array.isArray(data.notifications)
         ? data.notifications
         : Array.isArray(data.items)
-        ? data.items
-        : Array.isArray(data)
-        ? data
-        : [];
+          ? data.items
+          : Array.isArray(data)
+            ? data
+            : [];
 
       const items = Array.from(
         new Map(rawItems.filter((i) => i && i.id).map((i) => [i.id, i])).values()
@@ -146,9 +146,6 @@ export function useNotificationsInfiniteQuery(filters = {}) {
   });
 }
 
-/**
- * Hook to mark single notification as read
- */
 export function useMarkAsReadMutation() {
   const queryClient = useQueryClient();
 

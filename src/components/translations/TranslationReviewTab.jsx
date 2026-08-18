@@ -15,7 +15,7 @@ import {
 } from "@heroicons/react/24/outline";
 import "./TranslationReviewTab.css";
 
-function TranslationReviewTab({ projectId, namespaces = [] }) {
+function TranslationReviewTab({ projectId, namespaces = [], canReview, canPublish }) {
     // Selection state
     const [selectedNamespaceId, setSelectedNamespaceId] = useState("");
     const [selectedLanguageId, setSelectedLanguageId] = useState("");

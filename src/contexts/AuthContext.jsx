@@ -7,18 +7,19 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(() => {
         const storedUser = localStorage.getItem("currentUser");
 
-        return storedUser
-            ? JSON.parse(storedUser)
-            : null;
+        return storedUser ? JSON.parse(storedUser) : null;
     });
 
+    const hasPermission = (permission) => {
+        if (!user) {
+            return false;
+        }
+
+        return user.permissions.includes(permission);
+    }
+
     return (
-        <AuthContext.Provider
-            value={{
-                user,
-                setUser
-            }}
-        >
+        <AuthContext.Provider value={{ user, setUser, hasPermission }}>
             {children}
         </AuthContext.Provider>
     );
