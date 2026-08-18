@@ -41,10 +41,7 @@
 
             if (job == null)
             {
-                _logger.LogError(
-                    "Translation job {JobId} not found",
-                    request.Message.JobId);
-
+                _logger.LogError("Translation job {JobId} not found", request.Message.JobId);
                 return;
             }
 

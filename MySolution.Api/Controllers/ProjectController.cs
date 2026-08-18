@@ -151,7 +151,7 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //Create project full 
+    //Create project pipeline
     [HttpPost("Pipeline")]
     [Permission(PermissionConstants.Project.Create)]
     public async Task<IActionResult> CreateProjectFull
