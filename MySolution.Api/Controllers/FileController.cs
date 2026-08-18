@@ -34,6 +34,4 @@ public class FileController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(result.StatusCode, result, result.Files);
     }
     
-    //[HttpGet]
-    
 }

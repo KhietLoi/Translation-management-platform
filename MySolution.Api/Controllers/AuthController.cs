@@ -21,12 +21,6 @@ namespace MySolution.Api.Controllers;
 [ApiController]
 public class AuthController(IMediator mediator,  IAuthCookieService cookieService) : Controller
 {
-    /// <summary>
-    ///     Register a new user
-    /// </summary>
-    /// <param name="request"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
     [HttpPost("register")]
     [EnableRateLimiting("auth-register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
@@ -34,13 +28,7 @@ public class AuthController(IMediator mediator,  IAuthCookieService cookieServic
         var response = await mediator.Send(new RegisterCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-
-    /// <summary>
-    ///     Login a user
-    /// </summary>
-    /// <param name="request"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    
     [HttpPost("login")]
     [EnableRateLimiting("auth-login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
@@ -58,12 +46,7 @@ public class AuthController(IMediator mediator,  IAuthCookieService cookieServic
         
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-
-    /// <summary>
-    ///     Refresh the access token
-    /// </summary>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    
     [HttpPost("refresh-token")]
     [EnableRateLimiting("auth-refresh-token")]
     public async Task<IActionResult> RefreshToken(CancellationToken cancellationToken)
@@ -90,12 +73,7 @@ public class AuthController(IMediator mediator,  IAuthCookieService cookieServic
 
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-
-    /// <summary>
-    ///     Logout a user
-    /// </summary>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    
     [Authorize]
     [HttpPost("logout")]
     public async Task<IActionResult> Logout(CancellationToken cancellationToken)
@@ -146,8 +124,7 @@ public class AuthController(IMediator mediator,  IAuthCookieService cookieServic
     }
 
     [HttpPost("reset-password")]
-    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new ResetPasswordCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);

@@ -17,12 +17,6 @@ namespace MySolution.Api.Controllers;
 [ApiController]
 public class UserController(IMediator mediator) : Controller
 {
-    /// <summary>
-    ///     Get all users with optional filtering and pagination
-    /// </summary>
-    /// <param name="request"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
     [HttpGet]
     [Permission(PermissionConstants.User.View)]
     public async Task<IActionResult> GetUsers([FromQuery] GetUsersRequest request, CancellationToken cancellationToken)
@@ -30,13 +24,7 @@ public class UserController(IMediator mediator) : Controller
         var response = await mediator.Send(new GetUsersQuery(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-
-    /// <summary>
-    ///     Get a user by their ID
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    
     [HttpGet("{id:guid}")]
     [Permission(PermissionConstants.User.View)]
     public async Task<IActionResult> GetUserById(Guid id, CancellationToken cancellationToken)
@@ -44,13 +32,7 @@ public class UserController(IMediator mediator) : Controller
         var response = await mediator.Send(new GetUserByIdQuery(id), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-
-    /// <summary>
-    ///     Create a new user
-    /// </summary>
-    /// <param name="request"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    
     [HttpPost]
     [Permission(PermissionConstants.User.Create)]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
@@ -58,30 +40,15 @@ public class UserController(IMediator mediator) : Controller
         var response = await mediator.Send(new CreateUserCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-
-    /// <summary>
-    ///     Update an existing user
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="request"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    
     [HttpPut("{id:guid}")]
-    [Permission(PermissionConstants.User.Update)]
     public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new UpdateUserCommand(id, request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-
-    /// <summary>
-    ///     Delete a user by their ID
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    
     [HttpDelete("{id:guid}")]
-    [Permission(PermissionConstants.User.Delete)]
     public async Task<IActionResult> DeleteUser(Guid id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new DeleteUserCommand(id), cancellationToken);
@@ -89,7 +56,7 @@ public class UserController(IMediator mediator) : Controller
     }
 
     [HttpPut("roles")]
-    [Permission(PermissionConstants.User.Update)]
+    [Permission(PermissionConstants.Role.Update)]
     public async Task<IActionResult> UpdateUserRoles([FromBody] UpdateUserRolesRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new UpdateUserRolesCommand(request), cancellationToken);
@@ -97,7 +64,6 @@ public class UserController(IMediator mediator) : Controller
     }
     
     [HttpPost("resend-setup-password")]
-
     public async Task<IActionResult> ResendSetupPassword([FromBody] ResendSetupPasswordRequest request , CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new ResendSetupPasswordCommand(request), cancellationToken);

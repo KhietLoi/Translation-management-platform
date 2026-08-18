@@ -1,7 +1,8 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MySolution.Api.Authorization.User;
 using MySolution.Api.Helpers;
+using MySolution.Application.Constants;
 using MySolution.Application.Features.TranslationManagement.Commands.BatchReviewTranslation;
 using MySolution.Application.Features.TranslationManagement.Commands.RejectTranslation;
 using MySolution.Application.Features.TranslationManagement.Commands.ReviewTranslation;
@@ -15,9 +16,9 @@ namespace MySolution.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class TranslationManagementController(IMediator mediator) : Controller
-        {
-            [HttpGet("grid")]
-    [Authorize]
+{
+    [HttpGet("grid")]
+    [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetTranslationGrid(
         [FromQuery] Guid projectId,
         [FromQuery] Guid? namespaceId,
@@ -43,7 +44,7 @@ public class TranslationManagementController(IMediator mediator) : Controller
     }
 
     [HttpPost("{id:guid}/reject")]
-    [Authorize]
+    [Permission(PermissionConstants.Translation.Review)]
     public async Task<IActionResult> RejectTranslation(Guid id, [FromBody] RejectTranslationRequest request,
         CancellationToken cancellationToken)
     {
@@ -52,7 +53,7 @@ public class TranslationManagementController(IMediator mediator) : Controller
     }
 
     [HttpPost("{id:guid}/review")]
-    [Authorize]
+    [Permission(PermissionConstants.Translation.Review)]
     public async Task<IActionResult> ReviewTranslation(Guid id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new ReviewTranslationCommand(id), cancellationToken);
@@ -60,7 +61,7 @@ public class TranslationManagementController(IMediator mediator) : Controller
     }
 
     [HttpPost("{id:guid}/submit")]
-    [Authorize]
+    [Permission(PermissionConstants.Translation.Update)]
     public async Task<IActionResult> SubmitTranslation(Guid id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new SubmitTranslationCommand(id), cancellationToken);
@@ -69,7 +70,7 @@ public class TranslationManagementController(IMediator mediator) : Controller
 
     //GetReviewTranslations endpoint
     [HttpGet("review")]
-    [Authorize]
+    [Permission(PermissionConstants.Translation.Review)]
     public async Task<IActionResult> GetReviewTranslations(
         [FromQuery] GetReviewTranslationsRequest request,
         CancellationToken cancellationToken)
@@ -78,9 +79,10 @@ public class TranslationManagementController(IMediator mediator) : Controller
 
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
+    
     //Update batch review endpoint
     [HttpPost("batch-review")]
-    [Authorize]
+    [Permission(PermissionConstants.Translation.Review)]
     public async Task<IActionResult> BatchReviewTranslations(
         [FromBody] BatchReviewTranslationRequest request,
         CancellationToken cancellationToken)

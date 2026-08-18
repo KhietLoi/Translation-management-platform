@@ -152,7 +152,7 @@ public class ProjectController (IMediator mediator): Controller
     }
     
     //Create project full 
-    [HttpPost("full")]
+    [HttpPost("Pipeline")]
     [Permission(PermissionConstants.Project.Create)]
     public async Task<IActionResult> CreateProjectFull
     (
