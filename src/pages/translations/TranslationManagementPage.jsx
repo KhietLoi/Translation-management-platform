@@ -11,6 +11,7 @@ import UpdateTranslationKeyModal from "../../components/translations/UpdateTrans
 import DeleteTranslationKeyModal from "../../components/translations/DeleteTranslationKeyModal";
 import TranslationDetailDrawer from "../../components/translations/TranslationDetailDrawer";
 import TranslationReviewTab from "../../components/translations/TranslationReviewTab";
+import TranslationBatchUpdateTab from "../../components/translations/TranslationBatchUpdateTab";
 import { toast } from "react-toastify";
 
 import { usePermission } from "../../hooks/usePermission";
@@ -265,22 +266,29 @@ function TranslationManagementPage() {
             {/* TABS FOR SWITCHING MODES */}
             <ul className="nav nav-pills mb-4 gap-2 bg-white p-2 rounded-3 border-0 shadow-sm d-inline-flex">
                 <li className="nav-item">
-                    {
-                        canReviewTranslation && (
-
-                            <button
-                                className={`nav-link px-4 py-2 fw-medium rounded-3 border-0 transition ${activeTab === "grid"
-                                    ? "active bg-dark text-white shadow-sm"
-                                    : "bg-transparent text-secondary hover-text-dark"
-                                    }`}
-                                onClick={() => setActiveTab("grid")}
-                            >
-                                Translations Grid
-                            </button>
-                        )
-                    }
-
+                    <button
+                        className={`nav-link px-4 py-2 fw-medium rounded-3 border-0 transition ${activeTab === "grid"
+                            ? "active bg-dark text-white shadow-sm"
+                            : "bg-transparent text-secondary hover-text-dark"
+                            }`}
+                        onClick={() => setActiveTab("grid")}
+                    >
+                        Translations Grid
+                    </button>
                 </li>
+                {canUpdateTranslation && (
+                    <li className="nav-item">
+                        <button
+                            className={`nav-link px-4 py-2 fw-medium rounded-3 border-0 transition ${activeTab === "update"
+                                ? "active bg-dark text-white shadow-sm"
+                                : "bg-transparent text-secondary hover-text-dark"
+                                }`}
+                            onClick={() => setActiveTab("update")}
+                        >
+                            Batch Update
+                        </button>
+                    </li>
+                )}
                 {canReviewTranslation && (
                     <li className="nav-item">
                         <button
@@ -296,7 +304,7 @@ function TranslationManagementPage() {
                 )}
             </ul>
 
-            {activeTab === "grid" ? (
+            {activeTab === "grid" && (
                 <>
                     {/* FILTER COMPONENT */}
                     <TranslationFilter
@@ -357,7 +365,17 @@ function TranslationManagementPage() {
                         onNext={() => setPageNumber(prev => prev + 1)}
                     />
                 </>
-            ) : (
+            )}
+
+            {activeTab === "update" && (
+                <TranslationBatchUpdateTab
+                    projectId={selectedProjectId}
+                    namespaces={namespaces}
+                    canUpdate={canUpdateTranslation}
+                />
+            )}
+
+            {activeTab === "review" && (
                 <TranslationReviewTab
                     projectId={selectedProjectId}
                     namespaces={namespaces}
