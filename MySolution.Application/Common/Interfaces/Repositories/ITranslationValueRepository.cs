@@ -23,4 +23,17 @@ public interface ITranslationValueRepository : IRepository<TranslationValue>
         Guid projectId,
         Guid languageId,
         Guid namespaceId);
+    
+    Task<List<TranslationValue>> GetBatchTranslationValuesAsync(
+        Guid projectId,
+        Guid languageId,
+        Guid namespaceId,
+        CancellationToken cancellationToken);
+    
+    Task<List<TranslationValue>> GetForBatchTranslationAsync(
+        List<Guid> translationValueIds,
+        Guid projectId,
+        Guid languageId,
+        Guid namespaceId);
     }
+  

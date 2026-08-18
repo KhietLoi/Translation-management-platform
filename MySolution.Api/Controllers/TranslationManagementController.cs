@@ -4,11 +4,13 @@ using MySolution.Api.Authorization.User;
 using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
 using MySolution.Application.Features.TranslationManagement.Commands.BatchReviewTranslation;
+using MySolution.Application.Features.TranslationManagement.Commands.BatchUpdateTranslation;
 using MySolution.Application.Features.TranslationManagement.Commands.RejectTranslation;
 using MySolution.Application.Features.TranslationManagement.Commands.ReviewTranslation;
 using MySolution.Application.Features.TranslationManagement.Commands.SubmitTranslation;
 using MySolution.Application.Features.TranslationManagement.Queries.GetReviewTranslations;
 using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationGrid;
+using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationValuesForBatch;
 using MySolution.Domain.Enums;
 
 namespace MySolution.Api.Controllers;
@@ -89,6 +91,28 @@ public class TranslationManagementController(IMediator mediator) : Controller
     {
         var response = await mediator.Send(new BatchReviewTranslationCommand(request), cancellationToken);
 
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    
+    //Get Update Translation endpoint
+    [HttpGet("update")]
+    [Permission(PermissionConstants.Translation.Update)]
+    public async Task<IActionResult> GetUpdateTranslation(
+        [FromQuery] GetTranslationValuesForBatchRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new GetTranslationValuesForBatchQuery(request), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    
+    //Update batch translation endpoint
+    [HttpPost("batch-update")]
+    [Permission(PermissionConstants.Translation.Update)]
+    public async Task<IActionResult> BatchUpdateTranslations(
+        [FromBody] BatchUpdateTranslationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(new BatchUpdateTranslationCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 }

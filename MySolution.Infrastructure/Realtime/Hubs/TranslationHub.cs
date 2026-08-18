@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using MySolution.Application.Common.Interfaces.Realtime;
 using MySolution.Application.Common.Models.Realtime;
 
@@ -97,7 +97,7 @@ public class TranslationHub :Hub
         return $"translation-value: {translationValueId}";
     }
 
-    // Cập nhật: Thêm tham số string value ở đây
+    // C?p nh?t: Th�m tham s? string value ? d�y
     public async Task Typing(Guid translationValueId, string value)
     {
         var lockInfo = await _translationLockService.GetLockAsync(translationValueId);
@@ -106,9 +106,9 @@ public class TranslationHub :Hub
             return;
         }
         
-        // Cập nhật: Truyền thêm value vào SendAsync để gửi sang cho người khác
+        // C?p nh?t: Truy?n th�m value v�o SendAsync d? g?i sang cho ngu?i kh�c
         await Clients.OthersInGroup(GetTranslationGroupName(translationValueId))
-            .SendAsync("UserTyping", lockInfo.UserId, lockInfo.Username, value);
+            .SendAsync("UserTyping", translationValueId, lockInfo.UserId, lockInfo.Username, value);
     }
 
 }   
