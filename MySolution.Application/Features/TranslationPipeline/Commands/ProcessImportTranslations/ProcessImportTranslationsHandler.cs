@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using MySolution.Application.Common.Interfaces;
+
 using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Realtime;
@@ -17,7 +17,7 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
     private readonly ILogger<ProcessImportTranslationsHandler> _logger;
     private readonly INotificationService _notificationService;
     private readonly IMessageSender _messageSender;
-    private readonly IAzureBlobService _azureBlobService;
+
     
     public ProcessImportTranslationsHandler
     (
@@ -97,7 +97,7 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
                     UserId = job.CreatedBy,
                     UserName = user!.Username,
                     ProjectName = job.Project.Name,
-                    Email = user!.Email,
+                    Email = user.Email,
                     ProjectId = job.ProjectId,
                     JobType = job.Type == TranslationJobType.Import ? "Import" : "Export",
                     FileName = job.FileName ?? string.Empty,

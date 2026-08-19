@@ -77,130 +77,166 @@ public class ImportService : IImportService
         }
 
         // Save translations
-        var result =
-            await SaveTranslationsAsync(
+        var result = await SaveTranslationsAsync(
                 projectId,
                 languageId,
                 namespaceId,
                 translations,
                 cancellationToken);
 
-        _logger.LogInformation(
-            "Import completed for project {ProjectId}. " +
-            "Total={Total}, CreatedKeys={CreatedKeys}, " +
-            "CreatedValues={CreatedValues}, UpdatedValues={UpdatedValues}, " +
-            "Skipped={Skipped}, Failed={Failed}",
-            projectId,
-            result.TotalRecords,
-            result.CreatedKeys,
-            result.CreatedValues,
-            result.UpdatedValues,
-            result.SkippedRecords,
-            result.FailedRecords);
-
         return result;
     }
 
-    private async Task<ImportStatistics> SaveTranslationsAsync(
-        Guid projectId,
-        Guid languageId,
-        Guid namespaceId,
-        Dictionary<string, string> translations,
-        CancellationToken cancellationToken)
+ private async Task<ImportStatistics> SaveTranslationsAsync(
+    Guid projectId,
+    Guid languageId,
+    Guid namespaceId,
+    Dictionary<string, string> translations,
+    CancellationToken cancellationToken)
+{
+    var result = new ImportStatistics
     {
-        var result = new ImportStatistics
+        TotalRecords = translations.Count
+    };
+
+    // Get all existing translation keys with their translation values
+    var translationKeys =
+        await _unitOfWork.TranslationKey
+            .GetByProjectAndNamespaceWithTranslationValuesAsync(projectId, namespaceId, cancellationToken);
+
+    var keyLookup = translationKeys.ToDictionary(x => x.Key, x => x);
+
+    // Get all languages of project once
+    var projectLanguages =
+        await _unitOfWork.ProjectLanguage.GetByProjectIdWithLanguageAsync(projectId);
+
+    foreach (var item in translations)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // Skip empty key
+        if (string.IsNullOrWhiteSpace(item.Key))
         {
-            TotalRecords = translations.Count
-        };
+            result.SkippedRecords++;
 
-        var translationKeys =
-            await _unitOfWork.TranslationKey
-                .GetByProjectAndNamespaceWithTranslationValuesAsync(
-                    projectId,
-                    namespaceId,
-                    cancellationToken);
+            _logger.LogWarning(
+                "Skipped import record because translation key is empty.");
 
-        var keyLookup = translationKeys.ToDictionary(x => x.Key, x => x);
+            continue;
+        }
 
-        foreach (var item in translations)
+        var key = item.Key.Trim();
+        var value = item.Value.Trim();
+        if (!keyLookup.TryGetValue(key, out var translationKey))
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            // Skip empty key
-            if (string.IsNullOrWhiteSpace(item.Key))
+            // Create new TranslationKey
+            translationKey = new TranslationKey
             {
-                result.SkippedRecords++;
-                _logger.LogWarning("Skipped import record because translation key is empty.");
-                continue;
-            }
+                Id = Guid.CreateVersion7(),
+                ProjectId = projectId,
+                NamespaceId = namespaceId,
+                Key = key
+            };
 
-            var key = item.Key.Trim();
-            var value = item.Value.Trim();
-            // Find existing TranslationKey
-            if (!keyLookup.TryGetValue(key, out var translationKey))
+            await _unitOfWork.TranslationKey.Add(translationKey);
+            keyLookup[key] = translationKey;
+            result.CreatedKeys++;
+            _logger.LogInformation("Created translation key {Key}", key);
+
+          
+            // Create TranslationValue for every project language
+            foreach (var projectLanguage in projectLanguages)
             {
-                // Create new TranslationKey
-                translationKey = new TranslationKey
-                {
-                    Id = Guid.CreateVersion7(),
-                    ProjectId = projectId,
-                    NamespaceId = namespaceId,
-                    Key = key
-                };
+                var isImportedLanguage =
+                    projectLanguage.LanguageId == languageId;
 
-                await _unitOfWork.TranslationKey.Add(translationKey);
-                keyLookup[key] = translationKey;
-                result.CreatedKeys++;
-                _logger.LogInformation("Created translation key {Key}", key);
-            }
-
-            // Find TranslationValue for target language
-            var translationValue =
-                translationKey.TranslationValues.FirstOrDefault(x => x.LanguageId == languageId);
-
-            // New TranslationValue
-            if (translationValue == null)
-            {
-                translationValue = new TranslationValue
+                var newTranslationValue = new TranslationValue
                 {
                     Id = Guid.CreateVersion7(),
                     TranslationKeyId = translationKey.Id,
-                    LanguageId = languageId,
-                    Value = value,
-                    Status = TranslationStatus.Draft,
+                    LanguageId = projectLanguage.LanguageId,
+
+                    Value = isImportedLanguage ? value : string.Empty,
+                    Status = isImportedLanguage && !string.IsNullOrWhiteSpace(value)
+                        ? TranslationStatus.Draft
+                        : TranslationStatus.Missing,
                     CreatedAt = DateTime.UtcNow
                 };
 
-                translationKey.TranslationValues.Add(translationValue);
-                await _unitOfWork.TranslationValue.Add(translationValue);
-                result.CreatedValues++;
-                _logger.LogInformation("Created translation value for key {Key}, language {LanguageId}", key, languageId);
-                continue;
+                translationKey.TranslationValues.Add(newTranslationValue);
+                await _unitOfWork.TranslationValue.Add(newTranslationValue);
+                
+                if (isImportedLanguage)
+                {
+                    result.CreatedValues++;
+                }
             }
 
-            // Do not overwrite Reviewed / Published/ Translated translation
-            if (translationValue.Status == TranslationStatus.Reviewed ||
-                translationValue.Status == TranslationStatus.Published||
-                translationValue.Status == TranslationStatus.Translated)
-            {
-                result.SkippedRecords++;
-                _logger.LogWarning("Skipped translation key {Key} because current status is {Status}", key, translationValue.Status);
-                continue;
-            }
-
-            // Update existing Draft / Rejected translation
-            translationValue.Value = value;
-            translationValue.Status = TranslationStatus.Draft;
-            translationValue.ReviewedAt = new DateTime();
-            translationValue.ReviewedBy = null;
-            translationValue.PublishedAt = null;
-            translationValue.PublishedBy = null;
-            translationValue.RejectionReason = null;
-            translationValue.UpdatedAt = DateTime.UtcNow;
-            result.UpdatedValues++;
-
-            _logger.LogInformation("Updated translation value for key {Key}, language {LanguageId}", key, languageId);
+            continue;
         }
-        
+
+        foreach (var projectLanguage in projectLanguages)
+        {
+            var existingTranslationValue =
+                translationKey.TranslationValues
+                    .FirstOrDefault(x => x.LanguageId == projectLanguage.LanguageId);
+            if (existingTranslationValue != null)
+            {
+                continue;
+            }
+
+            var missingTranslationValue = new TranslationValue
+            {
+                Id = Guid.CreateVersion7(),
+                TranslationKeyId = translationKey.Id,
+                LanguageId = projectLanguage.LanguageId,
+                Value = string.Empty,
+                Status = TranslationStatus.Missing,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            translationKey.TranslationValues.Add(missingTranslationValue);
+            await _unitOfWork.TranslationValue.Add(missingTranslationValue);
+        }
+
+      
+        // 3. Find TranslationValue of imported language
+        var translationValue =
+            translationKey.TranslationValues
+                .FirstOrDefault(x => x.LanguageId == languageId);
+
+        if (translationValue == null)
+        {
+            throw new InvalidOperationException($"Translation value for key '{key}' and language '{languageId}' was not created.");
+        }
+
+      
+        // 4. Do not overwrite protected translations
+
+        if (translationValue.Status == TranslationStatus.Reviewed ||
+            translationValue.Status == TranslationStatus.Published ||
+            translationValue.Status == TranslationStatus.Translated)
+        {
+            result.SkippedRecords++;
+            _logger.LogWarning(
+                "Skipped translation key {Key} because current status is {Status}", key, translationValue.Status);
+            continue;
+        }
+
+       
+        // 5. Update existing TranslationValue
+
+        translationValue.Value = value;
+        translationValue.Status = string.IsNullOrWhiteSpace(value) ? TranslationStatus.Missing : TranslationStatus.Draft;
+        translationValue.ReviewedAt = null;
+        translationValue.ReviewedBy = null;
+        translationValue.PublishedAt = null;
+        translationValue.PublishedBy = null;
+        translationValue.RejectionReason = null;
+        translationValue.UpdatedAt = DateTime.UtcNow;
+        result.UpdatedValues++;
+    }
+
         await _unitOfWork.SaveAsync(cancellationToken);
         return result;
     }
