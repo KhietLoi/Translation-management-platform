@@ -38,11 +38,8 @@ export default function Dashboard() {
       setDashboardData(data);
       setError(null);
     } catch (err) {
-      console.error("Failed to load dashboard data:", err);
-      setError("Không thể tải dữ liệu Dashboard. Vui lòng kiểm tra kết nối.");
-      if (!isSilent) {
-        toast.error("Không thể nạp dữ liệu Dashboard");
-      }
+      return;
+
     } finally {
       setLoading(false);
       setRefreshing(false);
