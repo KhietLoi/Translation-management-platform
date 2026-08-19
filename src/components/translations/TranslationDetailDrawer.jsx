@@ -18,6 +18,7 @@ import {
   TranslationStatus,
   getStatusText,
   getStatusBadgeClass,
+  normalizeStatus,
 } from "../../utils/translationStatus";
 
 function Info({ label, children }) {
@@ -55,8 +56,8 @@ function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpd
   const lastTypedRef = useRef(0);
   const typingDebounceTimeoutRef = useRef(null);
 
-  const valId = translationValue?.translationValueId;
-  const activeLock = valId ? locks[valId] : null;
+  const valId = translationValue?.translationValueId || translationValue?.id;
+  const activeLock = valId ? (locks[valId] || locks[valId?.toString()?.toLowerCase()]) : null;
 
   // Check if locked by another user
   const isLockedByOther =
@@ -93,13 +94,6 @@ function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpd
       const eventUserId = event?.userId?.toString().toLowerCase();
       const myUserId = currentUserId?.toString().toLowerCase();
 
-      console.log("[SignalR] Typing Event Received:", {
-        eventUserId,
-        myUserId,
-        isSelf: eventUserId === myUserId,
-        value: event.value
-      });
-
       // Sync only if event is from another user and both IDs are present
       if (eventUserId && myUserId && eventUserId !== myUserId) {
         setTypingUser(event.username || "Ai đó");
@@ -132,6 +126,17 @@ function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpd
     };
   }, [show, valId, currentUserId]);
 
+  // Auto refresh drawer detail on SignalR notification
+  useEffect(() => {
+    const handleNotification = () => {
+      if (show && valId) {
+        loadDetail();
+      }
+    };
+    window.addEventListener("translationNotification", handleNotification);
+    return () => window.removeEventListener("translationNotification", handleNotification);
+  }, [show, valId]);
+
   const handleTextareaChange = (e) => {
     const newVal = e.target.value;
     setValue(newVal);
@@ -156,11 +161,10 @@ function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpd
   };
 
   const loadDetail = async () => {
+    if (!valId) return;
     try {
       setLoading(true);
-      const { data } = await getTranslationValueById(
-        translationValue.translationValueId
-      );
+      const { data } = await getTranslationValueById(valId);
 
       setDetail(data);
       setValue(data.value ?? "");
@@ -177,6 +181,9 @@ function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpd
       setProcessing(true);
       await action();
       toast.success(successMessage);
+      window.dispatchEvent(
+        new CustomEvent("translationNotification", { detail: { type: "TranslationDetailUpdated" } })
+      );
       await loadDetail();
       if (onSuccess) {
         await onSuccess();
@@ -191,10 +198,12 @@ function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpd
     }
   };
 
+  const targetId = detail?.id || detail?.translationValueId || valId;
+
   const handleSave = () =>
     execute(
       () =>
-        updateTranslationValue(detail.id, {
+        updateTranslationValue(targetId, {
           value,
         }),
       "Translation saved successfully"
@@ -203,16 +212,22 @@ function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpd
   const handleSubmit = () =>
     execute(
       async () => {
-        await updateTranslationValue(detail.id, { value });
-        await submitTranslation(detail.id);
+        await updateTranslationValue(targetId, { value });
+        await submitTranslation(targetId);
       },
       "Translation submitted for review"
+    );
+
+  const handleReview = () =>
+    execute(
+      () => reviewTranslation(targetId),
+      "Translation reviewed and approved"
     );
 
   const handleReject = () =>
     execute(
       () =>
-        rejectTranslation(detail.id, {
+        rejectTranslation(targetId, {
           reason,
         }),
       "Translation rejected"
@@ -220,11 +235,17 @@ function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpd
 
   if (!show) return null;
 
+  const numStatus = normalizeStatus(detail?.status);
+
   const canSubmit = [
     TranslationStatus.Missing,
     TranslationStatus.Draft,
     TranslationStatus.Rejected,
-  ].includes(detail?.status);
+  ].includes(numStatus);
+
+  const isImmutable =
+    numStatus === TranslationStatus.Reviewed ||
+    numStatus === TranslationStatus.Published;
 
   return (
     <>
@@ -295,12 +316,7 @@ function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpd
                     rows="6"
                     className="form-control"
                     value={value}
-                    disabled={
-                      !canUpdate ||
-                      isLockedByOther ||
-                      detail.status === TranslationStatus.Reviewed ||
-                      detail.status === TranslationStatus.Published
-                    }
+                    disabled={!canUpdate || isLockedByOther || isImmutable}
                     onChange={handleTextareaChange}
                   />
                   {typingUser && (
@@ -320,7 +336,7 @@ function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpd
                     disabled={
                       !canReview ||
                       isLockedByOther ||
-                      detail.status !== TranslationStatus.Translated
+                      numStatus !== TranslationStatus.Translated
                     }
                     onChange={(e) => setReason(e.target.value)}
                   />
@@ -335,18 +351,15 @@ function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpd
                 <Info label="Reviewed At">{detail.reviewedAt ?? "-"}</Info>
 
                 <div className="d-flex gap-2 mt-4 pt-2 border-top">
-                  {canUpdate &&
-                    !isLockedByOther &&
-                    detail.status !== TranslationStatus.Reviewed &&
-                    detail.status !== TranslationStatus.Published && (
-                      <button
-                        className="btn btn-primary"
-                        disabled={processing}
-                        onClick={handleSave}
-                      >
-                        Save
-                      </button>
-                    )}
+                  {canUpdate && !isLockedByOther && !isImmutable && (
+                    <button
+                      className="btn btn-primary"
+                      disabled={processing}
+                      onClick={handleSave}
+                    >
+                      Save
+                    </button>
+                  )}
 
                   {canUpdate && !isLockedByOther && canSubmit && (
                     <button
@@ -360,12 +373,12 @@ function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpd
 
                   {canReview &&
                     !isLockedByOther &&
-                    detail.status === TranslationStatus.Translated && (
+                    numStatus === TranslationStatus.Translated && (
                       <>
                         <button
                           className="btn btn-success"
                           disabled={processing}
-                          onClick={() => execute(() => reviewTranslation(detail.id))}
+                          onClick={handleReview}
                         >
                           Review
                         </button>

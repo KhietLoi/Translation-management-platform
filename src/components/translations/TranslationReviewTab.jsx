@@ -117,6 +117,17 @@ function TranslationReviewTab({ projectId, namespaces = [], canReview, canPublis
         loadReviewItems();
     }, [projectId, selectedNamespaceId, selectedLanguageId]);
 
+    // Auto refresh review grid on SignalR notification
+    useEffect(() => {
+        const handleNotification = () => {
+            if (projectId && selectedNamespaceId && selectedLanguageId) {
+                loadReviewItems();
+            }
+        };
+        window.addEventListener("translationNotification", handleNotification);
+        return () => window.removeEventListener("translationNotification", handleNotification);
+    }, [projectId, selectedNamespaceId, selectedLanguageId]);
+
     // ==========================================
     // INDIVIDUAL ACTIONS
     // ==========================================
@@ -250,6 +261,11 @@ function TranslationReviewTab({ projectId, namespaces = [], canReview, canPublis
 
             toast.success(
                 `Successfully submitted review! Approved: ${data.approved || 0}, Rejected: ${data.rejected || 0}`
+            );
+
+            // Dispatch translationNotification to refresh grid data across all listening tabs/components
+            window.dispatchEvent(
+                new CustomEvent("translationNotification", { detail: { type: "BatchReviewSuccess" } })
             );
 
             // Reload the list since items are now approved/rejected and will disappear from review list

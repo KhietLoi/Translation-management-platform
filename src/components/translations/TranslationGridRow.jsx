@@ -1,7 +1,9 @@
+import { useState, useEffect } from "react";
 import TranslationStatusBadge from "./TranslationStatusBadge";
 import { getOverallStatus } from "../../helper/calcStatus";
 import { getStatusColor } from "../../utils/translationStatus";
 import { useTranslationLocks } from "../../hooks/useTranslationLocks";
+import signalRService from "../../services/signalrService";
 import { LockClosedIcon } from "@heroicons/react/24/solid";
 
 function TranslationGridRow({
@@ -13,6 +15,29 @@ function TranslationGridRow({
   showActions,
 }) {
   const { locks } = useTranslationLocks();
+  const [liveValues, setLiveValues] = useState({});
+
+  // Reset liveValues when fresh item data arrives from server
+  useEffect(() => {
+    setLiveValues({});
+  }, [item]);
+
+  useEffect(() => {
+    const unsubscribe = signalRService.subscribeTyping((event) => {
+      const valId = event?.translationValueId;
+      if (valId && event.value !== undefined) {
+        const lowerId = valId.toString().toLowerCase();
+        setLiveValues((prev) => ({
+          ...prev,
+          [valId]: event.value,
+          [lowerId]: event.value,
+        }));
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const overallStatus = getOverallStatus(item.values);
   const hasActions = showActions ?? Boolean(onEdit || onDelete);
 
@@ -39,17 +64,23 @@ function TranslationGridRow({
 
       {/* LANGUAGES */}
       {languages.map((language) => {
-        const valueObj = item.values.find(
-          (x) => x.languageId === language.languageId
+        const langId = language.languageId || language.LanguageId || language.id || language.Id;
+        const valList = item.values || item.Values || [];
+        const valueObj = valList.find(
+          (x) => (x.languageId || x.LanguageId) === langId
         );
 
-        const cellColor = getStatusColor(valueObj?.status);
-        const valId = valueObj?.translationValueId;
-        const activeLock = valId ? locks[valId] : null;
+        const valStatus = valueObj ? (valueObj.status ?? valueObj.Status) : undefined;
+        const cellColor = getStatusColor(valStatus);
+        const valId = valueObj ? (valueObj.translationValueId || valueObj.TranslationValueId || valueObj.id || valueObj.Id) : null;
+        const cellVal = valueObj ? (valueObj.value ?? valueObj.Value) : null;
+
+        const activeLock = valId ? (locks[valId] || locks[valId?.toString()?.toLowerCase()]) : null;
+        const displayValue = valId ? (liveValues[valId] ?? liveValues[valId?.toString()?.toLowerCase()] ?? cellVal) : cellVal;
 
         return (
           <td
-            key={language.languageId}
+            key={langId}
             className={`py-3 align-middle position-relative ${
               activeLock ? "cell-locked-overlay" : ""
             }`}
@@ -59,12 +90,12 @@ function TranslationGridRow({
             }}
             onClick={() =>
               onCellClick({
-                translationValueId: valueObj?.translationValueId ?? null,
-                translationKeyId: item.translationKeyId,
-                languageId: language.languageId,
-                languageCode: language.languageCode,
-                key: item.key,
-                namespaceName: item.namespaceName,
+                translationValueId: valId,
+                translationKeyId: item.translationKeyId || item.TranslationKeyId || item.id || item.Id,
+                languageId: langId,
+                languageCode: language.languageCode || language.LanguageCode || language.code || language.Code,
+                key: item.key || item.Key,
+                namespaceName: item.namespaceName || item.NamespaceName,
               })
             }
           >
@@ -78,14 +109,14 @@ function TranslationGridRow({
                 </div>
               )}
 
-              {valueObj ? (
+              {displayValue !== undefined && displayValue !== null ? (
                 <span
                   className="text-dark fs-6"
                   style={{
                     wordBreak: "break-word",
                   }}
                 >
-                  {valueObj.value}
+                  {displayValue}
                 </span>
               ) : (
                 <span className="text-muted fst-italic opacity-50">

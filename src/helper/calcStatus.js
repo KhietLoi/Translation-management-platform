@@ -1,35 +1,36 @@
-export const getOverallStatus = (values = []) => {
+import { normalizeStatus, TranslationStatus } from "../utils/translationStatus";
 
+export const getOverallStatus = (rawValues = []) => {
+    const values = Array.isArray(rawValues) ? rawValues : [];
     if (!values.length) {
-        return 0;
+        return TranslationStatus.Missing;
     }
 
-    const statuses =
-        values.map(x => x.status);
+    const statuses = values.map(x => normalizeStatus(x?.status ?? x?.Status));
 
-    if (statuses.some(x => x === 0)) {
-        return 0; // Missing
+    if (statuses.some(x => x === TranslationStatus.Missing)) {
+        return TranslationStatus.Missing;
     }
 
-    if (statuses.some(x => x === 1)) {
-        return 1; // Draft
+    if (statuses.some(x => x === TranslationStatus.Draft)) {
+        return TranslationStatus.Draft;
     }
 
-    if (statuses.some(x => x === 3)) {
-        return 3; // Rejected
+    if (statuses.some(x => x === TranslationStatus.Rejected)) {
+        return TranslationStatus.Rejected;
     }
 
-    if (statuses.some(x => x === 2)) {
-        return 2; // Translated
+    if (statuses.some(x => x === TranslationStatus.Translated)) {
+        return TranslationStatus.Translated;
     }
 
-    if (statuses.every(x => x === 5)) {
-        return 5; // Published
+    if (statuses.every(x => x === TranslationStatus.Published)) {
+        return TranslationStatus.Published;
     }
 
-    if (statuses.every(x => x === 4 || x === 5)) {
-        return 4; // Reviewed
+    if (statuses.every(x => x === TranslationStatus.Reviewed || x === TranslationStatus.Published)) {
+        return TranslationStatus.Reviewed;
     }
 
-    return 0;
+    return TranslationStatus.Missing;
 };

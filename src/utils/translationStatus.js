@@ -7,8 +7,25 @@ export const TranslationStatus = {
     Published: 5
 };
 
+export const normalizeStatus = (status) => {
+    if (typeof status === "number") return status;
+    if (typeof status === "string") {
+        const parsed = parseInt(status, 10);
+        if (!isNaN(parsed)) return parsed;
+        const lower = status.trim().toLowerCase();
+        if (lower === "missing" || lower === "0") return TranslationStatus.Missing;
+        if (lower === "draft" || lower === "1") return TranslationStatus.Draft;
+        if (lower === "translated" || lower === "submitted" || lower === "2") return TranslationStatus.Translated;
+        if (lower === "rejected" || lower === "3") return TranslationStatus.Rejected;
+        if (lower === "reviewed" || lower === "approved" || lower === "4") return TranslationStatus.Reviewed;
+        if (lower === "published" || lower === "5") return TranslationStatus.Published;
+    }
+    return Number(status);
+};
+
 export const getStatusText = (status) => {
-    switch (Number(status)) {
+    const numStatus = normalizeStatus(status);
+    switch (numStatus) {
         case TranslationStatus.Missing:
             return "Missing";
 
@@ -16,7 +33,7 @@ export const getStatusText = (status) => {
             return "Draft";
 
         case TranslationStatus.Translated:
-            return "Translated";
+            return "Submitted";
 
         case TranslationStatus.Rejected:
             return "Rejected";
@@ -33,8 +50,8 @@ export const getStatusText = (status) => {
 };
 
 export const getStatusColor = (status) => {
-    switch (Number(status)) {
-
+    const numStatus = normalizeStatus(status);
+    switch (numStatus) {
         case TranslationStatus.Missing:
             return "secondary";
 
@@ -54,7 +71,7 @@ export const getStatusColor = (status) => {
             return "success";
 
         default:
-            return "dark";
+            return "secondary";
     }
 };
 
