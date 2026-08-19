@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Application.Common.Models;
 using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
 
@@ -9,6 +10,8 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 public class TranslationValueRepository (AppDbContext context, ILogger logger) : 
     Repository<TranslationValue>(context,logger), ITranslationValueRepository
 {
+    private ITranslationValueRepository _translationValueRepositoryImplementation;
+
     public async Task<TranslationValue?> GetByIdAsync(Guid id)
     {
         return await DbSet
@@ -139,12 +142,13 @@ public class TranslationValueRepository (AppDbContext context, ILogger logger) :
             .Where(x =>
                 x.TranslationKey.ProjectId == projectId &&
                 x.TranslationKey.NamespaceId == namespaceId &&
-                x.LanguageId == languageId
-               )
+                x.LanguageId == languageId && 
+                (x.Status == TranslationStatus.Draft ||
+                 x.Status == TranslationStatus.Missing ||
+                 x.Status == TranslationStatus.Rejected))
             .OrderBy(x => x.TranslationKey.Key)
             .ToListAsync(cancellationToken);
     }
-    
 
     public async Task<List<TranslationValue>> GetForBatchTranslationAsync(
         List<Guid> translationValueIds,
@@ -168,5 +172,66 @@ public class TranslationValueRepository (AppDbContext context, ILogger logger) :
                     x.Status == TranslationStatus.Draft
                 ))
             .ToListAsync();
+    }
+
+    public async Task<int> CountTotalByProjectIdsAsync(IReadOnlyCollection<Guid> projectIds, CancellationToken cancellationToken)
+    {
+        if (projectIds.Count == 0) return 0;
+
+        return await DbSet
+            .AsNoTracking()
+            .CountAsync(x => projectIds.Contains(x.TranslationKey.ProjectId), cancellationToken);
+    }
+
+    public async Task<int> CountTranslatedByProjectIdsAsync(IReadOnlyCollection<Guid> projectIds, CancellationToken cancellationToken)
+    {
+        if (projectIds.Count == 0)
+        {
+            return 0;
+        }
+        
+        return await  DbSet
+            .AsNoTracking()
+            .CountAsync(x => 
+                projectIds.Contains(x.TranslationKey.ProjectId) && 
+                    x.Status != TranslationStatus.Missing, cancellationToken);
+    }
+
+    public async Task<int> CountPendingReviewByProjectIdsAsync(IReadOnlyCollection<Guid> projectIds, CancellationToken cancellationToken)
+    {
+        if (projectIds.Count == 0)
+        {
+            return 0;
+        }
+        
+        return await DbSet
+            .AsNoTracking()
+            .CountAsync(x => 
+                projectIds.Contains(x.TranslationKey.ProjectId) &&
+                    x.Status == TranslationStatus.Translated, cancellationToken);
+    }
+
+    public async Task<List<LanguageProgressDto>> GetLanguageProgressAsync(IReadOnlyCollection<Guid> projectIds, CancellationToken cancellationToken)
+    {
+        if (projectIds.Count == 0) return [];
+
+        return await DbSet
+            .AsNoTracking()
+            .Where(x =>
+                projectIds.Contains(x.TranslationKey.ProjectId))
+            .GroupBy(x => new
+            {
+                x.LanguageId,
+                x.Language.Code
+            })
+            .Select(g => new LanguageProgressDto
+            {
+                LanguageId = g.Key.LanguageId,
+                LanguageCode = g.Key.Code,
+                Total = g.Count(),
+                Translated = g.Count(x => x.Status == TranslationStatus.Translated ||  x.Status == TranslationStatus.Published)
+            })
+            .OrderBy(x => x.LanguageCode)
+            .ToListAsync(cancellationToken);
     }
 }

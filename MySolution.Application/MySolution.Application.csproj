@@ -18,6 +18,7 @@
         <Folder Include="Features\Application\Command\" />
         <Folder Include="Features\Application\Queries\" />
         <Folder Include="Features\AuditLogs\Queries\" />
+        <Folder Include="Features\Dashboard\Queries\" />
         <Folder Include="Features\Language\Commands\" />
         <Folder Include="Features\Language\Queries\" />
         <Folder Include="Features\Notification\Commands\" />

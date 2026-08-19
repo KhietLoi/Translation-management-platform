@@ -35,4 +35,5 @@ public interface ITranslationKeyRepository : IRepository<TranslationKey>
             CancellationToken cancellationToken);
     
     Task<List<TranslationKey>> GetPublishedTranslationsByProjectAsync(Guid projectId, CancellationToken cancellationToken);
+    Task<int> CountByProjectIdsAsync(IReadOnlyCollection<Guid> projectIds, CancellationToken cancellationToken);
 }

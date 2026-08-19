@@ -92,6 +92,7 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
                 AuditAction.RejectTranslation,
                 AuditConstants.TranslationValue,
                 entity.Id,
+                entity.TranslationKey.ProjectId,
                 oldValue,
                 newValue
             );

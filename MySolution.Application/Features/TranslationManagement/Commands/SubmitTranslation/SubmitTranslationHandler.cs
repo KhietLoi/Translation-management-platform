@@ -74,6 +74,7 @@ public class SubmitTranslationHandler : IRequestHandler<SubmitTranslationCommand
                 AuditAction.SubmitTranslation,
                 AuditConstants.TranslationValue,
                 entity.Id,
+                entity.TranslationKey.ProjectId,
                 oldValue,
                 newValue);
             

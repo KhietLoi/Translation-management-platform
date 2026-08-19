@@ -97,7 +97,7 @@ public class TranslationHub :Hub
         return $"translation-value: {translationValueId}";
     }
 
-    // C?p nh?t: Thêm tham s? string value ? dây
+ 
     public async Task Typing(Guid translationValueId, string value)
     {
         var lockInfo = await _translationLockService.GetLockAsync(translationValueId);
@@ -105,8 +105,6 @@ public class TranslationHub :Hub
         {
             return;
         }
-        
-        // C?p nh?t: Truy?n thêm value vào SendAsync d? g?i sang cho ngu?i khác
         await Clients.OthersInGroup(GetTranslationGroupName(translationValueId))
             .SendAsync("UserTyping", translationValueId, lockInfo.UserId, lockInfo.Username, value);
     }

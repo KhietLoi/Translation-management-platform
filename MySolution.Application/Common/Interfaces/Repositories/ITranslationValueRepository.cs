@@ -1,4 +1,5 @@
-﻿using MySolution.Domain.Entities;
+﻿using MySolution.Application.Common.Models;
+using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Common.Interfaces.Repositories;
@@ -35,5 +36,10 @@ public interface ITranslationValueRepository : IRepository<TranslationValue>
         Guid projectId,
         Guid languageId,
         Guid namespaceId);
-    }
+    
+    Task<int> CountTotalByProjectIdsAsync(IReadOnlyCollection<Guid> projectIds, CancellationToken cancellationToken);
+    Task<int> CountTranslatedByProjectIdsAsync(IReadOnlyCollection<Guid> projectIds, CancellationToken cancellationToken);
+    Task<int> CountPendingReviewByProjectIdsAsync(IReadOnlyCollection<Guid> projectIds, CancellationToken cancellationToken);
+    Task<List<LanguageProgressDto>> GetLanguageProgressAsync(IReadOnlyCollection<Guid> projectIds, CancellationToken cancellationToken);
+}
   

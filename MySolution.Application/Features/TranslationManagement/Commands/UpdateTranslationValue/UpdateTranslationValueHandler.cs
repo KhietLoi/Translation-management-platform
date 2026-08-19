@@ -111,6 +111,7 @@ public class UpdateTranslationValueHandler : IRequestHandler<UpdateTranslationVa
                 AuditAction.Update,
                 AuditConstants.TranslationValue,
                 entity.Id,
+                entity.TranslationKey.ProjectId,
                 oldValue,
                 newValue);
             

@@ -79,6 +79,7 @@ public class ReviewTranslationHandler : IRequestHandler<ReviewTranslationCommand
                 AuditAction.ReviewTranslation,
                 AuditConstants.TranslationValue,
                 entity.Id,
+                entity.TranslationKey.ProjectId,
                 oldValue,
                 newValue);
 

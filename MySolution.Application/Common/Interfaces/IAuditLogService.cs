@@ -9,6 +9,7 @@ public interface IAuditLogService
         AuditAction action,
         string entityName,
         Guid entityId,
+        Guid? projectId,
         object? oldValue,
         object? newValue);
 }

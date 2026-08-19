@@ -162,5 +162,13 @@ public class TranslationKeyRepository (AppDbContext context, ILogger logger) :
             .Where(x => x.ProjectId == projectId)
             .ToListAsync(cancellationToken);
     }
-    
+
+    public async Task<int> CountByProjectIdsAsync(IReadOnlyCollection<Guid> projectIds, CancellationToken cancellationToken)
+    {
+        if (projectIds.Count == 0) return 0;
+        
+        return await DbSet
+            .AsNoTracking()
+            .CountAsync(x => projectIds.Contains(x.ProjectId), cancellationToken);
+    }
 }
