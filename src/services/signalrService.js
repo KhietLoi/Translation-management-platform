@@ -167,6 +167,20 @@ class SignalRService {
           "PublishCompleted",
           "Notification",
           "ReceiveMessage",
+          "TranslationUpdated",
+          "TranslationValueUpdated",
+          "TranslationKeyCreated",
+          "TranslationKeyUpdated",
+          "TranslationKeyDeleted",
+          "TranslationSubmitted",
+          "TranslationReviewed",
+          "TranslationBatchUpdated",
+          "BatchUpdateCompleted",
+          "UpdateCompleted",
+          "TranslationChanged",
+          "DataChanged",
+          "RefreshGrid",
+          "UpdateGrid",
         ];
 
         eventNames.forEach((evt) => {

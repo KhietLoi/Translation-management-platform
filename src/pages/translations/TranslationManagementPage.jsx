@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useOutletContext } from "react-router-dom";
 import { getProjects, getProjectNamespaces } from "../../services/projectService";
 import { getTranslationGrid, createTranslationKey, updateTranslationKey, deleteTranslationKey, getTranslationValueById } from "../../services/translationManagementService";
@@ -113,7 +113,8 @@ function TranslationManagementPage() {
                 pageSize
             });
 
-            setGridData(response.data);
+            const gridObj = response?.data?.items ? response.data : (response?.items ? response : response?.data || response);
+            setGridData(gridObj);
         } catch (error) {
             console.error("Failed to load translation grid:", error);
         } finally {
@@ -192,8 +193,11 @@ function TranslationManagementPage() {
     }, [selectedProjectId]);
 
     useEffect(() => {
-        loadGrid();
+        if (activeTab === "grid") {
+            loadGrid();
+        }
     }, [
+        activeTab,
         selectedProjectId,
         selectedNamespaceId,
         numberOfLanguages,
@@ -201,11 +205,14 @@ function TranslationManagementPage() {
         canViewTranslation
     ]);
 
+    const loadGridRef = useRef(loadGrid);
+    loadGridRef.current = loadGrid;
+
     // Auto refresh grid on SignalR notification
     useEffect(() => {
         const handleNotification = () => {
             if (selectedProjectId) {
-                loadGrid();
+                loadGridRef.current();
             }
         };
         window.addEventListener("translationNotification", handleNotification);

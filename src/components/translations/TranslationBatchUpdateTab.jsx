@@ -42,14 +42,14 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
 
     // Local changes: { [translationValueId]: string }
     const [localValues, setLocalValues] = useState({});
-    
+
     // Checkbox selections for batch update: [translationValueId, ...]
     const [selectedItemIds, setSelectedItemIds] = useState([]);
 
     // Typing status for other users: { [translationValueId]: username }
     const [typingUsers, setTypingUsers] = useState({});
     const typingTimeoutsRef = useRef({}); // { [translationValueId]: timeoutId }
-    
+
     const lastTypedRef = useRef({}); // { [translationValueId]: timestamp }
     const typingDebounceTimeoutsRef = useRef({}); // { [translationValueId]: timeoutId }
 
@@ -148,6 +148,8 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
     // EFFECT: SignalR Locking Management
     // ==========================================
     useEffect(() => {
+        if (!currentUserId) return;
+
         const currentItems = items || [];
         const prevItems = prevItemsRef.current || [];
 
@@ -161,9 +163,16 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
             signalRService.leaveTranslationValueGroup(id);
         });
 
-        // Lock new translation values
-        const toLock = currentIds.filter(id => !prevIds.includes(id));
-        toLock.forEach(id => {
+        // Lock new editable translation values
+        const toLock = currentItems.filter(item => {
+            const id = item.translationValueId;
+            const isNew = !prevIds.includes(id);
+            const isImmutableStatus = item.status === TranslationStatus.Reviewed || item.status === TranslationStatus.Published;
+            return isNew && !isImmutableStatus;
+        });
+
+        toLock.forEach(item => {
+            const id = item.translationValueId;
             signalRService.acquireLock(id, currentUserId, currentUserName);
             signalRService.joinTranslationValueGroup(id);
         });
@@ -171,14 +180,26 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
         prevItemsRef.current = currentItems;
     }, [items, currentUserId, currentUserName]);
 
-    // Clean up locks on unmount
+    // Clean up locks on unmount and browser window reload/close
     useEffect(() => {
-        return () => {
+        const releaseAllActiveLocks = () => {
+            if (!currentUserId) return;
             const finalItems = prevItemsRef.current || [];
             finalItems.forEach(item => {
                 signalRService.releaseLock(item.translationValueId, currentUserId);
                 signalRService.leaveTranslationValueGroup(item.translationValueId);
             });
+        };
+
+        const handleBeforeUnload = () => {
+            releaseAllActiveLocks();
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+            releaseAllActiveLocks();
         };
     }, [currentUserId]);
 
@@ -229,6 +250,19 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
     }, [currentUserId]);
 
     // ==========================================
+    // EFFECT: Realtime Auto Refresh Grid on SignalR Notification
+    // ==========================================
+    useEffect(() => {
+        const handleNotification = () => {
+            if (projectId && selectedNamespaceId && selectedLanguageId) {
+                loadUpdateItems();
+            }
+        };
+        window.addEventListener("translationNotification", handleNotification);
+        return () => window.removeEventListener("translationNotification", handleNotification);
+    }, [projectId, selectedNamespaceId, selectedLanguageId]);
+
+    // ==========================================
     // TYPING / INPUT CHANGE
     // ==========================================
     const handleInputChange = (id, newVal) => {
@@ -277,7 +311,8 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
             // Select all editable items
             const editableIds = items
                 .filter(item => {
-                    const activeLock = locks[item.translationValueId];
+                    const id = item.translationValueId;
+                    const activeLock = locks[id] || locks[id?.toString()?.toLowerCase()];
                     const isLockedByOther = activeLock && activeLock.userId &&
                         activeLock.userId.toString().toLowerCase() !== currentUserId.toString().toLowerCase();
                     const isImmutableStatus = item.status === TranslationStatus.Reviewed || item.status === TranslationStatus.Published;
@@ -338,7 +373,25 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
                     ? `Successfully submitted ${selectedItemIds.length} translation(s) for review`
                     : `Successfully saved ${selectedItemIds.length} draft translation(s)`
             );
-            
+
+            // Release locks and leave SignalR groups for updated/submitted items
+            selectedItemIds.forEach(id => {
+                signalRService.releaseLock(id, currentUserId);
+                signalRService.leaveTranslationValueGroup(id);
+            });
+
+            // Remove released items from prevItemsRef so loadUpdateItems will re-evaluate lock state if needed
+            if (prevItemsRef.current) {
+                prevItemsRef.current = prevItemsRef.current.filter(
+                    item => !selectedItemIds.includes(item.translationValueId)
+                );
+            }
+
+            // Dispatch translationNotification to refresh grid data across all listening tabs/components
+            window.dispatchEvent(
+                new CustomEvent("translationNotification", { detail: { type: "BatchUpdateSuccess" } })
+            );
+
             // Reload grid list
             await loadUpdateItems();
         } catch (error) {
@@ -451,7 +504,8 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
                                     className="form-check-input"
                                     id="selectAllHeader"
                                     checked={selectedItemIds.length > 0 && selectedItemIds.length === items.filter(i => {
-                                        const activeLock = locks[i.translationValueId];
+                                        const id = i.translationValueId;
+                                        const activeLock = locks[id] || locks[id?.toString()?.toLowerCase()];
                                         const isLockedByOther = activeLock && activeLock.userId && activeLock.userId.toString().toLowerCase() !== currentUserId.toString().toLowerCase();
                                         const isImmutableStatus = i.status === TranslationStatus.Reviewed || i.status === TranslationStatus.Published;
                                         return !isLockedByOther && !isImmutableStatus;
@@ -499,10 +553,10 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
                                         const isSelected = selectedItemIds.includes(id);
 
                                         // Lock State
-                                        const activeLock = locks[id];
+                                        const activeLock = locks[id] || locks[id?.toString()?.toLowerCase()];
                                         const isLockedByOther = activeLock && activeLock.userId &&
                                             activeLock.userId.toString().toLowerCase() !== currentUserId.toString().toLowerCase();
-                                        
+
                                         const isImmutableStatus = item.status === TranslationStatus.Reviewed || item.status === TranslationStatus.Published;
 
                                         // Typing State
