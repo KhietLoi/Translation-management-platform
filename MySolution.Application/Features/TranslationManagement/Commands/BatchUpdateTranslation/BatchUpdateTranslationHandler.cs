@@ -116,6 +116,7 @@ public class BatchUpdateTranslationHandler : IRequestHandler<BatchUpdateTranslat
                     payload.IsSubmit ? AuditAction.SubmitTranslation : AuditAction.Update,
                     AuditConstants.TranslationValue,
                     translation.Id,
+                    request.Payload.ProjectId,
                     oldValues[translation.Id],
                     newValue);
             }

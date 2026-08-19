@@ -17,7 +17,7 @@ public class AuditLogService : IAuditLogService
     }
     
 
-    public async Task CreateAsync(Guid userId, AuditAction action, string entityName, Guid entityId, object? oldValue, object? newValue)
+    public async Task CreateAsync(Guid userId, AuditAction action, string entityName, Guid entityId, Guid? projectId, object? oldValue, object? newValue)
     {
         var auditLog = new Domain.Entities.AuditLog
         {
@@ -26,6 +26,7 @@ public class AuditLogService : IAuditLogService
             Action = action,
             EntityName = entityName,
             EntityId = entityId,
+            ProjectId = projectId,
             OldValue = oldValue != null ? System.Text.Json.JsonSerializer.Serialize(oldValue) : null,
             NewValue = newValue != null ? System.Text.Json.JsonSerializer.Serialize(newValue) : null,
             CreatedAt = DateTime.UtcNow

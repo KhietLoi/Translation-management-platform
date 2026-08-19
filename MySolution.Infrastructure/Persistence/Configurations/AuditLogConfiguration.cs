@@ -16,6 +16,8 @@ public class AuditLogConfiguration
         builder.Property(x => x.EntityName)
             .HasMaxLength(100)
             .IsRequired();
+    
+        builder.Property(x => x.EntityId);
         builder.Property(x => x.OldValue)
             .HasColumnType("text");
         builder.Property(x => x.NewValue)
@@ -27,6 +29,10 @@ public class AuditLogConfiguration
         builder.HasOne(x => x.User)
             .WithMany()
             .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(x => x.Project)
+            .WithMany(x => x.AuditLogs)
+            .HasForeignKey(x => x.ProjectId)
             .OnDelete(DeleteBehavior.Restrict);
         
         builder.HasIndex(x => x.UserId);

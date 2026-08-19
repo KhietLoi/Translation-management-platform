@@ -43,4 +43,14 @@ public class ProjectRepository (AppDbContext context, ILogger logger)
             .Include(x => x.ProjectNamespaces)
             .FirstOrDefaultAsync(x => x.Id == id);
     }
+
+     public async Task<List<Guid>> GetAccessibleProjectIdsAsync(Guid userId, CancellationToken cancellationToken)
+     {
+         return await DbSet
+             .AsNoTracking()
+             .Where(x => x.ProjectMembers.Any(pm =>
+                 pm.UserId == userId))
+             .Select(x => x.Id)
+             .ToListAsync(cancellationToken);
+     }
 }

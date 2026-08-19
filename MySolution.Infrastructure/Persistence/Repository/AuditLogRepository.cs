@@ -25,4 +25,21 @@ public class AuditLogRepository (AppDbContext context, ILogger logger) :
 
         return (items, totalCount); 
     }
+
+    public async Task<List<AuditLog>> GetRecentActivitiesAsync(IReadOnlyCollection<Guid> projectIds, int limit, CancellationToken cancellationToken)
+    {
+        if (projectIds.Count == 0)
+            return [];
+
+        return await DbSet
+            .AsNoTracking()
+            .Include(x => x.User)
+            .Include((x => x.Project))
+            .Where(x =>
+                x.ProjectId.HasValue &&
+                projectIds.Contains(x.ProjectId.Value))
+            .OrderByDescending(x => x.CreatedAt)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -9,4 +9,6 @@ public interface IProjectRepository : IRepository<Project>
     Task<Project?> GetByNameAsync(string name);
     Task<bool> ExistsByNameAsync(string name, Guid? excludeProjectId = null);
     Task<Project?> GetDetailAsync(Guid id);
+
+    Task<List<Guid>> GetAccessibleProjectIdsAsync(Guid userId, CancellationToken cancellationToken);
 }

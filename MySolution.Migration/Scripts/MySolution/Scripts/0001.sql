@@ -367,6 +367,8 @@ CREATE TABLE IF NOT EXISTS mysolution."AuditLogs"
     "EntityName" VARCHAR(100) NOT NULL,
 
     "EntityId" UUID NOT NULL,
+    
+    "ProjectId" UUID NULL,
 
     "OldValue" TEXT NULL,
 
@@ -382,6 +384,11 @@ CREATE TABLE IF NOT EXISTS mysolution."AuditLogs"
     CONSTRAINT "FK_AuditLogs_Users_UserId"
     FOREIGN KEY ("UserId")
     REFERENCES mysolution."Users" ("Id")
+    ON DELETE RESTRICT,
+    
+    CONSTRAINT "FK_AuditLogs_Projects_ProjectId"
+    FOREIGN KEY ("ProjectId")
+    REFERENCES mysolution."Projects" ("Id")
     ON DELETE RESTRICT
     );
 
