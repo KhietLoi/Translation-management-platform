@@ -41,5 +41,9 @@ public interface ITranslationValueRepository : IRepository<TranslationValue>
     Task<int> CountTranslatedByProjectIdsAsync(IReadOnlyCollection<Guid> projectIds, CancellationToken cancellationToken);
     Task<int> CountPendingReviewByProjectIdsAsync(IReadOnlyCollection<Guid> projectIds, CancellationToken cancellationToken);
     Task<List<LanguageProgressDto>> GetLanguageProgressAsync(IReadOnlyCollection<Guid> projectIds, CancellationToken cancellationToken);
+    
+    //AI:
+    Task<TranslationValue?> GetForAiSuggestionAsync(Guid translationValueId, CancellationToken cancellationToken);
+    
 }
   

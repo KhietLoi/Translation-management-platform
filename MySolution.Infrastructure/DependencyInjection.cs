@@ -24,6 +24,8 @@ using MySolution.Infrastructure.Services;
 using RedLockNet.SERedis;
 using RedLockNet.SERedis.Configuration;
 using StackExchange.Redis;
+using MySolution.Application.Common.Interfaces.AI;
+using MySolution.Infrastructure.AI;
 
 namespace MySolution.Infrastructure;
 
@@ -117,6 +119,15 @@ public static class DependencyInjection
         services.AddSingleton<ITranslationLockService, TranslationLockService>();
         services.AddScoped <IPublishRealtimeService, PublishRealtimeService>();
         
+        services.AddHttpClient<ITranslationSuggestionService, TranslationSuggestionService>(client =>
+        {
+            var aiBaseUrl = configuration["AI:BaseUrl"] ?? 
+                            throw new InvalidOperationException("AI:BaseUrl configuration missing in appsettings.json");
+                
+            client.BaseAddress = new Uri(aiBaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+        
         return services;
     }
 
@@ -149,6 +160,7 @@ public static class DependencyInjection
         services.AddScoped<ITranslationParser, ExcelParser>();
 
         services.AddScoped<IPublishService, PublishService>();
+
         
         return services;
     }

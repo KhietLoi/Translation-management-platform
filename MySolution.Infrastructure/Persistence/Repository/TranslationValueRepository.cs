@@ -229,9 +229,20 @@ public class TranslationValueRepository (AppDbContext context, ILogger logger) :
                 LanguageId = g.Key.LanguageId,
                 LanguageCode = g.Key.Code,
                 Total = g.Count(),
-                Translated = g.Count(x => x.Status == TranslationStatus.Translated ||  x.Status == TranslationStatus.Published)
+                Translated = g.Count(x => x.Status == TranslationStatus.Translated ||  x.Status == TranslationStatus.Published || x.Status == TranslationStatus.Reviewed)
             })
             .OrderBy(x => x.LanguageCode)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<TranslationValue?> GetForAiSuggestionAsync(Guid translationValueId, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .AsNoTrackingWithIdentityResolution()
+            .Include(x => x.Language)
+            .Include(x => x.TranslationKey)
+                .ThenInclude(k => k.TranslationValues)
+                .ThenInclude(v => v.Language)
+            .FirstOrDefaultAsync(x => x.Id == translationValueId, cancellationToken);
     }
 }

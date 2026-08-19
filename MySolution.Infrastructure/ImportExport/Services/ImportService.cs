@@ -147,8 +147,7 @@ public class ImportService : IImportService
             // Create TranslationValue for every project language
             foreach (var projectLanguage in projectLanguages)
             {
-                var isImportedLanguage =
-                    projectLanguage.LanguageId == languageId;
+                var isImportedLanguage = projectLanguage.LanguageId == languageId;
 
                 var newTranslationValue = new TranslationValue
                 {
@@ -225,7 +224,6 @@ public class ImportService : IImportService
 
        
         // 5. Update existing TranslationValue
-
         translationValue.Value = value;
         translationValue.Status = string.IsNullOrWhiteSpace(value) ? TranslationStatus.Missing : TranslationStatus.Draft;
         translationValue.ReviewedAt = null;

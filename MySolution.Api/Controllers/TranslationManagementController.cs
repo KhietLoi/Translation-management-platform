@@ -10,6 +10,7 @@ using MySolution.Application.Features.TranslationManagement.Commands.ReviewTrans
 using MySolution.Application.Features.TranslationManagement.Commands.SubmitTranslation;
 using MySolution.Application.Features.TranslationManagement.Queries.GetReviewTranslations;
 using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationGrid;
+using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationSuggestion;
 using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationValuesForBatch;
 using MySolution.Domain.Enums;
 
@@ -113,6 +114,19 @@ public class TranslationManagementController(IMediator mediator) : Controller
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new BatchUpdateTranslationCommand(request), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+    
+    //AI
+    [HttpPost("{translationValueId:guid}/suggest")]
+    [Permission(PermissionConstants.Translation.Update)]
+    public async Task<IActionResult> GetTranslationSuggestion(
+        [FromRoute] Guid translationValueId,
+        CancellationToken cancellationToken)
+    {
+        var request = new GetTranslationSuggestionRequest { TranslationValueId = translationValueId };
+        var response = await mediator.Send(new GetTranslationSuggestionQuery(request), cancellationToken);
+
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 }
