@@ -2,7 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import {
     getBatchTranslationValues,
-    batchUpdateTranslations
+    batchUpdateTranslations,
+    getTranslationSuggestion,
 } from "../../services/translationManagementService";
 import { getProjectLanguages } from "../../services/projectService";
 import { useAuth } from "../../contexts/AuthContext";
@@ -295,6 +296,79 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
     };
 
     // ==========================================
+    // AI TRANSLATION SUGGESTIONS
+    // ==========================================
+    const [generatingAiMap, setGeneratingAiMap] = useState({});
+    const [isBatchGeneratingAi, setIsBatchGeneratingAi] = useState(false);
+
+    const handleAiSuggestionRow = async (id) => {
+        if (!id) return;
+        try {
+            setGeneratingAiMap(prev => ({ ...prev, [id]: true }));
+            const res = await getTranslationSuggestion(id);
+            const suggestionText =
+                typeof res === "string"
+                    ? res
+                    : res?.suggestion || res?.data?.suggestion || res?.data;
+
+            if (suggestionText) {
+                handleInputChange(id, suggestionText);
+                // Auto check row to add to submission queue
+                if (!selectedItemIds.includes(id)) {
+                    setSelectedItemIds(prev => [...prev, id]);
+                }
+                toast.success("✨ AI đã gợi ý bản dịch thành công!");
+            } else {
+                toast.warning("AI không trả về gợi ý phù hợp.");
+            }
+        } catch (error) {
+            console.error("Lỗi khi gọi AI Suggest:", error);
+            toast.error(
+                error?.response?.data?.errorMessage || "Có lỗi xảy ra khi gọi AI Suggestion."
+            );
+        } finally {
+            setGeneratingAiMap(prev => ({ ...prev, [id]: false }));
+        }
+    };
+
+    const handleBatchAiSuggestions = async () => {
+        if (selectedItemIds.length === 0) return;
+        try {
+            setIsBatchGeneratingAi(true);
+            toast.info(`Đang nhờ AI gợi ý cho ${selectedItemIds.length} bản dịch...`);
+
+            let countSuccess = 0;
+            for (const id of selectedItemIds) {
+                try {
+                    const res = await getTranslationSuggestion(id);
+                    const suggestionText =
+                        typeof res === "string"
+                            ? res
+                            : res?.suggestion || res?.data?.suggestion || res?.data;
+
+                    if (suggestionText) {
+                        handleInputChange(id, suggestionText);
+                        countSuccess++;
+                    }
+                } catch (err) {
+                    console.error(`AI suggest failed for item ${id}:`, err);
+                }
+            }
+
+            if (countSuccess > 0) {
+                toast.success(`✨ Đã áp dụng AI Suggest thành công cho ${countSuccess} bản dịch!`);
+            } else {
+                toast.warning("Không tạo được gợi ý AI nào.");
+            }
+        } catch (error) {
+            console.error("Batch AI suggest failed:", error);
+            toast.error("Có lỗi xảy ra khi gọi gợi ý AI hàng loạt.");
+        } finally {
+            setIsBatchGeneratingAi(false);
+        }
+    };
+
+    // ==========================================
     // CHECKBOX SELECTION
     // ==========================================
     const handleSelectRow = (id) => {
@@ -526,6 +600,17 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
                         {selectedItemIds.length > 0 && (
                             <div className="d-flex align-items-center gap-2 fade-in">
                                 <button
+                                    type="button"
+                                    className="btn btn-sm text-white rounded-3 d-flex align-items-center gap-1"
+                                    style={{ backgroundColor: "#673ab7", borderColor: "#673ab7" }}
+                                    disabled={isBatchGeneratingAi}
+                                    onClick={handleBatchAiSuggestions}
+                                    title="Tự động dùng AI gợi ý bản dịch cho tất cả các mục đang chọn"
+                                >
+                                    {isBatchGeneratingAi ? "⏳ Đang suy nghĩ..." : "✨ AI Suggest (Đang chọn)"}
+                                </button>
+
+                                <button
                                     className="btn btn-sm btn-outline-danger rounded-3"
                                     onClick={handleDiscardChanges}
                                 >
@@ -598,13 +683,34 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
                                                 {/* Interactive Input Column */}
                                                 <td className="py-3 px-3">
                                                     <div className="position-relative">
+                                                        {canUpdate && !isLockedByOther && !isImmutableStatus && (
+                                                            <div className="d-flex justify-content-end mb-1">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-sm text-white d-flex align-items-center gap-1 py-0.5 px-2 rounded-2"
+                                                                    style={{ backgroundColor: "#673ab7", borderColor: "#673ab7", fontSize: "0.72rem" }}
+                                                                    disabled={generatingAiMap[id]}
+                                                                    onClick={() => handleAiSuggestionRow(id)}
+                                                                    title="Gợi ý bản dịch tự động với AI"
+                                                                >
+                                                                    {generatingAiMap[id] ? (
+                                                                        <>
+                                                                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" style={{ width: "0.6rem", height: "0.6rem" }} />
+                                                                            <span>Đang suy nghĩ...</span>
+                                                                        </>
+                                                                    ) : (
+                                                                        <span>✨ AI Suggest</span>
+                                                                    )}
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                         <textarea
                                                             rows="2"
                                                             className="form-control form-control-sm rounded-3 py-2 px-3"
                                                             value={localValues[id] ?? ""}
                                                             disabled={!canUpdate || isLockedByOther || isImmutableStatus}
                                                             onChange={(e) => handleInputChange(id, e.target.value)}
-                                                            placeholder={isImmutableStatus ? "Already finalized/published (Read-Only)" : "Type translation..."}
+                                                            placeholder={isImmutableStatus ? "Already finalized/published (Read-Only)" : "Nhập bản dịch hoặc dùng AI Suggest..."}
                                                         />
 
                                                         {/* Realtime Typing Notification */}

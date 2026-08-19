@@ -7,6 +7,7 @@ import {
   submitTranslation,
   rejectTranslation,
   reviewTranslation,
+  getTranslationSuggestion,
 } from "../../services/translationManagementService";
 
 import { useAuth } from "../../contexts/AuthContext";
@@ -198,7 +199,42 @@ function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpd
     }
   };
 
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+
   const targetId = detail?.id || detail?.translationValueId || valId;
+
+  const handleAiSuggestion = async () => {
+    const idToUse = targetId;
+    if (!idToUse) {
+      toast.error("Không tìm thấy ID bản dịch để gợi ý AI.");
+      return;
+    }
+
+    try {
+      setIsGeneratingAi(true);
+      const res = await getTranslationSuggestion(idToUse);
+      const suggestionText =
+        typeof res === "string"
+          ? res
+          : res?.suggestion || res?.data?.suggestion || res?.data;
+
+      if (suggestionText) {
+        setValue(suggestionText);
+        // Send typing notification to sync in real time across active users
+        signalRService.sendTyping(valId, suggestionText);
+        toast.success("✨ AI đã tạo gợi ý bản dịch thành công!");
+      } else {
+        toast.warning("AI không trả về gợi ý phù hợp.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi gọi AI Suggest:", error);
+      toast.error(
+        error?.response?.data?.errorMessage || "Có lỗi xảy ra khi gọi AI Suggestion."
+      );
+    } finally {
+      setIsGeneratingAi(false);
+    }
+  };
 
   const handleSave = () =>
     execute(
@@ -311,13 +347,37 @@ function TranslationDetailDrawer({ show, translationValue, canUpdate: propCanUpd
                 </Info>
 
                 <div className="mb-3">
-                  <label className="fw-semibold mb-1">Value</label>
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <label className="fw-semibold mb-0">Value</label>
+                    {canUpdate && !isLockedByOther && !isImmutable && (
+                      <button
+                        type="button"
+                        className="btn btn-sm text-white d-flex align-items-center gap-1 py-0.5 px-2 rounded-2"
+                        style={{ backgroundColor: "#673ab7", borderColor: "#673ab7", fontSize: "0.78rem" }}
+                        disabled={isGeneratingAi}
+                        onClick={handleAiSuggestion}
+                        title="Tự động gợi ý bản dịch với AI"
+                      >
+                        {isGeneratingAi ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" style={{ width: "0.75rem", height: "0.75rem" }} />
+                            <span>Đang suy nghĩ...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>✨ AI Suggest</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
                   <textarea
                     rows="6"
                     className="form-control"
                     value={value}
                     disabled={!canUpdate || isLockedByOther || isImmutable}
                     onChange={handleTextareaChange}
+                    placeholder="Nhập bản dịch hoặc dùng AI Suggest..."
                   />
                   {typingUser && (
                     <div className="text-muted small mt-1 d-flex align-items-center gap-1">
