@@ -171,3 +171,11 @@ export const batchUpdateTranslations = async (payload) => {
     return response.data;
 };
 
+export const getTranslationSuggestion = async (translationValueId) => {
+    const response = await api.post(
+        `/TranslationManagement/${translationValueId}/suggest`
+    );
+
+    return response.data;
+};
+
