@@ -1,0 +1,53 @@
+# ========================
+# PYTHON CORE
+# ========================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# ========================
+# VIRTUAL ENVIRONMENTS
+# ========================
+# Bắt buộc phải bỏ qua thư mục này để không push hàng trăm MB thư viện lên Git
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ========================
+# ENVIRONMENT VARIABLES
+# ========================
+# Chứa API Key hoặc thông tin bảo mật, tuyệt đối không push
+.env
+.env.local
+.env.development
+.env.production
+
+# ========================
+# LOGS & DATABASES
+# ========================
+*.log
+*.sqlite3
+
+# ========================
+# IDE & OS (VSCode, Windows, Mac)
+# ========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ========================
+# TESTING & COVERAGE
+# ========================
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
