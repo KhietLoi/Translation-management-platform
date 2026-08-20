@@ -245,4 +245,16 @@ public class TranslationValueRepository (AppDbContext context, ILogger logger) :
                 .ThenInclude(v => v.Language)
             .FirstOrDefaultAsync(x => x.Id == translationValueId, cancellationToken);
     }
+
+    public async Task<List<TranslationValue>> GetListForAiSuggestionAsync(List<Guid> ids, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .AsNoTrackingWithIdentityResolution()
+            .Include(x => x.Language)
+            .Include(x => x.TranslationKey)
+                .ThenInclude(k => k.TranslationValues)
+                .ThenInclude(v => v.Language)
+            .Where(x => ids.Contains(x.Id))
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -44,6 +44,7 @@ public interface ITranslationValueRepository : IRepository<TranslationValue>
     
     //AI:
     Task<TranslationValue?> GetForAiSuggestionAsync(Guid translationValueId, CancellationToken cancellationToken);
+    Task<List<TranslationValue>> GetListForAiSuggestionAsync(List<Guid> ids, CancellationToken cancellationToken);
     
 }
   

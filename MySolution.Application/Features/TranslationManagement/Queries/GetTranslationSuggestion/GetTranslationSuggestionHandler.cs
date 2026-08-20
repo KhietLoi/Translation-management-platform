@@ -42,17 +42,23 @@ public class GetTranslationSuggestionHandler : IRequestHandler<GetTranslationSug
 
             if (target is null)
             {
-                throw new KeyNotFoundException("Translation value not found.");
+                response.ErrorMessage = "No target found.";
+                response.WithStatus(HttpStatusCode.NotFound);
+                return response;
             }
             
             if (!string.IsNullOrWhiteSpace(target.Value))
             {
-                throw new InvalidOperationException("AI suggestion is only available for missing translations.");
+                response.ErrorMessage = "AI suggestion is only available for missing translations.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
             }
             
             if (target.Language.Code == ReferenceLanguageCode)
             {
-                throw new InvalidOperationException("vi-VN is the reference language and cannot be the target.");
+                response.ErrorMessage = "vi-VN is the reference language and cannot be the target";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
             }
             
             var reference = target.TranslationKey.TranslationValues
@@ -61,7 +67,9 @@ public class GetTranslationSuggestionHandler : IRequestHandler<GetTranslationSug
                     !string.IsNullOrWhiteSpace(x.Value));
             if (reference is null)
             {
-                throw new InvalidOperationException("Vietnamese reference translation is missing or empty.");
+                response.ErrorMessage = "Vietnamese reference translation is missing or empty.";
+                response.WithStatus(HttpStatusCode.BadRequest);
+                return response;
             }
             
             var context = BuildContext(target);

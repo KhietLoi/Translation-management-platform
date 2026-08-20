@@ -125,7 +125,7 @@ public static class DependencyInjection
                             throw new InvalidOperationException("AI:BaseUrl configuration missing in appsettings.json");
                 
             client.BaseAddress = new Uri(aiBaseUrl);
-            client.Timeout = TimeSpan.FromSeconds(30);
+            client.Timeout = TimeSpan.FromSeconds(3000);
         });
         
         return services;

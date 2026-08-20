@@ -8,6 +8,7 @@ using MySolution.Application.Features.TranslationManagement.Commands.BatchUpdate
 using MySolution.Application.Features.TranslationManagement.Commands.RejectTranslation;
 using MySolution.Application.Features.TranslationManagement.Commands.ReviewTranslation;
 using MySolution.Application.Features.TranslationManagement.Commands.SubmitTranslation;
+using MySolution.Application.Features.TranslationManagement.Queries.GetBatchTranslationSuggestion;
 using MySolution.Application.Features.TranslationManagement.Queries.GetReviewTranslations;
 using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationGrid;
 using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationSuggestion;
@@ -127,6 +128,18 @@ public class TranslationManagementController(IMediator mediator) : Controller
         var request = new GetTranslationSuggestionRequest { TranslationValueId = translationValueId };
         var response = await mediator.Send(new GetTranslationSuggestionQuery(request), cancellationToken);
 
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+    }
+
+    [HttpPost("batch-suggest")]
+    [Permission(PermissionConstants.Translation.Update)]
+    public async Task<IActionResult> BatchSuggestTranslations
+    (
+        [FromBody] GetBatchTranslationSuggestionRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var response = await mediator.Send(new GetBatchTranslationSuggestionQuery(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 }
