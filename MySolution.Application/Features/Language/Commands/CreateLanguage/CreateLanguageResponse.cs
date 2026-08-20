@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.Language.Commands.CreateLanguage;
 
 public class CreateLanguageResponse : BaseResponse <CreateLanguageData>
 {
-    
 }
 
 public class CreateLanguageData

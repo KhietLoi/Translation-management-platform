@@ -27,8 +27,7 @@ public class ProjectRepository (AppDbContext context, ILogger logger)
     {
         return await DbSet.AnyAsync
             (
-                x  => x.Name == name &&
-                (!excludeProjectId.HasValue || x.Id != excludeProjectId.Value)
+                x  => x.Name == name && (!excludeProjectId.HasValue || x.Id != excludeProjectId.Value)
             );
     }
 

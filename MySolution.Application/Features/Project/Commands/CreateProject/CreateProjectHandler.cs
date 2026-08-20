@@ -31,7 +31,6 @@ public class CreateProjectHandler : IRequestHandler<CreateProjectCommand, Create
 
         try
         {
-            // Check if project name already exists
             var isNameExists = await _unitOfWork.Project.ExistsByNameAsync(payload.Name);
             if (isNameExists)
             {

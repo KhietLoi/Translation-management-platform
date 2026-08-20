@@ -38,7 +38,15 @@ public class BatchUpdateTranslationHandler : IRequestHandler<BatchUpdateTranslat
         var functionName = $"{nameof(BatchUpdateTranslationHandler)} =>";
         _logger.LogInformation(functionName);
         var response = new BatchUpdateTranslationResponse();
-
+        // Validate empty values
+        var hasEmptyValue = payload.Items.Any(x => string.IsNullOrWhiteSpace(x.Value));
+        if (hasEmptyValue)
+        {
+            response.ErrorMessage = "Translation value cannot be empty.";
+            response.WithStatus(HttpStatusCode.BadRequest);
+            return response;
+        }
+        
         try
         {
             // 1. Get distinct TranslationValue IDs

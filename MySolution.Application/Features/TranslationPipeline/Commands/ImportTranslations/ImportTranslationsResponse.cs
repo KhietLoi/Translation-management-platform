@@ -5,7 +5,6 @@ namespace MySolution.Application.Features.TranslationPipeline.Commands.ImportTra
 
 public class ImportTranslationsResponse : BaseResponse <ImportTranslationsData>
 {
-
 }
 
 public class ImportTranslationsData

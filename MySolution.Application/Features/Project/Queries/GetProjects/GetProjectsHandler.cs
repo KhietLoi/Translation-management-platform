@@ -40,11 +40,9 @@ public class GetProjectsHandler : IRequestHandler<GetProjectsQuery, GetProjectsR
         try
         {
             var query = _unitOfWork.Project.GetAll().AsNoTracking();
-            _logger.LogInformation("test : " + _currentUser.Roles.ToString());
             if (_currentUser.Roles.Contains(RoleConstants.Translator) || _currentUser.Roles.Contains(RoleConstants.Reviewer))
             {
-                query = query.Where(x => x.ProjectMembers.Any(pm =>
-                    pm.UserId == _currentUser.UserId));
+                query = query.Where(x => x.ProjectMembers.Any(pm => pm.UserId == _currentUser.UserId));
             }
             
             var projects = await query
@@ -113,7 +111,6 @@ public class GetProjectsHandler : IRequestHandler<GetProjectsQuery, GetProjectsR
                         .ToList()
                 })
                 .ToListAsync(cancellationToken);
-
             
             response.Data = new GetProjectsResult
             {
@@ -126,15 +123,8 @@ public class GetProjectsHandler : IRequestHandler<GetProjectsQuery, GetProjectsR
         }
         catch (Exception ex)
         {
-            _logger.LogError
-            (
-                ex,
-                "{FunctionName} Unexpected error.",
-                functionName
-            );
-
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = "An unexpected error occurred.";
-
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
 

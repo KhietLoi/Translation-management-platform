@@ -5,12 +5,15 @@ using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Realtime;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
+
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.TranslationPipeline.Commands.ProcessImportTranslations;
 
-public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTranslationsCommand>
+public class ProcessImportTranslationsHandler
+    : IRequestHandler<ProcessImportTranslationsCommand>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IImportService _importService;
@@ -18,15 +21,12 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
     private readonly INotificationService _notificationService;
     private readonly IMessageSender _messageSender;
 
-    
-    public ProcessImportTranslationsHandler
-    (
+    public ProcessImportTranslationsHandler(
         IUnitOfWork unitOfWork,
         IImportService importService,
         ILogger<ProcessImportTranslationsHandler> logger,
         INotificationService notificationService,
-        IMessageSender messageSender
-    )
+        IMessageSender messageSender)
     {
         _unitOfWork = unitOfWork;
         _importService = importService;
@@ -34,23 +34,22 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
         _notificationService = notificationService;
         _messageSender = messageSender;
     }
-    
+
     public async Task Handle(ProcessImportTranslationsCommand request, CancellationToken cancellationToken)
     {
-        var functionName = $"{nameof(ProcessImportTranslationsHandler)} =>";
-        _logger.LogInformation(functionName);
-        
+        var functionName = nameof(ProcessImportTranslationsHandler);
+
+        _logger.LogInformation("{FunctionName} started for JobId: {JobId}", functionName, request.JobId);
+
         var job = await _unitOfWork.TranslationJob.GetByIdAsync(request.JobId);
         if (job == null)
         {
+            _logger.LogWarning("{FunctionName} Job {JobId} not found", functionName, request.JobId);
             throw new Exception($"Job with id {request.JobId} not found");
         }
-        
+
         try
         {
-            job.Status =TranslationJobStatus.Processing;
-            job.StartedAt = DateTime.UtcNow;
-            await _unitOfWork.SaveAsync(cancellationToken);
             if (job.LanguageId == null)
             {
                 throw new InvalidOperationException($"Import job {job.Id} missing LanguageId.");
@@ -60,55 +59,122 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
             {
                 throw new InvalidOperationException($"Import job {job.Id} missing NamespaceId.");
             }
-            
+
             if (string.IsNullOrWhiteSpace(job.FileName))
             {
                 throw new InvalidOperationException($"Import job {job.Id} missing FileName.");
             }
-            
-            var result = await _importService.ImportAsync
-            (
+
+            job.Status = TranslationJobStatus.Processing;
+            job.StartedAt = DateTime.UtcNow;
+            job.ErrorMessage = null;
+
+            await _unitOfWork.SaveAsync(cancellationToken);
+
+            _logger.LogInformation("Import job {JobId} is now Processing", job.Id);
+
+            var result = await _importService.ImportAsync(
                 job.ProjectId,
                 job.LanguageId.Value,
                 job.NamespaceId.Value,
-                job.FileName!,
+                job.FileName,
                 job.FileType,
-                cancellationToken
-            );
+                cancellationToken);
 
             job.TotalRecords = result.TotalRecords;
-            job.SuccessRecords = result.CreatedValues+ result.UpdatedValues;
+            job.SuccessRecords = result.CreatedValues + result.UpdatedValues;
             job.SkippedRecords = result.SkippedRecords;
             job.FailedRecords = result.FailedRecords;
+
             job.Status = TranslationJobStatus.Completed;
             job.CompletedAt = DateTime.UtcNow;
             job.ErrorMessage = null;
-            
+
             await _unitOfWork.SaveAsync(cancellationToken);
-                
-                
-            // Get User Email
+
+            _logger.LogInformation(
+                "Import job {JobId} completed successfully. " +
+                "Total: {TotalRecords}, " +
+                "Success: {SuccessRecords}, " +
+                "Skipped: {SkippedRecords}, " +
+                "Failed: {FailedRecords}",
+                job.Id,
+                job.TotalRecords,
+                job.SuccessRecords,
+                job.SkippedRecords,
+                job.FailedRecords);
+        }
+        catch (Exception ex)
+        {
+            job.Status = TranslationJobStatus.Failed;
+            job.ErrorMessage = ex.Message;
+            job.CompletedAt = DateTime.UtcNow;
+
+            job.FailedRecords = Math.Max(0, job.TotalRecords - job.SuccessRecords - job.SkippedRecords);
+
+            try
+            {
+                await _unitOfWork.SaveAsync(cancellationToken);
+            }
+            catch (Exception saveException)
+            {
+                _logger.LogError(saveException, "Failed to save failed status for Import job {JobId}", job.Id);
+            }
+
+            _logger.LogError(ex, "Import job {JobId} failed: {ErrorMessage}", job.Id, ex.Message);
+            await NotifyImportFailedAsync(job, ex.Message, cancellationToken);
+            return;
+        }
+
+        await SendCompletionEmailAsync(job, cancellationToken);
+        await SendCompletionNotificationAsync(job, cancellationToken);
+        
+        _logger.LogInformation("Import job {JobId} processing completed", job.Id);
+    }
+
+    private async Task SendCompletionEmailAsync(TranslationJob job, CancellationToken cancellationToken)
+    {
+        try
+        {
             var user = await _unitOfWork.User.GetByIdAsync(job.CreatedBy);
-            // Email:
+            if (user == null)
+            {
+                _logger.LogWarning("Cannot send completion email for Job {JobId}. " + "User {UserId} was not found.", job.Id, job.CreatedBy);
+                return;
+            }
+
             await _messageSender.SendMessage<TranslationJobCompletedEmailEvent>(
                 new TranslationJobCompletedEmailEvent
                 {
                     JobId = job.Id,
                     UserId = job.CreatedBy,
-                    UserName = user!.Username,
+                    UserName = user.Username,
                     ProjectName = job.Project.Name,
                     Email = user.Email,
                     ProjectId = job.ProjectId,
-                    JobType = job.Type == TranslationJobType.Import ? "Import" : "Export",
+                    JobType = job.Type == TranslationJobType.Import
+                        ? "Import"
+                        : "Export",
                     FileName = job.FileName ?? string.Empty,
-                    DownloadUrl = job.DownloadUrl!,
+                    DownloadUrl = job.DownloadUrl ?? string.Empty,
                     TotalRecords = job.TotalRecords,
                     SuccessRecords = job.SuccessRecords,
                     FailedRecords = job.FailedRecords,
                     SkippedRecords = job.SkippedRecords
                 }, cancellationToken);
-            _logger.LogInformation($" Import job {job.Id} completed and send email to {user.Email}");
-                        
+
+            _logger.LogInformation("Completion email event sent for Import job {JobId} to {Email}", job.Id, user.Email);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send completion email for Import job {JobId}", job.Id);
+        }
+    }
+
+    private async Task SendCompletionNotificationAsync(TranslationJob job, CancellationToken cancellationToken)
+    {
+        try
+        {
             await _notificationService.NotifyProjectAsync(
                 job.ProjectId,
                 job.CreatedBy,
@@ -119,27 +185,35 @@ public class ProcessImportTranslationsHandler : IRequestHandler<ProcessImportTra
                 NotificationReferenceType.TranslationJob,
                 job.Id,
                 cancellationToken);
-            _logger.LogInformation("Import job {JobId} completed", job.Id);
+
+            _logger.LogInformation("Completion notification sent for Import job {JobId}", job.Id);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            job.Status = TranslationJobStatus.Failed;
-            job.ErrorMessage = e.Message;
-            job.FailedRecords = job.TotalRecords - job.SuccessRecords - job.SkippedRecords;
-            job.CompletedAt = DateTime.UtcNow;
-            
-            await _unitOfWork.SaveAsync(cancellationToken);
+            _logger.LogError(ex, "Failed to send completion notification for Import job {JobId}", job.Id);
+        }
+    }
+
+    private async Task NotifyImportFailedAsync(TranslationJob job, string errorMessage, CancellationToken cancellationToken)
+    {
+        try
+        {
             await _notificationService.NotifyProjectAsync(
                 job.ProjectId,
                 job.CreatedBy,
                 "Import Failed",
-                e.Message,
+                errorMessage,
                 NotificationType.Error,
                 $"/translation-jobs/{job.Id}",
                 NotificationReferenceType.TranslationJob,
                 job.Id,
                 cancellationToken);
-            _logger.LogWarning("Import job {JobId} failed: {ErrorMessage}", job.Id, e.Message);
+
+            _logger.LogInformation("Failure notification sent for Import job {JobId}", job.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send failure notification for Import job {JobId}", job.Id);
         }
     }
 }

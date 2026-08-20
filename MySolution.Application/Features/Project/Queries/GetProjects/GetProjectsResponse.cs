@@ -1,15 +1,13 @@
 ﻿using MySolution.Application.Common.Models;
-using MySolution.Domain.Entities;
 
 namespace MySolution.Application.Features.Project.Queries.GetProjects;
 
 public class GetProjectsResponse : BaseResponse <GetProjectsResult>
 {
-    
 }
 
 public class GetProjectsResult
-{
+{ 
     public List<GetProjectData>? Projects { get; set; }
 }
 

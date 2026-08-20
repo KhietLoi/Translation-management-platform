@@ -19,7 +19,10 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
 {
     [HttpPost("import")]
     [Permission(PermissionConstants.Translation.Create)]
-    public async Task<IActionResult> Import([FromForm] ImportTranslationsRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Import(
+        [FromForm] ImportTranslationsRequest request,
+        CancellationToken cancellationToken
+    )
     {
         var response = await mediator.Send(new ImportTranslationsCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
@@ -27,7 +30,10 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
 
     [HttpPost("export")]
     [Permission(PermissionConstants.Translation.View)]
-    public async Task<IActionResult> Export([FromBody] ExportTranslationsRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Export(
+        [FromBody] ExportTranslationsRequest request,
+        CancellationToken cancellationToken
+    )
     {
         var response = await mediator.Send(new ExportTranslationsCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
@@ -35,7 +41,10 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
 
     [HttpPost("publish")]
     [Permission(PermissionConstants.Translation.Publish)]
-    public async Task<IActionResult> Publish([FromBody] PublishTranslationsRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Publish(
+        [FromBody] PublishTranslationsRequest request,
+        CancellationToken cancellationToken
+    )
     {
         var response = await mediator.Send(new PublishTranslationsCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
