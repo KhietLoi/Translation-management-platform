@@ -4,6 +4,7 @@ import {
     getBatchTranslationValues,
     batchUpdateTranslations,
     getTranslationSuggestion,
+    getBatchTranslationSuggestions,
 } from "../../services/translationManagementService";
 import { getProjectLanguages } from "../../services/projectService";
 import { useAuth } from "../../contexts/AuthContext";
@@ -337,32 +338,42 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
             setIsBatchGeneratingAi(true);
             toast.info(`Đang nhờ AI gợi ý cho ${selectedItemIds.length} bản dịch...`);
 
-            let countSuccess = 0;
-            for (const id of selectedItemIds) {
-                try {
-                    const res = await getTranslationSuggestion(id);
-                    const suggestionText =
-                        typeof res === "string"
-                            ? res
-                            : res?.suggestion || res?.data?.suggestion || res?.data;
+            const res = await getBatchTranslationSuggestions(selectedItemIds);
 
-                    if (suggestionText) {
-                        handleInputChange(id, suggestionText);
+            // Extracts list of suggestions from API response wrapper
+            const suggestionsList = Array.isArray(res)
+                ? res
+                : res?.data?.data || res?.data?.items || res?.data || res?.items || [];
+
+            let countSuccess = 0;
+
+            if (Array.isArray(suggestionsList) && suggestionsList.length > 0) {
+                suggestionsList.forEach(item => {
+                    const rawId = item.translationValueId || item.TranslationValueId;
+                    const suggestionText = item.suggestion || item.Suggestion;
+
+                    if (rawId && suggestionText) {
+                        const matchingItem = items.find(
+                            i => i.translationValueId?.toLowerCase() === rawId?.toString()?.toLowerCase()
+                        );
+                        const targetId = matchingItem ? matchingItem.translationValueId : rawId;
+
+                        handleInputChange(targetId, suggestionText);
                         countSuccess++;
                     }
-                } catch (err) {
-                    console.error(`AI suggest failed for item ${id}:`, err);
-                }
+                });
             }
 
             if (countSuccess > 0) {
                 toast.success(`✨ Đã áp dụng AI Suggest thành công cho ${countSuccess} bản dịch!`);
             } else {
-                toast.warning("Không tạo được gợi ý AI nào.");
+                toast.warning("Không nhận được gợi ý AI nào phù hợp.");
             }
         } catch (error) {
             console.error("Batch AI suggest failed:", error);
-            toast.error("Có lỗi xảy ra khi gọi gợi ý AI hàng loạt.");
+            toast.error(
+                error?.response?.data?.errorMessage || "Có lỗi xảy ra khi gọi gợi ý AI hàng loạt."
+            );
         } finally {
             setIsBatchGeneratingAi(false);
         }

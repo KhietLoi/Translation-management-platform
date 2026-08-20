@@ -179,3 +179,13 @@ export const getTranslationSuggestion = async (translationValueId) => {
     return response.data;
 };
 
+export const getBatchTranslationSuggestions = async (translationValueIds) => {
+    const response = await api.post(
+        "/TranslationManagement/batch-suggest",
+        { translationValueIds }
+    );
+
+    return response.data;
+};
+
+
