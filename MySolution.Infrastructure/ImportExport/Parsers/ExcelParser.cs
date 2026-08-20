@@ -7,7 +7,7 @@ namespace MySolution.Infrastructure.ImportExport.Parsers;
 public class ExcelParser : ITranslationParser
 {
     public FileType Format => FileType.Excel;
-    public Task<Dictionary<string, string>> ParseAsync(Stream stream, CancellationToken cancellationToken)
+    public async Task<Dictionary<string, string>> ParseAsync(Stream stream, CancellationToken cancellationToken)
     {
         var result = new Dictionary<string, string>();
         using var workbook = new XLWorkbook(stream);
@@ -26,6 +26,6 @@ public class ExcelParser : ITranslationParser
             result[key.Trim()] = value?.Trim() ?? string.Empty;
         }
         
-        return Task.FromResult(result);
+        return result;
     }
 }

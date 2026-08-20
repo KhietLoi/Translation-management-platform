@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using MySolution.Api.Authorization;
+
 using MySolution.Api.Authorization.User;
 using MySolution.Api.Helpers;
 using MySolution.Application.Constants;
@@ -8,8 +8,7 @@ using MySolution.Application.Features.Language.Commands.CreateLanguage;
 using MySolution.Application.Features.Language.Commands.DeleteLanguage;
 using MySolution.Application.Features.Language.Commands.UpdateLanguage;
 using MySolution.Application.Features.Language.Queries.GetLanguages;
-using MySolution.Application.Features.Project.Commands.CreateProject;
-using MySolution.Application.Features.Project.Queries.GetProjects;
+
 
 namespace MySolution.Api.Controllers;
 

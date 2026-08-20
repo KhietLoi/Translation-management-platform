@@ -1,7 +1,5 @@
-﻿using System.IO.Compression;
-using System.Text.Json;
+﻿using System.Text.Json;
 using MySolution.Application.Common.Interfaces.File;
-using MySolution.Application.Common.Models;
 using MySolution.Domain.Enums;
 
 namespace MySolution.Infrastructure.ImportExport.Parsers;

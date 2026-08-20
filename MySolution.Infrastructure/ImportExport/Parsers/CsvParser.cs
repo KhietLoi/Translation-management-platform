@@ -13,7 +13,6 @@ public class CsvParser : ITranslationParser
         CancellationToken cancellationToken)
     {
         var result = new Dictionary<string, string>();
-
         using var reader = new StreamReader(stream);
 
         // Skip header

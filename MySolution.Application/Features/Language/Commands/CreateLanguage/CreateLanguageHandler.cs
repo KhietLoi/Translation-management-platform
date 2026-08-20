@@ -30,7 +30,6 @@ public class CreateLanguageHandler : IRequestHandler<CreateLanguageCommand, Crea
 
         try
         {
-            // Check if Language code already exists
             var isCodeExits = await _unitOfWork.Language.ExistsByCodeAsync(payload.Code);
             if (isCodeExits)
             {
