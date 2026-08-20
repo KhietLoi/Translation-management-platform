@@ -81,9 +81,8 @@ function TranslationGridRow({
         return (
           <td
             key={langId}
-            className={`py-3 align-middle position-relative ${
-              activeLock ? "cell-locked-overlay" : ""
-            }`}
+            className={`py-3 align-middle position-relative ${activeLock ? "cell-locked-overlay" : ""
+              }`}
             style={{
               minWidth: "150px",
               cursor: "pointer",
@@ -142,7 +141,7 @@ function TranslationGridRow({
                 className="btn btn-sm btn-outline-secondary"
                 onClick={() => onEdit(item)}
               >
-                Sửa Key
+                Update
               </button>
             )}
 
@@ -151,7 +150,7 @@ function TranslationGridRow({
                 className="btn btn-sm btn-outline-danger"
                 onClick={() => onDelete(item)}
               >
-                Xóa
+                Delete
               </button>
             )}
           </div>

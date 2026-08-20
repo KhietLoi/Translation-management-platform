@@ -38,7 +38,7 @@ function ApiKeyGridRow({ item, onRotate, onRevoke, onAssignPermissions }) {
       return (
         <span className="apikey-expire-pill revoked">
           <span className="apikey-status-dot revoked"></span>
-          Đã thu hồi
+          Revoked
         </span>
       );
     }
@@ -47,7 +47,7 @@ function ApiKeyGridRow({ item, onRotate, onRevoke, onAssignPermissions }) {
       return (
         <span className="apikey-expire-pill expired">
           <span className="apikey-status-dot expired"></span>
-          Đã hết hạn
+          Expired
         </span>
       );
     }
@@ -56,7 +56,7 @@ function ApiKeyGridRow({ item, onRotate, onRevoke, onAssignPermissions }) {
       return (
         <span className="apikey-expire-pill active">
           <span className="apikey-status-dot active"></span>
-          Vĩnh viễn
+          Permanent
         </span>
       );
     }
@@ -70,7 +70,7 @@ function ApiKeyGridRow({ item, onRotate, onRevoke, onAssignPermissions }) {
       return (
         <span className="apikey-expire-pill expired">
           <span className="apikey-status-dot expired"></span>
-          Đã hết hạn
+          Expired
         </span>
       );
     }
@@ -79,7 +79,7 @@ function ApiKeyGridRow({ item, onRotate, onRevoke, onAssignPermissions }) {
       return (
         <span className="apikey-expire-pill warning">
           <span className="apikey-status-dot warning"></span>
-          {diffDays} ngày nữa
+          {diffDays} days left
         </span>
       );
     }
@@ -87,7 +87,7 @@ function ApiKeyGridRow({ item, onRotate, onRevoke, onAssignPermissions }) {
     return (
       <span className="apikey-expire-pill active">
         <span className="apikey-status-dot active"></span>
-        {diffDays} ngày nữa
+        {diffDays} days left
       </span>
     );
   };
@@ -165,7 +165,7 @@ function ApiKeyGridRow({ item, onRotate, onRevoke, onAssignPermissions }) {
               className="text-muted fst-italic"
               style={{ fontSize: "0.8rem" }}
             >
-              Chưa gán quyền
+              No permissions assigned
             </span>
           )}
         </div>
@@ -219,7 +219,7 @@ function ApiKeyGridRow({ item, onRotate, onRevoke, onAssignPermissions }) {
                   onClick={() => onAssignPermissions(item)}
                 >
                   <ShieldCheckIcon style={{ width: 16, height: 16 }} />
-                  <span>Phân quyền</span>
+                  <span>Assign Permissions</span>
                 </button>
               </li>
               {!item.isRevoked && (
@@ -229,7 +229,7 @@ function ApiKeyGridRow({ item, onRotate, onRevoke, onAssignPermissions }) {
                     onClick={() => onRevoke(item)}
                   >
                     <TrashIcon style={{ width: 16, height: 16 }} />
-                    <span>Thu hồi Key</span>
+                    <span>Revoke Key</span>
                   </button>
                 </li>
               )}
@@ -257,9 +257,9 @@ function ApiKeyGrid({
             <tr className="table-warning">
               <th style={{ width: "22%" }}>APPLICATION</th>
               <th style={{ width: "22%" }}>API KEY</th>
-              <th style={{ width: "20%" }}>QUYỀN</th>
-              <th style={{ width: "14%" }}>SỬ DỤNG (7 NGÀY)</th>
-              <th style={{ width: "14%" }}>HẾT HẠN</th>
+              <th style={{ width: "20%" }}>PERMISSIONS</th>
+              <th style={{ width: "14%" }}>USAGE (7 DAYS)</th>
+              <th style={{ width: "14%" }}>EXPIRATION</th>
               <th style={{ width: "8%" }} className="text-end">
                 ACTION
               </th>
@@ -273,18 +273,17 @@ function ApiKeyGrid({
                     className="spinner-border spinner-border-sm text-dark me-2"
                     role="status"
                   ></div>
-                  <span>Đang tải danh sách API Key...</span>
+                  <span>Loading API Keys list...</span>
                 </td>
               </tr>
             ) : !items || items.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-5 text-muted">
                   <p className="mb-1 fw-semibold text-secondary">
-                    Không tìm thấy API Key nào
+                    No API Keys found
                   </p>
                   <small style={{ fontSize: "0.8rem" }}>
-                    Nhấn nút "Tạo API Key" hoặc "Đăng ký ứng dụng" để khởi tạo
-                    key mới.
+                    Click "Create API Key" or "Register Application" to generate a new key.
                   </small>
                 </td>
               </tr>

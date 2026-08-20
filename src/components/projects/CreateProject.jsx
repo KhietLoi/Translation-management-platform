@@ -142,6 +142,9 @@ function CreateProjectModal({ show, onClose, onSuccess }) {
 
             toast.success("Create project successfully");
 
+            // Dispatch projectsChanged event so MainLayout (or other components) can reload and select the new project
+            window.dispatchEvent(new CustomEvent("projectsChanged", { detail: { selectProjectId: projectId } }));
+
             // Gọi callback onSuccess (để parent load lại list) hoặc chuyển hướng
             if (onSuccess) {
                 onSuccess(projectId);

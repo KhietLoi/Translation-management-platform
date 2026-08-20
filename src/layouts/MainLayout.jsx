@@ -58,6 +58,25 @@ export default function MainLayout() {
   // Load Projects for Header Selector
   useEffect(() => {
     loadProjects();
+
+    const handleNotification = (event) => {
+      console.log("[MainLayout] Received translationNotification, reloading projects:", event.detail);
+      loadProjects();
+    };
+
+    const handleProjectsChanged = (event) => {
+      const selectId = event.detail?.selectProjectId || null;
+      console.log("[MainLayout] Received projectsChanged, reloading projects. Select ID:", selectId);
+      loadProjects(selectId);
+    };
+
+    window.addEventListener("translationNotification", handleNotification);
+    window.addEventListener("projectsChanged", handleProjectsChanged);
+
+    return () => {
+      window.removeEventListener("translationNotification", handleNotification);
+      window.removeEventListener("projectsChanged", handleProjectsChanged);
+    };
   }, []);
 
   // Initialize SignalR Connection
@@ -96,17 +115,20 @@ export default function MainLayout() {
     signalRService.joinProject(selectedProjectId, auth.userId, auth.username);
   }, [selectedProjectId, user]);
 
-  const loadProjects = async () => {
+  const loadProjects = async (selectId = null) => {
     try {
       const res = await getProjects();
       const list = res.data?.projects || res.data || [];
       setProjects(list);
       if (list.length > 0) {
-        const savedId = localStorage.getItem("selectedProjectId");
+        const savedId = selectId || localStorage.getItem("selectedProjectId");
         const exists = list.some((p) => p.id === savedId);
         const activeId = exists ? savedId : list[0].id;
         setSelectedProjectId(activeId);
         localStorage.setItem("selectedProjectId", activeId);
+      } else {
+        setSelectedProjectId("");
+        localStorage.removeItem("selectedProjectId");
       }
     } catch (error) {
       console.error("Failed to load projects for header:", error);
