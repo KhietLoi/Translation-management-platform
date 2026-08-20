@@ -44,18 +44,14 @@ public class GetDashboardValueHandler : IRequestHandler<GetDashboardValueQuery, 
             }
             
             //Calculate summary: total projects, total translation key, total translation values, translated value, pending review.
-            var totalProjects = projectIds.Count;
             var totalTranslationKeys = await _unitOfWork.TranslationKey
                 .CountByProjectIdsAsync(projectIds, cancellationToken);
             
-            var totalTranslations = await _unitOfWork.TranslationValue
-                    .CountTotalByProjectIdsAsync(projectIds, cancellationToken);
-            var translatedTranslations = await _unitOfWork.TranslationValue
-                    .CountTranslatedByProjectIdsAsync(projectIds, cancellationToken);
-            var pendingReviews = await _unitOfWork.TranslationValue
-                    .CountPendingReviewByProjectIdsAsync(projectIds, cancellationToken);
+            var translationStats = await _unitOfWork.TranslationValue
+                .GetDashboardStatsAsync(projectIds, cancellationToken);
+            
             var translationProgress =
-                totalTranslations == 0 ? 0 : Math.Round(translatedTranslations * 100m / totalTranslations, 2);
+                translationStats.Total == 0 ? 0 : Math.Round(translationStats.Translated * 100m / translationStats.Total,2);
             // Get language progress
             var languageResults =
                 await _unitOfWork.TranslationValue
@@ -71,7 +67,8 @@ public class GetDashboardValueHandler : IRequestHandler<GetDashboardValueQuery, 
                     Progress = x.Total == 0 ? 0 : Math.Round(x.Translated * 100m / x.Total, 2)
                 }).ToList();
             
-            var auditLogs = await _unitOfWork.AuditLog.GetRecentActivitiesAsync(projectIds, 10, cancellationToken);
+           // var auditLogs = await _unitOfWork.AuditLog.GetRecentActivitiesAsync(projectIds, 10, cancellationToken);
+            /*
             var recentActivities = auditLogs
                 .Select(x => new RecentActivityDto
                 {
@@ -83,15 +80,35 @@ public class GetDashboardValueHandler : IRequestHandler<GetDashboardValueQuery, 
                     ProjectName =x.Project?.Name,
                     CreatedAt = x.CreatedAt
                 }).ToList();
+                */
+            var (notifications, _) = await _unitOfWork.Notification.GetAsync(
+                _currentUser.UserId,
+                projectId: null,
+                isRead: null,
+                pageNumber: 1,
+                pageSize: 10,
+                cancellationToken);
+
+            var recentActivities = notifications
+                .Select(x => new RecentActivityDto
+                {
+                    Id = x.Id,
+                    ActorName = x.TriggeredByUser?.Username ?? "System",
+                    Message = x.Message,
+                    ProjectId = x.ProjectId,
+                    IsRead = x.IsRead,
+                    CreatedAt = x.CreatedAt
+                })
+                .ToList();
 
             response.Data = new GetDashboardValueResult
             {
                 DashboardSummary = new DashboardSummaryDto()
                 {
-                    TotalProjects = totalProjects,
+                    TotalProjects = projectIds.Count,
                     TotalTranslationKeys = totalTranslationKeys,
                     TranslationProgress = translationProgress,
-                    PendingReview = pendingReviews
+                    PendingReview = translationStats.PendingReview
                 },
                 LanguageProgress = languageProgress,
                 RecentActivities = recentActivities
