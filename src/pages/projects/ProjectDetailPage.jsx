@@ -96,6 +96,8 @@ function ProjectDetailPage() {
                 isActive: editForm.isActive
             });
             toast.success("Project updated successfully");
+            // Dispatch projectsChanged event so MainLayout can reload projects list (to show updated project name)
+            window.dispatchEvent(new CustomEvent("projectsChanged", { detail: { selectProjectId: id } }));
             setShowEditModal(false);
             await loadData();
         } catch (error) {
@@ -113,6 +115,8 @@ function ProjectDetailPage() {
                 setDeleting(true);
                 await deleteProject(id);
                 toast.success("Project deleted successfully");
+                // Dispatch projectsChanged event to refresh dropdown list in MainLayout
+                window.dispatchEvent(new CustomEvent("projectsChanged"));
                 navigate("/projects");
             } catch (error) {
                 console.error("Failed to delete project:", error);

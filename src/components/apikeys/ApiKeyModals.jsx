@@ -31,17 +31,17 @@ const PERMISSION_OPTIONS = [
   {
     id: "TranslationRead",
     label: "TranslationRead",
-    description: "Cho phép đọc dữ liệu bản dịch (1)",
+    description: "Allow reading translation values (1)",
   },
   {
     id: "VersionRead",
     label: "VersionRead",
-    description: "Cho phép xem danh sách phiên bản (2)",
+    description: "Allow viewing translations release versions (2)",
   },
   {
     id: "PackageDownload",
     label: "PackageDownload",
-    description: "Cho phép tải gói bản dịch (3)",
+    description: "Allow downloading translation packages (3)",
   },
 ];
 
@@ -107,18 +107,18 @@ export function CreateApplicationModal({ show, projects = [], onClose, onSubmit 
     const errors = {};
 
     if (!name.trim()) {
-      errors.name = "Tên ứng dụng không được để trống.";
+      errors.name = "Application name cannot be empty.";
     } else {
       const trimmedName = name.trim();
       if (trimmedName.length < 3) {
-        errors.name = "Tên ứng dụng phải có ít nhất 3 ký tự.";
+        errors.name = "Application name must be at least 3 characters.";
       } else if (trimmedName.length > 100) {
-        errors.name = "Tên ứng dụng tối đa 100 ký tự.";
+        errors.name = "Application name must be under 100 characters.";
       }
     }
 
     if (description.trim() && description.trim().length > 500) {
-      errors.description = "Mô tả tối đa 500 ký tự.";
+      errors.description = "Description must be under 500 characters.";
     }
 
     setFieldErrors(errors);
@@ -151,11 +151,11 @@ export function CreateApplicationModal({ show, projects = [], onClose, onSubmit 
       style={{ backgroundColor: "rgba(15, 23, 42, 0.5)" }}
       tabIndex="-1"
     >
-      <div className="modal-dialog modal-dialog-centered">
+      <div className="modal-dialog modal-dialog-centered modal-lg">
         <div className="modal-content border-0 shadow-lg rounded-4">
           <div className="modal-header border-bottom-0 pb-0">
             <h5 className="modal-title fw-bold text-dark">
-              Đăng ký Ứng dụng Mới (New Application)
+              Register New Application
             </h5>
             <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
@@ -164,12 +164,12 @@ export function CreateApplicationModal({ show, projects = [], onClose, onSubmit 
             <div className="modal-body py-4">
               <div className="mb-3">
                 <label className="form-label fw-medium text-secondary fs-6">
-                  Tên ứng dụng <span className="text-danger">*</span>
+                  Application Name <span className="text-danger">*</span>
                 </label>
                 <input
                   type="text"
                   className={`form-control rounded-3 ${fieldErrors.name ? "is-invalid" : ""}`}
-                  placeholder="Ví dụ: prod-mobile-01, merchant-portal-web"
+                  placeholder="e.g., prod-mobile-01, merchant-portal-web"
                   value={name}
                   onChange={(e) => {
                     setName(e.target.value);
@@ -188,14 +188,14 @@ export function CreateApplicationModal({ show, projects = [], onClose, onSubmit 
               {projects.length > 0 && (
                 <div className="mb-3">
                   <label className="form-label fw-medium text-secondary fs-6">
-                    Dự án (Project)
+                    Project
                   </label>
                   <select
                     className="form-select rounded-3"
                     value={projectId}
                     onChange={(e) => setProjectId(e.target.value)}
                   >
-                    <option value="">-- Chọn dự án (Không bắt buộc) --</option>
+                    <option value="">-- Select Project (Optional) --</option>
                     {projects.map((p, idx) => (
                       <option
                         key={p.id || p.projectId || `proj-opt-${idx}`}
@@ -210,12 +210,12 @@ export function CreateApplicationModal({ show, projects = [], onClose, onSubmit 
 
               <div className="mb-3">
                 <label className="form-label fw-medium text-secondary fs-6">
-                  Mô tả (Description)
+                  Description
                 </label>
                 <textarea
                   className={`form-control rounded-3 ${fieldErrors.description ? "is-invalid" : ""}`}
                   rows="3"
-                  placeholder="Mô tả mục đích sử dụng ứng dụng..."
+                  placeholder="Describe the purpose of this application..."
                   value={description}
                   onChange={(e) => {
                     setDescription(e.target.value);
@@ -237,14 +237,14 @@ export function CreateApplicationModal({ show, projects = [], onClose, onSubmit 
                 className="btn btn-light rounded-3 px-4"
                 onClick={onClose}
               >
-                Hủy
+                Cancel
               </button>
               <button
                 type="submit"
-                className="apikey-btn-primary rounded-3 px-4"
+                className="btn btn-dark rounded-3 px-4"
                 disabled={loading || !name.trim()}
               >
-                {loading ? "Đang tạo..." : "Xác nhận tạo"}
+                {loading ? "Registering..." : "Register Application"}
               </button>
             </div>
           </form>
@@ -290,29 +290,29 @@ export function GenerateApiKeyModal({
     const errors = {};
 
     if (!applicationId) {
-      errors.applicationId = "Vui lòng chọn ứng dụng.";
+      errors.applicationId = "Please select an application.";
     }
 
     if (!name.trim()) {
-      errors.name = "Tên API Key không được để trống.";
+      errors.name = "API Key name cannot be empty.";
     } else {
       const trimmedName = name.trim();
       if (trimmedName.length < 3) {
-        errors.name = "Tên API Key phải có ít nhất 3 ký tự.";
+        errors.name = "API Key name must be at least 3 characters.";
       } else if (trimmedName.length > 100) {
-        errors.name = "Tên API Key tối đa 100 ký tự.";
+        errors.name = "API Key name must be under 100 characters.";
       } else if (!/^[A-Za-z0-9._-]+$/.test(trimmedName)) {
-        errors.name = "Tên API Key chỉ được chứa chữ, số, dấu chấm, gạch dưới và gạch ngang.";
+        errors.name = "API Key name can only contain letters, numbers, dots, underscores, and dashes.";
       }
     }
 
     const days = Number(numofDaysExpires);
     if (!Number.isInteger(days) || days < 0 || days > 3650) {
-      errors.numofDaysExpires = "Thời hạn hết hạn không hợp lệ. Vui lòng chọn giá trị từ 0 đến 3650 ngày.";
+      errors.numofDaysExpires = "Invalid expiration period. Please choose a value from 0 to 3650 days.";
     }
 
     if (!selectedPermissions || selectedPermissions.length === 0) {
-      errors.permissions = "Vui lòng chọn ít nhất một quyền cho API Key.";
+      errors.permissions = "Please select at least one permission for the API Key.";
     }
 
     setFieldErrors(errors);
@@ -368,10 +368,10 @@ export function GenerateApiKeyModal({
               </div>
               <div>
                 <h5 className="modal-title fw-bold text-dark mb-0">
-                  Tạo API Key Mới (Generate API Key)
+                  Generate New API Key
                 </h5>
                 <small className="text-secondary">
-                  Khởi tạo chìa khóa truy cập API cho ứng dụng
+                  Generate API access key for the application
                 </small>
               </div>
             </div>
@@ -383,7 +383,7 @@ export function GenerateApiKeyModal({
               <div className="row g-3">
                 <div className="col-12 col-md-6">
                   <label className="form-label fw-medium text-secondary fs-6">
-                    Ứng dụng (Application) <span className="text-danger">*</span>
+                    Application <span className="text-danger">*</span>
                   </label>
                   <select
                     className={`form-select rounded-3 ${fieldErrors.applicationId ? "is-invalid" : ""}`}
@@ -396,7 +396,7 @@ export function GenerateApiKeyModal({
                     }}
                     required
                   >
-                    <option value="">-- Chọn Ứng dụng --</option>
+                    <option value="">-- Select Application --</option>
                     {applications.map((app, idx) => (
                       <option
                         key={app.id || app.applicationId || `gen-app-opt-${idx}`}
@@ -413,12 +413,12 @@ export function GenerateApiKeyModal({
 
                 <div className="col-12 col-md-6">
                   <label className="form-label fw-medium text-secondary fs-6">
-                    Tên API Key <span className="text-danger">*</span>
+                    API Key Name <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"
                     className={`form-control rounded-3 ${fieldErrors.name ? "is-invalid" : ""}`}
-                    placeholder="Ví dụ: prod-mobile-key-2026, server-key"
+                    placeholder="e.g., prod-mobile-key-2026, server-key"
                     value={name}
                     onChange={(e) => {
                       setName(e.target.value);
@@ -436,7 +436,7 @@ export function GenerateApiKeyModal({
 
                 <div className="col-12">
                   <label className="form-label fw-medium text-secondary fs-6">
-                    Thời hạn hết hạn (Expiration Period)
+                    Expiration Period
                   </label>
                   <select
                     className={`form-select rounded-3 ${fieldErrors.numofDaysExpires ? "is-invalid" : ""}`}
@@ -448,12 +448,12 @@ export function GenerateApiKeyModal({
                       }
                     }}
                   >
-                    <option value={30}>30 ngày (1 tháng)</option>
-                    <option value={60}>60 ngày (2 tháng)</option>
-                    <option value={90}>90 ngày (3 tháng)</option>
-                    <option value={180}>180 ngày (6 tháng)</option>
-                    <option value={365}>365 ngày (1 năm)</option>
-                    <option value={0}>Không hết hạn (Vĩnh viễn - Never expire)</option>
+                    <option value={30}>30 days (1 month)</option>
+                    <option value={60}>60 days (2 months)</option>
+                    <option value={90}>90 days (3 months)</option>
+                    <option value={180}>180 days (6 months)</option>
+                    <option value={365}>365 days (1 year)</option>
+                    <option value={0}>Never expire (Permanent)</option>
                   </select>
                   {fieldErrors.numofDaysExpires && (
                     <div className="invalid-feedback d-block">{fieldErrors.numofDaysExpires}</div>
@@ -462,7 +462,7 @@ export function GenerateApiKeyModal({
 
                 <div className="col-12">
                   <label className="form-label fw-medium text-secondary fs-6">
-                    Phân quyền ban đầu (Permissions)
+                    Permissions
                   </label>
                   <div
                     className={`border rounded-3 p-3 ${fieldErrors.permissions ? "border-danger-subtle" : ""}`}
@@ -501,14 +501,14 @@ export function GenerateApiKeyModal({
                 className="btn btn-light rounded-3 px-4"
                 onClick={onClose}
               >
-                Hủy
+                Cancel
               </button>
               <button
                 type="submit"
-                className="apikey-btn-primary rounded-3 px-4"
+                className="btn btn-dark rounded-3 px-4"
                 disabled={loading || !applicationId || !name.trim()}
               >
-                {loading ? "Đang tạo..." : "Tạo API Key"}
+                {loading ? "Generating..." : "Generate API Key"}
               </button>
             </div>
           </form>
@@ -529,7 +529,7 @@ export function ApiKeyCreatedModal({ show, generatedData, isRotation = false, on
     if (!rawKey) return;
     navigator.clipboard.writeText(rawKey);
     setCopied(true);
-    toast.success("Đã sao chép API Key vào khay nhớ tạm!");
+    toast.success("API Key copied to clipboard!");
     setTimeout(() => setCopied(false), 3000);
   };
 
@@ -549,8 +549,8 @@ export function ApiKeyCreatedModal({ show, generatedData, isRotation = false, on
               />
               <h5 className="modal-title fw-bold mb-0">
                 {isRotation
-                  ? "Đã xoay API Key thành công!"
-                  : "Tạo API Key Thành Công!"}
+                  ? "API Key Rotated Successfully!"
+                  : "API Key Generated Successfully!"}
               </h5>
             </div>
             <button
@@ -568,18 +568,18 @@ export function ApiKeyCreatedModal({ show, generatedData, isRotation = false, on
               />
               <div>
                 <h6 className="fw-bold mb-1">
-                  Cảnh báo bảo mật quan trọng (Security Notice)
+                  Important Security Notice
                 </h6>
                 <p className="mb-0 text-dark" style={{ fontSize: "0.875rem" }}>
-                  Khóa API này sẽ <strong>chỉ hiển thị một lần duy nhất</strong>.
-                  Vui lòng sao chép và lưu trữ ở vị trí an toàn.
+                  This API Key will <strong>only be displayed once</strong>.
+                  Please copy and store it in a secure location.
                 </p>
               </div>
             </div>
 
             <div className="mb-3">
               <label className="form-label fw-bold text-dark fs-6 mb-2">
-                Tên API Key: {generatedData.name}
+                API Key Name: {generatedData.name}
               </label>
               <div className="apikey-secret-box d-flex justify-content-between align-items-center gap-3">
                 <span className="user-select-all font-monospace">{rawKey}</span>
@@ -593,12 +593,12 @@ export function ApiKeyCreatedModal({ show, generatedData, isRotation = false, on
                   {copied ? (
                     <>
                       <ClipboardDocumentCheckIcon style={{ width: 16, height: 16 }} />
-                      <span>Đã sao chép!</span>
+                      <span>Copied!</span>
                     </>
                   ) : (
                     <>
                       <ClipboardDocumentIcon style={{ width: 16, height: 16 }} />
-                      <span>Sao chép Key</span>
+                      <span>Copy Key</span>
                     </>
                   )}
                 </button>
@@ -609,10 +609,10 @@ export function ApiKeyCreatedModal({ show, generatedData, isRotation = false, on
           <div className="modal-footer bg-light border-top-0 py-3 px-4">
             <button
               type="button"
-              className="apikey-btn-primary rounded-3 px-4"
+              className="btn btn-dark rounded-3 px-4 w-100 w-md-auto"
               onClick={onClose}
             >
-              Tôi đã sao chép và hoàn tất
+              I have copied the key & finished
             </button>
           </div>
         </div>
@@ -650,7 +650,7 @@ export function RotateApiKeyModal({ show, item, onClose, onConfirm }) {
                 <ArrowPathIcon style={{ width: 20, height: 20 }} />
               </div>
               <h5 className="modal-title fw-bold text-dark">
-                Xác nhận Xoay Key (Rotate Key)
+                Confirm API Key Rotation
               </h5>
             </div>
             <button type="button" className="btn-close" onClick={onClose}></button>
@@ -658,7 +658,7 @@ export function RotateApiKeyModal({ show, item, onClose, onConfirm }) {
 
           <div className="modal-body py-4">
             <p className="text-secondary mb-3">
-              Bạn có chắc chắn muốn xoay API Key{" "}
+              Are you sure you want to rotate the API Key{" "}
               <strong className="text-dark">{item.name}</strong>?
             </p>
             <div
@@ -670,8 +670,8 @@ export function RotateApiKeyModal({ show, item, onClose, onConfirm }) {
                 className="flex-shrink-0 mt-1 text-warning"
               />
               <span>
-                Hành động này sẽ <strong>vô hiệu hóa lập tức API Key cũ</strong>{" "}
-                và khởi tạo một chuỗi khóa mới.
+                This action will <strong>immediately revoke the old API Key</strong>{" "}
+                and generate a new key.
               </span>
             </div>
           </div>
@@ -682,7 +682,7 @@ export function RotateApiKeyModal({ show, item, onClose, onConfirm }) {
               className="btn btn-light rounded-3 px-4"
               onClick={onClose}
             >
-              Hủy
+              Cancel
             </button>
             <button
               type="button"
@@ -690,7 +690,7 @@ export function RotateApiKeyModal({ show, item, onClose, onConfirm }) {
               disabled={loading}
               onClick={handleRotate}
             >
-              {loading ? "Đang xoay..." : "Xoay API Key ngay"}
+              {loading ? "Rotating..." : "Rotate API Key Now"}
             </button>
           </div>
         </div>
@@ -739,7 +739,7 @@ export function AssignApiKeyPermissionModal({ show, item, onClose, onSubmit }) {
       style={{ backgroundColor: "rgba(15, 23, 42, 0.5)" }}
       tabIndex="-1"
     >
-      <div className="modal-dialog modal-dialog-centered">
+      <div className="modal-dialog modal-dialog-centered modal-lg">
         <div className="modal-content border-0 shadow-lg rounded-4">
           <div className="modal-header border-bottom-0 pb-0">
             <div className="d-flex align-items-center gap-2">
@@ -748,7 +748,7 @@ export function AssignApiKeyPermissionModal({ show, item, onClose, onSubmit }) {
               </div>
               <div>
                 <h5 className="modal-title fw-bold text-dark mb-0">
-                  Phân quyền API Key
+                  Assign Permissions
                 </h5>
                 <small className="text-secondary">{item.name}</small>
               </div>
@@ -759,7 +759,7 @@ export function AssignApiKeyPermissionModal({ show, item, onClose, onSubmit }) {
           <form onSubmit={handleSubmit}>
             <div className="modal-body py-4">
               <label className="form-label fw-medium text-secondary fs-6 mb-3">
-                Chọn danh sách quyền được cấp phép:
+                Select permissions to assign:
               </label>
 
               <div className="d-flex flex-column gap-2">
@@ -806,14 +806,14 @@ export function AssignApiKeyPermissionModal({ show, item, onClose, onSubmit }) {
                 className="btn btn-light rounded-3 px-4"
                 onClick={onClose}
               >
-                Hủy
+                Cancel
               </button>
               <button
                 type="submit"
-                className="apikey-btn-primary rounded-3 px-4"
+                className="btn btn-dark rounded-3 px-4"
                 disabled={loading}
               >
-                {loading ? "Đang lưu..." : "Cập nhật phân quyền"}
+                {loading ? "Saving..." : "Save Permissions"}
               </button>
             </div>
           </form>
@@ -852,7 +852,7 @@ export function RevokeApiKeyModal({ show, item, onClose, onConfirm }) {
                 <TrashIcon style={{ width: 20, height: 20 }} />
               </div>
               <h5 className="modal-title fw-bold text-dark">
-                Vô hiệu hóa / Thu hồi API Key
+                Revoke API Key
               </h5>
             </div>
             <button type="button" className="btn-close" onClick={onClose}></button>
@@ -860,7 +860,7 @@ export function RevokeApiKeyModal({ show, item, onClose, onConfirm }) {
 
           <div className="modal-body py-4">
             <p className="text-secondary mb-3">
-              Bạn có chắc chắn muốn thu hồi API Key{" "}
+              Are you sure you want to revoke the API Key{" "}
               <strong className="text-dark">{item.name}</strong>?
             </p>
             <div
@@ -872,8 +872,7 @@ export function RevokeApiKeyModal({ show, item, onClose, onConfirm }) {
                 className="flex-shrink-0 mt-1 text-danger"
               />
               <span>
-                Hành động này <strong>không thể hoàn tác</strong>. Key bị thu
-                hồi sẽ mất toàn bộ quyền truy cập ngay lập tức.
+                This action <strong>cannot be undone</strong>. Revoked keys will immediately lose all API access.
               </span>
             </div>
           </div>
@@ -884,7 +883,7 @@ export function RevokeApiKeyModal({ show, item, onClose, onConfirm }) {
               className="btn btn-light rounded-3 px-4"
               onClick={onClose}
             >
-              Hủy
+              Cancel
             </button>
             <button
               type="button"
@@ -892,7 +891,7 @@ export function RevokeApiKeyModal({ show, item, onClose, onConfirm }) {
               disabled={loading}
               onClick={handleRevoke}
             >
-              {loading ? "Đang thu hồi..." : "Xác nhận Thu hồi Key"}
+              {loading ? "Revoking..." : "Revoke API Key"}
             </button>
           </div>
         </div>

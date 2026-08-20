@@ -123,7 +123,7 @@ function ApiKeyManagement() {
   const handleCreateApplication = async (payload) => {
     try {
       const res = await createApplication(payload);
-      toast.success("Đã tạo ứng dụng mới thành công!");
+      toast.success("New application registered successfully!");
       setShowCreateAppModal(false);
       await loadInitialData();
       if (res?.data?.id) {
@@ -132,7 +132,7 @@ function ApiKeyManagement() {
     } catch (error) {
       console.error(error);
       toast.error(
-        error?.response?.data?.errorMessage || "Tạo ứng dụng thất bại."
+        error?.response?.data?.errorMessage || "Failed to register application."
       );
     }
   };
@@ -140,7 +140,7 @@ function ApiKeyManagement() {
   const handleGenerateApiKey = async (appId, payload) => {
     try {
       const res = await generateApiKey(appId, payload);
-      toast.success("Khởi tạo API Key thành công!");
+      toast.success("API Key generated successfully!");
       setShowGenerateKeyModal(false);
 
       if (res?.data) {
@@ -153,7 +153,7 @@ function ApiKeyManagement() {
     } catch (error) {
       console.error(error);
       toast.error(
-        error?.response?.data?.errorMessage || "Không thể tạo API Key."
+        error?.response?.data?.errorMessage || "Failed to generate API Key."
       );
     }
   };
@@ -161,7 +161,7 @@ function ApiKeyManagement() {
   const handleConfirmRotate = async (apiKeyId) => {
     try {
       const res = await rotateApiKey(apiKeyId);
-      toast.success("Đã xoay API Key thành công!");
+      toast.success("API Key rotated successfully!");
       setShowRotateModal(false);
 
       if (res?.data) {
@@ -174,7 +174,7 @@ function ApiKeyManagement() {
     } catch (error) {
       console.error(error);
       toast.error(
-        error?.response?.data?.errorMessage || "Xoay API Key thất bại."
+        error?.response?.data?.errorMessage || "Failed to rotate API Key."
       );
     }
   };
@@ -182,27 +182,27 @@ function ApiKeyManagement() {
   const handleAssignPermissions = async (apiKeyId, permissions) => {
     try {
       await assignApiKeyPermissions(apiKeyId, permissions);
-      toast.success("Đã cập nhật phân quyền thành công!");
+      toast.success("Permissions updated successfully!");
       setShowAssignModal(false);
       setSelectedApiKey(null);
       await loadGrid();
     } catch (error) {
       console.error(error);
-      toast.error("Cập nhật phân quyền thất bại.");
+      toast.error("Failed to update permissions.");
     }
   };
 
   const handleConfirmRevoke = async (apiKeyId) => {
     try {
       await revokeApiKey(apiKeyId);
-      toast.success("Đã thu hồi API Key!");
+      toast.success("API Key revoked successfully!");
       setShowRevokeModal(false);
       setSelectedApiKey(null);
       await loadGrid();
     } catch (error) {
       console.error(error);
       toast.error(
-        error?.response?.data?.errorMessage || "Thu hồi API Key thất bại."
+        error?.response?.data?.errorMessage || "Failed to revoke API Key."
       );
     }
   };

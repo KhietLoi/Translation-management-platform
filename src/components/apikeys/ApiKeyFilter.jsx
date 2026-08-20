@@ -33,27 +33,27 @@ function ApiKeyFilter({
         <div>
           <h2 className="fw-bold text-dark mb-1 fs-3">API Key Management</h2>
           <p className="text-secondary mb-0 fs-6">
-            Quản lý ứng dụng đăng ký, phân quyền và vòng đời của API key.
+            Manage registered applications, permissions, and life cycle of API keys.
           </p>
         </div>
 
         <div className="d-flex align-items-center gap-2">
           <button
             type="button"
-            className="btn btn-outline-dark d-flex align-items-center gap-2 rounded-3 px-3 py-2 fw-medium shadow-sm"
+            className="btn btn-outline-dark d-flex align-items-center gap-2 rounded-3 px-3 py-2 fw-semibold shadow-sm"
             onClick={onOpenCreateAppModal}
           >
             <PlusIcon style={{ width: 18, height: 18 }} />
-            <span>Đăng ký ứng dụng</span>
+            <span>Register Application</span>
           </button>
 
           <button
             type="button"
-            className="apikey-btn-primary d-flex align-items-center gap-2 shadow-sm"
+            className="btn btn-dark d-flex align-items-center gap-2 rounded-3 px-3.5 py-2 fw-semibold shadow-sm"
             onClick={onOpenGenerateKeyModal}
           >
             <KeyIcon style={{ width: 18, height: 18 }} />
-            <span>Tạo API Key</span>
+            <span>Create API Key</span>
           </button>
         </div>
       </div>
@@ -76,7 +76,7 @@ function ApiKeyFilter({
                 value={selectedApplicationId || ""}
                 onChange={(e) => onApplicationChange(e.target.value)}
               >
-                <option value="">Tất cả ứng dụng (All Apps)</option>
+                <option value="">All Applications</option>
                 {applications.map((app, idx) => (
                   <option
                     key={app.id || app.applicationId || `app-opt-${idx}`}
@@ -99,7 +99,7 @@ function ApiKeyFilter({
                 }`}
                 onClick={() => onEnvFilterChange("all")}
               >
-                Tất cả
+                All
               </button>
               <button
                 type="button"
@@ -161,7 +161,7 @@ function ApiKeyFilter({
                   htmlFor="isRevokedSwitch"
                   style={{ fontSize: "0.8rem" }}
                 >
-                  Thu hồi
+                  Revoked
                 </label>
               </div>
 
@@ -169,8 +169,9 @@ function ApiKeyFilter({
                 type="button"
                 className="btn btn-dark btn-sm rounded-3 px-3 py-2 text-nowrap"
                 onClick={onSearch}
+                style={{ minHeight: "36px" }}
               >
-                Tìm kiếm
+                Search
               </button>
             </div>
           </div>

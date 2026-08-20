@@ -72,75 +72,56 @@ export default function Dashboard() {
   // Helper for language name mapping
   const getLanguageName = (code, backendName) => {
     if (backendName && backendName.trim()) return backendName;
-    if (!code) return "Ngôn ngữ";
+    if (!code) return "Language";
     const lower = code.toLowerCase();
-    if (lower.includes("vi")) return "Tiếng Việt";
-    if (lower.includes("en")) return "Tiếng Anh";
-    if (lower.includes("ja") || lower.includes("jp")) return "Tiếng Nhật";
-    if (lower.includes("ko") || lower.includes("kr")) return "Tiếng Hàn";
-    if (lower.includes("zh") || lower.includes("cn")) return "Tiếng Trung";
-    if (lower.includes("fr")) return "Tiếng Pháp";
-    if (lower.includes("de")) return "Tiếng Đức";
-    if (lower.includes("th")) return "Tiếng Thái";
+    if (lower.includes("vi")) return "Vietnamese";
+    if (lower.includes("en")) return "English";
+    if (lower.includes("ja") || lower.includes("jp")) return "Japanese";
+    if (lower.includes("ko") || lower.includes("kr")) return "Korean";
+    if (lower.includes("zh") || lower.includes("cn")) return "Chinese";
+    if (lower.includes("fr")) return "French";
+    if (lower.includes("de")) return "German";
+    if (lower.includes("th")) return "Thai";
     return code;
   };
 
   // Helper for relative time
   const formatRelativeTime = (dateString) => {
-    if (!dateString) return "Vừa xong";
+    if (!dateString) return "Just now";
     try {
       const date = new Date(dateString);
       const now = new Date();
       const diffSec = Math.floor((now - date) / 1000);
-      if (diffSec < 60) return "Vừa xong";
+      if (diffSec < 60) return "Just now";
       const diffMin = Math.floor(diffSec / 60);
-      if (diffMin < 60) return `${diffMin} phút trước`;
+      if (diffMin < 60) return `${diffMin}m ago`;
       const diffHour = Math.floor(diffMin / 60);
-      if (diffHour < 24) return `${diffHour} giờ trước`;
+      if (diffHour < 24) return `${diffHour}h ago`;
       const diffDay = Math.floor(diffHour / 24);
-      if (diffDay < 30) return `${diffDay} ngày trước`;
-      return date.toLocaleDateString("vi-VN");
+      if (diffDay < 30) return `${diffDay}d ago`;
+      return date.toLocaleDateString("en-US");
     } catch {
       return dateString;
     }
   };
 
-  // Helper for action metadata
-  const getActionMeta = (action, entityName) => {
-    const entity =
-      entityName === "TranslationValue"
-        ? "Bản dịch"
-        : entityName === "TranslationKey"
-          ? "Key dịch"
-          : entityName === "Project"
-            ? "Dự án"
-            : entityName || "mục";
-
-    const actNum = Number(action);
-    switch (actNum) {
-      case 1:
-        return { text: `đã tạo ${entity} mới`, color: "#10b981" };
-      case 2:
-        return { text: `đã cập nhật ${entity}`, color: "#3b82f6" };
-      case 3:
-        return { text: `đã xóa ${entity}`, color: "#ef4444" };
-      case 4:
-        return { text: `đã duyệt ${entity}`, color: "#059669" };
-      case 5:
-        return { text: `đã nộp ${entity} để review`, color: "#f59e0b" };
-      case 6:
-        return { text: `đã xuất bản ${entity}`, color: "#8b5cf6" };
-      case 7:
-        return { text: `đã từ chối ${entity}`, color: "#dc2626" };
-      default:
-        return {
-          text:
-            typeof action === "string"
-              ? action
-              : `đã thao tác trên ${entity}`,
-          color: "#6b7280",
-        };
+  // Helper for activity dot color
+  const getActivityColor = (message) => {
+    if (!message) return "#6b7280"; // Gray default
+    const msg = message.toLowerCase();
+    if (msg.includes("success") || msg.includes("duyệt") || msg.includes("approved") || msg.includes("hoàn thành") || msg.includes("completed")) {
+      return "#10b981"; // Emerald
     }
+    if (msg.includes("fail") || msg.includes("error") || msg.includes("lỗi") || msg.includes("từ chối") || msg.includes("rejected")) {
+      return "#ef4444"; // Red
+    }
+    if (msg.includes("warning") || msg.includes("cảnh báo") || msg.includes("review") || msg.includes("chờ")) {
+      return "#f59e0b"; // Amber
+    }
+    if (msg.includes("tạo") || msg.includes("create") || msg.includes("import") || msg.includes("mới")) {
+      return "#3b82f6"; // Blue
+    }
+    return "#6b7280"; // Default Gray
   };
 
   // Progress bar color generator
@@ -151,7 +132,7 @@ export default function Dashboard() {
     return "#ef4444"; // Red
   };
 
-  const currentDateText = new Date().toLocaleDateString("vi-VN", {
+  const currentDateText = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -164,11 +145,11 @@ export default function Dashboard() {
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
           <h2 className="fw-bold mb-1 fs-3 text-dark d-flex align-items-center gap-2">
-            <span>Chào {user?.userName || user?.name || "Bạn"}</span>
+            <span>Welcome, {user?.userName || user?.name || "User"}</span>
             <SparklesIcon width={24} className="text-warning" />
           </h2>
           <p className="text-muted mb-0 fs-6">
-            Tổng quan tình hình dịch thuật hôm nay &bull;{" "}
+            Overview of translation status today &bull;{" "}
             <span className="text-capitalize">{currentDateText}</span>
           </p>
         </div>
@@ -183,7 +164,7 @@ export default function Dashboard() {
               width={18}
               className={refreshing ? "spin-animation" : ""}
             />
-            <span>Làm mới</span>
+            <span>Refresh</span>
           </button>
 
           <button
@@ -191,7 +172,7 @@ export default function Dashboard() {
             onClick={() => navigate("/projects")}
           >
             <PlusIcon width={18} />
-            <span>Dự án mới</span>
+            <span>New Project</span>
           </button>
         </div>
       </div>
@@ -223,7 +204,7 @@ export default function Dashboard() {
               <div className="d-flex align-items-center justify-content-between">
                 <div>
                   <span className="text-secondary small fw-medium d-block mb-1">
-                    Tổng số dự án
+                    Total Projects
                   </span>
                   <div className="fs-2 fw-bold text-dark lh-1">
                     {summary.totalProjects?.toLocaleString() ?? 0}
@@ -249,7 +230,7 @@ export default function Dashboard() {
               <div className="d-flex align-items-center justify-content-between">
                 <div>
                   <span className="text-secondary small fw-medium d-block mb-1">
-                    Tổng Translation Key
+                    Total Translation Keys
                   </span>
                   <div className="fs-2 fw-bold text-dark lh-1">
                     {summary.totalTranslationKeys?.toLocaleString() ?? 0}
@@ -275,7 +256,7 @@ export default function Dashboard() {
               <div className="d-flex align-items-center justify-content-between">
                 <div>
                   <span className="text-secondary small fw-medium d-block mb-1">
-                    Tiến độ hoàn thành
+                    Overall Progress
                   </span>
                   <div className="fs-2 fw-bold text-dark lh-1 d-flex align-items-baseline gap-1">
                     <span>{Math.round(summary.translationProgress ?? 0)}%</span>
@@ -301,13 +282,13 @@ export default function Dashboard() {
               <div className="d-flex align-items-center justify-content-between">
                 <div>
                   <span className="text-secondary small fw-medium d-block mb-1">
-                    Chờ review
+                    Pending Review
                   </span>
                   <div className="fs-2 fw-bold text-dark lh-1 d-flex align-items-center gap-2">
                     <span>{summary.pendingReview?.toLocaleString() ?? 0}</span>
                     {summary.pendingReview > 0 && (
                       <span className="badge bg-warning-subtle text-warning-emphasis fs-6 fw-semibold px-2 py-0.5 rounded-pill">
-                        Cần duyệt
+                        Needs Review
                       </span>
                     )}
                   </div>
@@ -330,11 +311,11 @@ export default function Dashboard() {
               <div className="d-flex align-items-center gap-2">
                 <GlobeAltIcon width={22} className="text-primary" />
                 <h5 className="fw-bold mb-0 text-dark fs-6">
-                  Tiến độ theo ngôn ngữ
+                  Progress by Language
                 </h5>
               </div>
               <span className="badge bg-light text-secondary border fw-medium px-2.5 py-1">
-                {languageProgress.length} Ngôn ngữ
+                {languageProgress.length} Languages
               </span>
             </div>
 
@@ -347,7 +328,7 @@ export default function Dashboard() {
             ) : languageProgress.length === 0 ? (
               <div className="text-center py-5 text-muted">
                 <LanguageIcon width={36} className="opacity-50 mb-2" />
-                <p className="mb-0">Chưa có dữ liệu tiến độ ngôn ngữ.</p>
+                <p className="mb-0">No language progress data available.</p>
               </div>
             ) : (
               <div className="d-flex flex-column gap-4">
@@ -404,14 +385,14 @@ export default function Dashboard() {
               <div className="d-flex align-items-center gap-2">
                 <ClockIcon width={22} className="text-primary" />
                 <h5 className="fw-bold mb-0 text-dark fs-6">
-                  Hoạt động gần đây
+                  Recent Activities
                 </h5>
               </div>
               <button
                 className="btn btn-sm btn-link text-decoration-none text-muted p-0"
                 onClick={() => navigate("/translations")}
               >
-                Xem tất cả bản dịch &rarr;
+                View all translations &rarr;
               </button>
             </div>
 
@@ -424,19 +405,19 @@ export default function Dashboard() {
             ) : recentActivities.length === 0 ? (
               <div className="text-center py-5 text-muted">
                 <CheckCircleIcon width={36} className="opacity-50 mb-2" />
-                <p className="mb-0">Chưa có hoạt động nào gần đây.</p>
+                <p className="mb-0">No recent activities.</p>
               </div>
             ) : (
               <div className="d-flex flex-column">
                 {recentActivities.map((act, idx) => {
-                  const meta = getActionMeta(act.action, act.entityName);
                   const initial = (act.actorName || "A").charAt(0).toUpperCase();
+                  const dotColor = getActivityColor(act.message);
 
                   return (
                     <div key={act.id || idx} className="timeline-item">
                       <div
                         className="timeline-dot"
-                        style={{ backgroundColor: meta.color }}
+                        style={{ backgroundColor: dotColor }}
                       />
                       <div className="d-flex align-items-start gap-2.5">
                         <div className="actor-avatar flex-shrink-0">
@@ -447,12 +428,7 @@ export default function Dashboard() {
                             <strong className="fw-semibold text-dark">
                               {act.actorName || "Người dùng"}
                             </strong>{" "}
-                            <span className="text-secondary">{meta.text}</span>
-                            {act.projectName && (
-                              <span className="badge bg-light text-dark border ms-1 fw-normal">
-                                {act.projectName}
-                              </span>
-                            )}
+                            <span className="text-secondary">{act.message}</span>
                           </div>
                           <div className="text-muted small mt-1" style={{ fontSize: "0.75rem" }}>
                             {formatRelativeTime(act.createdAt)}

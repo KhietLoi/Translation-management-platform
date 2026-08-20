@@ -15,16 +15,16 @@ function ApiKeyPagination({
   return (
     <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 pt-2 pb-4">
       <div className="text-muted" style={{ fontSize: "0.85rem" }}>
-        Hiển thị <span className="fw-semibold text-dark">{startItem}</span> -{" "}
-        <span className="fw-semibold text-dark">{endItem}</span> trên tổng số{" "}
-        <span className="fw-semibold text-dark">{totalItems}</span> API Key
+        Showing <span className="fw-semibold text-dark">{startItem}</span> -{" "}
+        <span className="fw-semibold text-dark">{endItem}</span> of{" "}
+        <span className="fw-semibold text-dark">{totalItems}</span> API Keys
       </div>
 
       <div className="d-flex align-items-center gap-3">
         {onLimitChange && (
           <div className="d-flex align-items-center gap-2">
             <span className="text-muted" style={{ fontSize: "0.85rem" }}>
-              Số dòng:
+              Rows per page:
             </span>
             <select
               className="form-select form-select-sm"
@@ -52,7 +52,7 @@ function ApiKeyPagination({
             </li>
             <li className="page-item disabled">
               <span className="btn btn-sm btn-white border-0 text-dark fw-medium" style={{ fontSize: "0.85rem" }}>
-                Trang {page} / {totalPages || 1}
+                Page {page} of {totalPages || 1}
               </span>
             </li>
             <li className={`page-item ${page >= totalPages ? "disabled" : ""}`}>
