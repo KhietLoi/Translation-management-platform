@@ -5,7 +5,7 @@ import ollama
 
 class SuggestionService:
 
-    MODEL_NAME = "qwen2.5:1.5b"
+    MODEL_NAME = "qwen2.5:3b"
 
     async def suggest(
         self,
@@ -22,21 +22,20 @@ class SuggestionService:
                     {
                         "role": "system",
                         "content": (
-                            f"Translate {source_language} to {target_language}. "
-                            "Return only the translation. "
-                            "Preserve placeholders."
+                            f"You are a strict translation engine. Translate the given text "
+                            f"from {source_language} to {target_language}. "
+                            f"CRITICAL: Output ONLY the translated text in {target_language}. "
+                            f"Do not use Vietnamese or any other language under any circumstances. "
+                            f"Preserve placeholders."
                         )
                     },
                     {
                         "role": "user",
-                        "content": (
-                            f"{source_text}\n"
-                            "Translation:"
-                        )
+                        "content": source_text
                     }
                 ],
                 options={
-                    "temperature": 0.2,
+                    "temperature": 0,  # Giảm temperature về 0 để model tuân thủ tuyệt đối
                     "num_ctx": 512,
                     "num_predict": 128
                 }
@@ -83,7 +82,11 @@ class SuggestionService:
                 messages=[
                     {
                         "role": "system",
-                        "content": "Translate JSON. Return JSON only."
+                        "content": (
+                            f"You are a professional translator. Translate all JSON values "
+                            f"from {source_language} to {target_language}. "
+                            f"Do not translate into any other language. Return JSON only."
+                        )
                     },
                     {
                         "role": "user",
@@ -97,7 +100,6 @@ class SuggestionService:
                     "num_predict": 3072
                 }
             )
-
             text = response["message"]["content"].strip()
 
             result = json.loads(text)
