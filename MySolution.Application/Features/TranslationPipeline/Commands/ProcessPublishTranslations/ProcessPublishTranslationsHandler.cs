@@ -40,7 +40,7 @@
                 throw new Exception($"{nameof(ProcessPublishTranslationsHandler)} job with id {request.JobId} not found");
             }
 
-            var username = await _unitOfWork.User.GetUserNameAsync(job.CreatedBy);
+            //var username = await _unitOfWork.User.GetUserNameAsync(job.CreatedBy);
             try
             {
                 job.Status = TranslationJobStatus.Processing;
