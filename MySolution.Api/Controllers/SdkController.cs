@@ -13,18 +13,16 @@ namespace MySolution.Api.Controllers;
 [Route("api/sdk")]
 public class SdkController (IMediator mediator) : ControllerBase
 {
-    [HttpGet("projects/{projectId:guid}/translations")]
+    [HttpGet("projects/translations")]
     [ApiKeyAuthorize]
     [ApiKeyPermission(ApiKeyPermissionType.TranslationRead)]
     public async Task<IActionResult> GetTranslations(
-        Guid projectId,
         [FromQuery] string language,
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(
             new GetApplicationTranslationsQuery
             {
-                ProjectId = projectId,
                 Language = language
             }, cancellationToken);
 

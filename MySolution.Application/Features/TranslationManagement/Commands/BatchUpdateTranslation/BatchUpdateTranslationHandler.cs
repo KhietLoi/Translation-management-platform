@@ -65,7 +65,6 @@ public class BatchUpdateTranslationHandler : IRequestHandler<BatchUpdateTranslat
                         payload.NamespaceId);
 
             // 3. Validate that all submitted values
-            //    are available for translation
             if (translations.Count != translationIds.Count)
             {
                 response.ErrorMessage = "One or more translations were not found or are not available for translation.";
@@ -130,9 +129,7 @@ public class BatchUpdateTranslationHandler : IRequestHandler<BatchUpdateTranslat
             }
 
             // 8. Save once
-            await _unitOfWork.SaveAsync(
-                cancellationToken);
-
+            await _unitOfWork.SaveAsync(cancellationToken);
             // 9. Build response
             response.Data =
                 new BatchUpdateTranslationData

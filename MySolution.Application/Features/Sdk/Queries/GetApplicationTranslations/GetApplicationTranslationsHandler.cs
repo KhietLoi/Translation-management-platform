@@ -3,7 +3,6 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
 namespace MySolution.Application.Features.Sdk.Queries.GetApplicationTranslations;
 
 public class GetApplicationTranslationsHandler : IRequestHandler<GetApplicationTranslationsQuery, GetApplicationTranslationsResponse>
@@ -37,15 +36,27 @@ public class GetApplicationTranslationsHandler : IRequestHandler<GetApplicationT
 
         try
         {
-            var canAccess =  await _applicationAccessService.CanAccessProjectAsync(request.ProjectId, cancellationToken);
+            /*var canAccess =  await _applicationAccessService.CanAccessProjectAsync(request.ProjectId, cancellationToken);
             if (!canAccess)
             {
                 response.ErrorMessage = "This project is not authorized to access this application.";
                 response.WithStatus(HttpStatusCode.Unauthorized);
                 return response;
-            }
+            }*/
             
-            var release = await _unitOfWork.TranslationRelease.GetActiveReleaseAsync(request.ProjectId, cancellationToken);
+            
+            var application = await _applicationAccessService
+                .GetApplicationAsync(cancellationToken);
+
+            if (application == null)
+            {
+                response.ErrorMessage = "Application is not authorized.";
+                response.WithStatus(HttpStatusCode.Unauthorized);
+                return response;
+            }
+
+            var projectId = application.ProjectId;
+            var release = await _unitOfWork.TranslationRelease.GetActiveReleaseAsync(projectId, cancellationToken);
             if (release == null)
             {
                 response.ErrorMessage = "This project is not authorized to access this application.";
@@ -58,7 +69,7 @@ public class GetApplicationTranslationsHandler : IRequestHandler<GetApplicationT
 
             response.Data = new GetApplicationTranslationsData
             {
-                ProjectId = request.ProjectId,
+                ProjectId = application.ProjectId,
                 Language = request.Language,
                 Version = release.Version,
                 Translations = translations
@@ -71,7 +82,7 @@ public class GetApplicationTranslationsHandler : IRequestHandler<GetApplicationT
                 "{FunctionName} => Successfully retrieved {Count} translations for ProjectId: {ProjectId}, Language: {Language}, Version: {Version}",
                 functionName,
                 translations.Count,
-                request.ProjectId,
+                application.ProjectId,
                 request.Language,
                 release.Version);
         }

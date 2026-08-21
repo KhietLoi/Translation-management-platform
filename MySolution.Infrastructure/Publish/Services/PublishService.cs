@@ -179,8 +179,8 @@ public class PublishService : IPublishService
                 // test:
                 _logger.LogWarning("PROJECT {ProjectId} - LatestVersion = {Version}", projectId, latestVersion);
 
-                /*// TEST ONLY
-                await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);*/
+                //TEST ONLY
+                await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
                 var nextVersion = latestVersion + 1;
                 _logger.LogWarning("PROJECT {ProjectId} - NextVersion = {Version}", projectId, nextVersion);
                 
