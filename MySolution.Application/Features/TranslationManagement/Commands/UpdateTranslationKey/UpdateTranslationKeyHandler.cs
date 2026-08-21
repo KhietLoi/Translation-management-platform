@@ -1,7 +1,10 @@
 ﻿using System.Net;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using MySolution.Application.Common.Interfaces;
+using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Features.TranslationManagement.Commands.UpdateTranslationKey;
 
@@ -9,15 +12,21 @@ public class UpdateTranslationKeyHandler : IRequestHandler<UpdateTranslationKeyC
 {
     private readonly ILogger<UpdateTranslationKeyHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
+    private readonly IAuditLogService  _auditLogService;
+    private readonly ICurrentUser _currentUser;
 
     public UpdateTranslationKeyHandler
     (
         ILogger<UpdateTranslationKeyHandler> logger,
-		IUnitOfWork unitOfWork
+		IUnitOfWork unitOfWork,
+        IAuditLogService auditLogService,
+        ICurrentUser currentUser
     )
     {
         _logger = logger;
 		_unitOfWork = unitOfWork;
+        _auditLogService  = auditLogService;
+        _currentUser = currentUser;
     }
 
     #region Implementation of IRequestHandler<in UpdateTranslationKeyCommand, UpdateTranslationKeyResponse>
@@ -52,10 +61,36 @@ public class UpdateTranslationKeyHandler : IRequestHandler<UpdateTranslationKeyC
                 response.WithStatus(HttpStatusCode.Conflict);
                 return response;
             }
+            
+            
+            object oldValue = new
+            {
+
+               translationKey.Key,
+               translationKey.Description
+            };
+            
             var now = DateTime.UtcNow;
-            translationKey.Key = payload.Key;
             translationKey.Description = payload.Description;
             translationKey.UpdatedAt = now;
+            translationKey.Key = payload.Key;
+
+            object newValue = new
+            {
+                payload.Key,
+                payload.Description
+            };
+            
+            //Audit log:
+            await _auditLogService.CreateAsync(
+                _currentUser.UserId,
+                AuditAction.Update,
+                translationKey.Key,
+                translationKey.Id,
+                translationKey.ProjectId,
+                oldValue,
+                newValue
+            );
             
             await _unitOfWork.SaveAsync(cancellationToken);
 
