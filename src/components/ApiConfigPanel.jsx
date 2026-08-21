@@ -33,18 +33,6 @@ function ApiConfigPanel({ config, setConfig, onPresetSelect }) {
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="projectId">Project ID (GUID)</label>
-          <input
-            id="projectId"
-            type="text"
-            className="input-field code-font"
-            value={config.projectId}
-            onChange={(e) => handleChange("projectId", e.target.value)}
-            placeholder="01a00d6f-864a-78ed-8bd4-70bcbda5a552"
-          />
-        </div>
-
         <div className="form-group full-width">
           <div className="label-with-action">
             <label htmlFor="apiKey">X-API-KEY Header Value</label>

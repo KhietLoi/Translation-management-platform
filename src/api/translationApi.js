@@ -12,11 +12,11 @@ const getHeaders = (apiKey) => {
     return headers;
 };
 
-export const getTranslations = async (projectId, language, options = {}) => {
+export const getTranslations = async (language, options = {}) => {
     const baseURL = options.baseUrl || import.meta.env.VITE_API_URL || "https://localhost:7185";
     const apiKey = options.apiKey !== undefined ? options.apiKey : import.meta.env.VITE_API_KEY;
 
-    const url = `${baseURL}/api/sdk/projects/${projectId}/translations`;
+    const url = `${baseURL}/api/sdk/projects/translations`;
     
     const response = await axios.get(url, {
         params: { language },

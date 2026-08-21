@@ -41,11 +41,11 @@ const TranslationViewer = forwardRef(({ config, onNetworkLog, onTranslationsLoad
     setResponseMeta(null);
 
     const startTime = performance.now();
-    const reqUrl = `${config.baseUrl}/api/sdk/projects/${config.projectId}/translations?language=${targetLang}`;
+    const reqUrl = `${config.baseUrl}/api/sdk/projects/translations?language=${targetLang}`;
     const reqHeaders = config.apiKey ? { "X-API-KEY": config.apiKey } : { "X-API-KEY": "[MISSING]" };
 
     try {
-      const response = await getTranslations(config.projectId, targetLang, {
+      const response = await getTranslations(targetLang, {
         baseUrl: config.baseUrl,
         apiKey: config.apiKey
       });
@@ -167,7 +167,7 @@ const TranslationViewer = forwardRef(({ config, onNetworkLog, onTranslationsLoad
         <div>
           <h2>Translation API (TranslationRead)</h2>
           <p className="card-subtitle">
-            Endpoint: <code className="endpoint-tag">GET /api/sdk/projects/&#123;projectId&#125;/translations</code>
+            Endpoint: <code className="endpoint-tag">GET /api/sdk/projects/translations</code>
           </p>
         </div>
         {version !== null && (
