@@ -5,7 +5,6 @@ namespace MySolution.Application.Features.TranslationManagement.Commands.SubmitT
 
 public class SubmitTranslationResponse : BaseResponse <SubmitTranslationData>
 {
-
 }
 
 public class SubmitTranslationData

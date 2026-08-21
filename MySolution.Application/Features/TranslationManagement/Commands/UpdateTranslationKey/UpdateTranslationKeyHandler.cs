@@ -57,7 +57,6 @@ public class UpdateTranslationKeyHandler : IRequestHandler<UpdateTranslationKeyC
             translationKey.Description = payload.Description;
             translationKey.UpdatedAt = now;
             
-            //_unitOfWork.TranslationKey.Update(translationKey);
             await _unitOfWork.SaveAsync(cancellationToken);
 
             response.Data = new UpdateTranslationKeyData

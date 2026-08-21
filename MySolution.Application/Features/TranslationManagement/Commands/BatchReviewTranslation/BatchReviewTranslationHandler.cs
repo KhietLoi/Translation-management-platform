@@ -160,9 +160,6 @@ public class BatchReviewTranslationHandler : IRequestHandler<BatchReviewTranslat
                 NotificationReferenceType.TranslationValue,
                 payload.ProjectId,
                 cancellationToken);
-            
-            //Notify project members:
-            
 
             response.Data = new BatchReviewTranslationData
             {

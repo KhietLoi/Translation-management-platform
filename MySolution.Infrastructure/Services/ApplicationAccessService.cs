@@ -17,23 +17,25 @@ public class ApplicationAccessService : IApplicationAccessService
     
     public async Task<bool> CanAccessProjectAsync(Guid projectId, CancellationToken cancellationToken = default)
     {
-        var apiKeyContext = _apiKeyContextAccessor.Current;
-        if (apiKeyContext == null)
-        {
-            return false;
-        }
-
-        var application = await _unitOfWork.Application.GetByIdAsync(apiKeyContext.ApplicationId, cancellationToken);
+        var application = await GetApplicationAsync(cancellationToken);
         if (application == null)
         {
             return false;
         }
 
-        if (!application.IsActive)
-        {
-            return false;
-        }
-        
         return application.ProjectId == projectId;
+    }
+
+    public async Task<Domain.Entities.Application?> GetApplicationAsync(CancellationToken cancellationToken = default)
+    {
+        var apiKeyContext = _apiKeyContextAccessor.Current;
+        if (apiKeyContext == null) return null;
+
+        var application = await _unitOfWork.Application.GetByIdAsync(apiKeyContext.ApplicationId, cancellationToken);
+        if (application == null) return null;
+        
+        if (!application.IsActive) return null;
+        
+        return application;
     }
 }
