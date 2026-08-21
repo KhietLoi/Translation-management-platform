@@ -33,7 +33,7 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
         var permissions = await _permissionService.GetPermissionsAsync(userId);
         _logger.LogInformation("Permissions: {Permissions}", string.Join(",", permissions));
         
-        foreach (var permission in permissions) _logger.LogInformation("PERMISSION = {Permission}", permission);
+        //foreach (var permission in permissions) _logger.LogInformation("PERMISSION = {Permission}", permission);
         
         // Check if the required permission is in the user's permissions
         if (Enumerable.Contains(permissions, requirement.Permission, StringComparer.OrdinalIgnoreCase))
