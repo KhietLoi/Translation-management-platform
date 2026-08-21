@@ -76,7 +76,7 @@ function ProjectCard({ project, onClick }) {
                 )}
             </div>
 
-            <div className="project-progress">
+            {/* <div className="project-progress">
 
                 <div className="d-flex justify-content-between mb-2">
 
@@ -102,7 +102,7 @@ function ProjectCard({ project, onClick }) {
 
                 </div>
 
-            </div>
+            </div> */}
         </div>
     );
 }

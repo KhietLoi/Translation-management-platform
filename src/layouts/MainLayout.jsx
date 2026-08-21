@@ -113,7 +113,26 @@ export default function MainLayout() {
 
     // Join active selected project group on SignalR
     signalRService.joinProject(selectedProjectId, auth.userId, auth.username);
+
+    return () => {
+      if (prevProjectIdRef.current) {
+        signalRService.leaveProject(prevProjectIdRef.current);
+      }
+    };
   }, [selectedProjectId, user]);
+
+  // Clean up SignalR connection when tab/window is closed or reloaded
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (prevProjectIdRef.current) {
+        signalRService.leaveProject(prevProjectIdRef.current);
+      }
+      signalRService.stopConnection();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
 
   const loadProjects = async (selectId = null) => {
     try {
@@ -193,6 +212,10 @@ export default function MainLayout() {
   // Logout handler using authService API
   const handleLogout = async () => {
     try {
+      if (prevProjectIdRef.current) {
+        await signalRService.leaveProject(prevProjectIdRef.current);
+      }
+      await signalRService.stopConnection();
       await logout();
     } catch (err) {
       console.error("Logout error:", err);

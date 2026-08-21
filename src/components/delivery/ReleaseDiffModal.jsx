@@ -118,10 +118,10 @@ export default function ReleaseDiffModal({
               >
                 {releases.map((rel, idx) => {
                   const rId = rel.releaseId || rel.id;
-                  const vNum = rel.versionNumber || rel.version || `1.${idx}`;
+                  const vNum = rel.versionNumber ?? rel.version ?? `1.${idx}`;
                   return (
                     <option key={rId || idx} value={rId}>
-                      v{vNum} {idx === 0 ? "(Active)" : ""}
+                      v{vNum} {rel.isActive ? "(Active)" : ""}
                     </option>
                   );
                 })}

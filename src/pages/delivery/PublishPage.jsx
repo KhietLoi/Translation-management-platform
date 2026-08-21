@@ -142,7 +142,7 @@ export default function PublishPage() {
         }, 2000);
       } else {
         setPublishStep(stepNum);
-        
+
         // If final step completed, wait 2 seconds then finalize
         if (stepNum === 5 && (status === "Completed" || status.toLowerCase().includes("complete"))) {
           setTimeout(() => {
@@ -182,14 +182,14 @@ export default function PublishPage() {
 
       // Finalize progress on success - let the SignalR complete callback do it, or fallback after 2.5 seconds
       setPublishStep(5);
-      
+
       const stats = res.data || res;
       if (stats && stats.skippedRecords > 0 && stats.successRecords === 0) {
         toast.info("Publish skipped: No changes detected.");
       } else {
         toast.success("New version published successfully!");
       }
-      
+
       setTimeout(() => {
         setIsPublishing((prev) => {
           if (prev) {
@@ -216,24 +216,25 @@ export default function PublishPage() {
 
   // Handle Rollback
   const handleRollback = async (release) => {
-    console.log("qua dep trai", release.releaseId);
+    const versionNum = release.versionNumber ?? release.version ?? "";
+    console.log("handleRollback target release:", release.releaseId || release.id);
     if (
       !window.confirm(
-        `Are you sure you want to rollback to release v${release.version}?`
+        `Are you sure you want to rollback to release v${versionNum}?`
       )
     ) {
       return;
     }
 
     try {
-      await rollbackRelease(release.releaseId);
-      toast.success(`Successfully rolled back to version v${release.version}!`);
+      await rollbackRelease(release.releaseId || release.id);
+      toast.success(`Successfully rolled back to version v${versionNum}!`);
       loadReleaseHistory(selectedProjectId);
     } catch (error) {
       console.error(error);
       toast.error(
         error?.response?.data?.errorMessage ||
-        `Failed to rollback to version v${release.version}.`
+        `Failed to rollback to version v${versionNum}.`
       );
     }
   };
@@ -249,6 +250,18 @@ export default function PublishPage() {
 
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
   const currentProjectName = selectedProject?.name || "Project";
+
+  // Active release & Max version computation based on isActive
+  const activeRelease = releases.find((r) => r.isActive);
+  const maxVersionNum = releases.reduce(
+    (max, r) => Math.max(max, r.versionNumber ?? r.version ?? 0),
+    0
+  );
+  const activeVersionStr = activeRelease
+    ? (activeRelease.versionNumber ?? activeRelease.version)
+    : releases[0]
+      ? (releases[0].versionNumber ?? releases[0].version)
+      : "1";
 
   // Stepper definition using dynamic C# progress tracking
   const steps = [
@@ -302,9 +315,9 @@ export default function PublishPage() {
           <div className="d-flex align-items-center justify-content-between mb-3">
             <h6 className="fw-bold mb-0 text-dark fs-6">
               {isPublishing
-                ? `Processing — version v${releases.length > 0 ? (releases[0].version + 1) : '1.0.0'}`
+                ? `Processing — version v${maxVersionNum > 0 ? maxVersionNum + 1 : '1'}`
                 : releases.length > 0
-                  ? `Publish Status — Current Version v${releases[0].version}`
+                  ? `Publish Status — Current Version v${activeVersionStr}`
                   : "Publish Status — Ready to Publish"}
             </h6>
             {isPublishing && (
@@ -408,9 +421,9 @@ export default function PublishPage() {
                 >
                   <div className="d-flex align-items-center gap-3">
                     <span className="badge-version">
-                      v{rel.versionNumber || rel.version || "1.0"}
+                      v{rel.versionNumber ?? rel.version ?? "1.0"}
                     </span>
-                    {(rel.isActive || index === 0) && (
+                    {rel.isActive && (
                       <span className="badge bg-success-subtle text-success small fw-semibold px-2 py-1 rounded-pill">
                         Active
                       </span>
@@ -444,7 +457,7 @@ export default function PublishPage() {
                     >
                       View Diff
                     </button>
-                    {index > 0 && (
+                    {!rel.isActive && (
                       <button
                         className="btn btn-sm btn-outline-custom px-3 py-1 text-dark fw-medium"
                         onClick={() => handleRollback(rel)}
