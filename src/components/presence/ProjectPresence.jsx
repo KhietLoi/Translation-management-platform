@@ -45,7 +45,7 @@ export default function ProjectPresence({ isDarkMode = false }) {
     // Subscribe to real-time OnlineUsersUpdated event
     const unsubscribe = signalRService.subscribePresence((users) => {
       console.log("[ProjectPresence] 👥 Received online users list payload:", users);
-      
+
       let list = [];
       if (Array.isArray(users)) {
         list = users;
@@ -68,12 +68,12 @@ export default function ProjectPresence({ isDarkMode = false }) {
     onlineUsers.length > 0
       ? onlineUsers
       : [
-          {
-            userId: currentUserId,
-            username: currentUserName,
-            connectionId: "current-user",
-          },
-        ];
+        {
+          userId: currentUserId,
+          username: currentUserName,
+          connectionId: "current-user",
+        },
+      ];
 
   const maxVisible = 5;
   const visibleUsers = effectiveUsers.slice(0, maxVisible);
@@ -139,9 +139,8 @@ export default function ProjectPresence({ isDarkMode = false }) {
             onClick={(e) => e.stopPropagation()}
           >
             <div
-              className={`modal-content shadow-lg border-0 rounded-4 ${
-                isDarkMode ? "bg-dark text-white border-secondary" : ""
-              }`}
+              className={`modal-content shadow-lg border-0 rounded-4 ${isDarkMode ? "bg-dark text-white border-secondary" : ""
+                }`}
             >
               <div className="modal-header border-bottom py-3 px-4">
                 <h6 className="modal-title fw-bold mb-0 d-flex align-items-center gap-2 fs-6">
