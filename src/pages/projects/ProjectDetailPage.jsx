@@ -150,9 +150,15 @@ function ProjectDetailPage() {
 
     // Khai báo mảng stat để render HTML gọn hơn
     const stats = [
-        { label: "Languages", value: project.languageCount, color: "text-primary" },
-        { label: "Members", value: project.memberCount, color: "text-success" },
-        { label: "Namespaces", value: project.namespaceCount, color: "text-info" }
+        { label: "Languages", value: project.languageCount || 0, color: "text-primary" },
+        { label: "Members", value: project.memberCount || 0, color: "text-success" },
+        { label: "Namespaces", value: project.namespaceCount || 0, color: "text-info" },
+        {
+            label: "Progress",
+            value: `${project.progressPercentage ?? 0}%`,
+            color: (project.progressPercentage ?? 0) >= 100 ? "text-success" : "text-warning",
+            subValue: `${project.completedTranslationCount ?? 0} / ${project.totalTranslationCount ?? 0} translations`
+        }
     ];
 
     return (
@@ -191,15 +197,20 @@ function ProjectDetailPage() {
             {/* Stats Section */}
             <div className="row g-4 mb-5">
                 {stats.map((stat, index) => (
-                    <div className="col-md-4" key={index}>
+                    <div className="col-md-3 col-sm-6" key={index}>
                         <div className="card stat-card shadow-sm h-100">
-                            <div className="card-body text-center d-flex flex-column justify-content-center">
+                            <div className="card-body text-center d-flex flex-column justify-content-center py-4">
                                 <span className="text-uppercase text-muted fw-semibold" style={{ fontSize: '0.85rem' }}>
                                     {stat.label}
                                 </span>
-                                <h3 className={`stat-value ${stat.color}`}>
-                                    {stat.value || 0}
+                                <h3 className={`stat-value ${stat.color} mb-0`}>
+                                    {stat.value}
                                 </h3>
+                                {stat.subValue && (
+                                    <span className="text-muted mt-2" style={{ fontSize: '0.8rem' }}>
+                                        {stat.subValue}
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>

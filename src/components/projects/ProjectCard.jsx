@@ -52,9 +52,9 @@ function ProjectCard({ project, onClick }) {
 
             <div className="project-key-count">
                 <strong>
-                    {project.totalKeys}
+                    {project.completedTranslationCount ?? 0} / {project.totalTranslationCount ?? 0}
                 </strong>
-                <span> Keys</span>
+                <span> Translations</span>
             </div>
 
             <div className="project-languages">
@@ -76,33 +76,26 @@ function ProjectCard({ project, onClick }) {
                 )}
             </div>
 
-            {/* <div className="project-progress">
-
+            <div className="project-progress">
                 <div className="d-flex justify-content-between mb-2">
-
                     <span>
                         Translation Progress
                     </span>
-
                     <strong>
-                        {project.translationProgress}%
+                        {project.progressPercentage ?? 0}%
                     </strong>
-
                 </div>
-
-                <div className="progress">
-
+                <div className="progress" style={{ height: "6px" }}>
                     <div
                         className="progress-bar"
                         role="progressbar"
                         style={{
-                            width: `${project.translationProgress}%`,
+                            width: `${project.progressPercentage ?? 0}%`,
+                            backgroundColor: (project.progressPercentage ?? 0) >= 100 ? "#10b981" : "#3b82f6",
                         }}
                     />
-
                 </div>
-
-            </div> */}
+            </div>
         </div>
     );
 }
