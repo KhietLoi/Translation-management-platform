@@ -7,7 +7,6 @@ using MySolution.Application.Features.TranslationManagement.Commands.DeleteTrans
 using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationValueById;
 using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationValues;
 using MySolution.Application.Features.TranslationValue.Commands.CreateTranslationValue;
-using MySolution.Application.Features.TranslationValue.Commands.DeleteTranslationValue;
 using MySolution.Application.Features.TranslationValue.Commands.UpdateTranslationValue;
 using MySolution.Domain.Enums;
 

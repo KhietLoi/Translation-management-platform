@@ -86,7 +86,6 @@ public class PublishService : IPublishService
             }).ToList();
 
         _logger.LogInformation("Generating publish package for project {ProjectId}", projectId);
-
         
         await SendProgressAsync(
             projectId,
@@ -138,8 +137,6 @@ public class PublishService : IPublishService
         {
             // Upload package to Azure Blob
             _logger.LogInformation("Uploading publish package for project {ProjectId}", projectId);
-
-            
             await SendProgressAsync(
                 projectId,
                 jobId,

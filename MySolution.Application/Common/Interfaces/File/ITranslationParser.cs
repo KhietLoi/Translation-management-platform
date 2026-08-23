@@ -1,5 +1,4 @@
-﻿using MySolution.Application.Common.Models;
-using MySolution.Domain.Enums;
+﻿using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Common.Interfaces.File;
 
