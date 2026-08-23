@@ -75,14 +75,8 @@ public class ImportService : IImportService
         {
             throw new BadRequestException("Import file contains no translation data.");
         }
-
-        // Save translations
-        var result = await SaveTranslationsAsync(
-                projectId,
-                languageId,
-                namespaceId,
-                translations,
-                cancellationToken);
+        
+        var result = await SaveTranslationsAsync(projectId, languageId, namespaceId, translations, cancellationToken);
 
         return result;
     }
@@ -118,9 +112,7 @@ public class ImportService : IImportService
         if (string.IsNullOrWhiteSpace(item.Key))
         {
             result.SkippedRecords++;
-
-            _logger.LogWarning(
-                "Skipped import record because translation key is empty.");
+            _logger.LogWarning("Skipped import record because translation key is empty.");
 
             continue;
         }
@@ -135,14 +127,15 @@ public class ImportService : IImportService
                 Id = Guid.CreateVersion7(),
                 ProjectId = projectId,
                 NamespaceId = namespaceId,
-                Key = key
+                Key = key,
+                CreatedAt = DateTime.UtcNow
             };
 
             await _unitOfWork.TranslationKey.Add(translationKey);
             keyLookup[key] = translationKey;
             result.CreatedKeys++;
+            
             _logger.LogInformation("Created translation key {Key}", key);
-
           
             // Create TranslationValue for every project language
             foreach (var projectLanguage in projectLanguages)
@@ -176,9 +169,8 @@ public class ImportService : IImportService
 
         foreach (var projectLanguage in projectLanguages)
         {
-            var existingTranslationValue =
-                translationKey.TranslationValues
-                    .FirstOrDefault(x => x.LanguageId == projectLanguage.LanguageId);
+            var existingTranslationValue = translationKey.TranslationValues
+                .FirstOrDefault(x => x.LanguageId == projectLanguage.LanguageId);
             if (existingTranslationValue != null)
             {
                 continue;
@@ -197,12 +189,10 @@ public class ImportService : IImportService
             translationKey.TranslationValues.Add(missingTranslationValue);
             await _unitOfWork.TranslationValue.Add(missingTranslationValue);
         }
-
-      
+        
         // 3. Find TranslationValue of imported language
         var translationValue =
-            translationKey.TranslationValues
-                .FirstOrDefault(x => x.LanguageId == languageId);
+            translationKey.TranslationValues.FirstOrDefault(x => x.LanguageId == languageId);
 
         if (translationValue == null)
         {
@@ -217,8 +207,7 @@ public class ImportService : IImportService
             translationValue.Status == TranslationStatus.Translated)
         {
             result.SkippedRecords++;
-            _logger.LogWarning(
-                "Skipped translation key {Key} because current status is {Status}", key, translationValue.Status);
+            _logger.LogWarning("Skipped translation key {Key} because current status is {Status}", key, translationValue.Status);
             continue;
         }
 

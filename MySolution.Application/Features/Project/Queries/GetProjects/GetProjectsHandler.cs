@@ -67,9 +67,7 @@ public class GetProjectsHandler : IRequestHandler<GetProjectsQuery, GetProjectsR
                         x.ProjectNamespaces
                             .SelectMany(n => n.TranslationKeys)
                             .SelectMany(k => k.TranslationValues)
-                            .Count(v =>
-                                v.Status == TranslationStatus.Reviewed ||
-                                v.Status == TranslationStatus.Published),
+                            .Count(v => v.Status == TranslationStatus.Published),
 
                     ProgressPercentage =
                         !x.ProjectNamespaces

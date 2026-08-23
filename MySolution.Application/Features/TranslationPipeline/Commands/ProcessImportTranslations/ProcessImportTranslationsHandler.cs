@@ -37,9 +37,9 @@ public class ProcessImportTranslationsHandler
 
     public async Task Handle(ProcessImportTranslationsCommand request, CancellationToken cancellationToken)
     {
-        var functionName = nameof(ProcessImportTranslationsHandler);
-
-        _logger.LogInformation("{FunctionName} started for JobId: {JobId}", functionName, request.JobId);
+       
+        var functionName = $"{nameof(ProcessImportTranslationsHandler)} =>";
+        _logger.LogInformation(functionName);   
 
         var job = await _unitOfWork.TranslationJob.GetByIdAsync(request.JobId);
         if (job == null)
@@ -51,17 +51,20 @@ public class ProcessImportTranslationsHandler
         try
         {
             if (job.LanguageId == null)
-            {
+            {  
+                _logger.LogWarning("{FunctionName} Job {JobId} not found", functionName, request.JobId);
                 throw new InvalidOperationException($"Import job {job.Id} missing LanguageId.");
             }
 
             if (job.NamespaceId == null)
-            {
-                throw new InvalidOperationException($"Import job {job.Id} missing NamespaceId.");
-            }
+            {   
+                _logger.LogWarning("{FunctionName} Job {JobId} not found", functionName, request.JobId);
+                throw new InvalidOperationException($"Import job {job.Id} missing NamespaceId."); 
+            }   
 
             if (string.IsNullOrWhiteSpace(job.FileName))
             {
+                _logger.LogWarning("{FunctionName} Job {JobId} not found", functionName, request.JobId);
                 throw new InvalidOperationException($"Import job {job.Id} missing FileName.");
             }
 

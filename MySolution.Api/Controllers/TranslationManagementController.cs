@@ -9,6 +9,8 @@ using MySolution.Application.Features.TranslationManagement.Commands.RejectTrans
 using MySolution.Application.Features.TranslationManagement.Commands.ReviewTranslation;
 using MySolution.Application.Features.TranslationManagement.Commands.SubmitTranslation;
 using MySolution.Application.Features.TranslationManagement.Queries.GetBatchTranslationSuggestion;
+using MySolution.Application.Features.TranslationManagement.Queries.GetPendingLanguageCounts;
+using MySolution.Application.Features.TranslationManagement.Queries.GetPendingNamespaceCounts;
 using MySolution.Application.Features.TranslationManagement.Queries.GetReviewTranslations;
 using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationGrid;
 using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationSuggestion;
@@ -142,4 +144,47 @@ public class TranslationManagementController(IMediator mediator) : Controller
         var response = await mediator.Send(new GetBatchTranslationSuggestionQuery(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
+    // Get pending translation counts by namespace
+    [HttpGet("pending-counts/namespaces")]
+    [Permission(PermissionConstants.Translation.View)]
+    public async Task<IActionResult> GetPendingNamespaceCounts(
+        [FromQuery] Guid projectId,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(
+            new GetPendingNamespaceCountsQuery
+            {
+                ProjectId = projectId
+            },
+            cancellationToken);
+
+        return ResponseHelper.ToResponse(
+            response.StatusCode,
+            response,
+            response.Data);
+    }
+
+// Get pending translation counts by language within namespace
+    [HttpGet("pending-counts/languages")]
+    [Permission(PermissionConstants.Translation.View)]
+    public async Task<IActionResult> GetPendingLanguageCounts(
+        [FromQuery] Guid projectId,
+        [FromQuery] Guid namespaceId,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(
+            new GetPendingLanguageCountsQuery
+            {
+                ProjectId = projectId,
+                NamespaceId = namespaceId
+            },
+            cancellationToken);
+
+        return ResponseHelper.ToResponse(
+            response.StatusCode,
+            response,
+            response.Data);
+    }
+    
+    
 }

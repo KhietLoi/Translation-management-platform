@@ -86,7 +86,7 @@ public class ImportTranslationsHandler : IRequestHandler<ImportTranslationsComma
             
             await _messageSender.SendMessage<ImportTranslationsEvent>(new ImportTranslationsEvent
             {
-                JobId = job.Id,
+                JobId = job.Id
             }, cancellationToken);
             
             response.Data = new ImportTranslationsData

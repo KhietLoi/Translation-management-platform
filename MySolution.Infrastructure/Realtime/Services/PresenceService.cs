@@ -5,10 +5,10 @@ using MySolution.Infrastructure.Realtime.Models;
 
 namespace MySolution.Infrastructure.Realtime.Services;
 
-public class PresenceService : IPresenceService
-{
-    private static readonly ConcurrentDictionary<Guid, List<OnlineUser>> OnlineUsers = new();
-    private static readonly ConcurrentDictionary<string, ProjectConnection> Connections = new();
+    public class PresenceService : IPresenceService
+    {
+        private static readonly ConcurrentDictionary<Guid, List<OnlineUser>> OnlineUsers = new();
+        private static readonly ConcurrentDictionary<string, ProjectConnection> Connections = new();
 
     public Task UserConnectedAsync(Guid projectId, Guid userId, string username, string connectionId)
     {
@@ -19,7 +19,7 @@ public class PresenceService : IPresenceService
             {
                 users.Add(new OnlineUser
                 {
-                    UserId = userId,
+                    UserId = userId,    
                     Username = username,
                     ConnectedAt = DateTime.UtcNow
                 });

@@ -11,7 +11,7 @@ namespace MySolution.Api.Controllers;
 
 [ApiController]
 [Route("api/sdk")]
-public class SdkController (IMediator mediator) : ControllerBase
+public class SdkController(IMediator mediator) : ControllerBase
 {
     [HttpGet("projects/translations")]
     [ApiKeyAuthorize]
@@ -29,23 +29,23 @@ public class SdkController (IMediator mediator) : ControllerBase
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //Get version:
-    [HttpGet("projects/{projectId:guid}/version")]
+    // Get version:
+    [HttpGet("projects/version")]
     [ApiKeyAuthorize]
     [ApiKeyPermission(ApiKeyPermissionType.VersionRead)]
-    public async Task<IActionResult> GetVersion(Guid projectId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetVersion(CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new GetApplicationVersionQuery { ProjectId = projectId }, cancellationToken);
+        var response = await mediator.Send(new GetApplicationVersionQuery(), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    [HttpGet("projects/{projectId:guid}/package")]
+    // Get package info & SAS download URL:
+    [HttpGet("projects/package")]
     [ApiKeyAuthorize]
     [ApiKeyPermission(ApiKeyPermissionType.PackageDownload)]
-    public async Task<IActionResult> GetPackage(Guid projectId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetPackage(CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new GetApplicationPackageQuery{ ProjectId = projectId }, cancellationToken);
+        var response = await mediator.Send(new GetApplicationPackageQuery(), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-
 }
