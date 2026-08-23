@@ -8,7 +8,7 @@ function VersionPackageViewer({ config, onNetworkLog }) {
 
   const [pkgLoading, setPkgLoading] = useState(false);
   const [pkgError, setPkgError] = useState(null);
-  const [pkgSuccess, setPkgSuccess] = useState(null);
+  const [pkgData, setPkgData] = useState(null);
 
   const handleFetchVersion = async () => {
     setVerLoading(true);
@@ -16,11 +16,11 @@ function VersionPackageViewer({ config, onNetworkLog }) {
     setVersionData(null);
 
     const startTime = performance.now();
-    const reqUrl = `${config.baseUrl}/api/sdk/projects/${config.projectId}/version`;
+    const reqUrl = `${config.baseUrl}/api/sdk/projects/version`;
     const reqHeaders = config.apiKey ? { "X-API-KEY": config.apiKey } : { "X-API-KEY": "[MISSING]" };
 
     try {
-      const response = await getVersion(config.projectId, {
+      const response = await getVersion({
         baseUrl: config.baseUrl,
         apiKey: config.apiKey
       });
@@ -64,17 +64,17 @@ function VersionPackageViewer({ config, onNetworkLog }) {
     }
   };
 
-  const handleDownloadPackage = async () => {
+  const handleGetPackage = async () => {
     setPkgLoading(true);
     setPkgError(null);
-    setPkgSuccess(null);
+    setPkgData(null);
 
     const startTime = performance.now();
-    const reqUrl = `${config.baseUrl}/api/sdk/projects/${config.projectId}/package`;
+    const reqUrl = `${config.baseUrl}/api/sdk/projects/package`;
     const reqHeaders = config.apiKey ? { "X-API-KEY": config.apiKey } : { "X-API-KEY": "[MISSING]" };
 
     try {
-      const res = await getPackage(config.projectId, {
+      const response = await getPackage({
         baseUrl: config.baseUrl,
         apiKey: config.apiKey
       });
@@ -82,45 +82,24 @@ function VersionPackageViewer({ config, onNetworkLog }) {
       const endTime = performance.now();
       const latency = Math.round(endTime - startTime);
 
-      // Create a blob download link
-      const blob = new Blob([res.data], { type: res.headers['content-type'] || 'application/zip' });
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.setAttribute('download', `release-${config.projectId}.zip`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(downloadUrl);
-
-      setPkgSuccess(`Package downloaded successfully! (Blob size: ${(blob.size / 1024).toFixed(1)} KB)`);
+      setPkgData(response);
       onNetworkLog({
         method: "GET",
         url: reqUrl,
         headers: reqHeaders,
         status: 200,
-        statusText: "OK (ZIP File)",
+        statusText: "OK",
         latency: `${latency}ms`,
-        response: `[Binary ZIP File: ${blob.size} bytes]`
+        response: response
       });
     } catch (err) {
       const endTime = performance.now();
       const latency = Math.round(endTime - startTime);
       const status = err.response?.status || 500;
       const statusText = err.response?.statusText || "Error";
+      const errBody = err.response?.data || { errorMessage: err.message };
 
-      // Blob error responses are blobs, so read text if possible
-      let errBody = { errorMessage: err.message };
-      if (err.response?.data instanceof Blob) {
-        try {
-          const text = await err.response.data.text();
-          errBody = JSON.parse(text);
-        } catch (_) {}
-      } else if (err.response?.data) {
-        errBody = err.response.data;
-      }
-
-      let msg = `HTTP ${status}: Failed to download package.`;
+      let msg = `HTTP ${status}: Failed to get package URL.`;
       if (status === 403) msg = "403 Forbidden: API Key requires 'PackageDownload' permission.";
       if (status === 401) msg = "401 Unauthorized: Invalid or missing API key.";
 
@@ -146,7 +125,7 @@ function VersionPackageViewer({ config, onNetworkLog }) {
         <div className="card-header">
           <div>
             <h3>Version Query (VersionRead)</h3>
-            <p className="card-subtitle">GET /api/sdk/projects/&#123;projectId&#125;/version</p>
+            <p className="card-subtitle">GET /api/sdk/projects/version</p>
           </div>
         </div>
         <p className="card-desc">
@@ -175,23 +154,46 @@ function VersionPackageViewer({ config, onNetworkLog }) {
         <div className="card-header">
           <div>
             <h3>Package Download (PackageDownload)</h3>
-            <p className="card-subtitle">GET /api/sdk/projects/&#123;projectId&#125;/package</p>
+            <p className="card-subtitle">GET /api/sdk/projects/package</p>
           </div>
         </div>
         <p className="card-desc">
-          Downloads full <code className="code-highlight">release_xxx.zip</code> archive containing all JSON translation files for offline caching.
+          Retrieves active release package info and a secure SAS download URL for direct downloading.
         </p>
         <button
           type="button"
           className="btn btn-outline"
-          onClick={handleDownloadPackage}
+          onClick={handleGetPackage}
           disabled={pkgLoading}
         >
-          {pkgLoading ? "Downloading..." : "Download Release ZIP"}
+          {pkgLoading ? "Fetching URL..." : "Get Package Download URL"}
         </button>
 
         {pkgError && <div className="alert alert-error mt-12">{pkgError}</div>}
-        {pkgSuccess && <div className="alert alert-success mt-12">{pkgSuccess}</div>}
+
+        {pkgData && (
+          <div className="mt-12">
+            {pkgData?.data?.downloadUrl && (
+              <div className="alert alert-success" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                <div>
+                  <strong>Package ready:</strong> {pkgData.data.fileName || "release.zip"} (v{pkgData.data.version})
+                </div>
+                <a
+                  href={pkgData.data.downloadUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                  style={{ textDecoration: 'none', whiteSpace: 'nowrap' }}
+                >
+                  Download ZIP
+                </a>
+              </div>
+            )}
+            <div className="code-box mt-12">
+              <pre>{JSON.stringify(pkgData, null, 2)}</pre>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

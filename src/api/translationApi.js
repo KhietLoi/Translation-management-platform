@@ -26,11 +26,11 @@ export const getTranslations = async (language, options = {}) => {
     return response.data;
 };
 
-export const getVersion = async (projectId, options = {}) => {
+export const getVersion = async (options = {}) => {
     const baseURL = options.baseUrl || import.meta.env.VITE_API_URL || "https://localhost:7185";
     const apiKey = options.apiKey !== undefined ? options.apiKey : import.meta.env.VITE_API_KEY;
 
-    const url = `${baseURL}/api/sdk/projects/${projectId}/version`;
+    const url = `${baseURL}/api/sdk/projects/version`;
 
     const response = await axios.get(url, {
         headers: getHeaders(apiKey)
@@ -39,16 +39,15 @@ export const getVersion = async (projectId, options = {}) => {
     return response.data;
 };
 
-export const getPackage = async (projectId, options = {}) => {
+export const getPackage = async (options = {}) => {
     const baseURL = options.baseUrl || import.meta.env.VITE_API_URL || "https://localhost:7185";
     const apiKey = options.apiKey !== undefined ? options.apiKey : import.meta.env.VITE_API_KEY;
 
-    const url = `${baseURL}/api/sdk/projects/${projectId}/package`;
+    const url = `${baseURL}/api/sdk/projects/package`;
 
     const response = await axios.get(url, {
-        headers: getHeaders(apiKey),
-        responseType: 'blob' // package is a zip file
+        headers: getHeaders(apiKey)
     });
 
-    return response;
+    return response.data;
 };
