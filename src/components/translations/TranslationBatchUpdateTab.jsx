@@ -39,8 +39,6 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
 
     // Pending counts for red badges
     const [pendingCounts, setPendingCounts] = useState({ namespaces: [], languages: [] });
-    const [selectedLanguageId, setSelectedLanguageId] = useState("");
-    const [projectLanguages, setProjectLanguages] = useState([]);
 
     // Core Data & State
     const [items, setItems] = useState([]);
