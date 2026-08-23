@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import Select from "react-select";
 import {
     getReviewTranslations,
     batchReviewTranslations,
-    getPendingCounts
+    getPendingNamespaceCounts,
+    getPendingLanguageCounts
 } from "../../services/translationManagementService";
 import { getProjectLanguages } from "../../services/projectService";
 import {
@@ -35,7 +37,8 @@ function TranslationReviewTab({ projectId, namespaces = [], canReview, canPublis
     const [selectedItemIds, setSelectedItemIds] = useState([]);
 
     // Pending counts for red badges
-    const [pendingCounts, setPendingCounts] = useState({ namespaces: [], languages: [] });
+    const [namespaceCounts, setNamespaceCounts] = useState([]);
+    const [languageCounts, setLanguageCounts] = useState([]);
 
     // ==========================================
     // EFFECT: Load languages when project changes
@@ -90,49 +93,44 @@ function TranslationReviewTab({ projectId, namespaces = [], canReview, canPublis
     // ==========================================
     // EFFECT: Load pending count stats
     // ==========================================
-    const generateMockPendingCounts = () => {
-        const mockNamespaces = namespaces.map((ns, idx) => ({
-            namespaceId: ns.id,
-            pendingReviewCount: (idx + 3) % 5 + 1,
-            pendingUpdateCount: (idx + 1) % 4
-        }));
-
-        const mockLanguages = projectLanguages.map((lang, idx) => ({
-            languageId: lang.languageId || lang.id,
-            pendingReviewCount: (idx + 2) % 6 + 1,
-            pendingUpdateCount: (idx + 3) % 4
-        }));
-
-        setPendingCounts({
-            namespaces: mockNamespaces,
-            languages: mockLanguages
-        });
-    };
-
-    const loadPendingCounts = async () => {
+    const loadNamespaceCounts = async () => {
         if (!projectId) return;
         try {
-            const res = await getPendingCounts(projectId);
-            const data = res?.data || res;
-            if (data && (data.namespaces || data.languages)) {
-                setPendingCounts({
-                    namespaces: data.namespaces || [],
-                    languages: data.languages || []
-                });
-            } else {
-                generateMockPendingCounts();
-            }
+            const res = await getPendingNamespaceCounts(projectId);
+            setNamespaceCounts(res.data?.namespaces || res.namespaces || []);
         } catch (error) {
-            console.warn("Failed to fetch pending counts, using mock fallback", error);
-            generateMockPendingCounts();
+            console.warn("Failed to load namespace pending counts:", error);
+            setNamespaceCounts([]);
+        }
+    };
+
+    const loadLanguageCounts = async (nsId) => {
+        if (!projectId || !nsId) {
+            setLanguageCounts([]);
+            return;
+        }
+        try {
+            const res = await getPendingLanguageCounts(projectId, nsId);
+            setLanguageCounts(res.data?.languages || res.languages || []);
+        } catch (error) {
+            console.warn("Failed to load language pending counts:", error);
+            setLanguageCounts([]);
         }
     };
 
     useEffect(() => {
         if (projectId) {
-            loadPendingCounts();
+            loadNamespaceCounts();
         }
-    }, [projectId, namespaces, projectLanguages]);
+    }, [projectId, namespaces]);
+
+    useEffect(() => {
+        if (selectedNamespaceId) {
+            loadLanguageCounts(selectedNamespaceId);
+        } else {
+            setLanguageCounts([]);
+        }
+    }, [selectedNamespaceId, projectId]);
 
     // ==========================================
     // EFFECT: Load review items
@@ -172,9 +170,12 @@ function TranslationReviewTab({ projectId, namespaces = [], canReview, canPublis
     useEffect(() => {
         const handleNotification = () => {
             if (projectId) {
-                loadPendingCounts();
-                if (selectedNamespaceId && selectedLanguageId) {
-                    loadReviewItems();
+                loadNamespaceCounts();
+                if (selectedNamespaceId) {
+                    loadLanguageCounts(selectedNamespaceId);
+                    if (selectedLanguageId) {
+                        loadReviewItems();
+                    }
                 }
             }
         };
@@ -338,6 +339,74 @@ function TranslationReviewTab({ projectId, namespaces = [], canReview, canPublis
     const rejectedCount = decisionsArray.filter(d => d.status === 3).length;
     const totalDecidedCount = decisionsArray.length;
 
+    // react-select configuration
+    const selectStyles = {
+        control: (baseStyles, state) => ({
+            ...baseStyles,
+            borderRadius: "8px",
+            borderColor: state.isFocused ? "#212529" : "#dee2e6",
+            boxShadow: state.isFocused ? "0 0 0 1px #212529" : "none",
+            "&:hover": {
+                borderColor: state.isFocused ? "#212529" : "#ced4da"
+            },
+            padding: "1px",
+            fontSize: "14px"
+        }),
+        option: (baseStyles, state) => ({
+            ...baseStyles,
+            backgroundColor: state.isSelected 
+                ? "#212529" 
+                : state.isFocused 
+                    ? "#f1f5f9" 
+                    : "white",
+            color: state.isSelected ? "white" : "#374151",
+            fontSize: "14px",
+            cursor: "pointer",
+            "&:active": {
+                backgroundColor: "#212529"
+            }
+        })
+    };
+
+    const formatOptionLabel = ({ label, count, suffix }) => (
+        <div className="d-flex justify-content-between align-items-center w-100">
+            <span>{label}</span>
+            {count > 0 && (
+                <span 
+                    className="badge rounded-pill bg-danger text-white px-2 py-0.5 ms-2"
+                    style={{ fontSize: "0.72rem", fontWeight: "600" }}
+                >
+                    {count} {suffix}
+                </span>
+            )}
+        </div>
+    );
+
+    const namespaceOptions = namespaces.map(ns => {
+        const count = namespaceCounts.find(x => x.namespaceId === ns.id)?.pendingReviewCount || 0;
+        return {
+            value: ns.id,
+            label: ns.name,
+            count: count,
+            suffix: "pending"
+        };
+    });
+    const selectedNamespaceOption = namespaceOptions.find(o => o.value === selectedNamespaceId) || null;
+
+    const languageOptions = projectLanguages.map(lang => {
+        const id = lang.languageId || lang.id;
+        const code = lang.languageCode || lang.code;
+        const name = lang.languageName || lang.name;
+        const count = languageCounts.find(x => x.languageId === id)?.pendingReviewCount || 0;
+        return {
+            value: id,
+            label: `${name} (${code})`,
+            count: count,
+            suffix: "pending"
+        };
+    });
+    const selectedLanguageOption = languageOptions.find(o => o.value === selectedLanguageId) || null;
+
     // Filter selectors render
     return (
         <div className="review-tab-container fade-in">
@@ -348,55 +417,32 @@ function TranslationReviewTab({ projectId, namespaces = [], canReview, canPublis
                         {/* Namespace Selector */}
                         <div className="col-12 col-md-5">
                             <label className="form-label fw-semibold text-secondary small mb-1">Namespace</label>
-                            <select
-                                className="form-select border-1 rounded-3"
-                                value={selectedNamespaceId}
-                                onChange={(e) => setSelectedNamespaceId(e.target.value)}
-                                disabled={namespaces.length === 0}
-                            >
-                                {namespaces.length === 0 && (
-                                    <option value="">No Namespaces Available</option>
-                                )}
-                                {namespaces.map(ns => {
-                                    const count = pendingCounts.namespaces?.find(x => x.namespaceId === ns.id)?.pendingReviewCount || 0;
-                                    const displayName = count > 0 ? `🔴 ${ns.name} (${count} pending)` : ns.name;
-                                    return (
-                                        <option key={ns.id} value={ns.id}>
-                                            {displayName}
-                                        </option>
-                                    );
-                                })}
-                            </select>
+                            <Select
+                                styles={selectStyles}
+                                options={namespaceOptions}
+                                value={selectedNamespaceOption}
+                                onChange={(opt) => setSelectedNamespaceId(opt ? opt.value : "")}
+                                formatOptionLabel={formatOptionLabel}
+                                placeholder="Select Namespace..."
+                                isSearchable={true}
+                                isDisabled={namespaces.length === 0}
+                            />
                         </div>
 
                         {/* Language Selector */}
                         <div className="col-12 col-md-5">
                             <label className="form-label fw-semibold text-secondary small mb-1">Target Language</label>
-                            <select
-                                className="form-select border-1 rounded-3"
-                                value={selectedLanguageId}
-                                onChange={(e) => setSelectedLanguageId(e.target.value)}
-                                disabled={projectLanguages.length === 0 || loadingLanguages}
-                            >
-                                {loadingLanguages ? (
-                                    <option value="">Loading languages...</option>
-                                ) : projectLanguages.length === 0 ? (
-                                    <option value="">No Languages Configured</option>
-                                ) : (
-                                    projectLanguages.map(lang => {
-                                        const id = lang.languageId || lang.id;
-                                        const code = lang.languageCode || lang.code;
-                                        const name = lang.languageName || lang.name;
-                                        const count = pendingCounts.languages?.find(x => x.languageId === id)?.pendingReviewCount || 0;
-                                        const displayName = count > 0 ? `🔴 ${name} (${code}) (${count} pending)` : `${name} (${code})`;
-                                        return (
-                                            <option key={id} value={id}>
-                                                {displayName}
-                                            </option>
-                                        );
-                                    })
-                                )}
-                            </select>
+                            <Select
+                                styles={selectStyles}
+                                options={languageOptions}
+                                value={selectedLanguageOption}
+                                onChange={(opt) => setSelectedLanguageId(opt ? opt.value : "")}
+                                formatOptionLabel={formatOptionLabel}
+                                placeholder="Select Target Language..."
+                                isSearchable={true}
+                                isLoading={loadingLanguages}
+                                isDisabled={projectLanguages.length === 0 || loadingLanguages}
+                            />
                         </div>
 
                         {/* Refresh Button */}
