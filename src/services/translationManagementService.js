@@ -188,4 +188,14 @@ export const getBatchTranslationSuggestions = async (translationValueIds) => {
     return response.data;
 };
 
+export const getPendingCounts = async (projectId) => {
+    const response = await api.get(
+        "/TranslationManagement/pending-counts",
+        {
+            params: { ProjectId: projectId }
+        }
+    );
+    return response.data;
+};
+
 

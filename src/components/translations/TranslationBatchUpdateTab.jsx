@@ -5,6 +5,7 @@ import {
     batchUpdateTranslations,
     getTranslationSuggestion,
     getBatchTranslationSuggestions,
+    getPendingCounts
 } from "../../services/translationManagementService";
 import { getProjectLanguages } from "../../services/projectService";
 import { useAuth } from "../../contexts/AuthContext";
@@ -33,6 +34,11 @@ function TranslationBatchUpdateTab({ projectId, namespaces = [], canUpdate }) {
 
     // Filter Selection State
     const [selectedNamespaceId, setSelectedNamespaceId] = useState("");
+    const [selectedLanguageId, setSelectedLanguageId] = useState("");
+    const [projectLanguages, setProjectLanguages] = useState([]);
+
+    // Pending counts for red badges
+    const [pendingCounts, setPendingCounts] = useState({ namespaces: [], languages: [] });
     const [selectedLanguageId, setSelectedLanguageId] = useState("");
     const [projectLanguages, setProjectLanguages] = useState([]);
 

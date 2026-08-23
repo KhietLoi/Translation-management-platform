@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { useOutletContext } from "react-router-dom";
 import { toast } from "react-toastify";
 import ApiKeyFilter from "./ApiKeyFilter";
 import ApiKeyGrid from "./ApiKeyGrid";
@@ -25,6 +26,7 @@ import {
 import "./ApiKeyManagement.css";
 
 function ApiKeyManagement() {
+  const { projects: contextProjects = [] } = useOutletContext() || {};
   const [loading, setLoading] = useState(false);
   const [applications, setApplications] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -114,7 +116,21 @@ function ApiKeyManagement() {
 
   useEffect(() => {
     loadInitialData();
+
+    const handleProjectsChanged = () => {
+      loadInitialData();
+    };
+    window.addEventListener("projectsChanged", handleProjectsChanged);
+    return () => {
+      window.removeEventListener("projectsChanged", handleProjectsChanged);
+    };
   }, []);
+
+  useEffect(() => {
+    if (showCreateAppModal) {
+      loadInitialData();
+    }
+  }, [showCreateAppModal]);
 
   useEffect(() => {
     loadGrid();
@@ -264,7 +280,7 @@ function ApiKeyManagement() {
 
       <CreateApplicationModal
         show={showCreateAppModal}
-        projects={projects}
+        projects={contextProjects.length > 0 ? contextProjects : projects}
         onClose={() => setShowCreateAppModal(false)}
         onSubmit={handleCreateApplication}
       />
