@@ -188,11 +188,21 @@ export const getBatchTranslationSuggestions = async (translationValueIds) => {
     return response.data;
 };
 
-export const getPendingCounts = async (projectId) => {
+export const getPendingNamespaceCounts = async (projectId) => {
     const response = await api.get(
-        "/TranslationManagement/pending-counts",
+        "/TranslationManagement/pending-counts/namespaces",
         {
-            params: { ProjectId: projectId }
+            params: { projectId }
+        }
+    );
+    return response.data;
+};
+
+export const getPendingLanguageCounts = async (projectId, namespaceId) => {
+    const response = await api.get(
+        "/TranslationManagement/pending-counts/languages",
+        {
+            params: { projectId, namespaceId }
         }
     );
     return response.data;
