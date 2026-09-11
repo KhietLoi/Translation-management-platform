@@ -1,0 +1,6 @@
+@MySolution.Email.Api_HostAddress = http://localhost:5188
+
+GET {{MySolution.Email.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

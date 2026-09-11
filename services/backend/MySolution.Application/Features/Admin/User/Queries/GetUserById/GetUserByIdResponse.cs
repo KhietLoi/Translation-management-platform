@@ -1,0 +1,32 @@
+﻿using MySolution.Application.Common.Models;
+using MySolution.Domain.Enums;
+
+namespace MySolution.Application.Features.Admin.User.Queries.GetUserById;
+
+public class GetUserByIdResponse : BaseResponse<GetUserByIdData>
+{
+}
+
+public class GetUserByIdData
+{
+    public string Username { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public UserStatus Status { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public List<RoleData> Roles { get; set; } = [];
+    public List<PermissionData> Permissions { get; set; } = [];
+}
+
+public class RoleData
+{
+    public Guid RoleId { get; set; }
+    public string RoleName { get; set; } = string.Empty;
+    public string? Description { get; set; }
+}
+
+public class PermissionData
+{
+    public Guid PermissionId { get; set; }
+    public string PermissionCode { get; set; } = string.Empty;
+    public string? PermissionDescription { get; set; }
+}
