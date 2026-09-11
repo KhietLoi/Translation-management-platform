@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Auth\MySolution.Domain\MySolution.Domain.csproj" />
+      <ProjectReference Include="..\Management\MySolution.Domain\MySolution.Domain.csproj" />
     </ItemGroup>
 
 </Project>

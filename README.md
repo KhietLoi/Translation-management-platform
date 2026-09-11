@@ -48,12 +48,12 @@ Repository local đã bật `core.longpaths=true`. Git có thể báo thêm thay
 
 ## Phát triển local
 
-Backend được tổ chức thành thư mục thật `Auth/`, `Email/` và `Tests/`.
+Backend được tổ chức thành thư mục thật `Management/`, `Email/` và `Tests/`.
 Mở `services/backend/MySolution.slnx` trong Rider để nạp solution.
 Chạy API chính từ root bằng:
 
 ```sh
-dotnet run --project services/backend/Auth/MySolution.Api/MySolution.Api.csproj --launch-profile http
+dotnet run --project services/backend/Management/MySolution.Api/MySolution.Api.csproj --launch-profile http
 ```
 
 Chạy Email API từ root bằng:
