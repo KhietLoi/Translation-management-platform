@@ -1,0 +1,138 @@
+/* Color Palette Variables & Unified Design System (MySolution Theme) */
+:root {
+  --brand-primary: #ffc107;
+  --brand-primary-hover: #e0a800;
+  --brand-primary-light: #fff3cd;
+  --brand-primary-subtle: #fff8e1;
+  --sidebar-bg: #161822;
+  --sidebar-border: #282a36;
+  --sidebar-active: #282a3a;
+  --body-bg: #f8f9fa;
+  --card-bg: #ffffff;
+  --card-border: #eaedf0;
+  --text-dark: #111827;
+  --text-muted: #6b7280;
+}
+
+/* Sidebar Styling */
+.sidebar {
+  background-color: var(--sidebar-bg);
+  border-color: var(--sidebar-border) !important;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+  z-index: 1050;
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar-link {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+}
+
+.sidebar-link:hover {
+  background-color: var(--sidebar-border) !important;
+  color: #ffffff !important;
+  transform: translateX(4px);
+}
+
+/* MySolution Yellow Circle Logo */
+.logo {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffc107;
+  color: #000;
+  font-size: 18px;
+  font-weight: 800;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(255, 193, 7, 0.4);
+}
+
+/* Environment Selector & Pills for Header */
+.env-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: #f3f4f6;
+  padding: 3px;
+  border-radius: 8px;
+}
+
+.env-pill {
+  border: none;
+  background: transparent;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.env-pill.active {
+  background-color: #ffffff;
+  color: var(--text-dark);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Custom Scrollbar */
+.overflow-auto::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.sidebar .overflow-auto::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
+/* Fade In Animation */
+.fade-in {
+  animation: fadeIn 0.35s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* RESPONSIVE LAYOUT BREAKPOINTS */
+@media (max-width: 991.98px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 1040;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .header-search-box {
+    width: 100% !important;
+  }
+}

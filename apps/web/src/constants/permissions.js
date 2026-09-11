@@ -1,0 +1,52 @@
+export const PERMISSIONS = {
+    USER: {
+        VIEW: "USER_VIEW",
+        CREATE: "USER_CREATE",
+        UPDATE: "USER_UPDATE",
+        DELETE: "USER_DELETE",
+    },
+
+    ROLE: {
+        VIEW: "ROLE_VIEW",
+        CREATE: "ROLE_CREATE",
+        UPDATE: "ROLE_UPDATE",
+        DELETE: "ROLE_DELETE",
+    },
+
+    PERMISSION: {
+        VIEW: "PERMISSION_VIEW",
+        CREATE: "PERMISSION_CREATE",
+        UPDATE: "PERMISSION_UPDATE",
+        DELETE: "PERMISSION_DELETE",
+    },
+
+    PROJECT: {
+        VIEW: "PROJECT_VIEW",
+        CREATE: "PROJECT_CREATE",
+        UPDATE: "PROJECT_UPDATE",
+        DELETE: "PROJECT_DELETE",
+    },
+
+    LANGUAGE: {
+        VIEW: "LANGUAGE_VIEW",
+        CREATE: "LANGUAGE_CREATE",
+        UPDATE: "LANGUAGE_UPDATE",
+        DELETE: "LANGUAGE_DELETE",
+    },
+
+    TRANSLATION: {
+        VIEW: "TRANSLATION_VIEW",
+        CREATE: "TRANSLATION_CREATE",
+        UPDATE: "TRANSLATION_UPDATE",
+        DELETE: "TRANSLATION_DELETE",
+        REVIEW: "TRANSLATION_REVIEW",
+        PUBLISH: "TRANSLATION_PUBLISH",
+    },
+
+    API_KEY: {
+        VIEW: "APIKEY_VIEW",
+        CREATE: "APIKEY_CREATE",
+        UPDATE: "APIKEY_UPDATE",
+        DELETE: "APIKEY_DELETE",
+    },
+};

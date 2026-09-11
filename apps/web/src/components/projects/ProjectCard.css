@@ -1,0 +1,83 @@
+.project-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    height: 100%;
+}
+
+.project-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, .08);
+}
+
+.project-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.project-description {
+    color: #6b7280;
+    margin-bottom: 0;
+    font-size: 14px;
+}
+
+.project-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.project-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.project-stats div {
+    display: flex;
+    flex-direction: column;
+}
+
+.project-stats strong {
+    font-size: 18px;
+}
+
+.project-stats span {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.project-key-count {
+    margin-top: 20px;
+    font-size: 15px;
+}
+
+.project-languages {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.language-chip {
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: #eef2ff;
+    color: #4338ca;
+    font-size: 13px;
+}
+
+.language-chip-more {
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: #f3f4f6;
+    font-size: 13px;
+}
+
+.project-progress {
+    margin-top: 20px;
+}

@@ -1,0 +1,23 @@
+.member-card {
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.member-card:hover {
+    transform: translateY(-2px);
+
+    border-color: #0d6efd;
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, .08);
+}
+
+.member-card.selected {
+    border-color: #0d6efd;
+
+    background: #f8fbff;
+}
