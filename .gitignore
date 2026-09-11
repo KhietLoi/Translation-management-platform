@@ -1,0 +1,17 @@
+node_modules/
+dist/
+dist-ssr/
+bin/
+obj/
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+.idea/
+.vs/
+*.pyc
+*.log
+.env
+.env.*
+!.env.example
+*.local.json
