@@ -1,10 +1,10 @@
 <Solution>
   <Folder Name="/Services/" />
-  <Folder Name="/Services/Auth/">
-    <Project Path="Auth/MySolution.Api/MySolution.Api.csproj" />
-    <Project Path="Auth/MySolution.Application/MySolution.Application.csproj" />
-    <Project Path="Auth/MySolution.Domain/MySolution.Domain.csproj" />
-    <Project Path="Auth/MySolution.Infrastructure/MySolution.Infrastructure.csproj" />
+  <Folder Name="/Services/Management/">
+    <Project Path="Management/MySolution.Api/MySolution.Api.csproj" />
+    <Project Path="Management/MySolution.Application/MySolution.Application.csproj" />
+    <Project Path="Management/MySolution.Domain/MySolution.Domain.csproj" />
+    <Project Path="Management/MySolution.Infrastructure/MySolution.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/Services/Email/">
     <Project Path="Email/MySolution.Email.Api/MySolution.Email.Api.csproj" />

@@ -9,7 +9,7 @@ Frontend, API chính, Email API, AI translation có thể có image/pipeline ri�
 Backend hiện có Dockerfile cho API chính và Email API. Build context phải là `services/backend`, ví dụ từ root:
 
 ```sh
-docker build -f services/backend/Auth/MySolution.Api/Dockerfile -t mysolution-api:local services/backend
+docker build -f services/backend/Management/MySolution.Api/Dockerfile -t mysolution-api:local services/backend
 docker build -f services/backend/Email/MySolution.Email.Api/Dockerfile -t mysolution-email:local services/backend
 ```
 

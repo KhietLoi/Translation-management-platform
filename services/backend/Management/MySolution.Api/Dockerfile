@@ -7,8 +7,8 @@ WORKDIR /src
 
 COPY . .
 
-RUN dotnet restore "Auth/MySolution.Api/MySolution.Api.csproj"
-RUN dotnet publish "Auth/MySolution.Api/MySolution.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet restore "Management/MySolution.Api/MySolution.Api.csproj"
+RUN dotnet publish "Management/MySolution.Api/MySolution.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
