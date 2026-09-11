@@ -1,0 +1,74 @@
+﻿using System.Net;
+using MediatR;
+using Microsoft.Extensions.Logging;
+
+using Microsoft.Extensions.Logging;
+using MySolution.Application.Common.Interfaces.Repositories;
+using Shared.Extensions;
+
+namespace MySolution.Application.Features.TranslationManagement.Queries.GetTranslationValuesForBatch;
+
+public class GetTranslationValuesForBatchHandler : IRequestHandler<GetTranslationValuesForBatchQuery, GetTranslationValuesForBatchResponse>
+{
+    private readonly ILogger<GetTranslationValuesForBatchHandler> _logger;
+	private readonly IUnitOfWork _unitOfWork;
+
+    public GetTranslationValuesForBatchHandler
+    (
+        ILogger<GetTranslationValuesForBatchHandler> logger,
+		IUnitOfWork unitOfWork
+    )
+    {
+        _logger = logger;
+		_unitOfWork = unitOfWork;
+    }
+
+    #region Implementation of IRequestHandler<in GetTranslationValuesForBatchQuery, GetTranslationValuesForBatchResponse>
+
+    public async Task<GetTranslationValuesForBatchResponse> Handle(GetTranslationValuesForBatchQuery request, CancellationToken cancellationToken)
+    {
+        var payload = request.Payload;
+        var functionName = $"{nameof(GetTranslationValuesForBatchHandler)} =>";
+        _logger.LogInformation(functionName);
+        var response = new GetTranslationValuesForBatchResponse();
+
+        try
+        {
+            var translationValues = await _unitOfWork.TranslationValue
+                .GetBatchTranslationValuesAsync(
+                    payload.ProjectId,
+                    payload.LanguageId,
+                    payload.NamespaceId,
+                    cancellationToken);
+            _logger.LogInformation("{FunctionName} Found {Count} translations for batch translation.", functionName, translationValues.Count);
+
+            response.Data = new GetTranslationValuesForBatchData
+            {
+                Items = translationValues
+                    .Select(x => new TranslationValueBatchItem
+                    {
+                        TranslationValueId = x.Id,
+                        TranslationKeyId = x.TranslationKeyId,
+                        Key = x.TranslationKey.Key,
+                        Value = x.Value,
+                        Status = x.Status
+                    })
+                    .ToList()
+            };
+            
+            response
+                .WithSuccess(true)
+                .WithStatus(HttpStatusCode.Created);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
+            response.WithStatus(HttpStatusCode.InternalServerError);
+        }
+
+        return response;
+    }
+
+    #endregion
+}
