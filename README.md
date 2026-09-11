@@ -29,6 +29,7 @@ git status --short
 Thay đổi chưa commit tại source gốc được sao chép vào working tree và giữ chưa commit.
 Trạng thái staged/unstaged gốc không được tái tạo; nội dung file hiện tại được giữ.
 File `.env` được sao chép phục vụ chạy local, không thêm mới vào Git.
+Hai `.env` đã được theo dõi ở frontend và ví dụ SDK được bỏ khỏi index mới, vẫn giữ file local và lịch sử cũ.
 Các dependency, môi trường ảo và build output bị bỏ qua khi sao chép.
 Lịch sử nhập vẫn chứa mọi file đã từng commit, bao gồm cấu hình nhạy cảm nếu source gốc đã commit chúng.
 
@@ -43,6 +44,9 @@ git push origin 'refs/tags/archive/*:refs/tags/archive/*'
 
 Review và commit thay đổi local trước khi push nếu muốn remote có source hiện tại.
 Chưa cấu hình remote hoặc push tự động.
+
+Trên Windows, nên clone vào đường dẫn ngắn hoặc dùng `git -c core.longpaths=true clone <repository-url>`.
+Repository local đã bật `core.longpaths=true`. Git có thể báo thêm thay đổi xuống dòng do cấu hình CRLF/LF khác nhau giữa source gốc; dùng `git diff --ignore-space-at-eol` để xem thay đổi nội dung.
 
 ## Phát triển local
 
