@@ -2,6 +2,7 @@
 **/.git
 **/.gitignore
 **/.vs
-**/.obj
-**/.bin
+**/obj
+**/bin
+**/.idea
 **/TestResult

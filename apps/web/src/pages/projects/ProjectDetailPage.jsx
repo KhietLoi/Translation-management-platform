@@ -148,17 +148,14 @@ function ProjectDetailPage() {
         );
     }
 
-    // Khai báo mảng stat để render HTML gọn hơn
+    // Extract project object safely
+    const pObj = project.project || project.data || project;
+
+    // Stats array without Progress stat
     const stats = [
-        { label: "Languages", value: project.languageCount || 0, color: "text-primary" },
-        { label: "Members", value: project.memberCount || 0, color: "text-success" },
-        { label: "Namespaces", value: project.namespaceCount || 0, color: "text-info" },
-        {
-            label: "Progress",
-            value: `${project.progressPercentage ?? 0}%`,
-            color: (project.progressPercentage ?? 0) >= 100 ? "text-success" : "text-warning",
-            subValue: `${project.completedTranslationCount ?? 0} / ${project.totalTranslationCount ?? 0} translations`
-        }
+        { label: "Languages", value: pObj.languageCount ?? pObj.LanguageCount ?? languages.length ?? 0, color: "text-primary" },
+        { label: "Members", value: pObj.memberCount ?? pObj.MemberCount ?? members.length ?? 0, color: "text-success" },
+        { label: "Namespaces", value: pObj.namespaceCount ?? pObj.NamespaceCount ?? namespaces.length ?? 0, color: "text-info" },
     ];
 
     return (
@@ -167,12 +164,12 @@ function ProjectDetailPage() {
             {/* Header Section */}
             <div className="project-header shadow-sm mb-4 d-flex justify-content-between align-items-center">
                 <div>
-                    <h2 className="fw-bold mb-2">{project.name}</h2>
-                    <p className="text-muted mb-0">{project.description}</p>
+                    <h2 className="fw-bold mb-2">{pObj.name}</h2>
+                    <p className="text-muted mb-0">{pObj.description}</p>
                 </div>
                 <div className="d-flex align-items-center gap-2">
-                    <span className={`badge badge-status me-2 ${project.isActive ? "bg-success" : "bg-secondary"}`}>
-                        {project.isActive ? "Active" : "Inactive"}
+                    <span className={`badge badge-status me-2 ${pObj.isActive ? "bg-success" : "bg-secondary"}`}>
+                        {pObj.isActive ? "Active" : "Inactive"}
                     </span>
                     {canUpdateProject && (
                         <button
@@ -197,7 +194,7 @@ function ProjectDetailPage() {
             {/* Stats Section */}
             <div className="row g-4 mb-5">
                 {stats.map((stat, index) => (
-                    <div className="col-md-3 col-sm-6" key={index}>
+                    <div className="col-md-4 col-sm-6" key={index}>
                         <div className="card stat-card shadow-sm h-100">
                             <div className="card-body text-center d-flex flex-column justify-content-center py-4">
                                 <span className="text-uppercase text-muted fw-semibold" style={{ fontSize: '0.85rem' }}>
@@ -206,11 +203,6 @@ function ProjectDetailPage() {
                                 <h3 className={`stat-value ${stat.color} mb-0`}>
                                     {stat.value}
                                 </h3>
-                                {stat.subValue && (
-                                    <span className="text-muted mt-2" style={{ fontSize: '0.8rem' }}>
-                                        {stat.subValue}
-                                    </span>
-                                )}
                             </div>
                         </div>
                     </div>

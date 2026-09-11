@@ -82,7 +82,7 @@ function ProjectCard({ project, onClick }) {
                         Translation Progress
                     </span>
                     <strong>
-                        {project.progressPercentage ?? 0}%
+                        {Math.round(project.progressPercentage ?? 0)}%
                     </strong>
                 </div>
                 <div className="progress" style={{ height: "6px" }}>

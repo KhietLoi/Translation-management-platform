@@ -1,19 +1,67 @@
 import api from "./api";
 
+// Helper to round project progress percentage to an integer
+const processProjectProgress = (p) => {
+    if (!p) return p;
+    const completed = Number(
+        p.completedTranslationCount ??
+        p.CompletedTranslationCount ??
+        p.completedTranslationsCount ??
+        p.CompletedTranslationsCount ??
+        p.completedTranslations ??
+        0
+    );
+    const total = Number(
+        p.totalTranslationCount ??
+        p.TotalTranslationCount ??
+        p.totalTranslationsCount ??
+        p.TotalTranslationsCount ??
+        p.totalTranslations ??
+        0
+    );
+    let rawPercent = Number(
+        p.progressPercentage ??
+        p.ProgressPercentage ??
+        (total > 0 ? (completed / total) * 100 : 0)
+    );
+    if (total > 0 && completed >= total && rawPercent > 100) {
+        rawPercent = 100;
+    }
+    const percent = Math.min(100, Math.max(0, Math.round(rawPercent)));
+    return {
+        ...p,
+        progressPercentage: percent,
+        ProgressPercentage: percent
+    };
+};
+
 //Project:
 export const getProjects = async () => {
     const response = await api.get("/Project");
+    const data = response.data;
 
-    return response.data;
+    if (data?.projects && Array.isArray(data.projects)) {
+        data.projects = data.projects.map(processProjectProgress);
+    } else if (Array.isArray(data)) {
+        return data.map(processProjectProgress);
+    }
+
+    return data;
 };
 
 export const getProjectById = async (id) => {
     const response = await api.get(
         `/Project/${id}`
     );
-
-    return response.data;
+    const data = response.data;
+    if (data?.project) {
+        data.project = processProjectProgress(data.project);
+    } else if (data) {
+        return processProjectProgress(data);
+    }
+    return data;
 };
+
 
 export const createProject = async (project) => {
     const response = await api.post(

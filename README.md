@@ -5,8 +5,7 @@ Monorepo chứa source ứng dụng và lịch sử Git gốc. Thư mục `.git`
 | Thư mục | Thành phần |
 | --- | --- |
 | `apps/web` | Frontend React/Vite |
-| `services/backend` | Solution .NET 10, API, email, workers và migration |
-| `services/ai-review` | Dịch vụ đánh giá bản dịch, gồm source MetricX |
+| `services/backend` | Solution .NET 10, API, email và migration |
 | `services/ai-translation` | Dịch vụ AI dịch thuật |
 | `examples/translation-read` | Ứng dụng thử SDK đọc bản dịch |
 | `examples/package-download` | Ứng dụng thử tải package |
@@ -17,8 +16,7 @@ Monorepo chứa source ứng dụng và lịch sử Git gốc. Thư mục `.git`
 
 Lịch sử được nhập bằng merge không squash, giữ nguyên hash commit gốc.
 Các nhánh cũ nằm ở `archive/<source>/<branch>`, tag cũ ở `archive/<source>/<tag>`.
-MetricX được nhập thành source thông thường để clone monorepo không cần lấy submodule.
-Git ngoài của frontend chưa có commit nên không có lịch sử để nhập.
+Git ngoài của frontend chưa có commit nên không có lịch shông ử để nhập.
 
 ```sh
 git log --all --graph --oneline
@@ -49,6 +47,20 @@ Trên Windows, nên clone vào đường dẫn ngắn hoặc dùng `git -c core.
 Repository local đã bật `core.longpaths=true`. Git có thể báo thêm thay đổi xuống dòng do cấu hình CRLF/LF khác nhau giữa source gốc; dùng `git diff --ignore-space-at-eol` để xem thay đổi nội dung.
 
 ## Phát triển local
+
+Backend được tổ chức thành thư mục thật `Auth/`, `Email/` và `Tests/`.
+Mở `services/backend/MySolution.slnx` trong Rider để nạp solution.
+Chạy API chính từ root bằng:
+
+```sh
+dotnet run --project services/backend/Auth/MySolution.Api/MySolution.Api.csproj --launch-profile http
+```
+
+Chạy Email API từ root bằng:
+
+```sh
+dotnet run --project services/backend/Email/MySolution.Email.Api/MySolution.Email.Api.csproj --launch-profile http
+```
 
 Chạy Redis/RabbitMQ bằng `docker compose -f infra/compose.yaml up -d` từ root.
 Đây là hạ tầng local, chưa phải cấu hình triển khai toàn bộ ứng dụng.
