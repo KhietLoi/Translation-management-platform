@@ -15,3 +15,37 @@ __pycache__/
 .env.*
 !.env.example
 *.local.json
+
+# Test reports and tool caches
+coverage/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+TestResults/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+*.py[cod]
+
+# Local IDE and operating system files
+*.suo
+*.user
+*.sln.iml
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Private keys and certificate bundles
+*.key
+*.pem
+*.pfx
+*.p12
+
+# Local deployment overrides (tracked base configuration stays visible)
+appsettings.*.local.json
+compose.override.yaml
+compose.override.yml
+docker-compose.override.yml
+docker-compose.override.yaml

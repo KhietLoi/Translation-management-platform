@@ -120,9 +120,8 @@ export default function NotificationItem({ item, onItemClick, isDarkMode = false
   return (
     <div
       onClick={handleClick}
-      className={`notification-item ${!item.isRead ? "unread" : ""} ${
-        item.isNew ? "new-arrival" : ""
-      } ${isDarkMode ? "dark-theme" : ""}`}
+      className={`notification-item ${!item.isRead ? "unread" : ""} ${item.isNew ? "new-arrival" : ""
+        } ${isDarkMode ? "dark-theme" : ""}`}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => e.key === "Enter" && handleClick(e)}
