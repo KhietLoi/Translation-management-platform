@@ -6,3 +6,5 @@
 **/bin
 **/.idea
 **/TestResult
+**/.env
+**/.env.*
