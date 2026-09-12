@@ -1,0 +1,121 @@
+﻿name: translation-management-platform 
+
+services:
+  redis:
+    image: redis:7-alpine
+
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+
+    volumes:
+      - redis-data:/data
+
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  rabbitmq:
+    image: rabbitmq:4-management
+
+    environment:
+      RABBITMQ_DEFAULT_USER: mysolution
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Run scripts/init-docker.ps1 first}
+
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+    ports:
+      - "127.0.0.1:15674:15672"
+
+    healthcheck:
+      test: [CMD, rabbitmq-diagnostics, -q, ping]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: ./services/backend
+      dockerfile: Management/MySolution.Api/Dockerfile
+
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_ENVIRONMENT: Development
+
+      Redis__ConnectionString: redis:6379
+
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Username: mysolution
+      RabbitMq__Password: ${RABBITMQ_PASSWORD:?Run scripts/init-docker.ps1 first}
+
+      Frontend__BaseUrl: http://localhost:5173
+      CorsAllowedOrigins: http://localhost:5173
+
+      Logging__ConsoleEnabled: "true"
+      Logging__Elk__Enabled: "false"
+      Logging__Seq__Enabled: "false"
+      Logging__MicrosoftTeams__Enabled: "false"
+      Logging__MicrosoftTeams__EnabledCriticalLevel: "false"
+
+    volumes:
+      - ./infra/docker/api.local.json:/app/appsettings.json:ro
+      - data-protection:/root/.aspnet/DataProtection-Keys
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  email:
+    build:
+      context: ./services/backend
+      dockerfile: Email/MySolution.Email.Api/Dockerfile
+
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_ENVIRONMENT: Development
+
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Username: mysolution
+      RabbitMq__Password: ${RABBITMQ_PASSWORD:?Run scripts/init-docker.ps1 first}
+
+      Frontend__BaseUrl: http://localhost:5173
+
+    volumes:
+      - ./infra/docker/email.local.json:/app/appsettings.json:ro
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./apps/web
+
+    ports:
+      - "127.0.0.1:5173:80"
+
+    depends_on:
+      - api
+
+    healthcheck:
+      test: [CMD, wget, -q, --spider, http://127.0.0.1/healthz]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  redis-data:
+  rabbitmq-data:
+  data-protection:
