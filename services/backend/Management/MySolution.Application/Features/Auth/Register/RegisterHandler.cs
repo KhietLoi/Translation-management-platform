@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
@@ -48,7 +49,7 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
 
         try
         {
-            if (await _unitOfWork.User.ExistsByEmailOrUsernameAsync(payload.Email, payload.Username))
+            if (await _unitOfWork.User.ExistsByEmailOrUsernameAsync(payload.Email, payload.Username, cancellationToken: cancellationToken))
             {
                 response.ErrorMessage = "Username and Email already exist.";
                 response.WithStatus(HttpStatusCode.BadRequest);
@@ -56,10 +57,14 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
             }
 
             // user role default
-            var role = await _unitOfWork.Role.GetByNameAsync(RoleConstants.User);
+            var role = await _unitOfWork.Role
+                .GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(r => r.Name == RoleConstants.User, cancellationToken: cancellationToken);
             if (role is null)
             {
                 response.ErrorMessage = "Default role not found.";
+                response.WithStatus(HttpStatusCode.InternalServerError);
                 return response;
             }
 
@@ -72,11 +77,13 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
                 Status = UserStatus.Active,
                 CreatedAt = DateTime.UtcNow
             };
+            
             await _unitOfWork.User.Add(user);
             user.UserRoles.Add(new UserRole
             {
                 RoleId = role.Id
             });
+            
             // create empty user profile
             user.Profile = new UserProfile
             {
@@ -86,6 +93,7 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
             
             await _unitOfWork.SaveAsync(cancellationToken);
             var token = _emailVerificationTokenService.GenerateVerificationToken(user.Id, user.Email);
+                
             //Email
             await _messageSender.SendMessage<SendVerifyEmailEvent>(
                 new SendVerifyEmailEvent
@@ -95,6 +103,7 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
                     Email = user.Email,
                     Token = token
                 }, cancellationToken);
+            
             response.Data = new RegisterResult
             {
                 Id = user.Id,

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
@@ -31,9 +32,13 @@ public class UpdateProjectHandler : IRequestHandler<UpdateProjectCommand, Update
 
         try
         {
-            var project = await _unitOfWork.Project.GetByIdAsync(request.Id);
+            var project = await _unitOfWork.Project
+                .GetAll()
+                .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
             if (project == null)
             {
+                _logger.LogInformation("{FunctionName} Project with id {ProjectId} not found", functionName, request.Id);
+                
                 response.ErrorMessage =  $"Project with id {request.Id} not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -43,6 +48,8 @@ public class UpdateProjectHandler : IRequestHandler<UpdateProjectCommand, Update
             var isNameExists = await _unitOfWork.Project.ExistsByNameAsync(payload.Name, request.Id);
             if (isNameExists)
             {
+                _logger.LogInformation("{FunctionName} Project with name {ProjectName} already exists", functionName, payload.Name);
+                
                 response.ErrorMessage =  $"Project with id {request.Id} is already exists";
                 response.WithStatus(HttpStatusCode.Conflict);
                 return response;
@@ -53,6 +60,7 @@ public class UpdateProjectHandler : IRequestHandler<UpdateProjectCommand, Update
             project.Description = payload.Description;
             project.UpdatedAt = DateTime.UtcNow;
             project.IsActive  = payload.IsActive;
+            
             await _unitOfWork.SaveAsync(cancellationToken);
             
             response.Data = new UpdateProjectData
@@ -65,6 +73,7 @@ public class UpdateProjectHandler : IRequestHandler<UpdateProjectCommand, Update
                 UpdatedAt = DateTime.UtcNow
             };
             
+            _logger.LogInformation("{FunctionName} Project updated successfully", functionName);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

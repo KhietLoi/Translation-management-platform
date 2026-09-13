@@ -46,8 +46,10 @@ public class CreateProjectHandler : IRequestHandler<CreateProjectCommand, Create
                 Description = payload.Description,
                 CreatedAt = DateTime.UtcNow
             };
+            
             await _unitOfWork.Project.Add(project);
             await _unitOfWork.SaveAsync(cancellationToken);
+            
             response.Data = new CreateProjectData
             {
                 ProjectId = project.Id,

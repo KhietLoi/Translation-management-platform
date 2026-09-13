@@ -7,10 +7,9 @@ namespace MySolution.Application.Features.Admin.Roles.Queries.GetRoleById;
 /// </summary>
 public class GetRoleByIdQuery : IRequest<GetRoleByIdResponse>
 {
+    public Guid RoleId { get; set; }
     public GetRoleByIdQuery(Guid roleId)
     {
         RoleId = roleId;
     }
-
-    public Guid RoleId { get; set; }
 }

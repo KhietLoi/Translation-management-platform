@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.MassTransit;
@@ -40,7 +41,11 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
 
         try
         {
-            var user = await _unitOfWork.User.GetByEmailAsync(payload.Email);
+            var user = await _unitOfWork.User
+                .GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Email == payload.Email, cancellationToken);
+            
             if (user == null)
             {
                 response.ErrorMessage = "User not found";
@@ -48,7 +53,8 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
                 return response;
             }
 
-            var resetToken = _tokenService.GenerateResetToken(user.Id, user.Email, user.Username, user.PasswordVersion);
+            var resetToken = _tokenService.GenerateResetToken(user.Id, user.Email, user.Username, user.PasswordVersion);    
+                
             //SendEmail
             await _messageSender.SendMessage<SendForgotPasswordEmailEvent>(
                 new SendForgotPasswordEmailEvent

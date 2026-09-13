@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.User.UserProfile.Commands.UploadAvatar
 
 public class UploadAvatarResponse : BaseResponse <UploadAvatarData>
 {
-
 }
 
 public class UploadAvatarData

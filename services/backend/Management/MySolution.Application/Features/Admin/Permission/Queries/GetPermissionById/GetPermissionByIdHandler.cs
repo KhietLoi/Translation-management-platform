@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
@@ -19,8 +20,7 @@ public class GetPermissionByIdHandler : IRequestHandler<GetPermissionByIdQuery, 
         _logger = logger;
     }
 
-    public async Task<GetPermissionByIdResponse> Handle(GetPermissionByIdQuery request,
-        CancellationToken cancellationToken)
+    public async Task<GetPermissionByIdResponse> Handle(GetPermissionByIdQuery request, CancellationToken cancellationToken)
     {
         var functionName = $"{nameof(GetPermissionByIdHandler)}";
         _logger.LogInformation(functionName);
@@ -29,9 +29,15 @@ public class GetPermissionByIdHandler : IRequestHandler<GetPermissionByIdQuery, 
 
         try
         {
-            var permission = await _unitOfWork.Permission.GetPermissionByIdAsync(request.PermissionId);
+            var permission = await _unitOfWork.Permission
+                .GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == request.PermissionId, cancellationToken);
+            
             if (permission == null)
             {
+                _logger.LogInformation("{FunctionName} Permission with ID {PermissionId} not found.", functionName, request.PermissionId);
+                
                 response.ErrorMessage = "Permission not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -46,6 +52,7 @@ public class GetPermissionByIdHandler : IRequestHandler<GetPermissionByIdQuery, 
                 UpdatedDate = permission.UpdatedAt
             };
             
+            _logger.LogInformation("{FunctionName} Permission with ID {PermissionId} retrieved successfully.", functionName, request.PermissionId);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

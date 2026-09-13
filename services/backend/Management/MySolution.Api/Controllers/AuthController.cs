@@ -57,9 +57,12 @@ public class AuthController(IMediator mediator,  IAuthCookieService cookieServic
             return Unauthorized("Refresh token is missing.");
         }
 
-        var response =
-            await mediator.Send(new RefreshTokenCommand(new RefreshTokenRequest { RefreshToken = refreshToken }),
-                cancellationToken);
+        var response = await mediator.Send(new RefreshTokenCommand(
+            new RefreshTokenRequest
+            {
+                RefreshToken = refreshToken
+            }), cancellationToken);
+        
         if (!response.Success)
         {
             cookieService.RemoveRefreshToken();
@@ -85,8 +88,7 @@ public class AuthController(IMediator mediator,  IAuthCookieService cookieServic
 
     [Authorize]
     [HttpPut("change-password")]
-    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new ChangePasswordCommand(request), cancellationToken);
         if (response.Success)
@@ -100,14 +102,17 @@ public class AuthController(IMediator mediator,  IAuthCookieService cookieServic
     public async Task<IActionResult> VerifyEmail(string token, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new VerifyEmailCommand(token), cancellationToken);
-        if (!response.Success) return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+        if (!response.Success)
+        {
+            return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
+        }
+        
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
 
     [HttpPost("resend-verify-email")]
     [EnableRateLimiting("auth-resend-verification-email")]
-    public async Task<IActionResult> ResendVerifyEmail([FromBody] ResendVerificationEmailRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> ResendVerifyEmail([FromBody] ResendVerificationEmailRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new ResendVerificationEmailCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);
@@ -116,8 +121,7 @@ public class AuthController(IMediator mediator,  IAuthCookieService cookieServic
 
     [HttpPost("forgot-password")]
     [EnableRateLimiting("auth-forgot-password")]
-    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new ForgotPasswordCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);

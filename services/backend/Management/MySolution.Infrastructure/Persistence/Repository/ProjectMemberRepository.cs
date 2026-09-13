@@ -15,14 +15,14 @@ public class ProjectMemberRepository (AppDbContext context, ILogger logger)
             .ToListAsync();
     }
 
-    public async Task<List<ProjectMember>> GetByProjectIdWithUserAsync(Guid projectId)
-    {
-        return await DbSet
-            .AsNoTracking()
-            .Include(x => x.User)
-            .Where(x => x.ProjectId == projectId)
-            .ToListAsync();
-    }
+    // public async Task<List<ProjectMember>> GetByProjectIdWithUserAsync(Guid projectId)
+    // {
+    //     return await DbSet
+    //         .AsNoTracking()
+    //         .Include(x => x.User)
+    //         .Where(x => x.ProjectId == projectId)
+    //         .ToListAsync();
+    // }
 
     public async Task<List<ProjectMember>> GetByProjectIdWithUserTrackingAsync(Guid projectId)
     {

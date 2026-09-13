@@ -32,15 +32,25 @@ public class GetProjectNamspacesHandler : IRequestHandler<GetProjectNamspacesQue
         try
         {
             //Check project is already exists
-            var isProject = await _unitOfWork.Project.ExistsAsync(request.ProjectId);
+            var isProject = await _unitOfWork.Project
+                .GetAll()
+                .AnyAsync(x => x.Id == request.ProjectId, cancellationToken);
+            
             if (!isProject)
             {
+                _logger.LogInformation("{FunctionName} Project with ID {ProjectId} not found.", functionName, request.ProjectId);
+                
                 response.ErrorMessage = "Project not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
             
-            var namespaces = await _unitOfWork.Namespace.GetByProjectIdAsync(request.ProjectId);
+            var namespaces = await _unitOfWork.Namespace
+                .GetAll()
+                .AsNoTracking()
+                .Where(x => x.ProjectId == request.ProjectId)
+                .OrderBy(x => x.Name)
+                .ToListAsync(cancellationToken);
 
             response.Data = new GetProjectNamespacesResult
             {
@@ -51,6 +61,7 @@ public class GetProjectNamspacesHandler : IRequestHandler<GetProjectNamspacesQue
                 }).ToList()
             };
 
+            _logger.LogInformation("{FunctionName} Successfully retrieved namespaces for project ID {ProjectId}.", functionName, request.ProjectId);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
@@ -45,10 +46,19 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
         try
         {
             // Find user by username
-            var user = await _unitOfWork.User.GetUserWithRolesAsync(payload.Username);
+            var user = await _unitOfWork.User
+                .GetAll()
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(x => x.Profile)
+                .Include(x => x.UserRoles)
+                .ThenInclude(x => x.Role)
+                .FirstOrDefaultAsync(x => x.Username == payload.Username, cancellationToken);
+            
             if (user == null)
             {
-                _logger.LogWarning("{FunctionName} User not found: {Username}", functionName, payload.Username);
+                _logger.LogInformation("{FunctionName} User not found: {Username}", functionName, payload.Username);
+                
                 response.ErrorMessage = "Username or Password is incorrect.";
                 response.WithStatus(HttpStatusCode.Unauthorized);
                 return response;
@@ -57,14 +67,18 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
             // Check account Active
             if (user.Status == UserStatus.NonActive)
             {
-                _logger.LogWarning("{FunctionName} User inactive: {Username}", functionName, payload.Username);
+                _logger.LogInformation("{FunctionName} User inactive: {Username}", functionName, payload.Username);
+                
                 response.ErrorMessage = "Account is not active.";
                 response.WithStatus(HttpStatusCode.Forbidden);
                 return response;
             }
+            
             // Check account is blocked
             if (user.Status == UserStatus.Blocked)
             {
+                _logger.LogInformation("{FunctionName} User blocked: {Username}", functionName, payload.Username);
+                
                 response.ErrorMessage = "Account is blocked.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -72,10 +86,10 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
 
             // Check Invalid
             var verify = _passwordHasher.VerifyPassword(payload.Password, user.PasswordHash);
-           
             if (!verify)
             {
-                _logger.LogWarning("{FunctionName} Invalid password: {Username}", functionName, payload.Username);
+                _logger.LogInformation("{FunctionName} Invalid password: {Username}", functionName, payload.Username);
+                
                 response.ErrorMessage = "Username or Password is incorrect.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -84,16 +98,15 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
             //Check IsEmailVerified
             if (!user.IsEmailVerified)
             {
-                _logger.LogWarning("{FunctionName} User not verified: {Username}", functionName, payload.Username);
+                _logger.LogInformation("{FunctionName} User not verified: {Username}", functionName, payload.Username);
+                
                 response.ErrorMessage = "User is not verified.";
                 response.Data = new LoginResult
                 {
                     Email = user.Email,
                     IsEmailVerified = false
                 };
-                
                 response.WithStatus(HttpStatusCode.BadRequest);
-                
                 return response;
             }
 
@@ -104,6 +117,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
             // Generate RefreshToken
             var refreshToken = _jwtService.GenerateRefreshToken();
             var tokenHash = _hashService.ComputeHash(refreshToken);
+            
             // Save RefreshToken to database
             await _unitOfWork.RefreshToken.Add(
                 new Domain.Entities.RefreshToken
@@ -129,14 +143,15 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResponse>
                 NeedCompleteProfile = !user.Profile.IsCompleted
             };
             
+            _logger.LogInformation("{FunctionName} User login successfully: {Username}", functionName, user.Username);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-            _logger.LogInformation("{FunctionName} User login successfully: {Username}", functionName, user.Username);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

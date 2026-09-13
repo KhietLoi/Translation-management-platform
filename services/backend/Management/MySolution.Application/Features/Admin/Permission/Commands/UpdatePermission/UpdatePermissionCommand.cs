@@ -7,12 +7,12 @@ namespace MySolution.Application.Features.Admin.Permission.Commands.UpdatePermis
 /// </summary>
 public class UpdatePermissionCommand : IRequest<UpdatePermissionResponse>
 {
+    
+    public Guid Id { get; set; }
+    public UpdatePermissionRequest Payload { get; set; }
     public UpdatePermissionCommand(Guid id, UpdatePermissionRequest payload)
     {
         Id = id;
         Payload = payload;
     }
-
-    public Guid Id { get; set; }
-    public UpdatePermissionRequest Payload { get; set; }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.MassTransit;
@@ -40,7 +41,10 @@ public class ResendSetupPasswordHandler : IRequestHandler<ResendSetupPasswordCom
 
         try
         {
-            var user = await _unitOfWork.User.GetByEmailAsync(request.Payload.Email);
+            var user = await _unitOfWork.User
+                .GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Email == request.Payload.Email, cancellationToken);
             if (user == null)
             {
                 response.ErrorMessage = "User not found.";
@@ -67,6 +71,7 @@ public class ResendSetupPasswordHandler : IRequestHandler<ResendSetupPasswordCom
                     Token = token
                 }, cancellationToken
             );
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

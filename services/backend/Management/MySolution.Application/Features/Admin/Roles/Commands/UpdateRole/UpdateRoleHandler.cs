@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
@@ -32,18 +33,28 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
         try
         {
             // Check if role exists
-            var role = await _unitOfWork.Role.GetByIdAsync(request.Id);
+            var role = await _unitOfWork.Role
+                .GetAll()
+                .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
+            
             if (role == null)
             {
+                _logger.LogInformation("{FunctionName} Role with ID {RoleId} not found.", functionName, request.Id);
+                
                 response.ErrorMessage = "Role not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
 
             // Check role name already exists
-            var existingRole = await _unitOfWork.Role.GetByNameAsync(payload.Name);
+            var existingRole = await _unitOfWork.Role
+                .GetAll()
+                .FirstOrDefaultAsync(r => r.Name == payload.Name, cancellationToken);
+       
             if (existingRole != null && existingRole.Id != role.Id)
             {
+                _logger.LogInformation("{FunctionName} Role name {RoleName} already exists.", functionName, payload.Name);
+                
                 response.ErrorMessage = "Role name already exists.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -52,7 +63,9 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
             // Update
             role.Name = payload.Name;
             role.Description = payload.Description;
+            
             await _unitOfWork.SaveAsync(cancellationToken);
+            
             response.Data = new UpdateRoleData
             {
                 RoleId = role.Id,
@@ -60,6 +73,8 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
                 RoleDescription = role.Description,
                 UpdatedAt = DateTime.UtcNow
             };
+            
+            _logger.LogInformation("{FunctionName} Role updated successfully.", functionName);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

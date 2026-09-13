@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -45,17 +46,29 @@ public class LogoutHandler : IRequestHandler<LogoutCommand, LogoutResponse>
             if (!string.IsNullOrWhiteSpace(jti) && _currentUser.ExpiredAt.HasValue)
             {
                 var ttl = _currentUser.ExpiredAt.Value - DateTime.UtcNow;
-                if (ttl > TimeSpan.Zero) await _tokenBlacklistService.BlacklistAsync(jti, ttl);
+                if (ttl > TimeSpan.Zero)
+                {
+                    await _tokenBlacklistService.BlacklistAsync(jti, ttl);
+                }
             }
 
             // Revoke all refresh tokens of the current user
-            await _unitOfWork.RefreshToken.RevokeByJtiAsync(jti);
-            // Save changes
+            var refreshToken = await _unitOfWork.RefreshToken
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Jti == jti && x.RevokedAt == null, cancellationToken);
+
+            if (refreshToken != null)
+            {
+                refreshToken.RevokedAt = DateTime.UtcNow;
+            }
+            
             await _unitOfWork.SaveAsync(cancellationToken);
+            _logger.LogInformation("{FunctionName} User {UserId} logged out successfully.", functionName, _currentUser.UserId);
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-            _logger.LogInformation("{FunctionName} User {UserId} logged out successfully.", functionName, _currentUser.UserId);
+           
         }
         catch (Exception ex)
         {

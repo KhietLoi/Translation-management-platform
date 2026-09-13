@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
@@ -27,9 +28,14 @@ public class DeleteRoleHandler : IRequestHandler<DeleteRoleCommand, DeleteRoleRe
 
         try
         {
-            var role = await _unitOfWork.Role.GetByIdAsync(request.Id);
+            var role = await _unitOfWork.Role
+                .GetAll()
+                .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
+            
             if (role == null)
             {
+                _logger.LogInformation("{FunctionName} Role with ID {RoleId} not found.", functionName, request.Id);
+                
                 response.ErrorMessage = "Role not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -37,12 +43,15 @@ public class DeleteRoleHandler : IRequestHandler<DeleteRoleCommand, DeleteRoleRe
 
             _unitOfWork.Role.Delete(role);
             await _unitOfWork.SaveAsync(cancellationToken);
+            
             response.Data = new DeleteRoleData
             {
                 Id = role.Id,
                 Name = role.Name,
                 Description = role.Description
             };
+            
+            _logger.LogInformation("{FunctionName} Role with ID {RoleId} deleted successfully.", functionName, request.Id);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

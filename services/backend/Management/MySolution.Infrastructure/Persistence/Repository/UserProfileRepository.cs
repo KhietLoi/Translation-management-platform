@@ -7,10 +7,10 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 
 public class UserProfileRepository (AppDbContext context, ILogger logger) : Repository<UserProfile>(context, logger), IUserProfileRepository
 {
-    public async Task<UserProfile?> GetByIdAsync(Guid userId)
-    {
-        return await DbSet.FindAsync(userId);
-    }
+    // public async Task<UserProfile?> GetByIdAsync(Guid userId)
+    // {
+    //     return await DbSet.FindAsync(userId);
+    // }
 
     public async Task<bool> IsPhoneNumberExistsAsync(string phoneNumber, Guid? excludeUserId = null)
     {

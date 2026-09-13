@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using Shared.Extensions;
@@ -30,7 +31,11 @@ public class GetProfileByIdHandler : IRequestHandler<GetProfileByIdQuery, GetPro
 
         try
         {
-            var userProfile = await _unitOfWork.UserProfile.GetByIdAsync(request.Id);
+            var userProfile = await _unitOfWork.UserProfile
+                .GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(up => up.UserId == request.Id, cancellationToken);
+            
             if (userProfile == null)
             {
                 response.ErrorMessage = "Profile not found";
@@ -47,6 +52,7 @@ public class GetProfileByIdHandler : IRequestHandler<GetProfileByIdQuery, GetPro
                 AvatarBlobName = userProfile.AvatarBlobName,
                 Address = userProfile.Address
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

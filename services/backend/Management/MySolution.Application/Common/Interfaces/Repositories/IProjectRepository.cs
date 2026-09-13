@@ -8,7 +8,5 @@ public interface IProjectRepository : IRepository<Project>
     Task <bool> ExistsAsync(Guid id);
     Task<Project?> GetByNameAsync(string name);
     Task<bool> ExistsByNameAsync(string name, Guid? excludeProjectId = null);
-    Task<Project?> GetDetailAsync(Guid id);
-
     Task<List<Guid>> GetAccessibleProjectIdsAsync(Guid userId, CancellationToken cancellationToken);
 }

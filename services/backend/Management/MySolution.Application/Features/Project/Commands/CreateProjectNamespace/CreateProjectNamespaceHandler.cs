@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
@@ -32,9 +33,14 @@ public class CreateProjectNamespaceHandler : IRequestHandler<CreateProjectNamesp
         try
         {
             //Check project
-            var project =  await  _unitOfWork.Project.GetByIdAsync(request.ProjectId);
+            var project =  await  _unitOfWork.Project
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == request.ProjectId, cancellationToken);
+            
             if (project == null)
             {
+                _logger.LogInformation("{FunctionName} Project not found. ProjectId: {ProjectId}", functionName, request.ProjectId);
+                
                 response.ErrorMessage = "Project not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -44,6 +50,9 @@ public class CreateProjectNamespaceHandler : IRequestHandler<CreateProjectNamesp
             var isNameExist = await _unitOfWork.Namespace.ExistsAsync(project.Id, payload.Name);
             if (isNameExist)
             {
+                _logger.LogInformation("{FunctionName} Project namespace already exists. ProjectId: {ProjectId}," +
+                                       " Namespace: {Namespace}", functionName, request.ProjectId, payload.Name);
+                
                 response.ErrorMessage = "Project namespace already exists";
                 response.WithStatus(HttpStatusCode.Conflict);
                 return response;
@@ -56,6 +65,7 @@ public class CreateProjectNamespaceHandler : IRequestHandler<CreateProjectNamesp
                 Name = payload.Name,
                 CreatedAt = DateTime.UtcNow
             };
+            
             await _unitOfWork.Namespace.Add(entity);
             await _unitOfWork.SaveAsync(cancellationToken);
 
@@ -66,7 +76,9 @@ public class CreateProjectNamespaceHandler : IRequestHandler<CreateProjectNamesp
                 Name = entity.Name,
                 CreatedAt = entity.CreatedAt
             };
-            
+
+            _logger.LogInformation("{FunctionName} Project namespace created successfully. ProjectId: {ProjectId}," +
+                                   " NamespaceId: {NamespaceId}", functionName, request.ProjectId, entity.Id);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.Created);

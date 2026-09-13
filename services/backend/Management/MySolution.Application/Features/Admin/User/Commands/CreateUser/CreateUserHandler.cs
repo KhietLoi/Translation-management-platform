@@ -48,7 +48,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
 
         try
         {
-            if (await _unitOfWork.User.ExistsByEmailOrUsernameAsync(payload.Email, payload.Username))
+            if (await _unitOfWork.User.ExistsByEmailOrUsernameAsync(payload.Email, payload.Username, cancellationToken: cancellationToken))
             {
                 response.ErrorMessage = "Username or Email already exists.";
                 response.WithStatus(HttpStatusCode.BadRequest);
@@ -70,6 +70,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
             //Create User
             var temporaryPassword = Guid.CreateVersion7().ToString();
             var passwordHash = _passwordHasher.HashPassword(temporaryPassword);
+            
             var user = new Domain.Entities.User
             {
                 Id = Guid.CreateVersion7(),
@@ -79,9 +80,11 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
                 IsEmailVerified = true,
                 Status = UserStatus.NonActive,
                 CreatedAt = DateTime.UtcNow
-            };
+            };  
+            
             //Add User
             await _unitOfWork.User.Add(user);
+            
             //Asign Roles
             foreach (var role in roles)
                 user.UserRoles.Add(new UserRole
@@ -89,16 +92,17 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
                     UserId = user.Id,
                     RoleId = role.Id
                 });
+            
             //Create empty user profile.
             user.Profile = new UserProfile
             {
                 UserId = user.Id,
                 CreatedAt = DateTime.UtcNow
             };
+            
             await _unitOfWork.SaveAsync(cancellationToken);
 
-            var token = _passwordResetTokenService.GenerateResetToken(user.Id, user.Email, user.Username,
-                user.PasswordVersion);
+            var token = _passwordResetTokenService.GenerateResetToken(user.Id, user.Email, user.Username, user.PasswordVersion);
 
             await _messageSender.SendMessage<SendSetUpPasswordEmailEvent>(
                 new SendSetUpPasswordEmailEvent
@@ -117,6 +121,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
                 IsEmailVerified = true,
                 Status = UserStatus.NonActive
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.Created);

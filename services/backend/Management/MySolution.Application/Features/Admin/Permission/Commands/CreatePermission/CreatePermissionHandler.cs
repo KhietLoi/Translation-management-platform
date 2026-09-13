@@ -36,6 +36,8 @@ public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, 
             // Validate if the permission code already exists
             if (await _unitOfWork.Permission.ExistsByCodeAsync(payload.Code))
             {
+                _logger.LogInformation("{FunctionName} Permission code already exists: {PermissionCode}", functionName, payload.Code);
+                
                 response.ErrorMessage = "Permission code already exists";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -53,6 +55,7 @@ public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, 
             //Save
             await _unitOfWork.Permission.Add(permission);
             await _unitOfWork.SaveAsync(cancellationToken);
+                
             //Response
             response.Data = new CreatePermissionData
             {
@@ -60,6 +63,8 @@ public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, 
                 Description = permission.Description,
                 CreatedAt = permission.CreatedAt
             };
+            
+            _logger.LogInformation("{FunctionName} Permission created successfully with code: {PermissionCode}", functionName, permission.Code);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.Created);

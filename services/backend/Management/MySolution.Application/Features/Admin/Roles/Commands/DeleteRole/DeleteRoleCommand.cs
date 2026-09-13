@@ -7,10 +7,9 @@ namespace MySolution.Application.Features.Admin.Roles.Commands.DeleteRole;
 /// </summary>
 public class DeleteRoleCommand : IRequest<DeleteRoleResponse>
 {
+    public Guid Id { get; set; }
     public DeleteRoleCommand(Guid id)
     {
         Id = id;
     }
-
-    public Guid Id { get; set; }
 }

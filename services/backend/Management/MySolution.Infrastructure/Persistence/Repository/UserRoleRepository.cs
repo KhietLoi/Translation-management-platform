@@ -22,13 +22,13 @@ public class UserRoleRepository(AppDbContext context, ILogger logger) : Reposito
         return await DbSet.AnyAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
     }
 
-    public async Task<List<UserRole>> GetByUserIdAsync(Guid userId)
-    {
-        return await DbSet.Where(ur => ur.UserId == userId).ToListAsync();
-    }
+    // public async Task<List<UserRole>> GetByUserIdAsync(Guid userId)
+    // {
+    //     return await DbSet.Where(ur => ur.UserId == userId).ToListAsync();
+    // }
 
-    public async Task<List<UserRole>> GetByUserIdWithRoleAsync(Guid userId)
-    {
-        return await DbSet.Where(ur => ur.UserId == userId).Include(ur => ur.Role).ToListAsync();
-    }
+    // public async Task<List<UserRole>> GetByUserIdWithRoleAsync(Guid userId)
+    // {
+    //     return await DbSet.Where(ur => ur.UserId == userId).Include(ur => ur.Role).ToListAsync();
+    // }
 }

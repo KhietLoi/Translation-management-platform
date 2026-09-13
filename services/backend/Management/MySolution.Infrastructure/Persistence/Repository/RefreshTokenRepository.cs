@@ -59,13 +59,13 @@ public class RefreshTokenRepository(AppDbContext context, ILogger logger)
                 )).ExecuteDeleteAsync();
     }
 
-    public async Task RevokeByJtiAsync(string jti)
-    {
-        var refreshToken = await DbSet.FirstOrDefaultAsync(x => x.Jti == jti && x.RevokedAt == null);
-        if (refreshToken != null)
-        {
-            refreshToken.RevokedAt = DateTime.UtcNow;
-            await Context.SaveChangesAsync();
-        }
-    }
+    // public async Task RevokeByJtiAsync(string jti)
+    // {
+    //     var refreshToken = await DbSet.FirstOrDefaultAsync(x => x.Jti == jti && x.RevokedAt == null);
+    //     if (refreshToken != null)
+    //     {
+    //         refreshToken.RevokedAt = DateTime.UtcNow;
+    //         await Context.SaveChangesAsync();
+    //     }
+    // }
 }

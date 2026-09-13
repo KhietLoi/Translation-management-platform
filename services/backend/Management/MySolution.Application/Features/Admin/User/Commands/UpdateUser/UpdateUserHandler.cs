@@ -41,7 +41,15 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
 
         try
         {
-            var user = await _unitOfWork.User.GetUserWithRolesAsync(request.Id);
+            var user = await _unitOfWork.User
+                .GetAll()
+                .AsSplitQuery()
+                .Include(x => x.UserRoles)
+                    .ThenInclude(x => x.Role)
+                    .ThenInclude(x => x.RolePermissions)
+                    .ThenInclude(x => x.Permission)
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+            
             if (user == null)
             {
                 response.ErrorMessage = "User not found.";
@@ -49,7 +57,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
                 return response;
             }
 
-            if (await _unitOfWork.User.ExistsByEmailOrUsernameAsync(payload.Email, payload.Username, request.Id))
+            if (await _unitOfWork.User.ExistsByEmailOrUsernameAsync(payload.Email, payload.Username, request.Id, cancellationToken))
             {
                 response.ErrorMessage = "Username or email already exists.";
                 response.WithStatus(HttpStatusCode.BadRequest);
@@ -70,16 +78,19 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
             user.Email = payload.Email;
             user.Status = payload.Status;
             user.UserRoles.Clear();
+
             foreach (var role in roles)
+            {
                 user.UserRoles.Add(new UserRole
                 {
                     UserId = user.Id,
                     RoleId = role.Id
                 });
-
+            }
+            
             await _unitOfWork.SaveAsync(cancellationToken);
-            // Delete Role:
             await _permissionCacheService.RemoveAsync(user.Id);
+            
             response.Data = new UpdateUserData
             {
                 Id = user.Id,
@@ -87,6 +98,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
                 Email = user.Email,
                 Status = user.Status,
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -30,13 +31,17 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
         var functionName = $"{nameof(VerifyEmailHandler)} =>";
         _logger.LogInformation(functionName);
         var response = new VerifyEmailResponse();
+        var payload = _emailVerificationTokenService.ValidateToken(request.Token);
 
         try
         {
-            var payload = _emailVerificationTokenService.ValidateToken(request.Token);
-            var user = await _unitOfWork.User.GetByIdAsync(payload.UserId);
+            var user = await _unitOfWork.User
+                .GetAll()
+                .FirstOrDefaultAsync(u => u.Id == payload.UserId, cancellationToken);
             if (user == null)
             {
+                _logger.LogInformation("{FunctionName} User not found for userId: {UserId}", functionName, payload.UserId);
+                
                 response.ErrorMessage = "User not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -44,6 +49,8 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
             
             if (payload.ExpiredAt < DateTime.UtcNow)
             {
+                _logger.LogInformation("{FunctionName} Verification token is expired for userId: {UserId}", functionName, payload.UserId);
+                
                 response.ErrorMessage = "Verification token is expired.";
                 response.Data = new VerifyEmailData
                 {
@@ -55,12 +62,13 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
 
             if (user.IsEmailVerified)
             {
+                _logger.LogInformation("{FunctionName} Email is already verified for userId: {UserId}", functionName, payload.UserId);
+                
                 response.ErrorMessage = "Email is already verified.";
                 response.Data = new VerifyEmailData
                 {
                     Email = user.Email
                 }; 
-                
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
@@ -72,11 +80,10 @@ public class VerifyEmailHandler : IRequestHandler<VerifyEmailCommand, VerifyEmai
             {
                 Email = user.Email
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
-            
-            return response;
         }
         catch (Exception ex)
         {

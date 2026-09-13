@@ -12,10 +12,10 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 /// <param name="logger"></param>
 public class RoleRepository(AppDbContext context, ILogger logger) : Repository<Role>(context, logger), IRoleRepository
 {
-    public async Task<Role?> GetByIdAsync(Guid id)
-    {
-        return await DbSet.FindAsync(id);
-    }
+    // public async Task<Role?> GetByIdAsync(Guid id)
+    // {
+    //     return await DbSet.FindAsync(id);
+    // }
 
     public async Task<Role?> GetByNameAsync(string name)
     {
@@ -29,15 +29,15 @@ public class RoleRepository(AppDbContext context, ILogger logger) : Repository<R
         return await DbSet.FirstOrDefaultAsync(x => x.Name == name) != null;
     }
 
-    public async Task<List<Permission>> GetPermissionsAsync(Guid roleId)
-    {
-        return await Context.RolePermissions
-            .AsNoTracking()
-            .Where(x => x.RoleId == roleId)
-            .Select(x => x.Permission)
-            .Distinct()
-            .ToListAsync();
-    }
+    // public async Task<List<Permission>> GetPermissionsAsync(Guid roleId)
+    // {
+    //     return await Context.RolePermissions
+    //         .AsNoTracking()
+    //         .Where(x => x.RoleId == roleId)
+    //         .Select(x => x.Permission)
+    //         .Distinct()
+    //         .ToListAsync();
+    // }
 
     public async Task<List<Role>> GetByIdsAsync(List<Guid> ids)
     {

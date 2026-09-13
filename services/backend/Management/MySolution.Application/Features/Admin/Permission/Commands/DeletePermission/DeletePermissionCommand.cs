@@ -7,10 +7,9 @@ namespace MySolution.Application.Features.Admin.Permission.Commands.DeletePermis
 /// </summary>
 public class DeletePermissionCommand : IRequest<DeletePermissionResponse>
 {
+    public Guid Id { get; }
     public DeletePermissionCommand(Guid id)
     {
         Id = id;
     }
-
-    public Guid Id { get; }
 }

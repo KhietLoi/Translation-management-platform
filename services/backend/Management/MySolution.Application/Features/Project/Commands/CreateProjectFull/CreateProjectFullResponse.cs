@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.Project.Commands.CreateProjectFull;
 
 public class CreateProjectFullResponse : BaseResponse <CreateProjectFullData>
 {
-
 }
 
 public class CreateProjectFullData

@@ -42,6 +42,7 @@ public class UserController(IMediator mediator) : Controller
     }
     
     [HttpPut("{id:guid}")]
+    [Permission(PermissionConstants.User.Update)]
     public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new UpdateUserCommand(id, request), cancellationToken);
@@ -49,6 +50,7 @@ public class UserController(IMediator mediator) : Controller
     }
     
     [HttpDelete("{id:guid}")]
+    [Permission(PermissionConstants.User.Delete)]
     public async Task<IActionResult> DeleteUser(Guid id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new DeleteUserCommand(id), cancellationToken);
@@ -64,6 +66,7 @@ public class UserController(IMediator mediator) : Controller
     }
     
     [HttpPost("resend-setup-password")]
+    [Permission(PermissionConstants.User.Update)]
     public async Task<IActionResult> ResendSetupPassword([FromBody] ResendSetupPasswordRequest request , CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new ResendSetupPasswordCommand(request), cancellationToken);

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using Shared.Extensions;
@@ -31,13 +32,18 @@ public class UpdateProfileHandler : IRequestHandler<UpdateProfileCommand, Update
 
         try
         {
-            var userProfile = await _unitOfWork.UserProfile.GetByIdAsync(request.Id);
+            var userProfile = await _unitOfWork.UserProfile
+                .GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(up => up.UserId == request.Id, cancellationToken);
+            
             if (userProfile is null)
             {
                 response.ErrorMessage = "Profile not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
+            
             //Check phone:
             var existingPhoneNumber = await _unitOfWork.UserProfile.IsPhoneNumberExistsAsync(payload.PhoneNumber, request.Id);
             if (existingPhoneNumber)
@@ -53,8 +59,9 @@ public class UpdateProfileHandler : IRequestHandler<UpdateProfileCommand, Update
             userProfile.BirthDate = payload.BirthDate;
             userProfile.UpdatedAt = DateTime.UtcNow;
             userProfile.Address = payload.Address;
-            
+
             await _unitOfWork.SaveAsync(cancellationToken);
+                
             response.Data = new UpdateData
             {
                 UserId = request.Id,
