@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using Shared.Extensions;
@@ -30,9 +31,14 @@ public class DeleteProjectHandler : IRequestHandler<DeleteProjectCommand, Delete
 
         try
         {
-            var project = await _unitOfWork.Project.GetByIdAsync(request.ProjectId);
+            var project = await _unitOfWork.Project
+                .GetAll()
+                .FirstOrDefaultAsync(p => p.Id == request.ProjectId, cancellationToken);
+            
             if (project == null)
             {
+                _logger.LogInformation("{FunctionName} Project with ID {ProjectId} not found.", functionName, request.ProjectId);
+                
                 response.ErrorMessage = "Project not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -40,6 +46,8 @@ public class DeleteProjectHandler : IRequestHandler<DeleteProjectCommand, Delete
 
             if (project.IsActive)
             {
+                _logger.LogInformation("{FunctionName} Project with ID {ProjectId} is active and cannot be deleted.", functionName, request.ProjectId);
+                
                 response.ErrorMessage = "Project is already active";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -47,6 +55,7 @@ public class DeleteProjectHandler : IRequestHandler<DeleteProjectCommand, Delete
             
             _unitOfWork.Project.Delete(project);
             await _unitOfWork.SaveAsync(cancellationToken);
+            
             response.Data = new DeleteProjectData
             {
                 ProjectId = project.Id,
@@ -54,6 +63,8 @@ public class DeleteProjectHandler : IRequestHandler<DeleteProjectCommand, Delete
                 Description = project.Description,
                 IsActive = project.IsActive
             };
+            
+            _logger.LogInformation("{FunctionName} Project with ID {ProjectId} deleted successfully.", functionName, request.ProjectId);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

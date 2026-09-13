@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
@@ -32,9 +33,14 @@ public class UpdateProjectNamespaceHandler : IRequestHandler<UpdateProjectNamesp
         try
         {
             
-            var projectnamespace = await _unitOfWork.Namespace.GetByIdAsync(request.Id);
+            var projectnamespace = await _unitOfWork.Namespace
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+            
             if (projectnamespace == null)
             {
+                _logger.LogInformation("{FunctionName} Namespace not found for Id: {Id}", functionName, request.Id);
+                
                 response.ErrorMessage = "Namespace not found";
                 response.StatusCode  = HttpStatusCode.NotFound;
                 return response;
@@ -54,16 +60,6 @@ public class UpdateProjectNamespaceHandler : IRequestHandler<UpdateProjectNamesp
             projectnamespace.ProjectId = payload.ProjectId;
             projectnamespace.UpdatedAt = DateTime.UtcNow;
             
-            _logger.LogInformation(
-                "Loitest: CreatedAt: {CreatedAt} - Kind: {Kind}",
-                projectnamespace.CreatedAt,
-                projectnamespace.CreatedAt.Kind);
-
-            _logger.LogInformation(
-                "Loitest: UpdatedAt: {UpdatedAt} - Kind: {Kind}",
-                projectnamespace.UpdatedAt,
-                projectnamespace.UpdatedAt?.Kind);
-            
             _unitOfWork.Namespace.Update(projectnamespace);
             await _unitOfWork.SaveAsync(cancellationToken);
 
@@ -76,6 +72,7 @@ public class UpdateProjectNamespaceHandler : IRequestHandler<UpdateProjectNamesp
                 UpdatedAt = DateTime.UtcNow
             };
             
+            _logger.LogInformation("{FunctionName} Namespace updated successfully for Id: {Id}", functionName, request.Id);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 namespace MySolution.Application.Features.Project.Queries.GetProjectById;
@@ -29,9 +30,21 @@ public class GetProjectByIdHandler : IRequestHandler<GetProjectByIdQuery, GetPro
 
         try
         {
-            var project = await _unitOfWork.Project.GetDetailAsync(request.ProjectId);
+            var project = await _unitOfWork.Project
+                .GetAll()
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(x => x.ProjectLanguages)
+                    .ThenInclude(x => x.Language)
+                .Include(x => x.ProjectMembers)
+                    .ThenInclude(x => x.User)
+                .Include(x => x.ProjectNamespaces)
+                .FirstOrDefaultAsync(x => x.Id == request.ProjectId, cancellationToken);
+                
             if (project == null)
             {
+                _logger.LogInformation("{FunctionName} Project with ID {ProjectId} not found.", functionName, request.ProjectId);
+                
                 response.ErrorMessage = "Project not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -49,6 +62,7 @@ public class GetProjectByIdHandler : IRequestHandler<GetProjectByIdQuery, GetPro
                 MemberCount = project.ProjectMembers.Count,
                 NamespaceCount = project.ProjectNamespaces.Count
             };
+            _logger.LogInformation("{FunctionName} Project with ID {ProjectId} found.", functionName, request.ProjectId);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

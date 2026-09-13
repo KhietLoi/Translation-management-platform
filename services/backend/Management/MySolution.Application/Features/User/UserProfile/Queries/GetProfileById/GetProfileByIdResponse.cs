@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.User.UserProfile.Queries.GetProfileByI
 
 public class GetProfileByIdResponse : BaseResponse <GetProfileByIdData>
 {
-
 }
 
 public class GetProfileByIdData

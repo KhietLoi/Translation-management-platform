@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
@@ -44,14 +45,21 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordCommand, ResetP
             var tokenPayload = _tokenService.ValidateToken(payload.Token);
             if (tokenPayload.ExpiredAt < DateTime.UtcNow)
             {
+                _logger.LogInformation($"{functionName} Token expired. UserId: {tokenPayload.UserId}, ExpiredAt: {tokenPayload.ExpiredAt}");
+                
                 response.ErrorMessage = "Token expired.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
 
-            var user = _unitOfWork.User.GetByIdAsync(tokenPayload.UserId).Result;
+            var user = await _unitOfWork.User
+                .GetAll()
+                .FirstOrDefaultAsync(u => u.Id == tokenPayload.UserId, cancellationToken);
+            
             if (user == null)
             {
+                _logger.LogInformation($"{functionName} User not found. UserId: {tokenPayload.UserId}");
+                
                 response.ErrorMessage = "User not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -60,6 +68,8 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordCommand, ResetP
             //Check passwordversion:
             if (tokenPayload.PasswordVersion != user.PasswordVersion)
             {
+                _logger.LogInformation($"{functionName} Token is invalid. UserId: {tokenPayload.UserId}, TokenPasswordVersion: {tokenPayload.PasswordVersion}, UserPasswordVersion: {user.PasswordVersion}");
+                
                 response.ErrorMessage = "Token is invalid.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -71,15 +81,19 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordCommand, ResetP
             {
                 user.Status = UserStatus.Active;
             }
+            
             user.PasswordVersion++;
             await _unitOfWork.SaveAsync(cancellationToken);
+                
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
         }
         catch (Exception exception)
         {
-            exception.LogError(_logger, functionName);
+            _logger.LogError(exception, $"{functionName} An unexpected error occurred.");
+            
+            response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
 

@@ -7,10 +7,9 @@ namespace MySolution.Application.Features.Admin.Permission.Commands.CreatePermis
 /// </summary>
 public class CreatePermissionCommand : IRequest<CreatePermissionResponse>
 {
+    public CreatePermissionRequest Payload { get; set; }
     public CreatePermissionCommand(CreatePermissionRequest payload)
     {
         Payload = payload;
     }
-
-    public CreatePermissionRequest Payload { get; set; }
 }

@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
 namespace MySolution.Application.Features.User.UserProfile.Commands.UploadAvatar;
 
 public class UploadAvatarHandler : IRequestHandler<UploadAvatarCommand, UploadAvatarResponse>
@@ -35,7 +35,10 @@ public class UploadAvatarHandler : IRequestHandler<UploadAvatarCommand, UploadAv
 
         try
         {
-            var profile =  await _unitOfWork.UserProfile.GetByIdAsync(request.UserId);
+            var profile =  await _unitOfWork.UserProfile
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.UserId == request.UserId, cancellationToken);
+            
             if (profile == null)
             {
                 response.ErrorMessage = "Profile not found";

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
@@ -54,7 +55,13 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
                 return response;
             }
 
-            var user = await _unitOfWork.User.GetUserWithRolesAsync(refreshToken.UserId);
+            var user = await _unitOfWork.User
+                .GetAll()
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(x => x.UserRoles)
+                .ThenInclude(x => x.Role)
+                .FirstOrDefaultAsync(x => x.Id == refreshToken.UserId, cancellationToken);
             if (user is null)
             {
                 response.ErrorMessage = "User not found.";

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 namespace MySolution.Application.Features.Project.Commands.CreateProjectFull;
@@ -30,11 +31,13 @@ public class CreateProjectFullHandler : IRequestHandler<CreateProjectFullCommand
 
         try
         {
-            //1. Create Project.
-            //1.1 Check project name already exists
+            
+            // Check project name already exists
             var isNameExists = await _unitOfWork.Project.ExistsByNameAsync(payload.Name);
             if (isNameExists)
             {
+                _logger.LogInformation("{FunctionName} Project with name {ProjectName} already exists", functionName, payload.Name);
+                
                 response.ErrorMessage = $"Project with name {payload.Name} already exists";
                 response.StatusCode = HttpStatusCode.BadRequest;
                 return response;
@@ -50,10 +53,13 @@ public class CreateProjectFullHandler : IRequestHandler<CreateProjectFullCommand
             
             await _unitOfWork.Project.Add(project);
             
-            //2. Add Languages
-            //2.1 Check Language Ids are valid
+            // Check Language Ids are valid
             var languageIds = payload.LanguageIds.Distinct().ToList();
-            var existingLanguages = await _unitOfWork.Language.GetByIdsAsync(languageIds);
+            var existingLanguages = await _unitOfWork.Language
+                .GetAll()
+                .Where(x => languageIds.Contains(x.Id))
+                .ToListAsync(cancellationToken);
+            
             var existingLanguageIds = existingLanguages.Select(x => x.Id).ToHashSet();
             var invalidLanguageIds = languageIds.Except(existingLanguageIds).ToList();
             if (invalidLanguageIds.Any())
@@ -73,12 +79,13 @@ public class CreateProjectFullHandler : IRequestHandler<CreateProjectFullCommand
                             CreatedAt = DateTime.UtcNow
                         })
                     .ToList();
+            
             if (projectLanguages.Count > 0)
             {
                 await _unitOfWork.ProjectLanguage.AddRange(projectLanguages);
             }
           
-            //3. Add members
+            // Add members
             var projectMembers =
                 payload.MemberIds
                     .Distinct()
@@ -90,11 +97,12 @@ public class CreateProjectFullHandler : IRequestHandler<CreateProjectFullCommand
                             CreatedAt = DateTime.UtcNow
                         })
                     .ToList();
+            
             if (projectMembers.Count > 0)
             {
                 await _unitOfWork.ProjectMember.AddRange(projectMembers);
             }
-            //4. Add Namespaces (if any)
+            // Add Namespaces
             var namespaces =
                 payload.Namespaces
                     .Where(x => !string.IsNullOrWhiteSpace(x.Name))
@@ -112,13 +120,16 @@ public class CreateProjectFullHandler : IRequestHandler<CreateProjectFullCommand
             {
                 await _unitOfWork.Namespace.AddRange(namespaces);
             }
-            
+
             await _unitOfWork.SaveAsync(cancellationToken);
+
             response.Data = new CreateProjectFullData
             {
                 ProjectId = project.Id,
                 ProjectName = project.Name,
             };
+            
+            _logger.LogInformation("{FunctionName} Project {ProjectName} created successfully with Id {ProjectId}", functionName, project.Name, project.Id);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

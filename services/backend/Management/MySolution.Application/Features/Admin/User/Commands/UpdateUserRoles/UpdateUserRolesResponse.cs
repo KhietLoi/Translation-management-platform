@@ -2,8 +2,7 @@
 
 namespace MySolution.Application.Features.Admin.User.Commands.UpdateUserRoles;
 
-public class UpdateUserRolesResponse
-    : BaseResponse<UpdateUserRolesData>
+public class UpdateUserRolesResponse : BaseResponse<UpdateUserRolesData>
 {
 }
 

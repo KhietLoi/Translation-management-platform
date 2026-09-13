@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.MassTransit;
@@ -35,7 +36,10 @@ public class ResendVerificationEmailHandler : IRequestHandler<ResendVerification
 
         try
         {
-            var user = await _unitOfWork.User.GetByEmailAsync(request.Payload.Email);
+            var user = await _unitOfWork.User
+                .GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Email == request.Payload.Email, cancellationToken);
             if (user is null)
             {
                 response.ErrorMessage = "User not found.";

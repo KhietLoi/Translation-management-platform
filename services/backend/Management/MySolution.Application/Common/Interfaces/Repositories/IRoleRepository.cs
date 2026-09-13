@@ -9,7 +9,7 @@ public interface IRoleRepository : IRepository<Role>
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<Role?> GetByIdAsync(Guid id);
+  //  Task<Role?> GetByIdAsync(Guid id);
 
     /// <summary>
     ///     Get role by name
@@ -30,7 +30,7 @@ public interface IRoleRepository : IRepository<Role>
     /// </summary>
     /// <param name="roleId"></param>
     /// <returns></returns>
-    Task<List<Permission>> GetPermissionsAsync(Guid roleId);
+    // Task<List<Permission>> GetPermissionsAsync(Guid roleId);
 
     /// <summary>
     ///     Get roles by a list of ids

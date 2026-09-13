@@ -30,8 +30,7 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
         _permissionCacheService = permissionCacheService;
     }
 
-    public async Task<UpdateRolePermissionsResponse> Handle(UpdateRolePermissionsCommand request,
-        CancellationToken cancellationToken)
+    public async Task<UpdateRolePermissionsResponse> Handle(UpdateRolePermissionsCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
         var functionName = $"{nameof(UpdateRolePermissionsHandler)}";
@@ -41,36 +40,40 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
         try
         {
             // Check role exists
-            var role = await _unitOfWork.Role.GetByIdAsync(payload.RoleId);
+            var role = await _unitOfWork.Role
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == payload.RoleId, cancellationToken);
+            
             if (role is null)
             {
+                _logger.LogInformation("{FunctionName} Role with ID {RoleId} not found.", functionName, payload.RoleId);
                 response.ErrorMessage = "Role not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
-
                 return response;
             }
 
-            var currentRolePermissions = await _unitOfWork.RolePermission.GetByRoleIdAsync(payload.RoleId);
+            var currentRolePermissions = await _unitOfWork.RolePermission
+                .GetAll()
+                .Where(x => x.RoleId == payload.RoleId)
+                .ToListAsync(cancellationToken);
+            
             var currentPermissionIds = currentRolePermissions.Select(x => x.PermissionId).ToHashSet();
             var newPermissionIds = payload.PermissionIds.Distinct().ToHashSet();
-            // Permissions need add
-            var permissionIdsToAdd =
-                newPermissionIds
-                    .Except(currentPermissionIds)
-                    .ToList();
+            var permissionIdsToAdd = newPermissionIds.Except(currentPermissionIds).ToList(); // Permissions need add
 
             // Permissions need remove
-            var rolePermissionsToRemove =
-                currentRolePermissions
-                    .Where(x =>
-                        !newPermissionIds.Contains(
-                            x.PermissionId))
-                    .ToList();
+            var rolePermissionsToRemove = currentRolePermissions
+                .Where(x => !newPermissionIds.Contains(x.PermissionId))
+                .ToList();
 
             // Validate permissions exist
             if (permissionIdsToAdd.Count > 0)
             {
-                var permissions = await _unitOfWork.Permission.GetByIdsAsync(permissionIdsToAdd);
+                var permissions = await _unitOfWork.Permission
+                    .GetAll()
+                    .Where(x => permissionIdsToAdd.Contains(x.Id))
+                    .ToListAsync(cancellationToken);
+                
                 var foundPermissionIds = permissions.Select(x => x.Id).ToHashSet();
                 var invalidPermissions = permissionIdsToAdd.Except(foundPermissionIds).ToList();
                 if (invalidPermissions.Count > 0)
@@ -89,14 +92,16 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
                                 PermissionId = x.Id
                             })
                         .ToList();
+                
                 await _unitOfWork.RolePermission.AddRange(entities);
             }
 
             // Remove permissions
             if (rolePermissionsToRemove.Count > 0)
-                _unitOfWork.RolePermission
-                    .DeleteRange(rolePermissionsToRemove);
-
+            {
+                _unitOfWork.RolePermission.DeleteRange(rolePermissionsToRemove);
+            }
+            
             await _unitOfWork.SaveAsync(cancellationToken);
             
             //Update Redis:
@@ -111,12 +116,15 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
             {
                 await _permissionCacheService.RemoveAsync(userId);
             }
-            var updatedPermissions =
-                await _unitOfWork.RolePermission
-                    .GetByRoleIdWithPermissionAsync(
-                        payload.RoleId);
-            response.Data =
-                new UpdateRolePermissionsData
+           
+            var updatedPermissions = await _unitOfWork.RolePermission
+                .GetAll()
+                .AsNoTracking()
+                .Where(x => x.RoleId == payload.RoleId)
+                .Include(x => x.Permission)
+                .ToListAsync(cancellationToken);
+            
+            response.Data = new UpdateRolePermissionsData
                 {
                     RoleId = role.Id,
                     RoleName = role.Name,
@@ -126,12 +134,14 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
                             .Select(x =>
                                 new PermissionData
                                 {
-                                    PermissionId = x.Permission!.Id,
+                                    PermissionId = x.Permission.Id,
                                     PermissionCode = x.Permission.Code,
                                     PermissionDescription = x.Permission.Description
                                 })
                             .ToList()
                 };
+            
+            _logger.LogInformation("{FunctionName} Successfully updated role permissions for Role ID {RoleId}.", functionName, payload.RoleId);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

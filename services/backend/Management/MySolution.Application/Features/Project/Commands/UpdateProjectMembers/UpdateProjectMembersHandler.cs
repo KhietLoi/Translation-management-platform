@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
@@ -31,37 +32,49 @@ public class UpdateProjectMembersHandler : IRequestHandler<UpdateProjectMembersC
 
         try
         {
-            var project = await _unitOfWork.Project.GetByIdAsync(request.ProjectId);
+            var project = await _unitOfWork.Project
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == request.ProjectId, cancellationToken);
             if (project == null) 
             {
+                _logger.LogInformation("{FunctionName} Project not found. ProjectId: {ProjectId}", functionName, request.ProjectId);
+                
                 response.ErrorMessage = "Project not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
 
-            var currentMembers = await _unitOfWork.ProjectMember.GetByProjectIdAsync(request.ProjectId);
+            var currentMembers = await _unitOfWork.ProjectMember
+                .GetAll()
+                .Where(x => x.ProjectId == request.ProjectId)
+                .ToListAsync(cancellationToken);
+            
             var currentUserIds = currentMembers.Select(x => x.UserId).ToHashSet();
             var newMembers =
                 payload.Members
                     .GroupBy(x => x.UserId)
                     .Select(x => x.First())
                     .ToList();
+            
             var newUserIds = newMembers.Select(x => x.UserId).ToHashSet();
-            // Add
             var userIdsToAdd = newUserIds.Except(currentUserIds).ToList();
-            // Remove
             var membersToRemove =
-                currentMembers
-                    .Where(x => !newUserIds.Contains(x.UserId))
-                    .ToList();
+                currentMembers.Where(x => !newUserIds.Contains(x.UserId)).ToList();
             // Validate users
             if (userIdsToAdd.Count > 0)
             {
-                var users = await _unitOfWork.User.GetByIdsAsync(userIdsToAdd);
+                var users = await _unitOfWork.User
+                    .GetAll()
+                    .Where(x => userIdsToAdd.Contains(x.Id))
+                    .ToListAsync(cancellationToken);
+                
                 var foundIds = users.Select(x => x.Id).ToHashSet();
                 var invalidIds = userIdsToAdd.Except(foundIds).ToList();
                 if (invalidIds.Count > 0)
                 {
+                    _logger.LogInformation("{FunctionName} One or more users do not exist." +
+                                           " InvalidUserIds: {InvalidUserIds}", functionName, string.Join(", ", invalidIds));
+                    
                     response.ErrorMessage = "One or more users do not exist";
                     response.WithStatus(HttpStatusCode.BadRequest);
                     return response;
@@ -88,7 +101,12 @@ public class UpdateProjectMembersHandler : IRequestHandler<UpdateProjectMembersC
             }
             
             await _unitOfWork.SaveAsync(cancellationToken);
-            var updatedMembers = await _unitOfWork.ProjectMember.GetByProjectIdWithUserAsync(request.ProjectId);
+            var updatedMembers = await _unitOfWork.ProjectMember
+                .GetAll()
+                .AsNoTracking() 
+                .Include(x => x.User)
+                .Where(x => x.ProjectId == request.ProjectId)
+                .ToListAsync(cancellationToken);
 
             response.Data =
                 new UpdateProjectMembersResult
@@ -105,6 +123,8 @@ public class UpdateProjectMembersHandler : IRequestHandler<UpdateProjectMembersC
                                 Email = x.User.Email
                             }).ToList()
                 };
+            
+            _logger.LogInformation("{FunctionName} Project members updated successfully. ProjectId: {ProjectId}", functionName, request.ProjectId);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

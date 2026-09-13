@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
@@ -27,20 +28,19 @@ public class DeleteUserHandler : IRequestHandler<DeleteUserCommand, DeleteUserRe
 
         try
         {
-            //Check if user exists
-            var user = await _unitOfWork.User.GetByIdAsync(request.Id);
+            var user = await _unitOfWork.User
+                .GetAll()
+                .FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
             if (user == null)
             {
                 response.ErrorMessage = "User not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-
-            // Delete user
+           
             _unitOfWork.User.Delete(user);
-            // Save changes
             await _unitOfWork.SaveAsync(cancellationToken);
-            // Return value
+            
             response.Data = new DeleteUserData
             {
                 Id = user.Id,

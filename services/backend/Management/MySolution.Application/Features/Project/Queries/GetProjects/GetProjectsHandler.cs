@@ -39,7 +39,9 @@ public class GetProjectsHandler : IRequestHandler<GetProjectsQuery, GetProjectsR
 
         try
         {
-            var query = _unitOfWork.Project.GetAll().AsNoTracking();
+            var query = _unitOfWork.Project
+                .GetAll()
+                .AsNoTracking();
             if (_currentUser.Roles.Contains(RoleConstants.Translator) || _currentUser.Roles.Contains(RoleConstants.Reviewer))
             {
                 query = query.Where(x => x.ProjectMembers.Any(pm => pm.UserId == _currentUser.UserId));

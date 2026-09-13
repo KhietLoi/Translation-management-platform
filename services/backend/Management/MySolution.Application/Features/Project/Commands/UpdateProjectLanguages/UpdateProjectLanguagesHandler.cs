@@ -37,9 +37,13 @@ public class UpdateProjectLanguagesHandler : IRequestHandler<UpdateProjectLangua
         try
         {
             //Check project is already exists
-            var isProject = await _unitOfWork.Project.ExistsAsync(request.ProjectId);
+            var isProject = await _unitOfWork.Project
+                .GetAll()
+                .AnyAsync(x => x.Id == request.ProjectId, cancellationToken);
             if (!isProject)
             {
+                _logger.LogInformation("{FunctionName} Project not found.", functionName);
+                
                 response.ErrorMessage = "Project not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -49,25 +53,30 @@ public class UpdateProjectLanguagesHandler : IRequestHandler<UpdateProjectLangua
             var currentProjectLanguages = await _unitOfWork
                 .ProjectLanguage
                 .GetByProjectIdAsync(request.ProjectId);
+            
             // Change to Hashset
             var currentProjectIds = currentProjectLanguages
                 .Select(x => x.LanguageId)
                 .ToHashSet();
-            // New language ids
+            
             var newLanguageIds = payload.LanguagesIds.Distinct().ToHashSet();
-            // Calc Add
             var languageIdsToAdd  = newLanguageIds.Except(currentProjectIds).ToList();
-            // Language to remove:
             var projectLanguagesToRemove = currentProjectLanguages
                 .Where(x => !newLanguageIds
                     .Contains(x.LanguageId)).ToList();
             if (languageIdsToAdd.Count > 0)
             {
-                var languages = await _unitOfWork.Language.GetByIdsAsync(languageIdsToAdd);
+                var languages = await _unitOfWork.Language
+                    .GetAll()
+                    .Where(x => languageIdsToAdd.Contains(x.Id))
+                    .ToListAsync(cancellationToken);
+                
                 var foundIds = languages.Select(x => x.Id).ToHashSet();
                 var invalidIds = languageIdsToAdd.Except(foundIds).ToList();
                 if (invalidIds.Count > 0)
                 {
+                    _logger.LogInformation("{FunctionName} One or more languages do not exist.", functionName);
+                    
                     response.ErrorMessage = "One or more languages do not exist.";
                     response.WithStatus(HttpStatusCode.BadRequest);
                     return response;
@@ -104,8 +113,7 @@ public class UpdateProjectLanguagesHandler : IRequestHandler<UpdateProjectLangua
                         {
                             x.TranslationKeyId,
                             x.LanguageId
-                        })
-                        .ToListAsync(cancellationToken);
+                        }).ToListAsync(cancellationToken);
                 
                 var existingPairs =
                     existingValues
@@ -113,8 +121,7 @@ public class UpdateProjectLanguagesHandler : IRequestHandler<UpdateProjectLangua
                         (
                             x.TranslationKeyId,
                             x.LanguageId
-                        ))
-                        .ToHashSet();
+                        )).ToHashSet();
 
                 var translationValuesToCreate =
                 (
@@ -133,11 +140,7 @@ public class UpdateProjectLanguagesHandler : IRequestHandler<UpdateProjectLangua
 
                 if (translationValuesToCreate.Count > 0)
                 {
-                    await _unitOfWork
-                        .TranslationValue
-                        .AddRange(
-                            translationValuesToCreate
-                        );
+                    await _unitOfWork.TranslationValue.AddRange(translationValuesToCreate);
                 }
             }
 
@@ -147,7 +150,11 @@ public class UpdateProjectLanguagesHandler : IRequestHandler<UpdateProjectLangua
             }
             
             await _unitOfWork.SaveAsync(cancellationToken);
-            var updatedLanguages = await _unitOfWork.Language.GetByIdsAsync(newLanguageIds.ToList());
+            
+            var updatedLanguages = await _unitOfWork.Language.GetAll()
+                .Where(x => newLanguageIds.Contains(x.Id))
+                .ToListAsync(cancellationToken);
+            
             response.Data = new UpdateProjectLanguagesResult
             {
                 ProjectId = request.ProjectId,
@@ -160,6 +167,7 @@ public class UpdateProjectLanguagesHandler : IRequestHandler<UpdateProjectLangua
                     }).ToList()
             };
             
+            _logger.LogInformation("{FunctionName} Project languages updated successfully.", functionName);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

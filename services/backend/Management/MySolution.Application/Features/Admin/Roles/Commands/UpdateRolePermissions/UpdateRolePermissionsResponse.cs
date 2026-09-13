@@ -10,9 +10,7 @@ public class UpdateRolePermissionsResponse : BaseResponse<UpdateRolePermissionsD
 public class UpdateRolePermissionsData
 {
     public Guid RoleId { get; init; }
-
     public string RoleName { get; init; } = string.Empty;
-
     public List<PermissionData> Permissions { get; init; } = [];
 }
 

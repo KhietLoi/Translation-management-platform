@@ -46,8 +46,7 @@ public class ProjectController (IMediator mediator): Controller
 
     [HttpPut("{id:guid}")]
     [Permission(PermissionConstants.Project.Update)]
-    public async Task<IActionResult> UpdateProject(Guid id, [FromBody] UpdateProjectRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateProject(Guid id, [FromBody] UpdateProjectRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new UpdateProjectCommand(id,request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);

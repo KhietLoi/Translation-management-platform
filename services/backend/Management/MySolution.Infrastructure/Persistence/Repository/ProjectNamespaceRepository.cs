@@ -21,14 +21,14 @@
                 (!excludeNamespaceId.HasValue || x.Id  != excludeNamespaceId.Value));
         }
 
-        public async Task<List<ProjectNamespace>> GetByProjectIdAsync(Guid projectId)
-        {
-            return await DbSet
-                .AsNoTracking()
-                .Where(x => x.ProjectId == projectId)
-                .OrderBy(x => x.Name)
-                .ToListAsync();
-        }
+        // public async Task<List<ProjectNamespace>> GetByProjectIdAsync(Guid projectId)
+        // {
+        //     return await DbSet
+        //         .AsNoTracking()
+        //         .Where(x => x.ProjectId == projectId)
+        //         .OrderBy(x => x.Name)
+        //         .ToListAsync();
+        // }
 
         public async Task<ProjectNamespace?> GetByIdAndProjectIdAsync(Guid namspaceId, Guid projectId)
         {

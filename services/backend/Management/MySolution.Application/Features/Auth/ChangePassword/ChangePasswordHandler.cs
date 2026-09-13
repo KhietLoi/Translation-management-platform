@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -40,9 +41,13 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
 
         try
         {
-            var user = await _unitOfWork.User.GetByIdAsync(_currentUser.UserId);
+            var user = await _unitOfWork.User
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == _currentUser.UserId, cancellationToken);
             if (user == null)
             {
+                _logger.LogInformation("{FunctionName} User not found.", functionName);
+                
                 response.ErrorMessage = "User not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -52,6 +57,8 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
             var isCurrentPasswordValid = _passwordHasher.VerifyPassword(request.Payload.CurrentPassword, user.PasswordHash);
             if (!isCurrentPasswordValid)
             {
+                _logger.LogInformation("{FunctionName} Current password is incorrect.", functionName);
+                
                 response.ErrorMessage = "Current password is incorrect.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;

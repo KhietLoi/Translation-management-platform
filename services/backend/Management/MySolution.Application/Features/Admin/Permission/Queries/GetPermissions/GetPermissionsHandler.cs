@@ -32,19 +32,23 @@ public class GetPermissionsHandler : IRequestHandler<GetPermissionsQuery, GetPer
 
         try
         {
-            var query = _unitOfWork.Permission.GetAll().AsNoTracking();
+            var query = _unitOfWork.Permission
+                .GetAll()
+                .AsNoTracking();
             if (!string.IsNullOrWhiteSpace(payload.Search))
+            {
                 query = query.Where(x =>
                     x.Code.Contains(payload.Search) ||
-                    (x.Description != null &&
-                     x.Description.Contains(payload.Search)));
-
+                    (x.Description != null && x.Description.Contains(payload.Search))); 
+            }
+            
             var totalItem = await query.CountAsync(cancellationToken);
             var permissions = await query
                 .OrderBy(x => x.Code)
                 .Skip((payload.Page - 1) * payload.Limit)
                 .Take(payload.Limit)
                 .ToListAsync(cancellationToken);
+            
             response.Data = new GetPermissionsResult
             {
                 Permissions = permissions.Select(x => new GetPermissionsData
@@ -61,6 +65,8 @@ public class GetPermissionsHandler : IRequestHandler<GetPermissionsQuery, GetPer
                     TotalPage = (int)Math.Ceiling(totalItem / (double)payload.Limit)
                 }
             };
+            
+            _logger.LogInformation("{FunctionName} Successfully retrieved permissions.", functionName);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

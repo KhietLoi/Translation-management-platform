@@ -11,9 +11,11 @@ public class UpdateProfileValidator : AbstractValidator<UpdateProfileCommand>
             .WithMessage("{PropertyName} must not be empty")
             .MaximumLength(100)
             .WithMessage("{PropertyName} must not exceed 100 characters");
+        
         RuleFor(x => x.Payload.BirthDate)
             .NotEmpty()
             .WithMessage("{PropertyName} must not be empty");
+        
         RuleFor(x => x.Payload.PhoneNumber)
             .NotEmpty()
             .WithMessage("{PropertyName} must not be empty")

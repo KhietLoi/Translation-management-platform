@@ -13,10 +13,10 @@ namespace MySolution.Application.Features.Admin.Roles.Queries.GetRoles;
 /// </summary>
 public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
 {
-    private readonly ILogger<GetUsersHandler> _logger;
+    private readonly ILogger<GetRolesHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
 
-    public GetRolesHandler(ILogger<GetUsersHandler> logger, IUnitOfWork unitOfWork)
+    public GetRolesHandler(ILogger<GetRolesHandler> logger, IUnitOfWork unitOfWork)
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
@@ -25,9 +25,10 @@ public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
     public async Task<GetRolesResponse> Handle(GetRolesQuery request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
-        var functionName = $"{nameof(GetUsersHandler)} =>";
+        var functionName = $"{nameof(GetRolesHandler)} =>";
         _logger.LogInformation(functionName);
         var response = new GetRolesResponse();
+        
         try
         {
             var query = _unitOfWork.Role.GetAll().AsNoTracking();
@@ -42,6 +43,7 @@ public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
                 .Skip((payload.Page - 1) * payload.Limit)
                 .Take(payload.Limit)
                 .ToListAsync(cancellationToken);
+            
             response.Data = new GetRolesResult
             {
                 Roles = roles.Select(x => new GetRoleData
@@ -59,6 +61,8 @@ public class GetRolesHandler : IRequestHandler<GetRolesQuery, GetRolesResponse>
                     TotalPage = (int)Math.Ceiling(totalItem / (double)payload.Limit)
                 }
             };
+
+            _logger.LogInformation("{FunctionName} Successfully retrieved roles.", functionName);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

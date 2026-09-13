@@ -1,13 +1,11 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Application.Features.Admin.User.Queries.GetUserById;
 
-/// <summary>
-///     Handler for retrieving a user by their ID.
-/// </summary>
 public class GetUserByIdHandler : IRequestHandler<GetUserByIdQuery, GetUserByIdResponse>
 {
     private readonly ILogger<GetUserByIdHandler> _logger;
@@ -27,7 +25,15 @@ public class GetUserByIdHandler : IRequestHandler<GetUserByIdQuery, GetUserByIdR
 
         try
         {
-            var user = await _unitOfWork.User.GetUserWithRolesAsync(request.Id);
+            var user = await _unitOfWork.User 
+                .GetAll()
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(x => x.UserRoles)
+                .ThenInclude(x => x.Role)
+                .ThenInclude(x => x.RolePermissions)
+                .ThenInclude(x => x.Permission)
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
             if (user == null)
             {
                 response.ErrorMessage = "User not found.";
@@ -41,27 +47,28 @@ public class GetUserByIdHandler : IRequestHandler<GetUserByIdQuery, GetUserByIdR
                 Email = user.Email,
                 Status =  user.Status,
                 CreatedAt = user.CreatedAt,
-                Roles = user.UserRoles
-                    .Select(x => new RoleData
+                Roles = user.UserRoles.Select(x => new
+                    RoleData
                     {
                         RoleId = x.Role.Id,
                         RoleName = x.Role.Name,
                         Description = x.Role.Description
-                    })
-                    .ToList(),
+                    }).ToList(),
+                
                 Permissions = user.UserRoles
                     .SelectMany(x => x.Role.RolePermissions)
                     .Select(x => x.Permission)
                     .GroupBy(x => x.Id)
                     .Select(g => g.First())
-                    .Select(x => new PermissionData
-                    {
-                        PermissionId = x.Id,
-                        PermissionCode = x.Code,
-                        PermissionDescription = x.Description
-                    })
-                    .ToList()
+                    .Select(x => new 
+                        PermissionData
+                        {
+                            PermissionId = x.Id,
+                            PermissionCode = x.Code,
+                            PermissionDescription = x.Description
+                        }).ToList()
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

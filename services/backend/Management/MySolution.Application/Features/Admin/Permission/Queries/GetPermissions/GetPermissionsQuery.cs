@@ -6,7 +6,12 @@ namespace MySolution.Application.Features.Admin.Permission.Queries.GetPermission
 ///     Query to retrieve permissions based on the provided request payload.
 /// </summary>
 /// <param name="payload"></param>
-public class GetPermissionsQuery(GetPermissionsRequest payload) : IRequest<GetPermissionsResponse>
+public class GetPermissionsQuery : IRequest<GetPermissionsResponse>
 {
-    public GetPermissionsRequest Payload = payload;
+    public GetPermissionsRequest Payload;
+    
+    public GetPermissionsQuery(GetPermissionsRequest payload)
+    {
+        Payload = payload;
+    }
 }

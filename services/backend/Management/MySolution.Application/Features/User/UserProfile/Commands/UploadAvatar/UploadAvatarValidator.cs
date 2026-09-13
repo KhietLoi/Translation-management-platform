@@ -6,7 +6,7 @@ public class UploadAvatarValidator : AbstractValidator<UploadAvatarCommand>
 {
     //Check type of data:
     private readonly string[] _allowedExtensions = { ".png", ".jpg", ".jpeg" };
-    private const int Filesize = (5*1024*1024);  //fix
+    private const int Filesize = (5*1024*1024);  
     
     public UploadAvatarValidator()
     {

@@ -7,9 +7,6 @@ using MySolution.Application.Common.Models;
 
 namespace MySolution.Application.Features.Admin.User.Queries.GetUser;
 
-/// <summary>
-///     Handler for processing the GetUsersQuery
-/// </summary>
 public class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersResponse>
 {
     private readonly ILogger<GetUsersHandler> _logger;

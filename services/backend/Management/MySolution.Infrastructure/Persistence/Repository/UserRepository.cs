@@ -17,17 +17,17 @@ public class UserRepository(AppDbContext context, ILogger logger) : Repository<U
         return await DbSet.FindAsync(id);
     }
 
-    public virtual async Task<User?> GetByEmailAsync(string email)
-    {
-        return await DbSet
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Email == email);
-    }
+    // public virtual async Task<User?> GetByEmailAsync(string email)
+    // {
+    //     return await DbSet
+    //         .AsNoTracking()
+    //         .FirstOrDefaultAsync(x => x.Email == email);
+    // }
 
-    public async Task<bool> ExistsByEmailOrUsernameAsync(string email, string username)
-    {
-        return await DbSet.AnyAsync(x => x.Email == email || x.Username == username);
-    }
+    // public async Task<bool> ExistsByEmailOrUsernameAsync(string email, string username, CancellationToken cancellationToken = default)
+    // {
+    //     return await DbSet.AnyAsync(x => x.Email == email || x.Username == username, cancellationToken);
+    // }
 
     public virtual async Task<List<Role>> GetRolesAsync(Guid userId)
     {
@@ -59,22 +59,18 @@ public class UserRepository(AppDbContext context, ILogger logger) : Repository<U
             .ThenInclude(x => x.Role)
             .FirstOrDefaultAsync(x => x.Username == username);
     }
-   
 
-    public async Task<User?> GetUserWithRolesAsync(Guid userId)
-    {
-        return await Context.Users
-            .AsSplitQuery()
-            .Include(x => x.UserRoles)
-            .ThenInclude(x => x.Role)
-            .ThenInclude(x => x.RolePermissions)
-            .ThenInclude(x => x.Permission)
-            .FirstOrDefaultAsync(x => x.Id == userId);
-    }
 
-    public async Task<bool> ExistsByEmailOrUsernameAsync(string email, string username, Guid excludeUserId)
+    public async Task<bool> ExistsByEmailOrUsernameAsync(
+        string email,
+        string username,
+        Guid? excludeUserId = null,
+        CancellationToken cancellationToken = default)
     {
-        return await DbSet.AnyAsync(x => (x.Email == email || x.Username == username) && x.Id != excludeUserId);
+        return await DbSet.AnyAsync(
+            x => (x.Email == email || x.Username == username)
+                 && (!excludeUserId.HasValue || x.Id != excludeUserId.Value),
+            cancellationToken);
     }
 
     public async Task<HashSet<string>> GetUserPermissionsAsync(Guid userId)
@@ -89,12 +85,12 @@ public class UserRepository(AppDbContext context, ILogger logger) : Repository<U
             .ToHashSetAsync();
     }
 
-    public async Task<List<User>> GetByIdsAsync(List<Guid> ids)
-    {
-        return await DbSet
-            .Where(x => ids.Contains(x.Id))
-            .ToListAsync();
-    }
+    // public async Task<List<User>> GetByIdsAsync(List<Guid> ids)
+    // {
+    //     return await DbSet
+    //         .Where(x => ids.Contains(x.Id))
+    //         .ToListAsync();
+    // }
 
     public async Task<string> GetUserNameAsync(Guid userId)
     {

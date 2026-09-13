@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
@@ -30,7 +31,9 @@ public class UpdateUserRolesHandler : IRequestHandler<UpdateUserRolesCommand, Up
         try
         {
             // Check user exists
-            var user = await _unitOfWork.User.GetByIdAsync(payload.UserId);
+            var user = await _unitOfWork.User
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == payload.UserId, cancellationToken);
             if (user is null)
             {
                 response.ErrorMessage = "User not found.";
@@ -39,18 +42,21 @@ public class UpdateUserRolesHandler : IRequestHandler<UpdateUserRolesCommand, Up
             }
 
             // Current roles
-            var currentUserRoles = await _unitOfWork.UserRole.GetByUserIdAsync(payload.UserId);
+            var currentUserRoles = await _unitOfWork.UserRole
+                .Where(x => x.UserId == payload.UserId)
+                .ToListAsync(cancellationToken);
             var currentRoleIds = currentUserRoles.Select(x => x.RoleId).ToHashSet();
             var newRoleIds = payload.RoleIds.Distinct().ToHashSet();
+            
             // Roles need add
             var roleIdsToAdd = newRoleIds.Except(currentRoleIds).ToList();
+                
             // Roles need remove
             var userRolesToRemove =
                 currentUserRoles
-                    .Where(x =>
-                        !newRoleIds.Contains(
-                            x.RoleId))
+                    .Where(x => !newRoleIds.Contains(x.RoleId))
                     .ToList();
+            
             // Validate roles
             if (roleIdsToAdd.Count > 0)
             {
@@ -64,41 +70,41 @@ public class UpdateUserRolesHandler : IRequestHandler<UpdateUserRolesCommand, Up
                     return response;
                 }
 
-                var entities =
-                    roles.Select(x =>
-                            new UserRole
-                            {
-                                UserId = payload.UserId,
-                                RoleId = x.Id
-                            })
-                        .ToList();
+                var entities = roles.Select(x => new UserRole 
+                {
+                    UserId = payload.UserId,
+                    RoleId = x.Id
+                }).ToList();
+                
                 await _unitOfWork.UserRole.AddRange(entities);
             }
 
             // Remove roles
             if (userRolesToRemove.Count > 0)
-                _unitOfWork.UserRole
-                    .DeleteRange(userRolesToRemove);
-
+            {
+                _unitOfWork.UserRole.DeleteRange(userRolesToRemove);
+            }
+               
             await _unitOfWork.SaveAsync(cancellationToken);
+            
             // Get updated roles
-            var updatedRoles = await _unitOfWork.UserRole.GetByUserIdWithRoleAsync(payload.UserId);
-            response.Data =
-                new UpdateUserRolesData
+            var updatedRoles = await _unitOfWork.UserRole
+                .GetAll()
+                .AsNoTracking()
+                .Where(x => x.UserId == payload.UserId)
+                .Include(x => x.Role)
+                .ToListAsync(cancellationToken);
+            
+            response.Data = new UpdateUserRolesData
+            {
+                UserId = user.Id, 
+                Username = user.Username, 
+                Roles = updatedRoles.Select(x => new RoleData
                 {
-                    UserId = user.Id,
-                    Username = user.Username,
-                    Roles =
-                        updatedRoles
-                            .Select(x =>
-                                new RoleData
-                                {
-                                    RoleId = x.Role!.Id,
-
-                                    RoleName = x.Role.Name
-                                })
-                            .ToList()
-                };
+                    RoleId = x.Role.Id,
+                    RoleName = x.Role.Name
+                }).ToList()
+            };
 
             response
                 .WithSuccess(true)

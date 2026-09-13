@@ -6,8 +6,8 @@ namespace MySolution.Application.Features.Project.Queries.GetProjectNamspaces;
 
 public class GetProjectNamspacesResponse : BaseResponse <GetProjectNamespacesResult>
 {
- 
 }
+
 public class GetProjectNamespacesResult
 {
     public List<GetProjectNamespaceData> Namespaces { get; set; } = [];

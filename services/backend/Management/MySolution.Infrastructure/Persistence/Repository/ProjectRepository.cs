@@ -30,19 +30,7 @@ public class ProjectRepository (AppDbContext context, ILogger logger)
                 x  => x.Name == name && (!excludeProjectId.HasValue || x.Id != excludeProjectId.Value)
             );
     }
-
-    public async Task<Project?> GetDetailAsync(Guid id)
-    {
-        return await Context.Projects
-            .AsSplitQuery()
-            .Include(x =>x.ProjectLanguages)
-                .ThenInclude(x => x.Language)
-            .Include(x=>x.ProjectMembers)
-                .ThenInclude(x=>x.User)
-            .Include(x => x.ProjectNamespaces)
-            .FirstOrDefaultAsync(x => x.Id == id);
-    }
-
+    
      public async Task<List<Guid>> GetAccessibleProjectIdsAsync(Guid userId, CancellationToken cancellationToken)
      {
          return await DbSet

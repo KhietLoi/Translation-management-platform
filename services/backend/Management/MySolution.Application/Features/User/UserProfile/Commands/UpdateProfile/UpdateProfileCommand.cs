@@ -5,7 +5,8 @@ namespace MySolution.Application.Features.User.UserProfile.Commands.UpdateProfil
 public class UpdateProfileCommand : IRequest<UpdateProfileResponse>
 {
     public UpdateProfileRequest Payload { get; set; }
-    public Guid Id { get; set; }
+    public Guid Id { get;}
+    
     public UpdateProfileCommand(Guid id, UpdateProfileRequest payload)
     {
         Id = id;

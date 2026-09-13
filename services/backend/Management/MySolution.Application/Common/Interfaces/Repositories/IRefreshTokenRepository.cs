@@ -9,5 +9,5 @@ public interface IRefreshTokenRepository : IRepository<RefreshToken>
     Task<List<RefreshToken>> GetValidTokenAsync(Guid userId);
     Task RevokeAsync(Guid userId);
     Task<int> CleanUpExpiredTokensAsync(int revokedBefore);
-    Task RevokeByJtiAsync(string jti);
+    // Task RevokeByJtiAsync(string jti);
 }

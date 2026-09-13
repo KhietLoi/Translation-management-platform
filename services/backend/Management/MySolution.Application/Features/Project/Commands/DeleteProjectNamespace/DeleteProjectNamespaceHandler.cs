@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using Shared.Extensions;
@@ -30,9 +31,14 @@ public class DeleteProjectNamespaceHandler : IRequestHandler<DeleteProjectNamesp
 
         try
         {
-            var projectnamespace = await _unitOfWork.Namespace.GetByIdAsync(request.Id);
+            var projectnamespace = await _unitOfWork.Namespace
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+            
             if (projectnamespace == null)
             {
+                _logger.LogInformation("{FunctionName} Namespace not found for Id: {Id}", functionName, request.Id);
+
                 response.ErrorMessage = "Namespace not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -48,6 +54,7 @@ public class DeleteProjectNamespaceHandler : IRequestHandler<DeleteProjectNamesp
                 Name = projectnamespace.Name,
             };
             
+            _logger.LogInformation("{FunctionName} Namespace deleted successfully for Id: {Id}", functionName, request.Id);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

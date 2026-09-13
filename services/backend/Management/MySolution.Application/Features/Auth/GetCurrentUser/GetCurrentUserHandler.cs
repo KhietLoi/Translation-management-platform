@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -35,12 +36,17 @@ public class GetCurrentUserHandler : IRequestHandler<GetCurrentUserQuery, GetCur
 
         try
         {
-            var user = await _unitOfWork.User.GetByIdAsync(_currentUser.UserId);
+            //var user = await _unitOfWork.User.GetByIdAsync(_currentUser.UserId);
+            var user = await _unitOfWork.User
+                .GetAll()
+                .FirstOrDefaultAsync(u => u.Id == _currentUser.UserId, cancellationToken);
+            
             if (user == null)
             {
+                _logger.LogInformation($"{functionName} User not found. UserId: {_currentUser.UserId}");
+                
                 response.ErrorMessage = "User not found";
                 response.WithStatus(HttpStatusCode.NotFound);
-
                 return response;
             }
 

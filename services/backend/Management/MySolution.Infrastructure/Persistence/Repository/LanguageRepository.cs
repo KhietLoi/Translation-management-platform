@@ -27,11 +27,11 @@ public class LanguageRepository(AppDbContext context, ILogger logger)
                   (!excludeProjectId.HasValue || x.Id != excludeProjectId.Value)
         );
     }
-
-    public async Task<List<Language>> GetByIdsAsync(List<Guid> ids)
-    {
-        return await DbSet.Where(x => ids.Contains(x.Id)).ToListAsync();
-    }
+    //
+    // public async Task<List<Language>> GetByIdsAsync(List<Guid> ids)
+    // {
+    //     return await DbSet.Where(x => ids.Contains(x.Id)).ToListAsync();
+    // }
     public async Task<bool> ExistsAsync(Guid id)
     {
         return await DbSet.AnyAsync(x => x.Id == id);
