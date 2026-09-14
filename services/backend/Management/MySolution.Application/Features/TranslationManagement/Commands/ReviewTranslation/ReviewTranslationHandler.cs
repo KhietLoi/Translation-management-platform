@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
@@ -44,9 +45,17 @@ public class ReviewTranslationHandler : IRequestHandler<ReviewTranslationCommand
 
         try
         {
-            var entity = await _unitOfWork.TranslationValue.GetByIdTrackingAsync(request.Id);
+            var entity = await _unitOfWork.TranslationValue
+                .GetAll()
+                .Include(x => x.TranslationKey)
+                .Include(x => x.Language)
+                .Include(x => x.Reviewer)
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+            
             if (entity == null)
             {
+                _logger.LogInformation($"{functionName} Translation with Id {request.Id} not found.");
+                
                 response.ErrorMessage = $"Translation with Id {request.Id} not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -54,6 +63,8 @@ public class ReviewTranslationHandler : IRequestHandler<ReviewTranslationCommand
 
             if (entity.Status != TranslationStatus.Translated)
             {
+                _logger.LogInformation($"{functionName} Translation with Id {request.Id} is not translated.");
+                
                 response.ErrorMessage = $"Translation with Id {request.Id} is not translated.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -81,7 +92,8 @@ public class ReviewTranslationHandler : IRequestHandler<ReviewTranslationCommand
                 entity.Id,
                 entity.TranslationKey.ProjectId,
                 oldValue,
-                newValue);
+                newValue
+            );
 
             response.Data = new ReviewTranslationData
             {
@@ -108,9 +120,10 @@ public class ReviewTranslationHandler : IRequestHandler<ReviewTranslationCommand
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            exception.LogError(_logger, functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
 

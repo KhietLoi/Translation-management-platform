@@ -5,7 +5,6 @@ namespace MySolution.Application.Features.TranslationManagement.Commands.BatchUp
 
 public class BatchUpdateTranslationResponse : BaseResponse <BatchUpdateTranslationData>
 {
-    
 }
 
 public class BatchUpdateTranslationData

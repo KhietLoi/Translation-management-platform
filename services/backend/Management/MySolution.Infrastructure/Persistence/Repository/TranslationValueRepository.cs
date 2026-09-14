@@ -113,65 +113,6 @@ public class TranslationValueRepository (AppDbContext context, ILogger logger) :
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<TranslationValue>> GetForBatchReviewAsync(
-        List<Guid> translationValueIds,
-        Guid projectId,
-        Guid languageId,
-        Guid namespaceId)
-    {
-        return await DbSet
-            .Include(x => x.TranslationKey)
-            .ThenInclude(x => x.Project)
-            .Include(x => x.TranslationKey)
-            .ThenInclude(x => x.Namespace)
-            .Where(x =>
-                translationValueIds.Contains(x.Id) &&
-                x.LanguageId == languageId &&
-                x.TranslationKey.ProjectId == projectId &&
-                x.TranslationKey.NamespaceId == namespaceId)
-            .ToListAsync();
-    }
-
-    public async Task<List<TranslationValue>> GetBatchTranslationValuesAsync(Guid projectId, Guid languageId, Guid namespaceId,
-        CancellationToken cancellationToken)
-    {
-        return await DbSet
-            .Include(x => x.TranslationKey)
-            .Where(x =>
-                x.TranslationKey.ProjectId == projectId &&
-                x.TranslationKey.NamespaceId == namespaceId &&
-                x.LanguageId == languageId && 
-                (x.Status == TranslationStatus.Draft ||
-                 x.Status == TranslationStatus.Missing ||
-                 x.Status == TranslationStatus.Rejected))
-            .OrderBy(x => x.TranslationKey.Key)
-            .ToListAsync(cancellationToken);
-    }
-
-    public async Task<List<TranslationValue>> GetForBatchTranslationAsync(
-        List<Guid> translationValueIds,
-        Guid projectId,
-        Guid languageId,
-        Guid namespaceId)
-    {
-        return await DbSet
-            .Include(x => x.TranslationKey)
-            .ThenInclude(x => x.Project)
-            .Include(x => x.TranslationKey)
-            .ThenInclude(x => x.Namespace)
-            .Where(x =>
-                translationValueIds.Contains(x.Id) &&
-                x.LanguageId == languageId &&
-                x.TranslationKey.ProjectId == projectId &&
-                x.TranslationKey.NamespaceId == namespaceId &&
-                (
-                    x.Status == TranslationStatus.Rejected ||
-                    x.Status == TranslationStatus.Missing ||
-                    x.Status == TranslationStatus.Draft
-                ))
-            .ToListAsync();
-    }
-
     public async Task<TranslationDashboardStats> GetDashboardStatsAsync(IReadOnlyCollection<Guid> projectIds, CancellationToken cancellationToken)
     {
         if (projectIds.Count == 0) return new();
@@ -216,75 +157,44 @@ public class TranslationValueRepository (AppDbContext context, ILogger logger) :
             .OrderBy(x => x.LanguageCode)
             .ToListAsync(cancellationToken);
     }
-
-    public async Task<TranslationValue?> GetForAiSuggestionAsync(Guid translationValueId, CancellationToken cancellationToken)
-    {
-        return await DbSet
-            .AsNoTrackingWithIdentityResolution()
-            .Include(x => x.Language)
-            .Include(x => x.TranslationKey)
-                .ThenInclude(k => k.TranslationValues)
-                .ThenInclude(v => v.Language)
-            .FirstOrDefaultAsync(x => x.Id == translationValueId, cancellationToken);
-    }
-
-    public async Task<List<TranslationValue>> GetListForAiSuggestionAsync(List<Guid> ids, CancellationToken cancellationToken)
-    {
-        return await DbSet
-            .AsNoTrackingWithIdentityResolution()
-            .Include(x => x.Language)
-            .Include(x => x.TranslationKey)
-                .ThenInclude(k => k.TranslationValues)
-                .ThenInclude(v => v.Language)
-            .Where(x => ids.Contains(x.Id))
-            .ToListAsync(cancellationToken);
-    }
     
+    // public async Task<List<PendingNamespaceCount>> GetPendingNamespaceCountsAsync(Guid projectId, CancellationToken cancellationToken)
+    // {
+    //     return await DbSet
+    //         .AsNoTracking()
+    //         .Where(x =>
+    //             x.TranslationKey.ProjectId == projectId)
+    //         .GroupBy(x =>
+    //             x.TranslationKey.NamespaceId)
+    //         .Select(g => new PendingNamespaceCount
+    //         {
+    //             NamespaceId = g.Key,
+    //             PendingReviewCount = g.Count(x => x.Status == TranslationStatus.Translated),
+    //             PendingUpdateCount = g.Count(x =>
+    //                 x.Status == TranslationStatus.Missing ||
+    //                 x.Status == TranslationStatus.Draft ||
+    //                 x.Status == TranslationStatus.Rejected)
+    //         })
+    //         .ToListAsync(cancellationToken);
+    //
+    // }
 
-    public async Task<List<PendingNamespaceCount>> GetPendingNamespaceCountsAsync(Guid projectId, CancellationToken cancellationToken)
-    {
-        return await DbSet
-            .AsNoTracking()
-            .Where(x =>
-                x.TranslationKey.ProjectId == projectId)
-            .GroupBy(x =>
-                x.TranslationKey.NamespaceId)
-            .Select(g => new PendingNamespaceCount
-            {
-                NamespaceId = g.Key,
-
-                PendingReviewCount = g.Count(x =>
-                    x.Status == TranslationStatus.Translated),
-
-                PendingUpdateCount = g.Count(x =>
-                    x.Status == TranslationStatus.Missing ||
-                    x.Status == TranslationStatus.Draft ||
-                    x.Status == TranslationStatus.Rejected)
-            })
-            .ToListAsync(cancellationToken);
-
-    }
-
-    public async Task<List<PendingLanguageCount>> GetPendingLanguageCountsAsync(Guid projectId, Guid namespaceId, CancellationToken cancellationToken)
-    {
-        return await DbSet
-            .AsNoTracking()
-            .Where(x =>
-                x.TranslationKey.ProjectId == projectId &&
-                x.TranslationKey.NamespaceId == namespaceId)
-            .GroupBy(x => x.LanguageId)
-            .Select(g => new PendingLanguageCount
-            {
-                LanguageId = g.Key,
-
-                PendingReviewCount = g.Count(x =>
-                    x.Status == TranslationStatus.Translated),
-
-                PendingUpdateCount = g.Count(x =>
-                    x.Status == TranslationStatus.Missing ||
-                    x.Status == TranslationStatus.Draft ||
-                    x.Status == TranslationStatus.Rejected)
-            })
-            .ToListAsync(cancellationToken);
-    }
+    // public async Task<List<PendingLanguageCount>> GetPendingLanguageCountsAsync(Guid projectId, Guid namespaceId, CancellationToken cancellationToken)
+    // {
+    //     return await DbSet
+    //         .AsNoTracking()
+    //         .Where(x =>
+    //             x.TranslationKey.ProjectId == projectId &&
+    //             x.TranslationKey.NamespaceId == namespaceId)
+    //         .GroupBy(x => x.LanguageId)
+    //         .Select(g => new PendingLanguageCount
+    //         {
+    //             LanguageId = g.Key,
+    //             PendingReviewCount = g.Count(x => x.Status == TranslationStatus.Translated),
+    //             PendingUpdateCount = g.Count(x =>
+    //                 x.Status == TranslationStatus.Missing ||
+    //                 x.Status == TranslationStatus.Draft ||
+    //                 x.Status == TranslationStatus.Rejected)
+    //         }).ToListAsync(cancellationToken);
+    // }
 }

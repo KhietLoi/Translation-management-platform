@@ -79,10 +79,10 @@ public class TranslationManagementController(IMediator mediator) : Controller
     [Permission(PermissionConstants.Translation.Review)]
     public async Task<IActionResult> GetReviewTranslations(
         [FromQuery] GetReviewTranslationsRequest request,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         var response = await mediator.Send(new GetReviewTranslationsQuery(request), cancellationToken);
-
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
@@ -91,10 +91,10 @@ public class TranslationManagementController(IMediator mediator) : Controller
     [Permission(PermissionConstants.Translation.Review)]
     public async Task<IActionResult> BatchReviewTranslations(
         [FromBody] BatchReviewTranslationRequest request,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         var response = await mediator.Send(new BatchReviewTranslationCommand(request), cancellationToken);
-
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
@@ -114,13 +114,14 @@ public class TranslationManagementController(IMediator mediator) : Controller
     [Permission(PermissionConstants.Translation.Update)]
     public async Task<IActionResult> BatchUpdateTranslations(
         [FromBody] BatchUpdateTranslationRequest request,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         var response = await mediator.Send(new BatchUpdateTranslationCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //AI
+    //API for AI application
     [HttpPost("{translationValueId:guid}/suggest")]
     [Permission(PermissionConstants.Translation.Update)]
     public async Task<IActionResult> GetTranslationSuggestion(
@@ -147,21 +148,14 @@ public class TranslationManagementController(IMediator mediator) : Controller
     // Get pending translation counts by namespace
     [HttpGet("pending-counts/namespaces")]
     [Permission(PermissionConstants.Translation.View)]
-    public async Task<IActionResult> GetPendingNamespaceCounts(
+    public async Task<IActionResult> GetPendingNamespaceCounts
+    (
         [FromQuery] Guid projectId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        var response = await mediator.Send(
-            new GetPendingNamespaceCountsQuery
-            {
-                ProjectId = projectId
-            },
-            cancellationToken);
-
-        return ResponseHelper.ToResponse(
-            response.StatusCode,
-            response,
-            response.Data);
+        var response = await mediator.Send(new GetPendingNamespaceCountsQuery(projectId), cancellationToken);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
 // Get pending translation counts by language within namespace
@@ -177,13 +171,9 @@ public class TranslationManagementController(IMediator mediator) : Controller
             {
                 ProjectId = projectId,
                 NamespaceId = namespaceId
-            },
-            cancellationToken);
+            }, cancellationToken);
 
-        return ResponseHelper.ToResponse(
-            response.StatusCode,
-            response,
-            response.Data);
+        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
     

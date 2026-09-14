@@ -1,5 +1,6 @@
 using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
@@ -36,57 +37,56 @@ public class BatchUpdateTranslationHandler : IRequestHandler<BatchUpdateTranslat
     {
         var payload = request.Payload;
         var functionName = $"{nameof(BatchUpdateTranslationHandler)} =>";
-        _logger.LogInformation(functionName);
         var response = new BatchUpdateTranslationResponse();
-        // Validate empty values
-        var hasEmptyValue = payload.Items.Any(x => string.IsNullOrWhiteSpace(x.Value));
-        if (hasEmptyValue)
-        {
-            response.ErrorMessage = "Translation value cannot be empty.";
-            response.WithStatus(HttpStatusCode.BadRequest);
-            return response;
-        }
         
         try
         {
-            // 1. Get distinct TranslationValue IDs
+            // Get distinct TranslationValue IDs
             var translationIds = payload.Items
                 .Select(x => x.TranslationValueId)
                 .Distinct()
                 .ToList();
+            
+            var translations = await _unitOfWork.TranslationValue
+                .GetAll()
+                .Include(x => x.TranslationKey)
+                .ThenInclude(x => x.Project)
+                .Include(x => x.TranslationKey)
+                .ThenInclude(x => x.Namespace)
+                .Where(x =>
+                    translationIds.Contains(x.Id) &&
+                    x.LanguageId == payload.LanguageId &&
+                    x.TranslationKey.ProjectId == payload.ProjectId &&
+                    x.TranslationKey.NamespaceId == payload.NamespaceId &&
+                    (
+                        x.Status == TranslationStatus.Rejected ||
+                        x.Status == TranslationStatus.Missing ||
+                        x.Status == TranslationStatus.Draft 
+                    ))
+                .ToListAsync(cancellationToken);
 
-            // 2. Query all TranslationValues
-            var translations =
-                await _unitOfWork.TranslationValue
-                    .GetForBatchTranslationAsync(
-                        translationIds,
-                        payload.ProjectId,
-                        payload.LanguageId,
-                        payload.NamespaceId);
-
-            // 3. Validate that all submitted values
+            // Validate that all submitted values
             if (translations.Count != translationIds.Count)
             {
+                _logger.LogInformation("{FunctionName} One or more translations were not found or are not available for translation.", functionName);
+                
                 response.ErrorMessage = "One or more translations were not found or are not available for translation.";
                 response.WithStatus(HttpStatusCode.BadRequest);
-
                 return response;
             }
 
-            // 4. Create lookup dictionary
+       
             var translationMap = translations.ToDictionary(x => x.Id);
-
-            // 5. Store old values for audit
             var oldValues = new Dictionary<Guid, object>();
-
             var now = DateTime.UtcNow;
 
-            // 6. Update all translations
+            // Update all translations
             foreach (var item in payload.Items)
             {
                 if (!translationMap.TryGetValue(item.TranslationValueId, out var translation))
                 {
-
+                    _logger.LogInformation("{FunctionName} Translation with ID {TranslationValueId} was not found.", functionName, item.TranslationValueId);
+                    
                     response.ErrorMessage = "One or more translations were not found.";
                     response.WithStatus(HttpStatusCode.BadRequest);
                     return response;
@@ -109,7 +109,7 @@ public class BatchUpdateTranslationHandler : IRequestHandler<BatchUpdateTranslat
                 translation.RejectionReason = null;
             }
 
-            // 7. Audit all updated values
+            // Audit all updated values
             foreach (var translation in translations)
             {
                 var newValue = new
@@ -128,9 +128,9 @@ public class BatchUpdateTranslationHandler : IRequestHandler<BatchUpdateTranslat
                     newValue);
             }
 
-            // 8. Save once
+
             await _unitOfWork.SaveAsync(cancellationToken);
-            // 9. Build response
+        
             response.Data =
                 new BatchUpdateTranslationData
                 {
@@ -147,8 +147,7 @@ public class BatchUpdateTranslationHandler : IRequestHandler<BatchUpdateTranslat
                                 Status = x.Status,
                                 CreatedAt = x.CreatedAt,
                                 UpdatedAt = x.UpdatedAt
-                            })
-                        .ToList()
+                            }).ToList()
                 };
 
             response
@@ -158,6 +157,7 @@ public class BatchUpdateTranslationHandler : IRequestHandler<BatchUpdateTranslat
         catch (Exception exception)
         {
             _logger.LogError(exception, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
