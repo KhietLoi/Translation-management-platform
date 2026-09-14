@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Application.Common.Models;
 using MySolution.Application.Constants;
+using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Features.TranslationManagement.Queries.GetPendingNamespaceCounts;
 
@@ -44,20 +46,34 @@ public class GetPendingNamespaceCountsHandler : IRequestHandler<GetPendingNamesp
             if (_currentUser.Roles.Contains(RoleConstants.Translator) ||
                 _currentUser.Roles.Contains(RoleConstants.Reviewer))
             {
-                projectQuery = projectQuery.Where(x =>
-                    x.ProjectMembers.Any(pm => pm.UserId == _currentUser.UserId));
+                projectQuery = projectQuery.Where(x => x.ProjectMembers.Any(pm => pm.UserId == _currentUser.UserId));
             }
 
             var projectExists = await projectQuery.AnyAsync(cancellationToken);
             if (!projectExists)
             {
+                _logger.LogWarning("{FunctionName} Project not found for ProjectId: {ProjectId}", functionName, request.ProjectId);
+                
                 response.ErrorMessage = "Project not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
 
-            var namespaces =
-                await _unitOfWork.TranslationValue.GetPendingNamespaceCountsAsync(request.ProjectId, cancellationToken);
+            var namespaces = await _unitOfWork.TranslationValue
+                .GetAll()
+                .AsNoTracking()
+                .Where(x => x.TranslationKey.ProjectId == request.ProjectId)
+                .GroupBy(x => x.TranslationKey.NamespaceId)
+                .Select(g => new PendingNamespaceCount
+                {
+                    NamespaceId = g.Key,
+                    PendingReviewCount = g.Count(x => x.Status == TranslationStatus.Translated),
+                    PendingUpdateCount = g.Count(x =>
+                        x.Status == TranslationStatus.Missing ||
+                        x.Status == TranslationStatus.Draft ||
+                        x.Status == TranslationStatus.Rejected)
+                })
+                .ToListAsync(cancellationToken);
 
             response.Data = new GetPendingNamespaceCountsResult { Namespaces = namespaces };
             

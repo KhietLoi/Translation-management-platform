@@ -16,13 +16,12 @@ public class TranslationSuggestionService :  ITranslationSuggestionService
         _logger = logger;
     }
 
-    public async Task<TranslationSuggestionResponse> SuggestAsync(
-        TranslationSuggestionRequest request,
-        CancellationToken cancellationToken)
+    public async Task<TranslationSuggestionResponse> SuggestAsync(TranslationSuggestionRequest request, CancellationToken cancellationToken)
     {
         
         using var response = await _httpClient.PostAsJsonAsync("/api/review/suggest", request, cancellationToken);
         response.EnsureSuccessStatusCode();
+        
         var result = await response.Content.ReadFromJsonAsync<TranslationSuggestionResponse>(cancellationToken);
         if (result is null || string.IsNullOrWhiteSpace(result.Suggestion))
         {

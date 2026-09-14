@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.TranslationManagement.Queries.GetRevie
 
 public class GetReviewTranslationsResponse : BaseResponse <GetReviewTranslationsData>
 {
-
 }
 
 public class GetReviewTranslationsData

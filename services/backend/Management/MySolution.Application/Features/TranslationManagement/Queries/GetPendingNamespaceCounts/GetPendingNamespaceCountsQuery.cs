@@ -1,8 +1,12 @@
-﻿    using MediatR;
+﻿using MediatR;
 
-    namespace MySolution.Application.Features.TranslationManagement.Queries.GetPendingNamespaceCounts;
+namespace MySolution.Application.Features.TranslationManagement.Queries.GetPendingNamespaceCounts;
 
-    public class GetPendingNamespaceCountsQuery : IRequest<GetPendingNamespaceCountsResponse>
+public class GetPendingNamespaceCountsQuery : IRequest<GetPendingNamespaceCountsResponse>
+{ 
+    public Guid ProjectId { get; set; } 
+    public GetPendingNamespaceCountsQuery(Guid projectId) 
     {
-        public Guid ProjectId { get; set; }
+        ProjectId = projectId;
     }
+}

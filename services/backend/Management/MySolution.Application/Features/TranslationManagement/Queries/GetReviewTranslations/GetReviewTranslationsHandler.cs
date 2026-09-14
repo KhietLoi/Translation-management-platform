@@ -1,7 +1,9 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Domain.Enums;
 
 
 namespace MySolution.Application.Features.TranslationManagement.Queries.GetReviewTranslations;
@@ -25,26 +27,38 @@ public class GetReviewTranslationsHandler : IRequestHandler<GetReviewTranslation
 
     public async Task<GetReviewTranslationsResponse> Handle(GetReviewTranslationsQuery request, CancellationToken cancellationToken)
     {
+        var payload = request.Payload;
         var functionName = $"{nameof(GetReviewTranslationsHandler)} =>";
         _logger.LogInformation(functionName);
         var response = new GetReviewTranslationsResponse();
 
         try
         {
+            var translations = await _unitOfWork.TranslationValue
+                .GetAll()
+                .AsNoTracking()
+                .Include(x => x.TranslationKey)
+                .Where(x =>
+                    x.TranslationKey.ProjectId == payload.ProjectId &&
+                    x.TranslationKey.NamespaceId == payload.NamespaceId &&
+                    x.LanguageId == payload.LanguageId &&
+                    x.Status == TranslationStatus.Translated
+                )
+                .OrderBy(x => x.TranslationKey.Key)
+                .ToListAsync(cancellationToken);
 
-            var translarions = await _unitOfWork.TranslationValue
-                .GetReviewTranslationsAsync(
-                    request.Payload.ProjectId,
-                    request.Payload.LanguageId,
-                    request.Payload.NamespaceId,
-                    cancellationToken);
-            
-            _logger.LogInformation(
-                "Found {Count} translations for review",
-                translarions.Count);
+            if (!translations.Any())
+            {
+                _logger.LogInformation(functionName + " No translations found.");
+                
+                response.ErrorMessage = "No translations found.";
+                response.WithStatus(HttpStatusCode.NotFound);
+                return response;
+            }
+
             response.Data = new GetReviewTranslationsData
             {
-                Items = translarions
+                Items = translations
                     .Select(x => new TranslationItem
                     {
                         TranslationValueId = x.Id,
@@ -52,9 +66,9 @@ public class GetReviewTranslationsHandler : IRequestHandler<GetReviewTranslation
                         Key = x.TranslationKey.Key,
                         Value = x.Value,
                         Status = x.Status.ToString()
-                    })
-                    .ToList()
+                    }).ToList()
             };
+            
             response
                  .WithSuccess(true)
                  .WithStatus(HttpStatusCode.OK);
