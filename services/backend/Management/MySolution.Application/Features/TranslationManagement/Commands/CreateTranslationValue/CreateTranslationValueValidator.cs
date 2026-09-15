@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace MySolution.Application.Features.TranslationValue.Commands.CreateTranslationValue;
+namespace MySolution.Application.Features.TranslationManagement.Commands.CreateTranslationValue;
 
 public class CreateTranslationValueValidator : AbstractValidator<CreateTranslationValueCommand>
 {

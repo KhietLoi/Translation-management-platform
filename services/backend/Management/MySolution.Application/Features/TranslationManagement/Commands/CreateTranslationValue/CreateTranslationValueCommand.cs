@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MySolution.Application.Features.TranslationValue.Commands.CreateTranslationValue;
+namespace MySolution.Application.Features.TranslationManagement.Commands.CreateTranslationValue;
 
 public class CreateTranslationValueCommand : IRequest<CreateTranslationValueResponse>
 {

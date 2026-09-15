@@ -5,7 +5,6 @@ namespace MySolution.Application.Features.TranslationManagement.Queries.GetTrans
 public class GetTranslationValueByIdQuery : IRequest<GetTranslationValueByIdResponse>
 {
     public Guid Id { get; set; }
-
     public GetTranslationValueByIdQuery(Guid id)
     {
         Id = id;

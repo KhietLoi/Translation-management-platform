@@ -1,7 +1,7 @@
 ﻿using MySolution.Application.Common.Models;
 using MySolution.Domain.Enums;
 
-namespace MySolution.Application.Features.TranslationValue.Commands.UpdateTranslationValue;
+namespace MySolution.Application.Features.TranslationManagement.Commands.UpdateTranslationValue;
 
 public class UpdateTranslationValueResponse : BaseResponse <UpdateTranslationValueData>
 {

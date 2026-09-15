@@ -10,6 +10,6 @@ public interface IProjectNamespaceRepository : IRepository<ProjectNamespace>
     /*Task<bool> IsNamespaceBelongsToProjectAsync(Guid namespaceId, Guid projectId);*/
     
     // Get namespace by id and project id
-    Task <ProjectNamespace?> GetByIdAndProjectIdAsync (Guid namspaceId, Guid projectId);
+    // Task <ProjectNamespace?> GetByIdAndProjectIdAsync (Guid namspaceId, Guid projectId);
     
 }

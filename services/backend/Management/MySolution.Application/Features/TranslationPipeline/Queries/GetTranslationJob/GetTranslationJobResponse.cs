@@ -5,7 +5,6 @@ namespace MySolution.Application.Features.TranslationPipeline.Queries.GetTransla
 
 public class GetTranslationJobResponse : BaseResponse <GetTranslationJobResponseData>
 {
-
 }
 
 public class GetTranslationJobResponseData

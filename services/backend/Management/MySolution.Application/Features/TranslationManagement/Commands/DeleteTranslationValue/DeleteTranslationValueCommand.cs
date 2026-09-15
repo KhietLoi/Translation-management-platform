@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using MySolution.Application.Features.TranslationValue.Commands.DeleteTranslationValue;
 
 namespace MySolution.Application.Features.TranslationManagement.Commands.DeleteTranslationValue;
 

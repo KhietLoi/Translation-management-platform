@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 namespace MySolution.Application.Features.Language.Commands.DeleteLanguage;
@@ -29,9 +30,13 @@ public class DeleteLanguageHandler : IRequestHandler<DeleteLanguageCommand, Dele
 
         try
         {
-            var language = await _unitOfWork.Language.GetByIdAsync(request.LanguageId);
-            if (language == null)
+            var language = await _unitOfWork.Language
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == request.LanguageId, cancellationToken);
+            if (language is null)
             {
+                _logger.LogError($"Language with id {request.LanguageId} not found.");
+                
                 response.ErrorMessage = "Language not found.";
                 response.StatusCode = HttpStatusCode.NotFound;
                 return response;
@@ -46,6 +51,8 @@ public class DeleteLanguageHandler : IRequestHandler<DeleteLanguageCommand, Dele
                 Code = language.Code,
                 Name = language.Name,
             };
+            
+            _logger.LogInformation("Language deleted successfully. LanguageId = {LanguageId}", language.Id);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

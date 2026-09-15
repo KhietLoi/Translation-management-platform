@@ -5,7 +5,6 @@ namespace MySolution.Application.Features.TranslationManagement.Queries.GetTrans
 
 public class GetTranslationValueByIdResponse : BaseResponse <GetTranslationValueByIdData>
 {
-
 }
 
 public class GetTranslationValueByIdData
@@ -29,5 +28,4 @@ public class GetTranslationValueByIdData
     public DateTime? PublishedAt { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-    
 }

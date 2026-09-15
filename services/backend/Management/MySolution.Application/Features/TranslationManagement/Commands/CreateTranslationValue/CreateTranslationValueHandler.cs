@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Features.TranslationValue.Commands.CreateTranslationValue;
 using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Features.TranslationManagement.Commands.CreateTranslationValue;
@@ -34,20 +34,29 @@ public class CreateTranslationValueHandler : IRequestHandler<CreateTranslationVa
         try
         {
             // Check TranslationKey exists
-            var translationKey = await _unitOfWork.TranslationKey.ExistsAsync(payload.TranslationKeyId);
+            var translationKey = await _unitOfWork.TranslationKey
+                .GetAll()
+                .AnyAsync(x => x.Id == payload.TranslationKeyId, cancellationToken);
             if (!translationKey)
             {
+                _logger.LogInformation("{FunctionName} Translation key with ID {Id} not found.", functionName, payload.TranslationKeyId);
+                
                 response.ErrorMessage = "Translation key not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
             
-            Guid projectId = await _unitOfWork.TranslationKey.GetProjectIdAsync(payload.TranslationKeyId);
             // Check duplicate
-            var exists = await _unitOfWork.TranslationValue.ExistsAsync(payload.TranslationKeyId, payload.LanguageId);
+            var exists = await _unitOfWork.TranslationValue
+                .GetAll()
+                .AnyAsync(x => x.TranslationKeyId == payload.TranslationKeyId &&
+                               x.LanguageId == payload.LanguageId, cancellationToken);
             if (exists)
             {
-                response.ErrorMessage = "Translation key already exists";
+                _logger.LogInformation("{FunctionName} Translation value for key ID {KeyId} and language ID {LanguageId} already exists.",
+                    functionName, payload.TranslationKeyId, payload.LanguageId);
+                
+                response.ErrorMessage = "Translation value already exists";
                 response.WithStatus(HttpStatusCode.Conflict);
                 return response;
             }

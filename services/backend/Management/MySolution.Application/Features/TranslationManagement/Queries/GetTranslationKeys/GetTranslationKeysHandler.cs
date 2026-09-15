@@ -1,7 +1,10 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Domain.Entities;
+
 
 namespace MySolution.Application.Features.TranslationManagement.Queries.GetTranslationKeys;
 
@@ -30,9 +33,35 @@ public class GetTranslationKeysHandler : IRequestHandler<GetTranslationKeysQuery
 
         try
         {
-            var translationKeys = await _unitOfWork.TranslationKey
-                .GetAsync(request.ProjectId,request.NamespaceId, request.Keyword);
+            // var translationKeys = await _unitOfWork.TranslationKey.GetAsync(request.ProjectId,request.NamespaceId, request.Keyword);
+            
+            IQueryable<TranslationKey> query = _unitOfWork.TranslationKey
+                .GetAll()
+                .AsNoTracking()
+                .Include(x => x.Namespace)
+                .Include(x => x.Project)
+                .AsQueryable();
+                
+            if (request.ProjectId.HasValue)
+            {
+                query = query.Where(x => x.ProjectId == request.ProjectId.Value);
+            }
 
+            if (request.NamespaceId.HasValue)
+            {
+                query = query.Where(x => x.NamespaceId == request.NamespaceId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Keyword))
+            {
+                // var keywordPattern = $"%{request.Keyword}%";
+                query = query.Where(x => x.Key.ToLower().Contains(request.Keyword.ToLower()));
+            }
+            
+            var translationKeys = await query
+                .OrderBy(x => x.Key)
+                .ToListAsync(cancellationToken);
+            
             response.Data = new GetTranslationKeysData
             {
                 Items = translationKeys

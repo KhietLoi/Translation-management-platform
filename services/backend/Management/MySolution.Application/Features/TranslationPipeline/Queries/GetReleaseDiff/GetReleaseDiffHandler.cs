@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -33,18 +34,30 @@ public class GetReleaseDiffHandler : IRequestHandler<GetReleaseDiffQuery, GetRel
 
         try
         {
-            var targetRelease = await _unitOfWork.TranslationRelease.GetByIdAsync(request.TargetReleaseId, cancellationToken);
-            if (targetRelease == null)
+            var targetRelease = await _unitOfWork.TranslationRelease
+                .GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.TargetReleaseId, cancellationToken);
+            if (targetRelease is null)
             {
+                _logger.LogInformation("{FunctionName} Target release with ID {TargetReleaseId} not found.", functionName, request.TargetReleaseId);
+                
                 response.ErrorMessage = "The target release was not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
+        
             var sourceRelease = await _unitOfWork.TranslationRelease
-                .GetPreviousReleaseAsync(targetRelease.ProjectId, targetRelease.PublishedAt, cancellationToken);
-            
-            if (sourceRelease == null)
+                .GetAll()
+                .AsNoTracking()
+                .Where(x => x.ProjectId == targetRelease.ProjectId && x.PublishedAt < targetRelease.PublishedAt)
+                .OrderByDescending(x => x.PublishedAt)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (sourceRelease is null)
             {
+                _logger.LogInformation("{FunctionName} No previous release found for target release {TargetReleaseId}.", functionName, request.TargetReleaseId);
+                
                 response.ErrorMessage = "No previous release found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -52,40 +65,39 @@ public class GetReleaseDiffHandler : IRequestHandler<GetReleaseDiffQuery, GetRel
             
             var result = await _releaseDiffService.CompareAsync(sourceRelease, targetRelease, cancellationToken);
             
-            response.Data =
-                new GetReleaseDiffData
-                {
-                    AddedCount = result.AddedCount,
-                    UpdatedCount = result.UpdatedCount,
-                    RemovedCount = result.RemovedCount,
+            response.Data = new GetReleaseDiffData
+            {
+                AddedCount = result.AddedCount,
+                UpdatedCount = result.UpdatedCount,
+                RemovedCount = result.RemovedCount,
 
-                    Added = result.Added
-                        .Select(x => new GetReleaseDiffItem
-                        {
-                            LanguageCode = x.LanguageCode,
-                            Key = x.Key,
-                            OldValue = x.OldValue,
-                            NewValue = x.NewValue
-                        }).ToList(),
+                Added = result.Added
+                    .Select(x => new GetReleaseDiffItem
+                    {
+                        LanguageCode = x.LanguageCode,
+                        Key = x.Key,
+                        OldValue = x.OldValue,
+                        NewValue = x.NewValue
+                    }).ToList(),
 
-                    Updated = result.Updated
-                        .Select(x => new GetReleaseDiffItem
-                        {
-                            LanguageCode = x.LanguageCode,
-                            Key = x.Key,
-                            OldValue = x.OldValue,
-                            NewValue = x.NewValue
-                        }).ToList(),
+                Updated = result.Updated
+                    .Select(x => new GetReleaseDiffItem
+                    {
+                        LanguageCode = x.LanguageCode,
+                        Key = x.Key,
+                        OldValue = x.OldValue,
+                        NewValue = x.NewValue
+                    }).ToList(),
 
-                    Removed = result.Removed
-                        .Select(x => new GetReleaseDiffItem
-                        {
-                            LanguageCode = x.LanguageCode,
-                            Key = x.Key,
-                            OldValue = x.OldValue,
-                            NewValue = x.NewValue
-                        }).ToList()
-                };
+                Removed = result.Removed
+                    .Select(x => new GetReleaseDiffItem
+                    {
+                        LanguageCode = x.LanguageCode,
+                        Key = x.Key,
+                        OldValue = x.OldValue,
+                        NewValue = x.NewValue
+                    }).ToList()
+            };
             
             response
                 .WithSuccess(true)
@@ -94,6 +106,7 @@ public class GetReleaseDiffHandler : IRequestHandler<GetReleaseDiffQuery, GetRel
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

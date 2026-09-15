@@ -1,10 +1,10 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Features.TranslationManagement.Queries.GetTranslationValues;
 
-namespace MySolution.Application.Features.TranslationValue.Queries.GetTranslationValues;
+namespace MySolution.Application.Features.TranslationManagement.Queries.GetTranslationValues;
 
 public class GetTranslationValuesHandler : IRequestHandler<GetTranslationValuesQuery, GetTranslationValuesResponse>
 {
@@ -31,16 +31,41 @@ public class GetTranslationValuesHandler : IRequestHandler<GetTranslationValuesQ
 
         try
         {
-            
-            var entities = await _unitOfWork.TranslationValue.GetAsync(
-                    request.TranslationKeyId,
-                    request.NamespaceId,
-                    request.LanguageId,
-                    request.Status);
+            var query = _unitOfWork.TranslationValue
+                .GetAll()
+                .AsNoTracking()
+                .Include(x => x.Language)
+                .Include(x => x.TranslationKey)
+                .ThenInclude(x => x.Namespace)
+                .AsQueryable();
+            if (request.TranslationKeyId.HasValue)
+            {
+                query = query.Where(x => x.TranslationKeyId == request.TranslationKeyId.Value);
+            }
+
+            if (request.NamespaceId.HasValue)
+            {
+                query = query.Where(x => x.TranslationKey.NamespaceId == request.NamespaceId.Value);
+            }
+
+            if (request.LanguageId.HasValue)
+            {
+                query = query.Where(x => x.LanguageId == request.LanguageId.Value);
+            }
+
+            if (request.Status.HasValue)
+            {
+                query = query.Where(x => x.Status == request.Status.Value);
+            }
+
+            var entities = await query
+                .OrderBy(x => x.TranslationKey.Key)
+                .ThenBy(x => x.Language.Code)
+                .ToListAsync(cancellationToken);
             
             response.Data = new GetTranslationValuesResult
             {
-                translationValues = entities.Select(x => new GetTranslationValuesData
+                TranslationValues = entities.Select(x => new GetTranslationValuesData
                 {
                     Id = x.Id,
                     TranslationKeyId = x.TranslationKeyId,
@@ -63,6 +88,7 @@ public class GetTranslationValuesHandler : IRequestHandler<GetTranslationValuesQ
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

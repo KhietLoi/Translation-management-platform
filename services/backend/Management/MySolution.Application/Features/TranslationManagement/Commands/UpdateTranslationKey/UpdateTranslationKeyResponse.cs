@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.TranslationManagement.Commands.UpdateT
 
 public class UpdateTranslationKeyResponse : BaseResponse <UpdateTranslationKeyData>
 {
-
 }
 
 public class UpdateTranslationKeyData

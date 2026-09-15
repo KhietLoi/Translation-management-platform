@@ -26,8 +26,7 @@ public class LanguageController (IMediator mediator) : Controller
 
     [HttpPut("{id:guid}")]
     [Permission(PermissionConstants.Language.Update)]
-    public async Task<IActionResult> UpdateLanguage(Guid id, [FromBody] UpdateLanguageRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateLanguage(Guid id, [FromBody] UpdateLanguageRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new UpdateLanguageCommand(request, id), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);

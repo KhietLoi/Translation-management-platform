@@ -36,6 +36,15 @@ public class GetLanguagesHandler : IRequestHandler<GetLanguagesQuery, GetLanguag
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
             
+            if (!languages.Any() || languages.Count == 0)
+            {
+                _logger.LogInformation("{FunctionName} No languages found.", functionName);
+                
+                response.ErrorMessage = "No languages found.";
+                response.WithStatus(HttpStatusCode.NotFound);
+                return response;
+            }
+
             response.Data = new GetLanguageResult
             {
                 Languages = languages.Select(x => new GetLanguageData
@@ -47,6 +56,7 @@ public class GetLanguagesHandler : IRequestHandler<GetLanguagesQuery, GetLanguag
                     UpdatedAt = x.UpdatedAt
                 }).ToList()
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
@@ -54,6 +64,7 @@ public class GetLanguagesHandler : IRequestHandler<GetLanguagesQuery, GetLanguag
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

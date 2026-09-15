@@ -1,10 +1,10 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using MySolution.Application.Features.TranslationManagement.Commands.DeleteTranslationValue;
 
-namespace MySolution.Application.Features.TranslationValue.Commands.DeleteTranslationValue;
+namespace MySolution.Application.Features.TranslationManagement.Commands.DeleteTranslationValue;
 
 public class DeleteTranslationValueHandler : IRequestHandler<DeleteTranslationValueCommand, DeleteTranslationValueResponse>
 {
@@ -31,9 +31,16 @@ public class DeleteTranslationValueHandler : IRequestHandler<DeleteTranslationVa
 
         try
         {
-            var deleted = await _unitOfWork.TranslationValue.DeleteAsync(request.Id);
+            var affectedRows = await _unitOfWork.TranslationValue
+                .GetAll()
+                .Where(x => x.Id == request.Id)
+                .ExecuteDeleteAsync(cancellationToken);
+
+            var deleted = affectedRows > 0;
             if (!deleted)
             {
+                _logger.LogInformation("{FunctionName} TranslationValue not found for Id: {Id}", functionName, request.Id);
+                
                 response.ErrorMessage = "TranslationValue not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;

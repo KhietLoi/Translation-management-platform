@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -33,7 +34,9 @@ public class RevokeApiKeyHandler : IRequestHandler<RevokeApiKeyCommand, RevokeAp
 
         try
         {
-            var apikey = await _unitOfWork.ApiKey.GetByIdAsync(request.ApiKeyId);
+            var apikey = await _unitOfWork.ApiKey
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == request.ApiKeyId, cancellationToken);
             if (apikey == null)
             {
                 response.ErrorMessage = "API key not found.";

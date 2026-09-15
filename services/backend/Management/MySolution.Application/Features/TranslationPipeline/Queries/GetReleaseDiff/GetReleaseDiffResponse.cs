@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.TranslationPipeline.Queries.GetRelease
 
 public class GetReleaseDiffResponse : BaseResponse <GetReleaseDiffData>
 {
-
 }
 
 public class GetReleaseDiffData

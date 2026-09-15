@@ -1,7 +1,7 @@
 ﻿using MySolution.Application.Common.Models;
 using MySolution.Domain.Enums;
 
-namespace MySolution.Application.Features.TranslationValue.Queries.GetTranslationValues;
+namespace MySolution.Application.Features.TranslationManagement.Queries.GetTranslationValues;
 
 public class GetTranslationValuesResponse : BaseResponse <GetTranslationValuesResult>
 {
@@ -10,7 +10,7 @@ public class GetTranslationValuesResponse : BaseResponse <GetTranslationValuesRe
 
 public class GetTranslationValuesResult
 {
-    public List<GetTranslationValuesData> translationValues { get; set; } = [];
+    public List<GetTranslationValuesData> TranslationValues { get; set; } = [];
 }
 public class GetTranslationValuesData
 {
