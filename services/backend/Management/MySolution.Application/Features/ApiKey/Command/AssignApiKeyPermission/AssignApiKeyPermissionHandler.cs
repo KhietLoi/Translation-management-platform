@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
@@ -27,24 +28,32 @@ public class AssignApiKeyPermissionHandler : IRequestHandler<AssignApiKeyPermiss
     CancellationToken cancellationToken)
 {
     var functionName = $"{nameof(AssignApiKeyPermissionHandler)} =>";
-    _logger.LogInformation(functionName);
-
     var response = new AssignApiKeyPermissionResponse();
 
     try
     {
-        var apikey = await _unitOfWork.ApiKey.GetByIdAsync(request.ApiKeyId);
+        var apikey = await _unitOfWork.ApiKey
+            .GetAll()
+            .Where(x => x.Id == request.ApiKeyId)
+            .ToListAsync(cancellationToken);
 
-        if (apikey == null)
+        if (!apikey.Any())
         {
+           _logger.LogInformation("No permissions found for {FunctionName}", functionName);
+           
             response.ErrorMessage = "API key not found.";
             response.WithStatus(HttpStatusCode.NotFound);
             return response;
         }
         
-        var oldPermissions = await _unitOfWork.ApiKeyPermission.GetPermissionsByApiKeyId(request.ApiKeyId);
+        var oldPermissions = await _unitOfWork.ApiKeyPermission
+            .GetAll()
+            .Where(x => x.ApiKeyId == request.ApiKeyId)
+            .ToListAsync(cancellationToken);
         if (oldPermissions.Any())
         {
+            _logger.LogInformation("API permissions found for {FunctionName}", functionName);
+            
             _unitOfWork.ApiKeyPermission.DeleteRange(oldPermissions);
             await _unitOfWork.SaveAsync(cancellationToken);
         }
@@ -58,10 +67,6 @@ public class AssignApiKeyPermissionHandler : IRequestHandler<AssignApiKeyPermiss
                 Permission = x
             })
             .ToList();
-        _logger.LogInformation(
-            "Old permissions: {Count}, New permissions: {NewCount}",
-            oldPermissions.Count,
-            permissions.Count);
         
         if (permissions.Any())
         {
@@ -71,30 +76,26 @@ public class AssignApiKeyPermissionHandler : IRequestHandler<AssignApiKeyPermiss
         
         response.Data = new AssignApiKeyPermissionData
         {
-            ApiKeyId = apikey.Id,
+            ApiKeyId = apikey.First().Id,
             Permissions = permissions
                 .Select(x => x.Permission)
                 .ToList()
         };
 
+        _logger.LogInformation("Assign API permissions for {FunctionName}", functionName);
         response
             .WithSuccess(true)
             .WithStatus(HttpStatusCode.Created);
-
-        return response;
     }
     catch (Exception ex)
     {
-        _logger.LogError(
-            ex,
-            "{FunctionName} Unexpected error.",
-            functionName);
+        _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
 
         response.ErrorMessage = "An unexpected error occurred.";
         response.WithStatus(HttpStatusCode.InternalServerError);
-
-        return response;
     }
+    
+    return response;
 }
 
     #endregion

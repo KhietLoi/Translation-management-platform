@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.MassTransit;
@@ -37,17 +38,22 @@ public class PublishTranslationsHandler : IRequestHandler<PublishTranslationsCom
     {
         var payload = request.Payload;
         var functionName = $"{nameof(PublishTranslationsHandler)} =>";
-        _logger.LogInformation(functionName);
+        
         var response = new PublishTranslationsResponse();
 
         try
         {
             //Validate Project:
-            var project = await _unitOfWork.Project.ExistsAsync(payload.ProjectId);
+            var project = await _unitOfWork.Project
+                .GetAll()
+                .AsNoTracking()
+                .AnyAsync(p => p.Id == request.Payload.ProjectId, cancellationToken);
             if (!project)
             {
+                _logger.LogInformation("Project {ProjectId} does not exist", request.Payload.ProjectId);
+                
                 response.ErrorMessage = $"Project with id {payload.ProjectId} does not exist.";
-                response.WithStatus(HttpStatusCode.NotFound);
+                response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
 
@@ -61,7 +67,6 @@ public class PublishTranslationsHandler : IRequestHandler<PublishTranslationsCom
                 CreatedBy = _currentUser.UserId,
                 CreatedAt = DateTime.UtcNow
             };
-            _logger.LogInformation("User {UserId} initiated publish job for project {ProjectId}", _currentUser.UserId, request.Payload.ProjectId);
             
             await _unitOfWork.TranslationJob.Add(job);
             await _unitOfWork.SaveAsync(cancellationToken);
@@ -76,6 +81,7 @@ public class PublishTranslationsHandler : IRequestHandler<PublishTranslationsCom
                 JobId = job.Id
             };
 
+            _logger.LogInformation("{FunctionName} PublishTranslationsCommand processed successfully for JobId: {JobId}", functionName, job.Id);
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
@@ -83,6 +89,7 @@ public class PublishTranslationsHandler : IRequestHandler<PublishTranslationsCom
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

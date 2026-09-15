@@ -11,6 +11,7 @@ public class UpdateLanguageValidator : AbstractValidator<UpdateLanguageCommand>
             .WithMessage("Language code cannot be empty")
             .MaximumLength(30)
             .WithMessage("Language code cannot exceed 30 characters");
+        
         RuleFor(x => x.Payload.Name)
             .NotEmpty()
             .WithMessage("Language name cannot be empty")

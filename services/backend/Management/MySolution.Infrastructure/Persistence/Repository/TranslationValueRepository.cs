@@ -70,23 +70,15 @@ public class TranslationValueRepository (AppDbContext context, ILogger logger) :
             .Include(x => x.Reviewer)
             .FirstAsync(x => x.Id == id);
     }
-
-    public async Task<bool> ExistsAsync(Guid translationKeyId, Guid languageId, Guid? excludeId = null)
-    {
-        return await DbSet.AnyAsync(x =>
-            x.TranslationKeyId == translationKeyId &&
-            x.LanguageId == languageId &&
-            (!excludeId.HasValue || x.Id != excludeId.Value));
-    }
-
-    public async Task<bool> DeleteAsync(Guid id)
-    {
-        var affectedRows = await DbSet
-            .Where(x => x.Id == id)
-            .ExecuteDeleteAsync();
-
-        return affectedRows > 0;
-    }
+    
+    // public async Task<bool> DeleteAsync(Guid id)
+    // {
+    //     var affectedRows = await DbSet
+    //         .Where(x => x.Id == id)
+    //         .ExecuteDeleteAsync();
+    //
+    //     return affectedRows > 0;
+    // }
 
     public async Task<Guid?> GetExistingIdAsync(Guid id)
     {

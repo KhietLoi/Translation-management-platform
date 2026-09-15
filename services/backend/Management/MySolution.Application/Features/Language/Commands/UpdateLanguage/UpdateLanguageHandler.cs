@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 namespace MySolution.Application.Features.Language.Commands.UpdateLanguage;
@@ -30,9 +31,13 @@ public class UpdateLanguageHandler : IRequestHandler<UpdateLanguageCommand, Upda
 
         try
         {
-            var language = await _unitOfWork.Language.GetByIdAsync(request.LanguageId);
+            var language = await _unitOfWork.Language
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == request.LanguageId, cancellationToken);
             if (language == null)
             {
+                _logger.LogInformation("{FunctionName} Language not found. LanguageId = {LanguageId}", functionName, request.LanguageId);
+                
                 response.ErrorMessage = "Language not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -42,6 +47,8 @@ public class UpdateLanguageHandler : IRequestHandler<UpdateLanguageCommand, Upda
             var isCodeExist = await _unitOfWork.Language.ExistsByCodeAsync(payload.Code, request.LanguageId);
             if (isCodeExist)
             {
+                _logger.LogInformation("{FunctionName} Language code already exists. Code = {Code}", functionName, payload.Code);
+                
                 response.ErrorMessage = "Code already exists";
                 response.WithStatus(HttpStatusCode.Conflict);
                 return response;
@@ -61,6 +68,7 @@ public class UpdateLanguageHandler : IRequestHandler<UpdateLanguageCommand, Upda
                 CreatedAt = language.CreatedAt,
                 UpdatedAt = DateTime.UtcNow
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
@@ -68,6 +76,7 @@ public class UpdateLanguageHandler : IRequestHandler<UpdateLanguageCommand, Upda
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

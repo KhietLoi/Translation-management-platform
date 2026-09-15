@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.MassTransit;
@@ -43,11 +44,16 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
         try
         {
             // Validate project:
-            var isProjectValid = await _unitOfWork.Project.ExistsAsync(payload.ProjectId);
+            var isProjectValid = await _unitOfWork.Project
+                .GetAll()
+                .AsNoTracking()
+                .AnyAsync(p => p.Id == payload.ProjectId, cancellationToken);
             if (!isProjectValid)
             {
-                response.ErrorMessage = "Project not found.";
-                response.WithStatus(HttpStatusCode.NotFound);
+                _logger.LogError($"Project {payload.ProjectId} does not exist.");
+                
+                response.ErrorMessage = "Project does not exist.";
+                response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
             
@@ -82,6 +88,7 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

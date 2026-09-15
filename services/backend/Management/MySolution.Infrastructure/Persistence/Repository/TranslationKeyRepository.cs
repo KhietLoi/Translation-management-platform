@@ -9,10 +9,10 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 public class TranslationKeyRepository (AppDbContext context, ILogger logger) : 
     Repository<TranslationKey>(context, logger), ITranslationKeyRepository
 {
-    public async Task<TranslationKey?> GetByIdAsync(Guid id)
-    {
-        return await DbSet.FirstOrDefaultAsync(x => x.Id == id);
-    }
+    // public async Task<TranslationKey?> GetByIdAsync(Guid id)
+    // {
+    //     return await DbSet.FirstOrDefaultAsync(x => x.Id == id);
+    // }
     
     public async Task<Guid?> GetExistingIdAsync(Guid id)  // => id TranslationKey
     {
@@ -22,13 +22,13 @@ public class TranslationKeyRepository (AppDbContext context, ILogger logger) :
             .FirstOrDefaultAsync();
     }
 
-    public async Task<TranslationKey?> GetByIdTrackingAsync(Guid id)
-    {
-        return await DbSet
-            .Include(x => x.Project)
-            .Include(x => x.Namespace)
-            .FirstOrDefaultAsync(x => x.Id == id);
-    }
+    // public async Task<TranslationKey?> GetByIdTrackingAsync(Guid id)
+    // {
+    //     return await DbSet
+    //         .Include(x => x.Project)
+    //         .Include(x => x.Namespace)
+    //         .FirstOrDefaultAsync(x => x.Id == id);
+    // }
 
     public async Task<List<TranslationKey>> GetAsync(Guid? projectId, Guid? namespaceId, string? keyword)
     {
@@ -68,10 +68,10 @@ public class TranslationKeyRepository (AppDbContext context, ILogger logger) :
             x.Key == key &&
             (!excludeKeyId.HasValue || x.Id != excludeKeyId.Value));
     }
-    public async Task<bool> ExistsAsync(Guid id)
-    {
-        return await DbSet.AnyAsync(x => x.Id == id);
-    }
+    // public async Task<bool> ExistsAsync(Guid id)
+    // {
+    //     return await DbSet.AnyAsync(x => x.Id == id);
+    // }
 
     public async Task<Guid> GetProjectIdAsync(Guid translationKeyId)
     {

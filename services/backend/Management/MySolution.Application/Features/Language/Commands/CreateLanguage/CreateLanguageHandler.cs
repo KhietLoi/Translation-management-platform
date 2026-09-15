@@ -33,6 +33,8 @@ public class CreateLanguageHandler : IRequestHandler<CreateLanguageCommand, Crea
             var isCodeExits = await _unitOfWork.Language.ExistsByCodeAsync(payload.Code);
             if (isCodeExits)
             {
+                _logger.LogInformation("{FunctionName} Code already exists: {Code}", functionName, payload.Code);
+                
                 response.ErrorMessage = "Code already exists";
                 response.WithStatus(HttpStatusCode.Conflict);
                 return response;
@@ -45,6 +47,7 @@ public class CreateLanguageHandler : IRequestHandler<CreateLanguageCommand, Crea
                 Name = payload.Name,
                 CreatedAt = DateTime.UtcNow
             };
+            
             await _unitOfWork.Language.Add(language);
             await _unitOfWork.SaveAsync(cancellationToken);
 
@@ -63,6 +66,7 @@ public class CreateLanguageHandler : IRequestHandler<CreateLanguageCommand, Crea
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

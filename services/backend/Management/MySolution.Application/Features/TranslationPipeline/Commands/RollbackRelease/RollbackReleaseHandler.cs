@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 namespace MySolution.Application.Features.TranslationPipeline.Commands.RollbackRelease;
@@ -29,9 +30,13 @@ public class RollbackReleaseHandler : IRequestHandler<RollbackReleaseCommand, Ro
 
         try
         {
-            var targetRelease = await _unitOfWork.TranslationRelease.GetByIdAsync(request.ReleaseId, cancellationToken);
+            var targetRelease = await _unitOfWork.TranslationRelease
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == request.ReleaseId, cancellationToken);
             if (targetRelease is null)
             {
+                _logger.LogInformation($"No active release {request.ReleaseId}");
+                
                 response.ErrorMessage = "Release not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -39,15 +44,16 @@ public class RollbackReleaseHandler : IRequestHandler<RollbackReleaseCommand, Ro
 
             if (targetRelease.IsActive)
             {
+                _logger.LogInformation($"Release {targetRelease.Id} is active");
+                
                 response.ErrorMessage = "Release is already active.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-
-         
-            var currentActiveRelease =
-                await _unitOfWork.TranslationRelease.GetCurrentActiveAsync(targetRelease.ProjectId, cancellationToken);
-
+            
+            var currentActiveRelease = await _unitOfWork.TranslationRelease
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.ProjectId == targetRelease.ProjectId && x.IsActive, cancellationToken);
 
             await _unitOfWork.OpenTransactionAsync(cancellationToken);
 
@@ -69,6 +75,9 @@ public class RollbackReleaseHandler : IRequestHandler<RollbackReleaseCommand, Ro
                     Version = targetRelease.Version,
                     IsActive = true
                 };
+                
+                _logger.LogInformation($"Release {targetRelease.Id} rolled back successfully");
+                
                 response
                     .WithSuccess(true)
                     .WithStatus(HttpStatusCode.OK);
@@ -82,6 +91,7 @@ public class RollbackReleaseHandler : IRequestHandler<RollbackReleaseCommand, Ro
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

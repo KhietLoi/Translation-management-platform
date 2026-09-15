@@ -4,5 +4,4 @@ namespace MySolution.Application.Features.TranslationManagement.Commands.DeleteT
 
 public class DeleteTranslationKeyResponse : BaseResponse
 {
-
 }

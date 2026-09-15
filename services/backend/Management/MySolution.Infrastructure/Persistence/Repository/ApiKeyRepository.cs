@@ -8,10 +8,10 @@ namespace MySolution.Infrastructure.Persistence.Repository;
 
 public class ApiKeyRepository (AppDbContext context, ILogger logger) : Repository<ApiKey>(context, logger), IApiKeyRepository
 {
-    public async Task<ApiKey?> GetByIdAsync(Guid id)
-    {
-        return await DbSet.FirstOrDefaultAsync(x => x.Id == id);
-    }
+    // public async Task<ApiKey?> GetByIdAsync(Guid id)
+    // {
+    //     return await DbSet.FirstOrDefaultAsync(x => x.Id == id);
+    // }
 
     public async Task<bool> IsApiKeyExistsAsync(Guid applicationId, string name, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
@@ -22,13 +22,13 @@ public class ApiKeyRepository (AppDbContext context, ILogger logger) : Repositor
                  (!excludeId.HasValue || x.Id != excludeId.Value),
             cancellationToken);
     }
-
-    public async Task<ApiKey?> GetByIdWithPermissionsAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        return await DbSet
-            .Include(x => x.Permissions)
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
-    }
+    //
+    // public async Task<ApiKey?> GetByIdWithPermissionsAsync(Guid id, CancellationToken cancellationToken = default)
+    // {
+    //     return await DbSet
+    //         .Include(x => x.Permissions)
+    //         .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    // }
 
     public async Task<(List<GetApiKeyGridData> Items, int TotalItems)> GetGridAsync(Guid? projectId, Guid? applicationId, string? keyword, bool? isRevoked, int page, int limit,
         CancellationToken cancellationToken)

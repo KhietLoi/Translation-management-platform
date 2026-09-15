@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
@@ -40,32 +41,37 @@ public class UpdateTranslationKeyHandler : IRequestHandler<UpdateTranslationKeyC
 
         try
         {
-            var translationKey = await _unitOfWork.TranslationKey.GetByIdAsync(request.TranslationKeyId);
+            var translationKey = await _unitOfWork.TranslationKey
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == request.TranslationKeyId, cancellationToken);
             if (translationKey == null)
             {
+                _logger.LogInformation("{FunctionName} Translation key not found. TranslationKeyId: {TranslationKeyId}", functionName, request.TranslationKeyId);
+                
                 response.ErrorMessage = "Translation key not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
-    
-            var exists = await _unitOfWork.TranslationKey.ExistsAsync
-            (
-                translationKey.ProjectId,
-                translationKey.NamespaceId,
-                payload.Key,
-                translationKey.Id
-            );
+            
+            var exists = await _unitOfWork.TranslationKey
+                .GetAll()
+                .AnyAsync(x => 
+                    x.ProjectId == translationKey.ProjectId &&
+                    x.NamespaceId == translationKey.NamespaceId &&
+                    x.Key == payload.Key &&
+                    x.Id != translationKey.Id, cancellationToken);
+            
             if (exists)
             {
+                _logger.LogInformation("{FunctionName} Translation key already exists.", functionName);
+                
                 response.ErrorMessage = "Translation key already exists.";
                 response.WithStatus(HttpStatusCode.Conflict);
                 return response;
             }
             
-            
             object oldValue = new
             {
-
                translationKey.Key,
                translationKey.Description
             };

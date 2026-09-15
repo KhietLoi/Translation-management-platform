@@ -1,7 +1,9 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
+
 namespace MySolution.Application.Features.TranslationPipeline.Queries.GetReleaseHistory;
 
 public class GetReleaseHistoryHandler : IRequestHandler<GetReleaseHistoryQuery, GetReleaseHistoryResponse>
@@ -30,43 +32,53 @@ public class GetReleaseHistoryHandler : IRequestHandler<GetReleaseHistoryQuery, 
         try
         {
             //Check projectId:
-            var isProjectValid = await _unitOfWork.Project.ExistsAsync(request.ProjectId);
+            var isProjectValid = await _unitOfWork.Project
+                .GetAll()
+                .AsNoTracking()
+                .AnyAsync(x => x.Id == request.ProjectId, cancellationToken);
             if (!isProjectValid)
             {
-                response.ErrorMessage = "Project not found.";
-                response.WithStatus(HttpStatusCode.NotFound);
+                _logger.LogError($"Project {request.ProjectId} does not exist.");
+                
+                response.ErrorMessage = "Project does not exist.";
+                response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
+
+            var query = from release in _unitOfWork.TranslationRelease
+                    .GetAll()
+                    .AsNoTracking()
+                join user in _unitOfWork.User
+                        .GetAll()
+                        .AsNoTracking()
+                    on release.PublishedBy equals user.Id
+                where release.ProjectId == request.ProjectId
+                select new GetReleaseHistoryItem
+                {
+                    ReleaseId = release.Id,
+                    ProjectId = release.ProjectId,
+                    BlobFileName = release.BlobFileName,
+                    DownloadUrl = release.DownloadUrl,
+                    VersionNumber = release.Version,
+                    PublishingUserId = release.PublishedBy,
+                    PublishingUserName = user.Username,
+                    ReleaseDate = release.PublishedAt,
+                    Notes = release.Notes,
+                    TotalKey = release.TotalKey,
+                    IsActive = release.IsActive
+                };
             
-            //Load release:
-            var releases = await _unitOfWork.TranslationRelease
-                .GetReleaseHistoryAsync(
-                    request.ProjectId,
-                    request.PageNumber,
-                    request.PageSize,
-                    cancellationToken);
+            var totalCount = await query.CountAsync(cancellationToken);
+            var items = await query
+                .OrderByDescending(x => x.VersionNumber)
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync(cancellationToken);
             
             response.Data = new GetReleaseHistoryData
             {
-                Items = releases.Items
-                    .Select(x => new GetReleaseHistoryItem
-                    {
-                        ReleaseId = x.Id,
-                        ProjectId = x.ProjectId,
-                        BlobFileName = x.BlobFileName,
-                        DownloadUrl = x.DownloadUrl,
-                        VersionNumber = x.Version,
-                        PublishingUserId = x.PublishedBy,
-                        PublishingUserName = x.PublishedByName,
-                        ReleaseDate = x.PublishedAt,
-                        Notes = x.Notes,
-                        TotalKey = x.TotalKey,
-                        IsActive = x.IsActive
-                    })
-                    .ToList(),
-
-                TotalCount = releases.TotalCount,
-                PageNumber = request.PageNumber,
+                Items = items,
+                TotalCount = totalCount,
                 PageSize = request.PageSize
             };
             
@@ -77,6 +89,7 @@ public class GetReleaseHistoryHandler : IRequestHandler<GetReleaseHistoryQuery, 
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
@@ -86,3 +99,4 @@ public class GetReleaseHistoryHandler : IRequestHandler<GetReleaseHistoryQuery, 
 
     #endregion
 }
+
