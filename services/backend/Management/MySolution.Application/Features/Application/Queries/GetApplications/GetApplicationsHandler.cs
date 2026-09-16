@@ -46,6 +46,7 @@ public class GetApplicationsHandler : IRequestHandler<GetApplicationsQuery, GetA
                     ProjectId = x.ProjectId
                 }).ToList()
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

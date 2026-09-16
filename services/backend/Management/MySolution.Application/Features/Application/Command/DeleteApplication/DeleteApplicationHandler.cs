@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using Shared.Extensions;
@@ -31,9 +32,13 @@ public class DeleteApplicationHandler : IRequestHandler<DeleteApplicationCommand
         try
         {
             //Check if application exists
-            var application = await _unitOfWork.Application.GetByIdAsync(request.Id, cancellationToken);
+            var application = await _unitOfWork.Application
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
             if (application == null)
             {
+                _logger.LogInformation("No application found for id {Id}", request.Id);
+                
                 response.ErrorMessage = "Application not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;

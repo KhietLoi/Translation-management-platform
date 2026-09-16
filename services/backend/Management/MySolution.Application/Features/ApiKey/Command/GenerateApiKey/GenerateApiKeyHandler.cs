@@ -1,5 +1,6 @@
 ﻿    using System.Net;
     using MediatR;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using MySolution.Application.Common.Interfaces;
     using MySolution.Application.Common.Interfaces.Authentication;
@@ -41,16 +42,27 @@
 
             try
             {
-                var application = await _unitOfWork.Application.GetByIdAsync(request.ApplicationId, cancellationToken);
+                var application = await _unitOfWork.Application
+                    .GetAll()
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.Id == request.ApplicationId, cancellationToken);
                 if (application == null)
                 {
+                    _logger.LogInformation($"Application {request.ApplicationId} does not exist.");
+                    
                     response.ErrorMessage = "Application not found.";
                     response.WithStatus(HttpStatusCode.NotFound);
                     return response;
                 }
                 
                 // Check duplicate name
-                var existingApiKey = await _unitOfWork.ApiKey.IsApiKeyExistsAsync(request.ApplicationId, request.Payload.Name);
+                var existingApiKey = await _unitOfWork.ApiKey
+                    .GetAll()
+                    .AsNoTracking()
+                    .AnyAsync(
+                        x => x.ApplicationId == request.ApplicationId &&
+                             x.Name == request.Payload.Name,
+                        cancellationToken);
                 if (existingApiKey)
                 {
                     response.ErrorMessage = "An API key with the same name already exists for this application.";
@@ -112,6 +124,7 @@
                         .Select(x => x.Permission)
                         .ToList()
                 };
+                
                 response
                     .WithSuccess(true)
                     .WithStatus(HttpStatusCode.Created);
