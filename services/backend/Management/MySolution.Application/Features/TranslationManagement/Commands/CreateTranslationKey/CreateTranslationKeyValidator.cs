@@ -20,7 +20,5 @@ public class CreateTranslationKeyValidator : AbstractValidator<CreateTranslation
         RuleFor(x => x.Payload.Description)
             .MaximumLength(500)
             .WithMessage("Description cannot exceed 500 characters.");
-        
-            
     }
 }

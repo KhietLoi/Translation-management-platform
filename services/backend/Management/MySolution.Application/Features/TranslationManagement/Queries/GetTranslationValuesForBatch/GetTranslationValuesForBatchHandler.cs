@@ -1,10 +1,10 @@
 ﻿using System.Net;
 using MediatR;
-using Microsoft.Extensions.Logging;
-
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
+using MySolution.Domain.Enums;
+
 
 namespace MySolution.Application.Features.TranslationManagement.Queries.GetTranslationValuesForBatch;
 
@@ -35,13 +35,18 @@ public class GetTranslationValuesForBatchHandler : IRequestHandler<GetTranslatio
         try
         {
             var translationValues = await _unitOfWork.TranslationValue
-                .GetBatchTranslationValuesAsync(
-                    payload.ProjectId,
-                    payload.LanguageId,
-                    payload.NamespaceId,
-                    cancellationToken);
-            _logger.LogInformation("{FunctionName} Found {Count} translations for batch translation.", functionName, translationValues.Count);
-
+                .GetAll()
+                .Include(x => x.TranslationKey)
+                .Where(x =>
+                    x.TranslationKey.ProjectId == payload.ProjectId &&
+                    x.TranslationKey.NamespaceId == payload.NamespaceId &&
+                    x.LanguageId == payload.LanguageId &&
+                    (x.Status == TranslationStatus.Draft ||
+                     x.Status == TranslationStatus.Missing ||
+                     x.Status == TranslationStatus.Rejected))
+                .OrderBy(x => x.TranslationKey.Key)
+                .ToListAsync(cancellationToken);
+            
             response.Data = new GetTranslationValuesForBatchData
             {
                 Items = translationValues
@@ -63,6 +68,7 @@ public class GetTranslationValuesForBatchHandler : IRequestHandler<GetTranslatio
         catch (Exception exception)
         {
             _logger.LogError(exception, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

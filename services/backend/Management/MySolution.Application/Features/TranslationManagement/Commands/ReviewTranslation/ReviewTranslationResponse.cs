@@ -3,8 +3,7 @@ using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Features.TranslationManagement.Commands.ReviewTranslation;
 
-public class ReviewTranslationResponse
-    : BaseResponse<ReviewTranslationData>
+public class ReviewTranslationResponse : BaseResponse<ReviewTranslationData>
 {
 }
 

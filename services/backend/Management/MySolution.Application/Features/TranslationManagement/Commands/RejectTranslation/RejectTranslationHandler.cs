@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
@@ -45,9 +46,17 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
 
         try
         {
-            var entity = await _unitOfWork.TranslationValue.GetByIdTrackingAsync(request.Id);
+            var entity = await _unitOfWork.TranslationValue
+                .GetAll()
+                .Include(x => x.TranslationKey)
+                .Include(x => x.Language)
+                .Include(x => x.Reviewer)
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+            
             if (entity == null)
             {
+                _logger.LogInformation($"{functionName} Translation value not found for Id: {request.Id}");
+                
                 response.ErrorMessage = "Translation value not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -55,6 +64,8 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
 
             if (entity.Status != TranslationStatus.Translated)
             {
+                _logger.LogInformation($"{functionName} Translation value is not translated for Id: {request.Id}");
+                
                 response.ErrorMessage = "Only translated item can be rejected";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -62,6 +73,8 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
 
             if (string.IsNullOrWhiteSpace(request.Payload.Reason))
             {
+                _logger.LogInformation($"{functionName} Translation value rejected for Id: {request.Id}");
+                
                 response.ErrorMessage = "Reject reason is required";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -87,7 +100,6 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
             };
 
             await _auditLogService.CreateAsync(
-                
                 _currentUser.UserId,
                 AuditAction.RejectTranslation,
                 AuditConstants.TranslationValue,
@@ -98,6 +110,7 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
             );
 
             await _unitOfWork.SaveAsync(cancellationToken);
+            
             await _notificationService.NotifyProjectAsync(
                 entity.TranslationKey.ProjectId,
                 _currentUser.UserId,
@@ -116,13 +129,15 @@ public class RejectTranslationHandler : IRequestHandler<RejectTranslationCommand
                 RejectionReason = entity.RejectionReason,
                 UpdatedAt = entity.UpdatedAt ?? DateTime.MinValue
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            exception.LogError(_logger, functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
 

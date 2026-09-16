@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Realtime;
@@ -46,92 +47,90 @@ public class BatchReviewTranslationHandler : IRequestHandler<BatchReviewTranslat
                 .Distinct()
                 .ToList();
             
-            var translations = await _unitOfWork.TranslationValue
-                    .GetForBatchReviewAsync(translationIds, payload.ProjectId, payload.LanguageId, payload.NamespaceId);
-            if (translations.Count != translationIds.Count)
+            var translationValues = await _unitOfWork.TranslationValue
+                .GetAll()
+                .Include(x => x.TranslationKey)
+                    .ThenInclude(x => x.Project)
+                .Include(x => x.TranslationKey)
+                    .ThenInclude(x => x.Namespace)
+                .Where(x =>
+                    translationIds.Contains(x.Id) &&
+                    x.LanguageId == payload.LanguageId &&
+                    x.TranslationKey.ProjectId == payload.ProjectId &&
+                    x.TranslationKey.NamespaceId == payload.NamespaceId
+                )
+                .ToListAsync(cancellationToken);
+
+            if (!translationValues.Any())
             {
                 _logger.LogWarning("{FunctionName} One or more translations were not found.", functionName);
+                
                 response.ErrorMessage = "One or more translations were not found.";
                 response.WithStatus(HttpStatusCode.BadRequest);
-                
                 return response;
             }
             
-            if (translations.Any(x => x.Status != TranslationStatus.Translated))
+            if (translationValues.Any(x => x.Status != TranslationStatus.Translated))
             {
                 _logger.LogWarning("{FunctionName} One or more translations are not available for review.", functionName);
+                
                 response.ErrorMessage = "One or more translations are not available for review.";
                 response.WithStatus(HttpStatusCode.BadRequest);
-                
                 return response;
             }
 
-            var translationMap = translations.ToDictionary(x => x.Id);
+            var translationMap = translationValues.ToDictionary(x => x.Id);
             
             var approved = 0;
             var rejected = 0;
             foreach (var item in payload.Items)
             {
-                if (!translationMap.TryGetValue(
-                        item.TranslationValueId,
-                        out var translation))
+                if (!translationMap.TryGetValue(item.TranslationValueId, out var translation))
                 {
-                    _logger.LogWarning(
-                        "{FunctionName} Translation {TranslationValueId} not found.",
-                        functionName,
-                        item.TranslationValueId);
+                    _logger.LogWarning("{FunctionName} Translation {TranslationValueId} not found.", functionName, item.TranslationValueId);
                     
                     response.ErrorMessage = "One or more translations were not found.";
                     response.WithStatus(HttpStatusCode.BadRequest);
-
                     return response;
                 }
 
-                if (item.Status != TranslationStatus.Reviewed &&
-                    item.Status != TranslationStatus.Rejected)
+                if (item.Status != TranslationStatus.Reviewed && item.Status != TranslationStatus.Rejected)
                 {
                     _logger.LogWarning("{FunctionName} Invalid review status.", functionName);
 
                     response.ErrorMessage = "Invalid review status.";
                     response.WithStatus(HttpStatusCode.BadRequest);
-
                     return response;
                 }
 
-                if (item.Status == TranslationStatus.Rejected &&
-                    string.IsNullOrWhiteSpace(item.RejectReason))
+                if (item.Status == TranslationStatus.Rejected && string.IsNullOrWhiteSpace(item.RejectReason))
                 {
                     _logger.LogWarning("{FunctionName} Reject reason is required.", functionName);
+                    
                     response.ErrorMessage = "Reject reason is required.";
                     response.WithStatus(HttpStatusCode.BadRequest);
-                    
                     return response;
                 }
 
                 if (item.Status == TranslationStatus.Reviewed)
                 {
                     translation.Status = TranslationStatus.Reviewed;
-
                     approved++;
                 }
                 else
                 {
                     translation.Status = TranslationStatus.Rejected;
-
-                    translation.RejectionReason =
-                        item.RejectReason?.Trim();
-
+                    translation.RejectionReason = item.RejectReason?.Trim();
                     rejected++;
                 }
 
                 translation.ReviewedAt = DateTime.UtcNow;
                 translation.ReviewedBy = _currentUser.UserId;
-                
             }
               
             await _unitOfWork.SaveAsync(cancellationToken);
             
-            var sample = translations.First();
+            var sample = translationValues.First();
             var projectName = sample.TranslationKey.Project.Name;
             var namespaceName = sample.TranslationKey.Namespace.Name;
 
@@ -156,8 +155,7 @@ public class BatchReviewTranslationHandler : IRequestHandler<BatchReviewTranslat
                 Approved = approved,
                 Rejected = rejected
             };
-
-
+            
             response
                  .WithSuccess(true)
                  .WithStatus(HttpStatusCode.Created);
@@ -165,6 +163,7 @@ public class BatchReviewTranslationHandler : IRequestHandler<BatchReviewTranslat
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
@@ -42,9 +43,14 @@ public class RotateApiKeyHandler : IRequestHandler<RotateApiKeyCommand, RotateAp
 
         try
         {
-            var apikey = await _unitOfWork.ApiKey.GetByIdWithPermissionsAsync(request.ApiKeyId, cancellationToken);
+            var apikey = await _unitOfWork.ApiKey
+                .GetAll()
+                .Include(x => x.Permissions)
+                .FirstOrDefaultAsync(x => x.ApplicationId == request.ApiKeyId, cancellationToken);
             if (apikey == null)
             {
+                _logger.LogInformation(functionName + " API Key not found.");
+                
                 response.ErrorMessage = "API key not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -52,6 +58,8 @@ public class RotateApiKeyHandler : IRequestHandler<RotateApiKeyCommand, RotateAp
             
             if (apikey.ExpiresAt.HasValue && apikey.ExpiresAt.Value < DateTime.UtcNow)
             {
+                _logger.LogInformation(functionName + " API Key expired at " + apikey.ExpiresAt.Value);
+                
                 response.ErrorMessage = "API key has already expired.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -59,6 +67,8 @@ public class RotateApiKeyHandler : IRequestHandler<RotateApiKeyCommand, RotateAp
 
             if (apikey.IsRevoked)
             {
+                _logger.LogInformation(functionName + " API Key revoked.");
+                
                 response.ErrorMessage = "API key is revoked.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -83,19 +93,21 @@ public class RotateApiKeyHandler : IRequestHandler<RotateApiKeyCommand, RotateAp
             
             await _unitOfWork.ApiKey.Add(newApiKey);
             await _unitOfWork.SaveAsync(cancellationToken);
+            
             var permissions = apikey.Permissions
-                    .Select(x => new ApiKeyPermission
-                    {
-                        Id = Guid.NewGuid(),
-                        ApiKeyId = newApiKey.Id,
-                        Permission = x.Permission
-                    }).ToList();
-            await _unitOfWork.ApiKeyPermission.AddRange(permissions);
+                .Select(x => new ApiKeyPermission
+                {
+                    Id = Guid.NewGuid(),
+                    ApiKeyId = newApiKey.Id,
+                    Permission = x.Permission
+                }).ToList();
             
             apikey.RevokedAt = DateTime.UtcNow;
             apikey.RevokedBy = _currentUser.UserId;
             
+            await _unitOfWork.ApiKeyPermission.AddRange(permissions);
             await _unitOfWork.SaveAsync(cancellationToken);
+            
             response.Data = new RotateApiKeyData
             {
                 Id = newApiKey.Id,
@@ -112,6 +124,7 @@ public class RotateApiKeyHandler : IRequestHandler<RotateApiKeyCommand, RotateAp
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

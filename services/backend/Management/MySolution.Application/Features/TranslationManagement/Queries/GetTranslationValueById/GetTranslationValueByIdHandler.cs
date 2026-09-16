@@ -38,8 +38,11 @@ public class GetTranslationValueByIdHandler : IRequestHandler<GetTranslationValu
                     .ThenInclude(x => x.Namespace)
                 .Include(x => x.Language)
                 .FirstOrDefaultAsync(x => x.Id == request.Id,cancellationToken);
+            
             if (entity == null)
             {
+                _logger.LogInformation($"{functionName} Translation value not found for Id: {request.Id}");
+                
                 response.ErrorMessage = "Translation value not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -71,9 +74,10 @@ public class GetTranslationValueByIdHandler : IRequestHandler<GetTranslationValu
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            exception.LogError(_logger, functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
 

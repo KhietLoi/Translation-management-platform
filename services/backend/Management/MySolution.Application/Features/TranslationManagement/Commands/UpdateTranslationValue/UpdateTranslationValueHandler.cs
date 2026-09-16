@@ -1,11 +1,11 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Constants;
-using MySolution.Application.Features.TranslationValue.Commands.UpdateTranslationValue;
 using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Features.TranslationManagement.Commands.UpdateTranslationValue;
@@ -42,9 +42,16 @@ public class UpdateTranslationValueHandler : IRequestHandler<UpdateTranslationVa
 
         try
         {
-            var entity = await _unitOfWork.TranslationValue.GetByIdTrackingAsync(request.Id);
+            var entity = await _unitOfWork.TranslationValue
+                .GetAll()
+                .Include(x => x.TranslationKey)
+                .Include(x => x.Language)
+                .Include(x => x.Reviewer)
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
             if (entity == null)
             {
+                _logger.LogInformation("{FunctionName} TranslationValue not found for Id: {Id}", functionName, request.Id);
+                
                 response.ErrorMessage = "TranslationValue not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -53,6 +60,8 @@ public class UpdateTranslationValueHandler : IRequestHandler<UpdateTranslationVa
             // Check if the translation value is already translated
             if (entity.Status is TranslationStatus.Translated)
             {
+                _logger.LogInformation("{FunctionName} TranslationValue already exists for Id: {Id}", functionName, request.Id);
+                
                 response.ErrorMessage = "Cannot update a translation value that is already translated.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -61,6 +70,8 @@ public class UpdateTranslationValueHandler : IRequestHandler<UpdateTranslationVa
             // Check if the translation value is under review
             if (entity.Status is TranslationStatus.Reviewed)
             {
+                _logger.LogInformation("{FunctionName} TranslationValue is under review for Id: {Id}", functionName, request.Id);
+                
                 response.ErrorMessage = "Cannot update a translation value that is under review.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -69,6 +80,8 @@ public class UpdateTranslationValueHandler : IRequestHandler<UpdateTranslationVa
             // Check if the translation value is already published
             if (entity.Status is TranslationStatus.Published)
             {
+                _logger.LogInformation("{FunctionName} TranslationValue is published for Id: {Id}", functionName, request.Id);
+                
                 response.ErrorMessage = "Cannot update a translation value that is already published.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -81,6 +94,7 @@ public class UpdateTranslationValueHandler : IRequestHandler<UpdateTranslationVa
                 entity.Value,
                 entity.Status
             };
+            
             var now = DateTime.UtcNow;
             entity.Value = payload.Value;
             entity.UpdatedAt = now;
@@ -125,6 +139,7 @@ public class UpdateTranslationValueHandler : IRequestHandler<UpdateTranslationVa
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

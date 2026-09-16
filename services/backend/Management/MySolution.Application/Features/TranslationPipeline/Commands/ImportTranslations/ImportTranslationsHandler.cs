@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
@@ -47,18 +48,32 @@ public class ImportTranslationsHandler : IRequestHandler<ImportTranslationsComma
         try
         {    
             // Validate project and namespace:
-            var isProjectNamespaceValid = await _unitOfWork.Namespace.GetByIdAndProjectIdAsync(payload.NamespaceId, payload.ProjectId);
+            var isProjectNamespaceValid = await _unitOfWork.Namespace
+                .GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => 
+                    x.Id == payload.NamespaceId && 
+                    x.ProjectId == payload.ProjectId, cancellationToken);
             if (isProjectNamespaceValid == null)
             {
+                _logger.LogInformation("Namespace {NamespaceId} does not exist.", payload.NamespaceId);
+                
                 response.ErrorMessage = "Invalid project or namespace.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
             
             //Check language
-            var isLanguageValid = await _unitOfWork.ProjectLanguage.IsLanguageBelongsToProjectAsync(payload.LanguageId, payload.ProjectId);
+            var isLanguageValid = await _unitOfWork.ProjectLanguage
+                .GetAll()
+                .AsNoTracking()
+                .AnyAsync(x => 
+                    x.LanguageId == payload.LanguageId && 
+                    x.ProjectId == payload.ProjectId, cancellationToken);
             if (!isLanguageValid)
             {
+                _logger.LogInformation("Language {LanguageId} does not belong to project {ProjectId}.", payload.LanguageId, payload.ProjectId);
+                
                 response.ErrorMessage = "Language is not valid or does not belong to the specified project.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -66,7 +81,9 @@ public class ImportTranslationsHandler : IRequestHandler<ImportTranslationsComma
             
             var blobFileName =  $"imports/{Guid.NewGuid()}_{payload.File.FileName}";
             var dowloadUrl = _azureBlobService.GetFileUrl(blobFileName);
+            
             await _azureBlobService.UploadFileAsync(payload.File.OpenReadStream(), blobFileName, cancellationToken);
+            
             var job = new TranslationJob
             {
                 Id = Guid.CreateVersion7(),
@@ -81,6 +98,7 @@ public class ImportTranslationsHandler : IRequestHandler<ImportTranslationsComma
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = _currentUser.UserId
             };
+            
             await _unitOfWork.TranslationJob.Add(job);
             await _unitOfWork.SaveAsync(cancellationToken);
             
@@ -94,6 +112,9 @@ public class ImportTranslationsHandler : IRequestHandler<ImportTranslationsComma
                 JobId = job.Id,
                 Status = job.Status,
             };
+            
+            _logger.LogInformation("Import {JobId} completed.", job.Id);
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
@@ -101,6 +122,7 @@ public class ImportTranslationsHandler : IRequestHandler<ImportTranslationsComma
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

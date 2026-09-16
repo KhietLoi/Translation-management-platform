@@ -19,7 +19,8 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
 {
     [HttpPost("import")]
     [Permission(PermissionConstants.Translation.Create)]
-    public async Task<IActionResult> Import(
+    public async Task<IActionResult> Import
+    (
         [FromForm] ImportTranslationsRequest request,
         CancellationToken cancellationToken
     )
@@ -30,7 +31,8 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
 
     [HttpPost("export")]
     [Permission(PermissionConstants.Translation.View)]
-    public async Task<IActionResult> Export(
+    public async Task<IActionResult> Export
+    (
         [FromBody] ExportTranslationsRequest request,
         CancellationToken cancellationToken
     )
@@ -41,7 +43,8 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
 
     [HttpPost("publish")]
     [Permission(PermissionConstants.Translation.Publish)]
-    public async Task<IActionResult> Publish(
+    public async Task<IActionResult> Publish
+    (
         [FromBody] PublishTranslationsRequest request,
         CancellationToken cancellationToken
     )
@@ -52,7 +55,8 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
     
     [HttpGet("release-history")]
     [Permission(PermissionConstants.Translation.View)]
-    public async Task<IActionResult> GetReleaseHistory(
+    public async Task<IActionResult> GetReleaseHistory
+    (
         [FromQuery] GetReleaseHistoryQuery query,
         CancellationToken cancellationToken)
     {
@@ -62,7 +66,8 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
 
     [HttpGet("translations-history")]
     [Permission(PermissionConstants.Translation.View)]
-    public async Task<IActionResult> GetTranslationHistory(
+    public async Task<IActionResult> GetTranslationHistory
+    (
         [FromQuery] GetTranslationJobQuery query,
         CancellationToken cancellationToken)
     {
@@ -79,7 +84,7 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //Diff:
+    //Get release diff:
     [HttpGet("release-diff")]
     [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetReleaseDiff

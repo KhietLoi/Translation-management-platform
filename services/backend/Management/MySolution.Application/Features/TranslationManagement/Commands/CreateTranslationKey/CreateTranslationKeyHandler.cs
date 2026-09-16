@@ -1,13 +1,13 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Features.TranslationManagement.Commands.CreateTranslationKey;
 
-public class CreateTranslationKeyHandler
-    : IRequestHandler<CreateTranslationKeyCommand, CreateTranslationKeyResponse>
+public class CreateTranslationKeyHandler : IRequestHandler<CreateTranslationKeyCommand, CreateTranslationKeyResponse>
 {
     private readonly ILogger<CreateTranslationKeyHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
@@ -35,25 +35,33 @@ public class CreateTranslationKeyHandler
 
             // Validate Namespace
             var namespaceEntity = await _unitOfWork.Namespace
-                .GetByIdAndProjectIdAsync(
-                    payload.NamespaceId,
-                    payload.ProjectId);
-
+                .GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == payload.NamespaceId && x.ProjectId == payload.ProjectId, cancellationToken);
+            
             if (namespaceEntity is null)
             {
+                _logger.LogInformation("{FunctionName} Namespace does not exist.", functionName);
+                
                 response.ErrorMessage = "Namespace does not belong to the specified project.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
 
             // Check duplicate key in namespace
-            var exists = await _unitOfWork.TranslationKey.ExistsAsync(
-                payload.ProjectId,
-                payload.NamespaceId,
-                payload.Key);
+            var exists = await _unitOfWork.TranslationKey
+                .GetAll()
+                .AsNoTracking()
+                .AnyAsync(x => 
+                    x.ProjectId == payload.ProjectId &&
+                    x.NamespaceId == payload.NamespaceId && 
+                    x.Key == payload.Key,
+            cancellationToken);
 
             if (exists)
             {
+                _logger.LogInformation("{FunctionName} Translation key {Key} already exists.", functionName, payload.Key);
+                
                 response.ErrorMessage = "Translation key already exists.";
                 response.WithStatus(HttpStatusCode.Conflict);
                 return response;
@@ -61,10 +69,16 @@ public class CreateTranslationKeyHandler
 
             // Get project languages
             var languageIds = await _unitOfWork.ProjectLanguage
-                .GetLanguagesByProjectIdAsync(payload.ProjectId);
+                .GetAll()
+                .AsNoTracking()
+                .Where(x => x.ProjectId == payload.ProjectId)
+                .Select(x => x.Language)
+                .ToListAsync(cancellationToken);
 
             if (languageIds.Count == 0)
             {
+                _logger.LogInformation("{FunctionName} Project does not exist.", functionName);
+                
                 response.ErrorMessage = "Project does not contain any languages.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -114,10 +128,7 @@ public class CreateTranslationKeyHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "{FunctionName} Unexpected error while creating translation key.",
-                functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error while creating translation key.", functionName);
 
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);

@@ -32,10 +32,10 @@ public class ProjectLanguageRepository (AppDbContext context, ILogger logger)
             .ToListAsync();
     }
 
-    public async Task<bool> IsLanguageBelongsToProjectAsync(Guid languageId, Guid projectId)
-    {
-        return await DbSet.AnyAsync(x => x.LanguageId == languageId && x.ProjectId == projectId);
-    }
+    // public async Task<bool> IsLanguageBelongsToProjectAsync(Guid languageId, Guid projectId)
+    // {
+    //     return await DbSet.AnyAsync(x => x.LanguageId == languageId && x.ProjectId == projectId);
+    // }
 
     public async Task<List<Language>> GetLanguagesByProjectIdAsync(Guid projectId)
     {

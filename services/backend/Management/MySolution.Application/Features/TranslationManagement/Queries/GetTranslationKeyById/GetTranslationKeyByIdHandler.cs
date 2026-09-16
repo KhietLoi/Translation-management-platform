@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
@@ -30,9 +31,17 @@ public class GetTranslationKeyByIdHandler : IRequestHandler<GetTranslationKeyByI
 
         try
         {
-            var translationKey = await _unitOfWork.TranslationKey.GetByIdTrackingAsync(request.Id);
+            var translationKey = await _unitOfWork.TranslationKey
+                .GetAll()
+                .AsNoTracking()
+                .Include(x => x.Project)
+                .Include(x => x.Namespace)
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+            
             if (translationKey == null)
             {
+                _logger.LogInformation("{FunctionName} Translation key with ID {Id} not found.", functionName, request.Id);
+                
                 response.ErrorMessage = "Translation key not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -50,6 +59,7 @@ public class GetTranslationKeyByIdHandler : IRequestHandler<GetTranslationKeyByI
                 NamespaceId = translationKey.NamespaceId,
                 NamespaceName = translationKey.Namespace.Name
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

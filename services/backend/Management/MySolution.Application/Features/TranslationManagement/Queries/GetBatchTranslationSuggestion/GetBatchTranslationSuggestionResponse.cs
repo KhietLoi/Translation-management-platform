@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.TranslationManagement.Queries.GetBatch
 
 public class GetBatchTranslationSuggestionResponse : BaseResponse <GetBatchTranslationSuggestionResult>
 {
-
 }
 
 public class GetBatchTranslationSuggestionResult

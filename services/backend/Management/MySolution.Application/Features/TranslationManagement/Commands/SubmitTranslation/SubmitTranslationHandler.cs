@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
@@ -40,9 +41,15 @@ public class SubmitTranslationHandler : IRequestHandler<SubmitTranslationCommand
 
         try
         {
-            var entity = await _unitOfWork.TranslationValue.GetByIdTrackingAsync(request.Id);
+            var entity = await _unitOfWork.TranslationValue
+                .GetAll()
+                .Include(x => x.TranslationKey)
+                .Include(x => x.Language)
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
             if (entity == null)
             {
+                _logger.LogInformation($"{functionName} Translation value not found for Id: {request.Id}");
+                
                 response.ErrorMessage = "Translation value not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -50,6 +57,8 @@ public class SubmitTranslationHandler : IRequestHandler<SubmitTranslationCommand
             
             if (entity.Status != TranslationStatus.Draft && entity.Status != TranslationStatus.Missing && entity.Status != TranslationStatus.Rejected)
             {
+                _logger.LogInformation($"{functionName} Translation with Id {request.Id} is not in a submittable state.");
+                
                 response.ErrorMessage = "Only Draft, Missing, or Rejected translation can be submitted";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -87,15 +96,17 @@ public class SubmitTranslationHandler : IRequestHandler<SubmitTranslationCommand
                 TranslatedBy = entity.TranslatedBy,
                 TranslatedAt = entity.TranslatedAt,
             };
+            
             await _unitOfWork.SaveAsync(cancellationToken);
 
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            exception.LogError(_logger, functionName);
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
 

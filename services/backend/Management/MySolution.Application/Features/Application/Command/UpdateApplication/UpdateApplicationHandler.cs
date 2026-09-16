@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -35,17 +36,28 @@ public class UpdateApplicationHandler : IRequestHandler<UpdateApplicationCommand
 
         try
         {
-            var application = await _unitOfWork.Application.GetByIdAsync(request.ApplicationId, cancellationToken);
+            var application = await _unitOfWork.Application
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == request.ApplicationId, cancellationToken);
             if (application is null)
             {
+                _logger.LogInformation(functionName + "Application not found.");
                 response.ErrorMessage = "Application not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
             
-            var isNameApplicationExists = await _unitOfWork.Application.IsApplicationNameExistsAsync(payload.Name, request.ApplicationId);
+            var isNameApplicationExists = await _unitOfWork.Application
+                .GetAll()
+                .AsNoTracking()
+                .AnyAsync(
+                    x => x.Name == payload.Name &&
+                         x.Id != request.ApplicationId,
+                    cancellationToken);
             if (isNameApplicationExists)
             {
+                _logger.LogInformation(functionName + "Application already exists.");
+                
                 response.ErrorMessage = "Application already exists.";
                 response.WithStatus(HttpStatusCode.Conflict);
                 return response;

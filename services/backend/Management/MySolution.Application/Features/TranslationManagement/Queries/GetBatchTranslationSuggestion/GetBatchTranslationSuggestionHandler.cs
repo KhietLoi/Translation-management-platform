@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.AI; 
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -19,7 +20,7 @@ public class GetBatchTranslationSuggestionHandler : IRequestHandler<GetBatchTran
     (
         ILogger<GetBatchTranslationSuggestionHandler> logger,
         IUnitOfWork unitOfWork,
-        ITranslationSuggestionService aiService // Inject service
+        ITranslationSuggestionService aiService 
     )
     {
         _logger = logger;
@@ -31,19 +32,27 @@ public class GetBatchTranslationSuggestionHandler : IRequestHandler<GetBatchTran
 
     public async Task<GetBatchTranslationSuggestionResponse> Handle(GetBatchTranslationSuggestionQuery request, CancellationToken cancellationToken)
     {
+        var payload = request.Payload;
         var functionName = $"{nameof(GetBatchTranslationSuggestionHandler)} =>";
-        _logger.LogInformation(functionName);
-        
         var response = new GetBatchTranslationSuggestionResponse();
         var resultDataList = new List<GetBatchTranslationSuggestionData>();
         
         try
         {
             var targets = await _unitOfWork.TranslationValue
-                .GetListForAiSuggestionAsync(request.Payload.TranslationValueIds, cancellationToken);
-                
+                .GetAll()
+                .AsNoTrackingWithIdentityResolution()
+                .Include(x => x.Language)
+                .Include(x => x.TranslationKey)
+                    .ThenInclude(k => k.TranslationValues)
+                    .ThenInclude(v => v.Language)
+                .Where(x => payload.TranslationValueIds.Contains(x.Id))
+                .ToListAsync(cancellationToken);
+
             if (!targets.Any())
             {
+                _logger.LogInformation("No translations found for {FunctionName}", functionName);
+                
                 response.ErrorMessage = "No valid targets found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -53,13 +62,23 @@ public class GetBatchTranslationSuggestionHandler : IRequestHandler<GetBatchTran
             
             foreach (var target in targets)
             {
-                if (!string.IsNullOrWhiteSpace(target.Value)) continue;
-                if (target.Language.Code == ReferenceLanguageCode) continue;
+                if (!string.IsNullOrWhiteSpace(target.Value))
+                {
+                    continue;
+                }
+
+                if (target.Language.Code == ReferenceLanguageCode)
+                {
+                    continue;
+                }
 
                 var reference = target.TranslationKey.TranslationValues
                     .FirstOrDefault(x => x.Language.Code == ReferenceLanguageCode && !string.IsNullOrWhiteSpace(x.Value));
-                
-                if (reference == null) continue;
+
+                if (reference == null)
+                {
+                    continue;
+                }
 
                 validTargets.Add(target);
             }
@@ -79,8 +98,10 @@ public class GetBatchTranslationSuggestionHandler : IRequestHandler<GetBatchTran
                     dictToTranslate.Add(target.Id.ToString(), referenceValue);
                 }
 
-                if (!dictToTranslate.Any()) continue;
-
+                if (!dictToTranslate.Any())
+                {
+                    continue;
+                }
                 
                 var aiResponse = await _aiService.BatchSuggestAsync(new BatchTranslationSuggestionRequest
                 {
@@ -116,6 +137,7 @@ public class GetBatchTranslationSuggestionHandler : IRequestHandler<GetBatchTran
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

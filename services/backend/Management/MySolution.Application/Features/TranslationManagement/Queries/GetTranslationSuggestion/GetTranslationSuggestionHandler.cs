@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.AI;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -31,15 +32,21 @@ public class GetTranslationSuggestionHandler : IRequestHandler<GetTranslationSug
 
     public async Task<GetTranslationSuggestionResponse> Handle(GetTranslationSuggestionQuery request, CancellationToken cancellationToken)
     {
+        var payload = request.Payload;
         var functionName = $"{nameof(GetTranslationSuggestionHandler)} =>";
         _logger.LogInformation(functionName);
         var response = new GetTranslationSuggestionResponse();
 
         try
         {
-            var target = await _unitOfWork.TranslationValue.GetForAiSuggestionAsync(
-                request.Payload.TranslationValueId,
-                cancellationToken);
+            var target = await _unitOfWork.TranslationValue
+                .GetAll()
+                .AsNoTrackingWithIdentityResolution()
+                .Include (x => x.Language)
+                .Include (x => x.TranslationKey)
+                    .ThenInclude (k => k.TranslationValues)
+                    .ThenInclude (v => v.Language)
+                .FirstOrDefaultAsync(x => x.Id == payload.TranslationValueId, cancellationToken);
 
             if (target is null)
             {
@@ -52,8 +59,7 @@ public class GetTranslationSuggestionHandler : IRequestHandler<GetTranslationSug
                 target.Status != TranslationStatus.Rejected &&
                 target.Status != TranslationStatus.Missing)
             {
-                response.ErrorMessage =
-                    "AI suggestion is only available for draft or rejected or Missing translations.";
+                response.ErrorMessage = "AI suggestion is only available for draft or rejected or Missing translations.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
@@ -66,9 +72,7 @@ public class GetTranslationSuggestionHandler : IRequestHandler<GetTranslationSug
             }
             
             var reference = target.TranslationKey.TranslationValues
-                .FirstOrDefault(x =>
-                    x.Language.Code == ReferenceLanguageCode &&
-                    !string.IsNullOrWhiteSpace(x.Value));
+                .FirstOrDefault(x => x.Language.Code == ReferenceLanguageCode && !string.IsNullOrWhiteSpace(x.Value));
             if (reference is null)
             {
                 response.ErrorMessage = "Vietnamese reference translation is missing or empty.";
@@ -94,6 +98,7 @@ public class GetTranslationSuggestionHandler : IRequestHandler<GetTranslationSug
                 TargetLanguage = target.Language.Code,
                 Suggestion = aiResult.Suggestion
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
@@ -101,6 +106,7 @@ public class GetTranslationSuggestionHandler : IRequestHandler<GetTranslationSug
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
+            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
