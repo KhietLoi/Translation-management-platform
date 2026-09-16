@@ -39,6 +39,8 @@ public class RevokeApiKeyHandler : IRequestHandler<RevokeApiKeyCommand, RevokeAp
                 .FirstOrDefaultAsync(x => x.Id == request.ApiKeyId, cancellationToken);
             if (apikey == null)
             {
+                _logger.LogInformation(functionName + "ApiKey does not exist.");
+                
                 response.ErrorMessage = "API key not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;

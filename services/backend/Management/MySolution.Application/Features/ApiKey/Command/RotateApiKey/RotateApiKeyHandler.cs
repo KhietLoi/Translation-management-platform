@@ -49,6 +49,8 @@ public class RotateApiKeyHandler : IRequestHandler<RotateApiKeyCommand, RotateAp
                 .FirstOrDefaultAsync(x => x.ApplicationId == request.ApiKeyId, cancellationToken);
             if (apikey == null)
             {
+                _logger.LogInformation(functionName + " API Key not found.");
+                
                 response.ErrorMessage = "API key not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -56,6 +58,8 @@ public class RotateApiKeyHandler : IRequestHandler<RotateApiKeyCommand, RotateAp
             
             if (apikey.ExpiresAt.HasValue && apikey.ExpiresAt.Value < DateTime.UtcNow)
             {
+                _logger.LogInformation(functionName + " API Key expired at " + apikey.ExpiresAt.Value);
+                
                 response.ErrorMessage = "API key has already expired.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -63,6 +67,8 @@ public class RotateApiKeyHandler : IRequestHandler<RotateApiKeyCommand, RotateAp
 
             if (apikey.IsRevoked)
             {
+                _logger.LogInformation(functionName + " API Key revoked.");
+                
                 response.ErrorMessage = "API key is revoked.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;

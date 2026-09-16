@@ -1,8 +1,9 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
-using Shared.Extensions;
+
 namespace MySolution.Application.Features.Application.Queries.GetApplicationById;
 
 public class GetApplicationByIdHandler : IRequestHandler<GetApplicationByIdQuery, GetApplicationByIdResponse>
@@ -30,9 +31,14 @@ public class GetApplicationByIdHandler : IRequestHandler<GetApplicationByIdQuery
 
         try
         {
-            var application = await _unitOfWork.Application.GetByIdAsync(request.Id, cancellationToken);
+            var application = await _unitOfWork.Application
+                .GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken);
             if (application == null)
             {
+                _logger.LogInformation(functionName + "Application not found.");
+                
                 response.ErrorMessage = "Application not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;

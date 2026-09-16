@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -35,18 +36,26 @@ public class CreateApplicationHandler : IRequestHandler<CreateApplicationCommand
         try
         {
             //Check if application name is already exists
-            var isNameUnique = await _unitOfWork.Application.IsApplicationNameExistsAsync(payload.Name);
+            var isNameUnique = await _unitOfWork.Application
+                .GetAll()
+                .AnyAsync(x => x.Name == payload.Name, cancellationToken);
             if (isNameUnique)
             {
+                _logger.LogInformation(functionName + " Application already exists.");
+                
                 response.ErrorMessage = "Application already exists.";
                 response.WithStatus(HttpStatusCode.Conflict);
                 return response;
             }
             
             //Check project exists
-            var projectExists = await _unitOfWork.Project.ExistsAsync(payload.ProjectId);
+            var projectExists = await _unitOfWork.Project
+                .GetAll()
+                .AnyAsync(x => x.Id == payload.ProjectId, cancellationToken);
             if (!projectExists)
             {
+                _logger.LogInformation(functionName + " Project does not exist.");
+                
                 response.ErrorMessage = "Project not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;

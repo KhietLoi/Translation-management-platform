@@ -11,8 +11,8 @@ public class ApplicationRepository (AppDbContext context, ILogger logger) : Repo
         return await DbSet.FindAsync(applicationId, cancellationToken);
     }
 
-    public async Task<bool> IsApplicationNameExistsAsync(string name, Guid? excludeId = null)
-    {
-        return await DbSet.AnyAsync(a => a.Name == name && (!excludeId.HasValue || a.Id != excludeId.Value));
-    }
+    // public async Task<bool> IsApplicationNameExistsAsync(string name, Guid? excludeId = null)
+    // {
+    //     return await DbSet.AnyAsync(a => a.Name == name && (!excludeId.HasValue || a.Id != excludeId.Value));
+    // }
 }
