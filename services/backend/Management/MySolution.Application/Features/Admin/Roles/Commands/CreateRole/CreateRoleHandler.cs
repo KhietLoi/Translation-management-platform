@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
@@ -34,7 +35,10 @@ public class CreateRoleHandler : IRequestHandler<CreateRoleCommand, CreateRoleRe
         try
         {
             // Validate if the role name already exists
-            if (await _unitOfWork.Role.ExistsByNameAsync(payload.Name))
+            var isRoleExists = await _unitOfWork.Role
+                .GetAll()
+                .AnyAsync(x=>x.Name == payload.Name, cancellationToken);
+            if (isRoleExists)
             {
                 response.ErrorMessage = "Role name already exists";
                 response.WithStatus(HttpStatusCode.BadRequest);

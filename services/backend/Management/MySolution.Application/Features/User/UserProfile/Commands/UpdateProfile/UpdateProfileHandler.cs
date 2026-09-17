@@ -45,7 +45,9 @@ public class UpdateProfileHandler : IRequestHandler<UpdateProfileCommand, Update
             }
             
             //Check phone:
-            var existingPhoneNumber = await _unitOfWork.UserProfile.IsPhoneNumberExistsAsync(payload.PhoneNumber, request.Id);
+            var existingPhoneNumber = await _unitOfWork.UserProfile
+                .GetAll()
+                .AnyAsync(x => x.PhoneNumber == payload.PhoneNumber && x.UserId != request.Id, cancellationToken);            
             if (existingPhoneNumber)
             {
                 response.ErrorMessage = "Phone number already exists";

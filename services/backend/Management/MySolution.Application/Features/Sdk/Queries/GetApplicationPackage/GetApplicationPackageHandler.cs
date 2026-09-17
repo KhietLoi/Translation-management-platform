@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using MySolution.Application.Common.Interfaces;
@@ -55,13 +56,11 @@ public class GetApplicationPackageHandler
 
             // 2. Get active release
             var release = await _unitOfWork.TranslationRelease
-                .GetActiveReleaseAsync(projectId, cancellationToken);
-
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.ProjectId == projectId && x.IsActive, cancellationToken);
             if (release == null)
             {
-                response.ErrorMessage =
-                    "This project does not have an active translation release.";
-
+                response.ErrorMessage = "This project does not have an active translation release.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }

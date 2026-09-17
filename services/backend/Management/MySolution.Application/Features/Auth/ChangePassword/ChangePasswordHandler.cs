@@ -63,16 +63,17 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, Chan
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-
-            //Hash new password:
+            
             user.PasswordHash = _passwordHasher.HashPassword(request.Payload.NewPassword);
             //Revoke all refresh Token:
-            await _unitOfWork.RefreshToken.RevokeAsync(user.Id);
-            //Create new SecurityStamp to invalidate existing tokens:
+            await _unitOfWork.RefreshToken
+                .GetAll()
+                .Where(x => x.UserId == user.Id && x.RevokedAt == null)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(x => x.RevokedAt, DateTime.UtcNow), cancellationToken);
+            
             user.SecurityStamp = Guid.CreateVersion7().ToString();
-            //Save
             await _unitOfWork.SaveAsync(cancellationToken);
-            //Update Redis:
             await _tokenSecurityService.SetSecurityStampAsync(user.Id, user.SecurityStamp);
 
             response

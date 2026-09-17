@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using MySolution.Application.Common.Interfaces.File;
@@ -41,7 +42,9 @@ public class ProcessImportTranslationsHandler
         var functionName = $"{nameof(ProcessImportTranslationsHandler)} =>";
         _logger.LogInformation(functionName);   
 
-        var job = await _unitOfWork.TranslationJob.GetByIdAsync(request.JobId);
+        var job = await _unitOfWork.TranslationJob
+            .GetAll()
+            .FirstOrDefaultAsync(j => j.Id == request.JobId, cancellationToken);
         if (job == null)
         {
             _logger.LogWarning("{FunctionName} Job {JobId} not found", functionName, request.JobId);
@@ -139,7 +142,9 @@ public class ProcessImportTranslationsHandler
     {
         try
         {
-            var user = await _unitOfWork.User.GetByIdAsync(job.CreatedBy);
+            var user = await _unitOfWork.User
+                .GetAll()
+                .FirstOrDefaultAsync(u => u.Id == job.CreatedBy, cancellationToken);
             if (user == null)
             {
                 _logger.LogWarning("Cannot send completion email for Job {JobId}. " + "User {UserId} was not found.", job.Id, job.CreatedBy);

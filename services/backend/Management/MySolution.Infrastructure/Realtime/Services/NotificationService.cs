@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Common.Interfaces.Realtime;
@@ -56,7 +57,12 @@ public class NotificationService : INotificationService
         string createdBy = string.Empty;
         if (triggeredByUserId.HasValue)
         {
-            createdBy = await _unitOfWork.User.GetUserNameAsync(triggeredByUserId.Value);
+            createdBy = await _unitOfWork.User
+                .GetAll()
+                .Where(x => x.Id == triggeredByUserId)
+                .Select(x => x.Username)
+                .FirstOrDefaultAsync(cancellationToken)
+                ?? string.Empty;
         }
 
         var payload = new NotificationMessage
@@ -90,7 +96,11 @@ public class NotificationService : INotificationService
         CancellationToken cancellationToken
     )
     {
-        var members = await _unitOfWork.ProjectMember.GetByProjectIdAsync(projectId);
+        var members = await _unitOfWork.ProjectMember
+            .GetAll()
+            .AsNoTracking()
+            .Where(x => x.ProjectId == projectId)
+            .ToListAsync(cancellationToken);
         if (!members.Any())
         {
             _logger.LogWarning("No members found for project {ProjectId}", projectId);
@@ -98,8 +108,7 @@ public class NotificationService : INotificationService
         }
 
         var createdAt = DateTime.UtcNow;
-        var notifications = members
-            .Select(member => new Notification
+        var notifications = members.Select(member => new Notification
             {
                 Id = Guid.CreateVersion7(),
                 UserId = member.UserId,
@@ -121,7 +130,11 @@ public class NotificationService : INotificationService
         if (triggeredByUserId.HasValue)
         {
             createdBy = await _unitOfWork.User
-                .GetUserNameAsync(triggeredByUserId.Value);
+                .GetAll()
+                .Where(x => x.Id == triggeredByUserId.Value)
+                .Select(x => x.Username)
+                .FirstOrDefaultAsync(cancellationToken)
+                ?? string.Empty;
         }
 
         foreach (var notification in notifications)

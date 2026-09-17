@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Interfaces.Realtime;
@@ -50,8 +51,13 @@ public class PublishService : IPublishService
             "Processing");
        
         // Load translations
-        var translationKeys =
-            await _unitOfWork.TranslationKey.GetPublishedTranslationsByProjectAsync(projectId, cancellationToken);
+        var translationKeys = await _unitOfWork.TranslationKey
+            .GetAll()
+            .Where(x => x.ProjectId == projectId)
+            .Include(x => x.TranslationValues)
+            .ThenInclude(x => x.Language)
+            .ToListAsync(cancellationToken);
+        
         var exportData = translationKeys
             .SelectMany(x =>
                 x.TranslationValues
@@ -105,21 +111,12 @@ public class PublishService : IPublishService
         var checksum = PublishChecksumHelper.Calculate(languageLookup);
             
         //Duplicate Release Check:
-        _logger.LogWarning("PROJECT {ProjectId} - CHECKSUM = {Checksum}", projectId, checksum);
-
-        var duplicated =
-            await _unitOfWork.TranslationRelease.ExistReleaseWithChecksumAsync(projectId, checksum, cancellationToken);
-        _logger.LogWarning("Duplicated: {Duplicated}", duplicated);
+        var duplicated = await _unitOfWork.TranslationRelease
+            .GetAll()
+            .AnyAsync(x => x.ProjectId == projectId && x.Checksum == checksum, cancellationToken);
         if (duplicated)
         {
-            await SendProgressAsync(
-                projectId,
-                jobId,
-                PublishSteps.Complete,
-                "Publish Skipped",
-                "Completed",
-                "No changes detected");
-            _logger.LogInformation("Publish skipped because no changes detected. Project {ProjectId}", projectId);
+            await SendProgressAsync(projectId, jobId, PublishSteps.Complete,"Publish Skipped", "Completed", "No changes detected"); 
             return new PublishStatistics
             {
                 TotalRecords = exportData.Count,
@@ -162,20 +159,21 @@ public class PublishService : IPublishService
             try
             {
                 // Deactivate current active releases
-                var activeReleases =
-                    await _unitOfWork.TranslationRelease.GetActiveByProjectAsync(projectId, cancellationToken);
-
+                var activeReleases = await _unitOfWork.TranslationRelease
+                    .GetAll()
+                    .Where(x => x.ProjectId == projectId && x.IsActive == true)
+                    .ToListAsync(cancellationToken);
                 foreach (var  x in activeReleases)
                 {
                     x.IsActive = false;
                 }
 
                 // Calculate next release version
-                var latestVersion = await _unitOfWork.TranslationRelease.GetLatestVersionAsync(projectId, cancellationToken);
+                var latestVersion = await _unitOfWork.TranslationRelease
+                    .GetAll()
+                    .Where(x => x.ProjectId == projectId)
+                    .MaxAsync(x => (int?)x.Version, cancellationToken) ?? 0;
                 
-                // test:
-                _logger.LogWarning("PROJECT {ProjectId} - LatestVersion = {Version}", projectId, latestVersion);
-
                 //TEST ONLY
                 //await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
                 var nextVersion = latestVersion + 1;

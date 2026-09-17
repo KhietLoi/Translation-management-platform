@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -37,21 +38,28 @@ public class ImportService : IImportService
         CancellationToken cancellationToken)
     {
         // Validate project
-        var project = await _unitOfWork.Project.GetByIdAsync(projectId);
+        var project = await _unitOfWork.Project
+            .GetAll()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == projectId, cancellationToken);
         if (project == null)
         {
             throw new NotFoundException($"Project with ID {projectId} not found.");
         }
 
         // Validate language
-        var language = await _unitOfWork.Language.GetByIdAsync(languageId);
+        var language = await _unitOfWork.Language
+            .GetAll()
+            .FirstOrDefaultAsync(x => x.Id == languageId, cancellationToken);
         if (language == null)
         {
             throw new NotFoundException($"Language with ID {languageId} not found.");
         }
 
         // Validate namespace
-        var projectNamespace = await _unitOfWork.Namespace.GetByIdAsync(namespaceId);
+        var projectNamespace = await _unitOfWork.Namespace
+            .GetAll()
+            .FirstOrDefaultAsync(x => x.Id == namespaceId, cancellationToken);
         if (projectNamespace == null)
         {
             throw new NotFoundException($"Namespace with ID {namespaceId} not found.");
@@ -96,13 +104,20 @@ public class ImportService : IImportService
     // Get all existing translation keys with their translation values
     var translationKeys =
         await _unitOfWork.TranslationKey
-            .GetByProjectAndNamespaceWithTranslationValuesAsync(projectId, namespaceId, cancellationToken);
+            .GetAll()
+            .AsNoTracking()
+            .Where(x => x.ProjectId == projectId && x.NamespaceId == namespaceId)
+            .Include(x => x.TranslationValues)
+            .ToListAsync(cancellationToken);
 
     var keyLookup = translationKeys.ToDictionary(x => x.Key, x => x);
 
     // Get all languages of project once
-    var projectLanguages =
-        await _unitOfWork.ProjectLanguage.GetByProjectIdWithLanguageAsync(projectId);
+    var projectLanguages = await _unitOfWork.ProjectLanguage
+        .GetAll()
+        .AsNoTracking()
+        .Where(pl => pl.ProjectId == projectId)
+        .ToListAsync(cancellationToken);
 
     foreach (var item in translations)
     {

@@ -12,16 +12,13 @@ public class UpdateUserRolesHandler : IRequestHandler<UpdateUserRolesCommand, Up
     private readonly ILogger<UpdateUserRolesHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateUserRolesHandler(
-        IUnitOfWork unitOfWork,
-        ILogger<UpdateUserRolesHandler> logger)
+    public UpdateUserRolesHandler(IUnitOfWork unitOfWork, ILogger<UpdateUserRolesHandler> logger)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public async Task<UpdateUserRolesResponse> Handle(UpdateUserRolesCommand request,
-        CancellationToken cancellationToken)
+    public async Task<UpdateUserRolesResponse> Handle(UpdateUserRolesCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
         var functionName = $"{nameof(UpdateUserRolesHandler)} =>";
@@ -30,7 +27,6 @@ public class UpdateUserRolesHandler : IRequestHandler<UpdateUserRolesCommand, Up
 
         try
         {
-            // Check user exists
             var user = await _unitOfWork.User
                 .GetAll()
                 .FirstOrDefaultAsync(x => x.Id == payload.UserId, cancellationToken);
@@ -60,7 +56,11 @@ public class UpdateUserRolesHandler : IRequestHandler<UpdateUserRolesCommand, Up
             // Validate roles
             if (roleIdsToAdd.Count > 0)
             {
-                var roles = await _unitOfWork.Role.GetByIdsAsync(roleIdsToAdd);
+                var roles = await _unitOfWork.Role
+                    .GetAll()
+                    .Where(x => roleIdsToAdd.Contains(x.Id))
+                    .ToListAsync(cancellationToken);
+                
                 var foundRoleIds = roles.Select(x => x.Id).ToHashSet();
                 var invalidRoles = roleIdsToAdd.Except(foundRoleIds).ToList();
                 if (invalidRoles.Count > 0)

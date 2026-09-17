@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -28,13 +29,22 @@ public class RefreshTokenCleanupHostedService : BackgroundService
     {
         _logger.LogInformation("RefreshTokenCleanupHostedService started.");
 
+        var now = DateTime.UtcNow;
+        var revokeCutoff = now.AddDays(-_options.KeepRevokedTokenDays);
+        
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
                 using var scope = _scopeFactory.CreateScope();
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                var deletedCount = await unitOfWork.RefreshToken.CleanUpExpiredTokensAsync(_options.KeepRevokedTokenDays);
+                var deletedCount = await unitOfWork.RefreshToken
+                    .GetAll()
+                    .Where(x =>
+                        x.ExpiredAt < now ||
+                        (x.RevokedAt != null &&
+                         x.RevokedAt < revokeCutoff))
+                    .ExecuteDeleteAsync(cancellationToken: stoppingToken);
                 _logger.LogInformation("Refresh token cleanup completed. Deleted {Count} records.", deletedCount);
             }
             catch (Exception ex)

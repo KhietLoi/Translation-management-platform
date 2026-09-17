@@ -1,4 +1,5 @@
-﻿using MySolution.Application.Common.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Common.Models;
@@ -23,7 +24,11 @@ public class ApiKeyValidator : IApiKeyValidator
     public async Task<ApiKeyContext?> ValidateAsync(string rawApiKey, CancellationToken cancellationToken)
     {
         var hash = _hashService.ComputeHash(rawApiKey);
-        var apiKey = await _unitOfWork.ApiKey.GetByHashAsync(hash, cancellationToken);
+        var apiKey = await _unitOfWork.ApiKey
+            .GetAll()
+            .AsNoTracking()
+            .Include(x => x.Permissions)
+            .FirstOrDefaultAsync(x => x.KeyHash == hash, cancellationToken);
         if (apiKey == null)
         {
             return null;

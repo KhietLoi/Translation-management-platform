@@ -4,5 +4,4 @@ namespace MySolution.Application.Common.Interfaces.Repositories;
 
 public interface IApiKeyUsageLogRepository : IRepository<ApiKeyUsageLog>
 {
-    
 }

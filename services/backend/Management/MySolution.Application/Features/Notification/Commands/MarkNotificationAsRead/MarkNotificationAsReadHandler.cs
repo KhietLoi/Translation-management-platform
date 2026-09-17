@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -31,11 +32,13 @@ public class MarkNotificationAsReadHandler : IRequestHandler<MarkNotificationAsR
         var functionName = $"{nameof(MarkNotificationAsReadHandler)} =>";
         _logger.LogInformation(functionName);
         var response = new MarkNotificationAsReadResponse();
-
+        var currentUserId = _currentUser.UserId;
+        
         try
         {
             var notification = await _unitOfWork.Notification
-                .GetUserNotificationAsync(payload.NotificationId, _currentUser.UserId,cancellationToken);
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.Id == payload.NotificationId && x.UserId == currentUserId, cancellationToken);
             if (notification == null)
             {
                 response.ErrorMessage = "Notification not found.";

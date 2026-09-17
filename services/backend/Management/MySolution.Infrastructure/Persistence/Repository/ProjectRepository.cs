@@ -5,24 +5,8 @@ using MySolution.Domain.Entities;
 
 namespace MySolution.Infrastructure.Persistence.Repository;
 
-public class ProjectRepository (AppDbContext context, ILogger logger)
-    : Repository<Project>(context, logger), IProjectRepository
+public class ProjectRepository (AppDbContext context, ILogger logger) : Repository<Project>(context, logger), IProjectRepository
 {
-    public async Task<Project?> GetByIdAsync(Guid id)
-    {
-        return await DbSet.FindAsync(id);
-    }
-
-    // public async Task<bool> ExistsAsync(Guid id)
-    // {
-    //     return await DbSet.AnyAsync(x => x.Id == id);
-    // }
-
-    public async Task<Project?> GetByNameAsync(string name)
-    {
-        return await DbSet.FirstOrDefaultAsync(x  => x.Name == name);
-    }
-
     public async Task<bool> ExistsByNameAsync(string name, Guid? excludeProjectId = null )
     {
         return await DbSet.AnyAsync
@@ -30,14 +14,4 @@ public class ProjectRepository (AppDbContext context, ILogger logger)
                 x  => x.Name == name && (!excludeProjectId.HasValue || x.Id != excludeProjectId.Value)
             );
     }
-    
-     public async Task<List<Guid>> GetAccessibleProjectIdsAsync(Guid userId, CancellationToken cancellationToken)
-     {
-         return await DbSet
-             .AsNoTracking()
-             .Where(x => x.ProjectMembers.Any(pm =>
-                 pm.UserId == userId))
-             .Select(x => x.Id)
-             .ToListAsync(cancellationToken);
-     }
 }

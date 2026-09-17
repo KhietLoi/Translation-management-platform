@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -31,14 +32,29 @@ public class GetAuditLogsHandler : IRequestHandler<GetAuditLogsQuery, GetAuditLo
 
         try
         {
-            var result = await _unitOfWork.AuditLog.GetByEntityAsync(request.EntityName, request.EntityId, request.PageNumber, request.PageSize);
+            var query = _unitOfWork.AuditLog
+                .GetAll()
+                .AsNoTracking()
+                .Where(x =>
+                    x.EntityName == request.EntityName &&
+                    x.EntityId == request.EntityId);
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var items = await query
+                .Include(x => x.User)
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync(cancellationToken);
+            
             response.Data = new GetAuditLogsData
             {
-                TotalCount = result.TotalCount,
+                TotalCount = totalCount,
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize,
 
-                Items = result.Items
+                Items = items
                     .Select(x => new AuditLogItem
                     {
                         Id = x.Id,
@@ -53,6 +69,7 @@ public class GetAuditLogsHandler : IRequestHandler<GetAuditLogsQuery, GetAuditLo
                     })
                     .ToList()
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

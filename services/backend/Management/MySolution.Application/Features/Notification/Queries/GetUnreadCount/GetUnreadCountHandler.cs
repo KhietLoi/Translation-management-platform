@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -33,11 +34,15 @@ public class GetUnreadCountHandler : IRequestHandler<GetUnreadCountQuery, GetUnr
 
         try
         {
-            int count = await _unitOfWork.Notification.CountUnreadAsync(_currentUser.UserId,cancellationToken);
+            int count = await _unitOfWork.Notification
+                .GetAll()
+                .CountAsync(x => x.UserId == _currentUser.UserId && !x.IsRead, cancellationToken);
+            
             response.Data = new GetUnreadCountData
             {
                 Count = count
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

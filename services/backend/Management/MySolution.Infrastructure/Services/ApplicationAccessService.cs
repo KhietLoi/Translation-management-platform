@@ -1,4 +1,5 @@
-﻿using MySolution.Application.Common.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 
@@ -29,12 +30,22 @@ public class ApplicationAccessService : IApplicationAccessService
     public async Task<Domain.Entities.Application?> GetApplicationAsync(CancellationToken cancellationToken = default)
     {
         var apiKeyContext = _apiKeyContextAccessor.Current;
-        if (apiKeyContext == null) return null;
+        if (apiKeyContext == null)
+        {
+            return null;
+        }
+        var application = await _unitOfWork.Application
+            .GetAll()
+            .FirstOrDefaultAsync(x => x.Id == apiKeyContext.ApplicationId, cancellationToken);
+        if (application == null)
+        {
+            return null;
+        }
 
-        var application = await _unitOfWork.Application.GetByIdAsync(apiKeyContext.ApplicationId, cancellationToken);
-        if (application == null) return null;
-        
-        if (!application.IsActive) return null;
+        if (!application.IsActive)
+        {
+            return null;
+        }
         
         return application;
     }
