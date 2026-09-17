@@ -9,6 +9,10 @@ public class Project
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     
+    //Insert OrganizationId property
+    public Guid OrganizationId { get; set; }
+    public Organization Organization { get; set; } = null!;
+    
     public ICollection<ProjectLanguage> ProjectLanguages { get; set; } = new List<ProjectLanguage>();
     public ICollection<ProjectNamespace> ProjectNamespaces { get; set; } = new List<ProjectNamespace>();
     public ICollection<ProjectMember>  ProjectMembers { get; set; } = new List<ProjectMember>();

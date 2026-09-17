@@ -66,7 +66,9 @@ CREATE TABLE IF NOT EXISTS mysolution."Roles"
     "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-
+    
+    -- Add Scope column to Roles table
+    "Scope" INT NOT NULL DEFAULT 1,
     CONSTRAINT "PK_Roles"
     PRIMARY KEY ("Id")
 );
@@ -155,6 +157,54 @@ CREATE TABLE IF NOT EXISTS mysolution."RolePermissions"
     REFERENCES mysolution."Permissions"("Id")
     ON DELETE CASCADE
 );
+
+-- Add Organization
+CREATE TABLE IF NOT EXISTS mysolution."Organizations"
+(
+    "Id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "Name" VARCHAR(255) NOT NULL,
+    "Slug" VARCHAR(255) NOT NULL,
+    "Status" INT NOT NULL DEFAULT 0,
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT "PK_Organizations"
+    PRIMARY KEY ("Id")
+);
+
+CREATE UNIQUE INDEX "IX_Organizations_Slug" ON "Organizations" ("Slug");
+
+-- Add OrganizationMembers
+CREATE TABLE "OrganizationMembers"
+(
+    "OrganizationId" UUID NOT NULL,
+    "UserId" UUID NOT NULL,
+    "RoleId" UUID NOT NULL,
+
+    "CreatedAt" TIMESTAMPTZ NOT NULL,
+    "UpdatedAt" TIMESTAMPTZ NULL,
+
+    CONSTRAINT "PK_OrganizationMembers"PRIMARY KEY ("OrganizationId", "UserId"),
+    CONSTRAINT "FK_OrganizationMembers_Organizations_OrganizationId"
+        FOREIGN KEY ("OrganizationId")
+            REFERENCES "Organizations" ("Id")
+            ON DELETE CASCADE,
+
+    CONSTRAINT "FK_OrganizationMembers_Users_UserId"
+        FOREIGN KEY ("UserId")
+            REFERENCES "Users" ("Id")
+            ON DELETE CASCADE,
+
+    CONSTRAINT "FK_OrganizationMembers_Roles_RoleId"
+        FOREIGN KEY ("RoleId")
+            REFERENCES "Roles" ("Id")
+            ON DELETE RESTRICT
+);
+
+CREATE INDEX "IX_OrganizationMembers_UserId"
+    ON "OrganizationMembers" ("UserId");
+
+CREATE INDEX "IX_OrganizationMembers_RoleId"
+    ON "OrganizationMembers" ("RoleId");
 -- Project
 CREATE TABLE IF NOT EXISTS mysolution."Projects"
 (
@@ -169,10 +219,21 @@ CREATE TABLE IF NOT EXISTS mysolution."Projects"
     "CreatedAt" TIMESTAMPTZ NOT NULL,
 
     "UpdatedAt" TIMESTAMPTZ NULL,
+    
+    -- Add OrganizationId column to Projects table
+    "OrganizationId" UUID NULL,
 
     CONSTRAINT "PK_Projects"
     PRIMARY KEY ("Id")
+    
+    CONSTRAINT "FK_Projects_Organizations_OrganizationId"
+    FOREIGN KEY ("OrganizationId")
+    REFERENCES "Organizations" ("Id")
+    ON DELETE RESTRICT;
 );
+
+CREATE INDEX "IX_Projects_OrganizationId"
+    ON "Projects" ("OrganizationId");
 
 -- Language
 CREATE TABLE IF NOT EXISTS mysolution."Languages"
@@ -291,6 +352,7 @@ CREATE TABLE IF NOT EXISTS mysolution."TranslationKeys"
 
     CONSTRAINT "FK_TranslationKeys_ProjectNamespaces_NamespaceId"
     FOREIGN KEY ("NamespaceId")
+    REFERENCES mysolution."ProjectNamespaces" ("Id")
     REFERENCES mysolution."ProjectNamespaces" ("Id")
     ON DELETE CASCADE
     );
@@ -840,8 +902,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS "IX_Users_Username"
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_Users_Email"
     ON mysolution."Users" ("Email");
 
-CREATE UNIQUE INDEX IF NOT EXISTS "IX_Roles_Name"
-    ON mysolution."Roles" ("Name");
+CREATE UNIQUE INDEX IF NOT EXISTS "IX_Roles_Name_Scope"
+    ON mysolution."Roles" ("Name", "Scope");
 
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_Permissions_Code"
     ON mysolution."Permissions" ("Code");

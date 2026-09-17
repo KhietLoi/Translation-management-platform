@@ -18,5 +18,7 @@ public class User
     public DateTime CreatedAt { get; set; }
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+    //Add OrganizationMember
+    public ICollection<OrganizationMember> OrganizationMembers { get; set; } = new List<OrganizationMember>();
     public UserProfile Profile { get; set; } = null!;
 }

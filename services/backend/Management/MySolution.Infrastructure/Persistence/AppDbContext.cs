@@ -32,6 +32,11 @@ public class AppDbContext : DbContext
     public DbSet<TranslationJob> TranslationJobs => Set<TranslationJob>();
     public DbSet<TranslationRelease> TranslationReleases => Set<TranslationRelease>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    
+    //Add new features to Update HyBrid Tenant RBAC
+    public DbSet<Organization> Organizations => Set<Organization>();
+    public DbSet<OrganizationMember> OrganizationMembers => Set<OrganizationMember>();
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);

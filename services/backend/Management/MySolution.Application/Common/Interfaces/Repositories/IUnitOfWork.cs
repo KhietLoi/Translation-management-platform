@@ -31,6 +31,9 @@ public interface IUnitOfWork
     
     ITranslationReleaseRepository TranslationRelease { get; }
     INotificationRepository  Notification { get; }
+    
+    IOrganizationRepository  Organization { get; }
+    IOrganizationMemberRepository  OrganizationMember { get; }
 
     Task SaveAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> OpenTransactionAsync(CancellationToken cancellationToken = default);

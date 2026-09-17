@@ -22,9 +22,13 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
         
         builder.Property(x => x.CreatedAt)
             .IsRequired();
-        /*builder.Property(x => x.CreatedBy)
-            .IsRequired();*/
 
         builder.HasIndex(x => x.Name);
+        
+        builder
+            .HasOne(x => x.Organization)
+            .WithMany(x => x.Projects)
+            .HasForeignKey(x => x.OrganizationId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -83,6 +83,9 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable, IDisposable
     public IApiKeyUsageLogRepository ApiKeyUsageLog { get; }
     public ITranslationReleaseRepository TranslationRelease { get; }
     public INotificationRepository Notification { get; }
+    
+    public IOrganizationRepository Organization { get; }
+    public IOrganizationMemberRepository OrganizationMember { get; }
 
 
     public async Task SaveAsync(CancellationToken cancellationToken)
