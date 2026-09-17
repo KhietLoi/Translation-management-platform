@@ -1,5 +1,6 @@
 ﻿using MassTransit;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.DistributedLock;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -32,7 +33,9 @@ public class PublishTranslationsConsumer : IConsumer<PublishTranslationsEvent>
     
     public async Task Consume(ConsumeContext<PublishTranslationsEvent> context)
     {
-        var job = await _unitOfWork.TranslationJob.GetByIdAsync(context.Message.JobId);
+        var job = await _unitOfWork.TranslationJob
+            .GetAll()
+            .FirstOrDefaultAsync(j => j.Id == context.Message.JobId, context.CancellationToken);
         if (job == null)
         {
             return;

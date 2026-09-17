@@ -14,7 +14,6 @@ public class GetAuditLogsData
     public int PageNumber { get; set; }
     public int PageSize { get; set; }
     public List<AuditLogItem> Items { get; set; } = new();
-    
 }
 
 public class AuditLogItem

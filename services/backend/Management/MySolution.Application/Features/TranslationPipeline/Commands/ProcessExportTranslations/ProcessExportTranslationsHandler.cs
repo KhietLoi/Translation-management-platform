@@ -1,4 +1,5 @@
     using MediatR;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using MySolution.Application.Common.Interfaces.File;
     using MySolution.Application.Common.Interfaces.MassTransit;
@@ -38,7 +39,9 @@
             _logger.LogInformation(functionName);  
             
             var jobId = request.Message.JobId;
-            var job = await _unitOfWork.TranslationJob.GetByIdAsync(jobId);
+            var job = await _unitOfWork.TranslationJob
+                .GetAll()
+                .FirstOrDefaultAsync(j => j.Id == jobId, cancellationToken);
             if (job == null)
             {
                 _logger.LogError("Translation job {JobId} not found", jobId);
@@ -98,8 +101,9 @@
         {
             try
             {
-                var user = await _unitOfWork.User.GetByIdAsync(job.CreatedBy);
-
+                var user = await _unitOfWork.User
+                    .GetAll()
+                    .FirstOrDefaultAsync(u => u.Id == job.CreatedBy, cancellationToken);
                 if (user == null)
                 {
                     return;

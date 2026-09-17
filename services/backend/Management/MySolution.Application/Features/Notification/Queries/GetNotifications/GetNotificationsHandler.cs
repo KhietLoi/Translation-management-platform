@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -33,19 +34,35 @@ public class GetNotificationsHandler : IRequestHandler<GetNotificationsQuery, Ge
         
         try
         {
-            var result =
-                await _unitOfWork.Notification.GetAsync(
-                    _currentUser.UserId,
-                    request.Payload.ProjectId,
-                    request.Payload.IsRead,
-                    request.Payload.PageNumber,
-                    request.Payload.PageSize,
-                    cancellationToken);
+            var query = _unitOfWork.Notification
+                .GetAll()
+                .AsNoTracking()
+                .Where(x => x.UserId == _currentUser.UserId);
 
+            if (request.Payload.ProjectId.HasValue)
+            {
+                query = query.Where(x =>
+                    x.ProjectId == request.Payload.ProjectId.Value);
+            }
 
+            if (request.Payload.IsRead.HasValue)
+            {
+                query = query.Where(x =>
+                    x.IsRead == request.Payload.IsRead.Value);
+            }
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var notifications = await query
+                .Include(x => x.TriggeredByUser)
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip((request.Payload.PageNumber - 1) * request.Payload.PageSize)
+                .Take(request.Payload.PageSize)
+                .ToListAsync(cancellationToken);
+            
             response.Data = new GetNotificationsData
             {
-                Notifications = result.Notifications
+                Notifications = notifications
                     .Select(x => new NotificationItemResponse
                     {
                         Id = x.Id,
@@ -61,7 +78,7 @@ public class GetNotificationsHandler : IRequestHandler<GetNotificationsQuery, Ge
                         CreatedAt = x.CreatedAt
                     }).ToList(),
                 
-                TotalCount = result.TotalCount,
+                TotalCount = totalCount,
                 PageNumber = request.Payload.PageNumber,
                 PageSize = request.Payload.PageSize
             };

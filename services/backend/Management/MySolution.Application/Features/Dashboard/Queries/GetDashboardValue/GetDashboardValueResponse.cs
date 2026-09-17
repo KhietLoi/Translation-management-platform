@@ -11,7 +11,7 @@ public class GetDashboardValueResponse : BaseResponse <GetDashboardValueResult>
 public class GetDashboardValueResult
 {
     public DashboardSummaryDto DashboardSummary { get; set; } = new();
-    public List<LanguageProgressDto> LanguageProgress { get; set; } = [];
+    public List<DashboardLanguageProgressDto> LanguageProgress { get; set; } = [];
     public List <RecentActivityDto> RecentActivities { get; set; } = [];
 }
 
@@ -26,11 +26,13 @@ public class RecentActivityDto
     public DateTime CreatedAt { get; set; }
 }
 
-public class LanguageProgressDto
+public class DashboardLanguageProgressDto
 {
     public Guid LanguageId { get; set; }
     public string LanguageCode { get; set; } = string.Empty;
     public string LanguageName { get; set; } = string.Empty;
+    public int Total { get; set; }
+    public int Translated { get; set; }
     public decimal Progress { get; set; }
 }
 

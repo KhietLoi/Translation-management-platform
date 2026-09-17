@@ -1,5 +1,6 @@
 ﻿using MassTransit;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using MySolution.Application.Common.Interfaces.DistributedLock;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Features.TranslationPipeline.Commands.ProcessImportTranslations;
@@ -28,7 +29,9 @@ public class ImportTranslationsConsumer : IConsumer<ImportTranslationsEvent>
     
     public async Task Consume(ConsumeContext<ImportTranslationsEvent> context)
     {
-        var job = await _unitOfWork.TranslationJob.GetByIdAsync(context.Message.JobId);
+        var job = await _unitOfWork.TranslationJob
+            .GetAll()
+            .FirstOrDefaultAsync(j => j.Id == context.Message.JobId, context.CancellationToken);
         if (job == null)
         {
             return;

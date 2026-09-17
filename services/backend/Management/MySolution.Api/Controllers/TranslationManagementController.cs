@@ -158,23 +158,16 @@ public class TranslationManagementController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
-// Get pending translation counts by language within namespace
+    // Get pending translation counts by language within namespace
     [HttpGet("pending-counts/languages")]
     [Permission(PermissionConstants.Translation.View)]
-    public async Task<IActionResult> GetPendingLanguageCounts(
+    public async Task<IActionResult> GetPendingLanguageCounts
+    (
         [FromQuery] Guid projectId,
         [FromQuery] Guid namespaceId,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(
-            new GetPendingLanguageCountsQuery
-            {
-                ProjectId = projectId,
-                NamespaceId = namespaceId
-            }, cancellationToken);
-
+        var response = await mediator.Send(new GetPendingLanguageCountsQuery(projectId, namespaceId), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-    
-    
 }

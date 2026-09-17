@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
@@ -34,7 +35,11 @@ public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, 
         try
         {
             // Validate if the permission code already exists
-            if (await _unitOfWork.Permission.ExistsByCodeAsync(payload.Code))
+            var permissionCodeExists = await _unitOfWork.Permission
+                .GetAll()
+                .AsNoTracking()
+                .AnyAsync(x => x.Code == payload.Code, cancellationToken);
+            if (permissionCodeExists)
             {
                 _logger.LogInformation("{FunctionName} Permission code already exists: {PermissionCode}", functionName, payload.Code);
                 

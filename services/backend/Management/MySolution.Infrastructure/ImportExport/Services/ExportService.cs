@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.File;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -31,21 +32,34 @@ public class ExportService : IExportService
     public async Task<ExportTranslationResult> ExportAsync(Guid projectId, FileType format, CancellationToken cancellationToken)
     {
         //Validate project:
-        var project = await _unitOfWork.Project.GetByIdAsync(projectId);
+        var project = await _unitOfWork.Project
+            .GetAll()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == projectId, cancellationToken);
+        
         if (project == null)
         {
             throw new NotFoundException($"Project with ID {projectId} not found.");
         }
         
         //Get languages:
-        var languages = await _unitOfWork.ProjectLanguage.GetLanguagesByProjectIdAsync(projectId);
+        var languages = await _unitOfWork.ProjectLanguage
+            .GetAll()
+            .AsNoTracking()
+            .Where(x => x.ProjectId == project.Id)
+            .Select(x => x.Language)
+            .ToListAsync(cancellationToken);
         if (!languages.Any())
         {
             throw new BadRequestException("Project does not contain any languages.");
         }
         // Get translations:
         var translationKeys = await _unitOfWork.TranslationKey
-            .GetByProjectWithTranslationValuesAsync(projectId, cancellationToken);
+            .GetAll()
+            .AsNoTracking()
+            .Where(x => x.ProjectId == project.Id)
+            .Include(x => x.TranslationValues)
+            .ToListAsync(cancellationToken);
         if (!translationKeys.Any())
         {
             throw new BadRequestException("No translations found.");

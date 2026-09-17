@@ -14,7 +14,7 @@ namespace MySolution.Api.Controllers;
 public class UserProfileController (IMediator mediator) : Controller
 {
     [HttpGet("{userId:guid}")]
-   // [Permission(PermissionConstants.User.View)]
+    // [Permission(PermissionConstants.User.View)]
     public async Task<IActionResult> GetUserProfileById(Guid userId, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new GetProfileByIdQuery(userId), cancellationToken);
@@ -22,7 +22,7 @@ public class UserProfileController (IMediator mediator) : Controller
     }
 
     [HttpPut("{userId:guid}")]
-   // [Permission(PermissionConstants.User.Update)]
+    // [Permission(PermissionConstants.User.Update)]
     public async Task<IActionResult> UpdateUserProfile(Guid userId, UpdateProfileRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new UpdateProfileCommand(userId, request), cancellationToken);

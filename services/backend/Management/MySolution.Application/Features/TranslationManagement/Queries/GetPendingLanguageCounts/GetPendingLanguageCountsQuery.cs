@@ -6,4 +6,10 @@
     {
         public Guid ProjectId { get; set; }
         public Guid NamespaceId { get; set; }
+        
+        public GetPendingLanguageCountsQuery(Guid projectId, Guid namespaceId)
+        {
+            ProjectId = projectId;
+            NamespaceId = namespaceId;
+        }
     }

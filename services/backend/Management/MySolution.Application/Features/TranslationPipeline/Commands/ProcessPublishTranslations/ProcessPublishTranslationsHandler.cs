@@ -1,4 +1,5 @@
 ﻿    using MediatR;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using MySolution.Application.Common.Interfaces.File;
     using MySolution.Application.Common.Interfaces.Realtime;
@@ -34,7 +35,9 @@
             var functionName = $"{nameof(ProcessPublishTranslationsHandler)} =>";
             _logger.LogInformation("{FunctionName} Start processing publish job {JobId}", functionName, request.JobId);
 
-            var job = await _unitOfWork.TranslationJob.GetByIdAsync(request.JobId);
+            var job = await _unitOfWork.TranslationJob
+                .GetAll()
+                .FirstOrDefaultAsync(j => j.Id == request.JobId, cancellationToken);
             if (job == null)
             {
                 throw new Exception($"{nameof(ProcessPublishTranslationsHandler)} job with id {request.JobId} not found");
