@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -33,15 +34,15 @@ public class GetNotificationDetailHandler : IRequestHandler<GetNotificationDetai
         var functionName = $"{nameof(GetNotificationDetailHandler)} =>";
         _logger.LogInformation(functionName);
         var response = new GetNotificationDetailResponse();
+        var currentUserId = _currentUser.UserId;
 
         try
         {
-            var notification =
-                await _unitOfWork.Notification.GetDetailAsync(
-                    payload.NotificationId,
-                    _currentUser.UserId,
-                    cancellationToken);
-
+            var notification = await _unitOfWork.Notification
+                .GetAll()
+                .AsNoTracking()
+                .Include(n => n.TriggeredByUser)
+                .FirstOrDefaultAsync(n => n.Id == payload.NotificationId && n.UserId == currentUserId, cancellationToken);
             if (notification == null)
             {
                 response.ErrorMessage = $"Notification with Id {payload.NotificationId} not found.";
@@ -55,7 +56,10 @@ public class GetNotificationDetailHandler : IRequestHandler<GetNotificationDetai
                 switch (notification.ReferenceType)
                 {
                     case NotificationReferenceType.TranslationJob:
-                        var job = await _unitOfWork.TranslationJob.GetByIdAsync(notification.ReferenceId.Value);
+                        var job = await _unitOfWork.TranslationJob
+                            .GetAll()
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(j => j.Id == notification.ReferenceId.Value, cancellationToken);
                         if (job != null)
                         {
                             detail = new
@@ -79,9 +83,11 @@ public class GetNotificationDetailHandler : IRequestHandler<GetNotificationDetai
 
                     case NotificationReferenceType.TranslationRelease:
 
-                        var release =
-                            await _unitOfWork.TranslationRelease
-                                .GetByIdAsync(notification.ReferenceId.Value, cancellationToken);
+                        var release = await _unitOfWork.TranslationRelease
+                            .GetAll()
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(j => j.Id == notification.ReferenceId.Value, cancellationToken);
+                           
                         if (release != null)
                         {
                             detail = new
@@ -99,9 +105,10 @@ public class GetNotificationDetailHandler : IRequestHandler<GetNotificationDetai
 
                     case NotificationReferenceType.TranslationValue:
 
-                        var translationValue =
-                            await _unitOfWork.TranslationValue.GetByIdAsync(notification.ReferenceId.Value);
-
+                        var translationValue = await _unitOfWork.TranslationValue 
+                            .GetAll() 
+                            .AsNoTracking() 
+                            .FirstOrDefaultAsync(tv => tv.Id == notification.ReferenceId.Value, cancellationToken);
                         if (translationValue != null)
                         {
                             detail = new

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
 
@@ -27,9 +28,16 @@ public class PermissionService : IPermissionService
             return cached;
         }
 
-        var permissions = await _unitOfWork.User.GetUserPermissionsAsync(userId);
-        await _cached.SetAsync(userId, permissions,
-            TimeSpan.FromHours(1)); // Upgrade ttl -> auto load when permission is update
+        var permissions = await _unitOfWork.User
+            .GetAll()
+            .Where(x => x.Id == userId)
+            .SelectMany(x => x.UserRoles)
+            .SelectMany(x => x.Role.RolePermissions)
+            .Select(x => x.Permission.Code)
+            .Distinct()
+            .ToHashSetAsync();
+
+        await _cached.SetAsync(userId, permissions, TimeSpan.FromHours(1)); // Upgrade ttl -> auto load when permission is update
         _logger.LogInformation("Permissions retrieved from database for user: {UserId}", userId);
 
         return permissions;

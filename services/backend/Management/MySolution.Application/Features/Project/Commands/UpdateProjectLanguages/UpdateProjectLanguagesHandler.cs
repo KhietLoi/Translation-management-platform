@@ -50,9 +50,10 @@ public class UpdateProjectLanguagesHandler : IRequestHandler<UpdateProjectLangua
             }
             
             // Current project Languages
-            var currentProjectLanguages = await _unitOfWork
-                .ProjectLanguage
-                .GetByProjectIdAsync(request.ProjectId);
+            var currentProjectLanguages = await _unitOfWork.ProjectLanguage
+                .GetAll()
+                .Where(x => x.ProjectId == request.ProjectId)
+                .ToListAsync(cancellationToken);
             
             // Change to Hashset
             var currentProjectIds = currentProjectLanguages
@@ -62,8 +63,7 @@ public class UpdateProjectLanguagesHandler : IRequestHandler<UpdateProjectLangua
             var newLanguageIds = payload.LanguagesIds.Distinct().ToHashSet();
             var languageIdsToAdd  = newLanguageIds.Except(currentProjectIds).ToList();
             var projectLanguagesToRemove = currentProjectLanguages
-                .Where(x => !newLanguageIds
-                    .Contains(x.LanguageId)).ToList();
+                .Where(x => !newLanguageIds.Contains(x.LanguageId)).ToList();
             if (languageIdsToAdd.Count > 0)
             {
                 var languages = await _unitOfWork.Language

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Repositories;
 
@@ -30,17 +31,43 @@ public class GetTranslationGridHandler : IRequestHandler<GetTranslationGridQuery
 
         try
         {
-            var (items, totalCount) =
-                await _unitOfWork.TranslationKey.GetByGridAsync
-                (
-                    request.ProjectId,
-                    request.NamespaceId,
-                    request.Keyword,
-                    request.Status,
-                    request.NumberOfLanguages,
-                    request.PageNumber,
-                    request.PageSize
-                );
+            var query = _unitOfWork.TranslationKey
+                .GetAll()
+                .AsNoTracking()
+                .Where(x => x.ProjectId == request.ProjectId);
+
+            if (request.NamespaceId.HasValue)
+            {
+                query = query.Where(x => x.NamespaceId == request.NamespaceId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Keyword))
+            {
+                query = query.Where(x =>
+                    x.Key.Contains(request.Keyword) ||
+                    (x.Description != null &&
+                     x.Description.Contains(request.Keyword)));
+            }
+
+            if (request.Status.HasValue)
+            {
+                query = query.Where(x =>
+                    x.TranslationValues.Any(v =>
+                        v.Status == request.Status.Value));
+            }
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var items = await query
+                .Include(x => x.Namespace)
+                .Include(x => x.TranslationValues
+                    .OrderBy(v => v.Language.Code)
+                    .Take(request.NumberOfLanguages))
+                .ThenInclude(x => x.Language)
+                .OrderBy(x => x.Key)
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync(cancellationToken);
             
             response.Data = new GetTranslationGridData
             {

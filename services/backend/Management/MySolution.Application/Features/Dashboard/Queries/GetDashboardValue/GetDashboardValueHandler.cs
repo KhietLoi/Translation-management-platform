@@ -1,8 +1,11 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
+using MySolution.Application.Common.Models;
+using MySolution.Domain.Enums;
 
 namespace MySolution.Application.Features.Dashboard.Queries.GetDashboardValue;
 
@@ -35,7 +38,12 @@ public class GetDashboardValueHandler : IRequestHandler<GetDashboardValueQuery, 
         try
         {
             // Get user:
-            var projectIds = await _unitOfWork.Project.GetAccessibleProjectIdsAsync(_currentUser.UserId,cancellationToken);
+            var projectIds = await _unitOfWork.Project
+                .GetAll()
+                .AsNoTracking()
+                .Where(x => x.ProjectMembers.Any(pm => pm.UserId == _currentUser.UserId))
+                .Select(x => x.Id)
+                .ToListAsync(cancellationToken);
             if (projectIds.Count == 0)
             {
                 response.ErrorMessage = "No projects found.";
@@ -44,51 +52,74 @@ public class GetDashboardValueHandler : IRequestHandler<GetDashboardValueQuery, 
             }
             
             //Calculate summary: total projects, total translation key, total translation values, translated value, pending review.
-            var totalTranslationKeys = await _unitOfWork.TranslationKey
-                .CountByProjectIdsAsync(projectIds, cancellationToken);
+            var totalTranslationKeys = 0;
+            if (projectIds.Count > 0)
+            {
+                totalTranslationKeys = await _unitOfWork.TranslationKey
+                    .GetAll()
+                    .CountAsync(x => projectIds.Contains(x.ProjectId), cancellationToken);
+            }
             
-            var translationStats = await _unitOfWork.TranslationValue
-                .GetDashboardStatsAsync(projectIds, cancellationToken);
+            var translationStats = projectIds.Count == 0
+                ? new TranslationDashboardStats()
+                : await _unitOfWork.TranslationValue
+                    .GetAll()
+                    .AsNoTracking()
+                    .Where(x => projectIds.Contains(x.TranslationKey.ProjectId))
+                    .GroupBy(_ => 1)
+                    .Select(g => new TranslationDashboardStats
+                    {
+                        Total = g.Count(),
+                        Translated = g.Count(x =>
+                            x.Status == TranslationStatus.Translated ||
+                            x.Status == TranslationStatus.Reviewed ||
+                            x.Status == TranslationStatus.Published),
+                        PendingReview = g.Count(x => x.Status == TranslationStatus.Translated)
+                    }).FirstOrDefaultAsync(cancellationToken) ?? new TranslationDashboardStats();
             
-            var translationProgress =
-                translationStats.Total == 0 ? 0 : Math.Round(translationStats.Translated * 100m / translationStats.Total,2);
+            var translationProgress = translationStats.Total == 0 ? 0 : Math.Round(translationStats.Translated * 100m / translationStats.Total,2);
             // Get language progress
-            var languageResults =
-                await _unitOfWork.TranslationValue
-                    .GetLanguageProgressAsync(
-                        projectIds,
-                        cancellationToken);
+            var languageResults = projectIds.Count == 0
+                ? [] :await _unitOfWork.TranslationValue
+                    .GetAll()
+                    .Where(x => projectIds.Contains(x.TranslationKey.ProjectId))
+                    .GroupBy(x => new
+                    {
+                        x.LanguageId,
+                        x.Language.Code,
+                        x.Language.Name
+                    })
+                    .Select(g => new DashboardLanguageProgressDto
+                    {
+                        LanguageId = g.Key.LanguageId,
+                        LanguageCode = g.Key.Code,
+                        LanguageName = g.Key.Name,
+                        Total = g.Count(),
+                        Translated = g.Count(x =>
+                            x.Status == TranslationStatus.Translated ||
+                            x.Status == TranslationStatus.Reviewed ||
+                            x.Status == TranslationStatus.Published)
+                    })
+                    .OrderBy(x => x.LanguageCode)
+                    .ToListAsync(cancellationToken);
 
             var languageProgress = languageResults
-                .Select(x => new LanguageProgressDto
+                .Select(x => new DashboardLanguageProgressDto()
                 {
                     LanguageId = x.LanguageId,
                     LanguageCode = x.LanguageCode,
                     Progress = x.Total == 0 ? 0 : Math.Round(x.Translated * 100m / x.Total, 2)
                 }).ToList();
             
-           // var auditLogs = await _unitOfWork.AuditLog.GetRecentActivitiesAsync(projectIds, 10, cancellationToken);
-            /*
-            var recentActivities = auditLogs
-                .Select(x => new RecentActivityDto
-                {
-                    Id = x.Id,
-                    ActorName = x.User.Username,
-                    Action = x.Action,
-                    EntityName = x.EntityName,
-                    EntityId = x.EntityId,
-                    ProjectName =x.Project?.Name,
-                    CreatedAt = x.CreatedAt
-                }).ToList();
-                */
-            var (notifications, _) = await _unitOfWork.Notification.GetAsync(
-                _currentUser.UserId,
-                projectId: null,
-                isRead: null,
-                pageNumber: 1,
-                pageSize: 10,
-                cancellationToken);
-
+            var notifications = await _unitOfWork.Notification
+                .GetAll()
+                .AsNoTracking()
+                .Where(x => x.UserId == _currentUser.UserId)
+                .Include(x => x.TriggeredByUser)
+                .OrderByDescending(x => x.CreatedAt)
+                .Take(10)
+                .ToListAsync(cancellationToken);
+            
             var recentActivities = notifications
                 .Select(x => new RecentActivityDto
                 {

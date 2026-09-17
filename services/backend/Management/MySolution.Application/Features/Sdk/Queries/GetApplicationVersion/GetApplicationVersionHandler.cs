@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using MySolution.Application.Common.Interfaces;
@@ -36,9 +37,7 @@ public class GetApplicationVersionHandler
         try
         {
             // 1. Get authorized application
-            var application = await _applicationAccessService
-                .GetApplicationAsync(cancellationToken);
-
+            var application = await _applicationAccessService.GetApplicationAsync(cancellationToken);
             if (application == null)
             {
                 response.ErrorMessage = "Application is not authorized.";
@@ -50,13 +49,11 @@ public class GetApplicationVersionHandler
 
             // 2. Get active release
             var release = await _unitOfWork.TranslationRelease
-                .GetActiveReleaseAsync(projectId, cancellationToken);
-
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.ProjectId == projectId && x.IsActive, cancellationToken);
             if (release == null)
             {
-                response.ErrorMessage =
-                    "This project does not have an active translation release.";
-
+                response.ErrorMessage = "This project does not have an active translation release.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
             }
@@ -75,11 +72,7 @@ public class GetApplicationVersionHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "{FunctionName} Unexpected error.",
-                functionName);
-
+            _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

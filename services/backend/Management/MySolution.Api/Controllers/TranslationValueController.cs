@@ -55,12 +55,7 @@ public class TranslationValueController (IMediator mediator) : Controller
         [FromQuery] TranslationStatus? status,
         CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new GetTranslationValuesQuery(
-                translationKeyId,
-                namespaceId,
-                languageId,
-                status), cancellationToken);
-
+        var response = await mediator.Send(new GetTranslationValuesQuery(translationKeyId, namespaceId, languageId, status), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     

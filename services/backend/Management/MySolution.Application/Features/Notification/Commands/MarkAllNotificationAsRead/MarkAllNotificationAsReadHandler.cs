@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -31,10 +32,18 @@ public class MarkAllNotificationAsReadHandler : IRequestHandler<MarkAllNotificat
         var functionName = $"{nameof(MarkAllNotificationAsReadHandler)} =>";
         _logger.LogInformation(functionName);
         var response = new MarkAllNotificationAsReadResponse();
+        var currentUserId = _currentUser.UserId;
 
         try
         {
-            await _unitOfWork.Notification.MarkAllAsReadAsync(_currentUser.UserId, cancellationToken);
+            await _unitOfWork.Notification
+                .GetAll()
+                .Where(x => x.UserId == currentUserId && !x.IsRead)
+                .ExecuteUpdateAsync(
+                    setter => setter.SetProperty(x => x.IsRead, true),
+                    cancellationToken
+                );
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

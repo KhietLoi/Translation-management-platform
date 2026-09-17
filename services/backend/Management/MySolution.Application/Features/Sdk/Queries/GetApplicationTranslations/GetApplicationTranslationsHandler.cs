@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
@@ -56,7 +57,9 @@ public class GetApplicationTranslationsHandler : IRequestHandler<GetApplicationT
             }
 
             var projectId = application.ProjectId;
-            var release = await _unitOfWork.TranslationRelease.GetActiveReleaseAsync(projectId, cancellationToken);
+            var release = await _unitOfWork.TranslationRelease
+                .GetAll()
+                .FirstOrDefaultAsync(x => x.ProjectId == projectId && x.IsActive, cancellationToken);
             if (release == null)
             {
                 response.ErrorMessage = "This project is not authorized to access this application.";

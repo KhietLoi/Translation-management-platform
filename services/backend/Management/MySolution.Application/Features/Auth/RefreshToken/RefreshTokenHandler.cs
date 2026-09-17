@@ -39,7 +39,10 @@ public class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshT
         try
         {
             var hash = _hashService.ComputeHash(payload.RefreshToken);
-            var refreshToken = await _unitOfWork.RefreshToken.GetByHashAsync(hash);
+            var refreshToken = await _unitOfWork.RefreshToken
+                .GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.TokenHash == hash, cancellationToken);
             if (refreshToken is null)
             {
                 response.ErrorMessage = "Refresh token not found.";
