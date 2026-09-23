@@ -6,8 +6,6 @@ The .NET backend for managing, reviewing, publishing, and distributing multiling
 
 **Author:** Trần Khiết Lôi
 
-**Internship period:** July 1, 2026 – September 30, 2026
-
 **Documentation scope:** `services/backend` and its integrations within this monorepo.
 
 ## 1. Overview
@@ -108,10 +106,10 @@ Related root directories include `apps/web`, `services/ai-translation`, `infra`,
 ### 5.1. Authentication and authorization
 
 - Registration assigns the default role, creates a profile, and sends a verification email.
-- Login checks account status, password, and email verification.
+- Login checks account status,  and email verification.
 - JWT and refresh tokens are issued; refresh-token hashes are stored in the database.
 - The controller sets the refresh token in an `HttpOnly`, `Secure`, `SameSite=Lax` cookie.
-- Refresh, logout, password change, forgot-password, and reset-password flows are supported.
+- Refresh, logout, password change, forgot- and reset-password flows are supported.
 - Password reset checks token expiry and `PasswordVersion`; changing the password increments the version, invalidating older reset tokens.
 - Redis stores token blacklists, security stamps, and permission caches.
 - Roles/permissions control business endpoints; API Keys have a separate external-application authorization flow.
@@ -373,7 +371,7 @@ docker compose up -d --build
 
 Root Compose does not declare PostgreSQL or AI services. Use dependency addresses reachable from containers; `localhost` refers to the container itself. Nginx configuration is in `apps/web/nginx.conf`.
 
-See [deployment notes](../../docs/deployment.md), but compare them with the current Compose file because those notes describe an earlier stage.
+See [deployment configuration](../../docs/deployment.md) and the [Docker guide](../../docs/docker.md) for the current setup.
 
 ## 10. Testing
 
@@ -391,7 +389,7 @@ dotnet test services/backend/MySolution.slnx
 
 The most recent Auth test run passed 19 cases covering:
 
-- **Login:** missing/inactive/blocked users, wrong password, unverified email, exceptions, successful login with complete/incomplete profiles, tokens, JTI, security stamps, and persistence.
+- **Login:** missing/inactive/blocked users, wrong  unverified email, exceptions, successful login with complete/incomplete profiles, tokens, JTI, security stamps, and persistence.
 - **Register:** duplicate details, missing default role, exceptions, successful user/role/profile creation, and verification email content.
 - **ResetPassword:** expired tokens, missing users, invalid `PasswordVersion`, exceptions, password hashes/version increments, and account status.
 
@@ -409,3 +407,7 @@ The backend implements management, editing, review, release, and delivery workfl
 - Dependency warning remediation, including `NU1903` for `System.Security.Cryptography.Xml 8.0.2` in the most recent test build.
 
 Commands and architecture descriptions were checked against source code. Passing unit tests does not establish full integration coverage or production readiness.
+
+## Private configuration after history cleanup
+
+Sensitive settings in the tracked JSON files are empty. For `dotnet run`, load the exported `api.env.ps1`, `email.env.ps1`, or `migration.env.ps1` in the matching terminal, or supply the same settings through environment variables. Root Compose uses ignored `infra/docker/*.local.json` files. Follow [private configuration instructions](../../docs/deployment.md#private-local-configuration); never commit the exported files.

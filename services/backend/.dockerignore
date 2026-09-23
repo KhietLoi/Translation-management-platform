@@ -1,4 +1,4 @@
-﻿**/.dockerignore
+**/.dockerignore
 **/.git
 **/.gitignore
 **/.vs
@@ -8,3 +8,9 @@
 **/TestResult
 **/.env
 **/.env.*
+
+**/*.env.ps1
+**/private-config
+**/private-config*.zip
+**/repository-before-cleanup*.zip
+**/secret-values.json

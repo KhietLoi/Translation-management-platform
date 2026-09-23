@@ -81,7 +81,6 @@ Translation-management-platform/
 │   ├── translation-read/       # Translation, version, and package demo
 │   └── package-download/       # Separate package download example
 ├── infra/                      # Local infrastructure Compose
-├── tools/load-tests/           # Load-testing scripts
 ├── docs/                       # Additional documentation
 ├── scripts/                    # Supporting scripts
 └── compose.yaml                # API, Email, Web, Redis, RabbitMQ
@@ -201,6 +200,12 @@ The most recent Auth test run passed 19 Login/Register/ResetPassword cases. Emai
 
 ## 10. Git and related documentation
 
-This monorepo preserves imported source history in `archive/*` branches/tags. Use `git log --all --graph --oneline` to inspect it.
+Imported source history is retained in the rewritten local branches. Use `git branch -a` and `git log --all --graph --oneline` to inspect the refs available in this checkout.
 
-[Deployment notes](docs/deployment.md) describe an earlier stage; compare them with current Compose files and READMEs. See [LICENSE](LICENSE) for the repository's license information.
+[Deployment configuration](docs/deployment.md) and the [Docker guide](docs/docker.md) describe the current local setup. See [LICENSE](LICENSE) for the repository's license information.
+
+## Private configuration and publishing
+
+Sensitive values have been removed from the local source history and exported outside this repository. Tracked backend settings contain empty credential fields; load private environment variables or use ignored Docker overrides as described in [deployment configuration](docs/deployment.md). The local history rewrite has not been pushed to a remote. See [cleanup status and publication steps](docs/environment-security-review.md).
+
+Run `python scripts/check-secrets.py --history` before publishing. Keep private archives and loader scripts outside the repository.

@@ -1,45 +1,31 @@
-﻿# Chạy Translation Management Platform bằng Docker trên Windows
+# Running Translation Management Platform with Docker on Windows
 
-Thực hiện các lệnh bằng PowerShell tại root project.
+Run the following commands in PowerShell from the repository root.
 
-## 1. Chuẩn bị
+[Deployment configuration](deployment.md) · [Secret cleanup status](environment-security-review.md)
 
-- Mở Docker Desktop.
-- Sử dụng chế độ Linux containers trong Docker Desktop.
-- Chờ Docker Engine sẵn sàng.
-- Khởi động PostgreSQL trên Windows.
-- Bảo đảm database đã có schema của project.
-- Khởi động AI translation trên Windows nếu sử dụng.
+## 1. Prerequisites
 
-## 2. Kiểm tra Docker
+- Start Docker Desktop with Linux containers and wait for Docker Engine.
+- Start PostgreSQL and apply the project schema using DbUp.
+- Start AI/FastAPI and Ollama on the host if suggestions are needed.
+- Keep Azure Blob and SendGrid configuration available privately.
 
 ```powershell
 docker version
 docker compose version
-```
-
-## 3. Kiểm tra vị trí terminal
-
-```powershell
-Get-Location
 Test-Path .\compose.yaml
 ```
 
-Kết quả kiểm tra file phải là True.
+The final check should return `True`.
 
-## 4. Tạo cấu hình local
+## 2. Create local configuration
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\init-docker.ps1
 ```
 
-Kết quả mong đợi:
-
-```text
-Docker local configuration is ready.
-```
-
-Kiểm tra các file:
+The script preserves existing local JSON files and generates a RabbitMQ password when missing. Check the expected files:
 
 ```powershell
 Test-Path .\.env
@@ -47,179 +33,89 @@ Test-Path .\infra\docker\api.local.json
 Test-Path .\infra\docker\email.local.json
 ```
 
-Cả ba phải trả về True.
+After the secret cleanup, newly generated JSON files contain empty credential values inherited from the public templates. A successful initialization message means the files exist, not that every application setting is ready.
 
-## 5. Kiểm tra cấu hình ứng dụng
+Populate these files privately, or use matching originals from the private handoff:
 
-Mở các file:
+| File | Required review |
+| --- | --- |
+| `infra/docker/api.local.json` | PostgreSQL, JWT, Blob, Redis and AI settings |
+| `infra/docker/email.local.json` | SendGrid, sender identity, and other required email settings |
+| `.env` | Nonempty `RABBITMQ_PASSWORD` |
 
-- infra/docker/api.local.json
-- infra/docker/email.local.json
+For PostgreSQL/AI running on Windows, use `host.docker.internal` rather than `localhost` inside the container configuration. Root Compose supplies the RabbitMQ host/credentials and the API's Redis address.
 
-Trong api.local.json:
+Do not copy credentials into tracked `appsettings.json`. The private archive is a backup of existing values, not a rotation of exposed credentials.
 
-- Kiểm tra ConnectionStrings.DefaultConnection.
-- Điền đúng host, port, database, username và password.
-- Dùng host.docker.internal nếu PostgreSQL chạy trên Windows.
-- Kiểm tra AI.BaseUrl nếu sử dụng AI translation.
-- Dùng host.docker.internal nếu AI chạy trên Windows.
-
-Trong email.local.json:
-
-- Kiểm tra cấu hình SendGrid.
-- Kiểm tra địa chỉ người gửi.
-- Bổ sung các cấu hình Email API cần sử dụng.
-
-Bổ sung cấu hình cần thiết từ appsettings.Development.json
-hoặc user secrets nếu chưa có trong các file local.
-
-Mở .env và bảo đảm RABBITMQ_PASSWORD có giá trị.
-
-## 6. Kiểm tra Git ignore
+## 3. Verify exclusions and Compose
 
 ```powershell
 git check-ignore .env infra/docker/api.local.json infra/docker/email.local.json
-```
-
-Kết quả cần liệt kê đủ:
-
-```text
-.env
-infra/docker/api.local.json
-infra/docker/email.local.json
-```
-
-Không commit `.env` và các file `*.local.json`.
-
-## 7. Kiểm tra Compose
-
-```powershell
+python scripts/check-secrets.py
 docker compose config --quiet
 ```
 
-Chỉ tiếp tục khi lệnh không báo lỗi.
+The ignore check should list all three files. Use `--quiet` for Compose validation so expanded configuration values are not printed into logs. Compose validation checks structure, not whether database/cloud credentials are correct.
 
-## 8. Build image
+## 4. Build and start
 
 ```powershell
 docker compose build
-```
-
-Chờ build thành công web, api và email.
-
-## 9. Khởi động container
-
-```powershell
 docker compose up -d
-```
-
-## 10. Kiểm tra trạng thái
-
-```powershell
 docker compose ps -a
 ```
 
-Cần có đủ các service:
+Expected services: `web`, `api`, `email`, `redis`, and `rabbitmq`. Root Compose does not start PostgreSQL or AI.
 
-- web
-- api
-- email
-- redis
-- rabbitmq
-
-## 11. Xem log
+Inspect local logs when troubleshooting, and remove any sensitive values before sharing output:
 
 ```powershell
 docker compose logs --tail 100 api email web
-```
-
-Nếu cần kiểm tra từng service:
-
-```powershell
-docker compose logs --tail 100 api
-docker compose logs --tail 100 email
-docker compose logs --tail 100 web
-docker compose logs --tail 100 redis rabbitmq
-```
-
-Theo dõi log liên tục:
-
-```powershell
 docker compose logs -f --tail 100 api email web
 ```
 
-Nhấn Ctrl+C để thoát chế độ theo dõi log.
+Press Ctrl+C to stop following logs.
 
-## 12. Truy cập ứng dụng
+## 5. Access and verify
 
-- Web: http://localhost:5173
-- Swagger: http://localhost:5173/swagger
-- RabbitMQ Management: http://localhost:15674
+| Component | Address |
+| --- | --- |
+| Web | `http://localhost:5173` |
+| Swagger through Nginx | `http://localhost:5173/swagger` |
+| RabbitMQ Management | `http://localhost:15674` |
 
-Đăng nhập RabbitMQ:
-
-- Username: mysolution
-- Password: giá trị RABBITMQ_PASSWORD trong .env
-
-## 13. Kiểm tra Nginx
+RabbitMQ uses username `mysolution` and the password from the local `RABBITMQ_PASSWORD` setting.
 
 ```powershell
 (Invoke-WebRequest -UseBasicParsing http://localhost:5173/healthz).Content
 ```
 
-Kết quả mong đợi:
+Expected response: `ok`. This checks Nginx, not all backend dependencies. Also verify login, database-backed pages, email, AI suggestions, and SignalR as needed.
 
-```text
-ok
-```
-
-## 14. Kiểm tra chức năng
-
-- Đăng nhập bằng tài khoản hiện có.
-- Mở trang có dữ liệu từ database.
-- Kiểm tra chức năng gửi email.
-- Kiểm tra AI translation nếu sử dụng.
-- Kiểm tra SignalR nếu sử dụng.
-
-## 15. Dừng sau buổi thực hành
+## 6. Stop and restart
 
 ```powershell
 docker compose down
 ```
 
-Không thêm `-v` nếu muốn giữ dữ liệu trong named volumes.
+Do not add `-v` if you intend to preserve named-volume data.
 
-## 16. Chạy lại lần sau
-
-Mở Docker Desktop, khởi động PostgreSQL và AI nếu cần.
-
-Tại root project, chạy:
+For later runs, start Docker Desktop and external dependencies, then:
 
 ```powershell
 docker compose up -d
 ```
 
-## 17. Sau khi sửa code
+After source changes:
 
 ```powershell
 docker compose up -d --build
 ```
 
-## 18. Sau khi sửa cấu hình JSON local
+After changing local JSON configuration:
 
 ```powershell
 docker compose up -d --force-recreate api email
 ```
 
-## 19. Giữ cấu hình giữa các lần chạy
-
-Giữ lại các file:
-
-- .env
-- infra/docker/api.local.json
-- infra/docker/email.local.json
-
-Script không ghi đè các file JSON local đã tồn tại.
-
-Đổi RABBITMQ_PASSWORD trong .env không tự đổi mật khẩu
-user đã được lưu trong RabbitMQ.
+Keep `.env` and both local JSON files private. Changing `RABBITMQ_PASSWORD` in `.env` does not automatically change a RabbitMQ user's password already stored in its persistent volume.

@@ -1,7 +1,13 @@
-﻿node_modules
+node_modules
 dist
 .git
 .idea
 .env
 .env.*
 *.log
+
+**/*.env.ps1
+**/private-config
+**/private-config*.zip
+**/repository-before-cleanup*.zip
+**/secret-values.json
