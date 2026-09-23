@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using AuthService.UnitTests.Helpers;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MySolution.Application.Common.Interfaces;
@@ -66,8 +67,11 @@ public class ResetPasswordHandlerTests
 
         // Assert
         Assert.False(response.Success);
+        _passwordHasherMock.Verify(x => x.HashPassword(It.IsAny<string>()), Times.Never);
+        _unitOfWorkMock.Verify(x => x.SaveAsync(It.IsAny<CancellationToken>()), Times.Never);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("Token expired.", response.ErrorMessage);
+        _userRepositoryMock.Verify(x => x.GetAll(), Times.Never);
     }
     
     [Fact]
@@ -90,13 +94,15 @@ public class ResetPasswordHandlerTests
                 ExpiredAt = DateTime.UtcNow.AddMinutes(30)
             });
         _userRepositoryMock
-            .Setup(x => x.GetByIdAsync(userId))
-            .ReturnsAsync((User?)null);
+            .Setup(x => x.GetAll())
+            .Returns(AsyncQuery.Create<User>());
         // Act
         var response = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.False(response.Success);
+        _passwordHasherMock.Verify(x => x.HashPassword(It.IsAny<string>()), Times.Never);
+        _unitOfWorkMock.Verify(x => x.SaveAsync(It.IsAny<CancellationToken>()), Times.Never);
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.Equal("User not found.", response.ErrorMessage);
     }
@@ -126,28 +132,36 @@ public class ResetPasswordHandlerTests
                 ExpiredAt = DateTime.UtcNow.AddMinutes(30)
             });
         _userRepositoryMock
-            .Setup(x => x.GetByIdAsync(userId))
-            .ReturnsAsync(user);
+            .Setup(x => x.GetAll())
+            .Returns(AsyncQuery.Create(user));
         
         // Act
         var response = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.False(response.Success);
+        _passwordHasherMock.Verify(x => x.HashPassword(It.IsAny<string>()), Times.Never);
+        _unitOfWorkMock.Verify(x => x.SaveAsync(It.IsAny<CancellationToken>()), Times.Never);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("Token is invalid.", response.ErrorMessage);
+        Assert.Equal(5, user.PasswordVersion);
+        Assert.Equal(string.Empty, user.PasswordHash);
     }
-    [Fact]
-    public async Task Handle_Should_ResetPasswordSuccessfully_When_User_Is_Active()
+    [Theory]
+    [InlineData(UserStatus.Active, UserStatus.Active)]
+    [InlineData(UserStatus.NonActive, UserStatus.Active)]
+    [InlineData(UserStatus.Blocked, UserStatus.Blocked)]
+    public async Task Handle_Should_ResetPassword_And_Preserve_Or_Activate_Status(UserStatus initialStatus, UserStatus expectedStatus)
     {
         // Arrange
+        using var cancellation = new CancellationTokenSource();
         var userId = Guid.CreateVersion7();
         var user = new User
         {
             Id = userId,
             PasswordHash = "old-password",
             PasswordVersion = 1,
-            Status = UserStatus.Active
+            Status = initialStatus
         };
         var command = new ResetPasswordCommand(
             new ResetPasswordRequest
@@ -164,68 +178,27 @@ public class ResetPasswordHandlerTests
                 ExpiredAt = DateTime.UtcNow.AddMinutes(30)
             });
         _userRepositoryMock
-            .Setup(x => x.GetByIdAsync(userId))
-            .ReturnsAsync(user);
+            .Setup(x => x.GetAll())
+            .Returns(AsyncQuery.Create(user));
         _passwordHasherMock
             .Setup(x => x.HashPassword("Password@123"))
             .Returns("new-password-hash");
         
         // Act
-        var response = await _handler.Handle(command, CancellationToken.None);
+        var response = await _handler.Handle(command, cancellation.Token);
 
         // Assert
         Assert.True(response.Success);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("new-password-hash", user.PasswordHash);
         Assert.Equal(2, user.PasswordVersion);
-        Assert.Equal(UserStatus.Active, user.Status);
+        Assert.Equal(expectedStatus, user.Status);
+        _passwordHasherMock.Verify(x => x.HashPassword("Password@123"), Times.Once);
         _unitOfWorkMock.Verify(
-            x => x.SaveAsync(It.IsAny<CancellationToken>()),
+            x => x.SaveAsync(cancellation.Token),
             Times.Once);
     }
     
-    [Fact]
-    public async Task Handle_Should_Activate_User_When_User_Is_NonActive()
-    {
-        // Arrange
-        var userId = Guid.CreateVersion7();
-        var user = new User
-        {
-            Id = userId,
-            PasswordVersion = 1,
-            Status = UserStatus.NonActive
-        };
-        
-        var command = new ResetPasswordCommand(
-            new ResetPasswordRequest
-            {
-                Token = "token",
-                NewPassword = "Password@123"
-            });
-
-        _tokenServiceMock
-            .Setup(x => x.ValidateToken("token"))
-            .Returns(new PasswordResetPayload
-            {
-                UserId = userId,
-                PasswordVersion = 1,
-                ExpiredAt = DateTime.UtcNow.AddMinutes(30)
-            });
-
-        _userRepositoryMock
-            .Setup(x => x.GetByIdAsync(userId))
-            .ReturnsAsync(user);
-
-        _passwordHasherMock
-            .Setup(x => x.HashPassword(It.IsAny<string>()))
-            .Returns("hashed-password");
-
-        // Act
-        await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.Equal(UserStatus.Active, user.Status);
-    }
     [Fact]
     public async Task Handle_Should_Return_InternalServerError_When_Exception_Occurs()
     {
@@ -246,6 +219,8 @@ public class ResetPasswordHandlerTests
 
         // Assert
         Assert.False(response.Success);
+        _passwordHasherMock.Verify(x => x.HashPassword(It.IsAny<string>()), Times.Never);
+        _unitOfWorkMock.Verify(x => x.SaveAsync(It.IsAny<CancellationToken>()), Times.Never);
 
         Assert.Equal(
             HttpStatusCode.InternalServerError,

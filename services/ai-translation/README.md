@@ -1,226 +1,172 @@
-```markdown
+# AI Translation Service
 
-\# AI Translation Service
+A FastAPI service that generates translation suggestions for Translation Management Platform using Ollama and **`qwen2.5:3b`**. The .NET backend calls it for single and batch suggestions.
 
+[Project overview](../../README.md) · [Backend](../backend/README.md) · [Frontend](../../apps/web/README.md)
 
+## 1. Scope and technology
 
-\[!\[Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
+- Python 3.10+, FastAPI, Uvicorn, and Pydantic.
+- Ollama Python client and Ollama server.
+- Model defined in `app/services/suggestion_service.py`: `qwen2.5:3b`.
+- Translates a single string or dictionary values while retaining keys for result mapping.
+- Prompts request placeholder preservation; output is not automatically validated for that requirement.
 
-\[!\[FastAPI](https://img.shields.io/badge/FastAPI-0.110.0+-00a393.svg)](https://fastapi.tiangolo.com/)
+The service generates suggestions. It does not access PostgreSQL, publish releases, or replace the review process.
 
-\[!\[Ollama](https://img.shields.io/badge/Ollama-Local\_LLM-black.svg)](https://ollama.com/)
+## 2. Processing flow
 
-
-
-Một microservice xử lý bất đồng bộ (asynchronous) được xây dựng bằng Python và FastAPI. Service này đóng vai trò làm cầu nối giữa backend .NET Core và hệ thống AI nội bộ (Ollama). Hệ thống cung cấp khả năng tự động gợi ý bản dịch UI/UX dựa trên ngữ cảnh với độ trễ thấp và hoàn toàn bảo mật.
-
-
-
-\## Tính năng nổi bật
-
-
-
-\* \*\*Dịch thuật theo ngữ cảnh:\*\* Xử lý và dịch chính xác văn bản dựa trên UI Keys (ví dụ: auth.login, common.cancel) thay vì dịch từng từ đơn lẻ.
-
-\* \*\*Bảo toàn định dạng:\*\* Tự động giữ nguyên các tham số định dạng hệ thống (như {0}, {{name}}) và các thẻ HTML trong chuỗi.
-
-\* \*\*Hoàn toàn ngoại tuyến (Offline):\*\* Mọi tác vụ xử lý ngôn ngữ tự nhiên được thực hiện trên máy chủ nội bộ thông qua Ollama, loại bỏ hoàn toàn giới hạn truy vấn (Rate Limits) của bên thứ ba.
-
-\* \*\*Hiệu suất cao:\*\* Giao tiếp bất đồng bộ (async/await) mượt mà, không gây hiện tượng thắt nút cổ chai (bottleneck) khi xử lý đa luồng.
-
-
-
-\## Ngăn xếp công nghệ (Tech Stack)
-
-
-
-\* \*\*Framework:\*\* FastAPI
-
-\* \*\*Server:\*\* Uvicorn
-
-\* \*\*AI Engine:\*\* Ollama
-
-\* \*\*Language Model:\*\* Qwen 2.5 (7B) - Tối ưu hóa cho các tác vụ đa ngôn ngữ, bao gồm Tiếng Việt và Tiếng Anh.
-
-
-
-\## Hướng dẫn cài đặt và khởi chạy
-
-
-
-\### 1. Yêu cầu hệ thống
-
-\* Python 3.10 trở lên.
-
-\* Ollama đã được cài đặt và khởi chạy trên máy chủ.
-
-
-
-\### 2. Tải và cấu hình AI Model
-
-Mở terminal và tải model ngôn ngữ (kích thước khoảng 4.7GB):
-
-
-
-```bash
-
-ollama run qwen2.5:7b
-
-
-
+```mermaid
+flowchart LR
+    Backend[.NET Backend] --> Router[FastAPI Router]
+    Router --> Schema[Pydantic Request]
+    Schema --> Service[SuggestionService]
+    Service --> Ollama[Ollama / qwen2.5:3b]
+    Ollama --> Service
+    Service --> Result[JSON Response]
+    Result --> Backend
 ```
 
+For batches, the service requests JSON, parses the response, keeps matching input keys, and accepts string values only. It retries missing keys once. The final response may still contain fewer keys than the input.
 
+## 3. Structure
 
-(Gõ `/bye` để thoát khỏi giao diện tương tác sau khi quá trình tải xuống hoàn tất).
+```text
+services/ai-translation/
+├── app/
+│   ├── main.py                       # FastAPI app, router, health
+│   ├── routers/suggestion.py         # HTTP endpoints
+│   ├── schemas/suggestion.py         # Request/response models
+│   └── services/suggestion_service.py # Prompts, Ollama, parsing/retry
+├── requirements.txt
+└── README.md
+```
 
+## 4. Installation and startup
 
+Run from `services/ai-translation`:
 
-\### 3. Thiết lập môi trường
-
-
-
-Khởi tạo môi trường ảo (Virtual Environment) và cài đặt các thư viện phụ thuộc:
-
-
-
-```bash
-
-\# Tạo môi trường ảo
-
+```powershell
 python -m venv .venv
-
-
-
-\# Kích hoạt môi trường ảo
-
-\# Trên Windows:
-
-.venv\\Scripts\\activate
-
-\# Trên macOS/Linux:
-
-source .venv/bin/activate
-
-
-
-\# Cài đặt thư viện
-
-pip install -r requirements.txt
-
-
-
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m pip install ollama
 ```
 
+The extra `ollama` installation is required because the code imports it but `requirements.txt` does not declare it. The requirements file also includes `google-genai`, while the current suggestion implementation uses Ollama.
 
+Download the model:
 
-\### 4. Khởi động Microservice
+```powershell
+ollama pull qwen2.5:3b
+```
 
+Ensure the Ollama server is running. If it is not already started by the Ollama application, run `ollama serve` in a separate terminal. Then start FastAPI:
 
-
-Chạy lệnh sau để bật server FastAPI:
-
-
-
-```bash
-
+```powershell
 uvicorn app.main:app --reload --port 8000
-
-
-
 ```
 
+- Swagger: `http://localhost:8000/docs`.
+- OpenAPI: `http://localhost:8000/openapi.json`.
+- Health: `http://localhost:8000/health`.
 
+Use `--host 0.0.0.0` and an appropriate port when the host needs to accept connections beyond loopback. The model is currently selected in source code, without a dedicated application setting for model selection.
 
-Server sẽ lắng nghe tại địa chỉ: `http://localhost:8000`
+## 5. API
 
-
-
-\## Tài liệu API (API Reference)
-
-
-
-\### Cấp phát bản dịch gợi ý
-
-
-
-`POST /api/review/suggest`
-
-
-
-Tạo bản dịch gợi ý dựa trên chuỗi gốc và ngữ cảnh cung cấp.
-
-
-
-\*\*Request Body (application/json):\*\*
-
-
+### `GET /health`
 
 ```json
+{"status":"healthy"}
+```
 
+This confirms that FastAPI responds. It does not confirm Ollama connectivity or model availability.
+
+### `POST /api/review/suggest`
+
+Request:
+
+```json
 {
-
-&#x20; "source\_text": "Hủy bỏ",
-
-&#x20; "source\_language": "vi-VN",
-
-&#x20; "target\_language": "en-US",
-
-&#x20; "context": "common.actions.cancel"
-
+  "source_text": "Hello {name}",
+  "source_language": "en-US",
+  "target_language": "fr-FR",
+  "context": "common.greeting"
 }
-
-
-
 ```
 
+Illustrative response; actual output depends on the model:
 
-
-\*\*Response (text/plain):\*\*
-
-
-
-```text
-
-Cancel
-
-
-
+```json
+{"suggestion":"Bonjour {name}"}
 ```
 
+`context` is optional. The router passes it to the service, but the current prompt does not use it.
 
+### `POST /api/review/suggest-batch`
 
-\## Cấu trúc thư mục
+Request:
 
-
-
-```text
-
-ai-translation-service/
-
-├── app/
-
-│   ├── main.py
-
-│   └── services/
-
-│       └── suggestion\_service.py
-
-├── .gitignore
-
-├── requirements.txt
-
-└── README.md
-
-
-
+```json
+{
+  "source_language": "en-US",
+  "target_language": "fr-FR",
+  "data": {
+    "auth.login": "Log in",
+    "common.cancel": "Cancel"
+  }
+}
 ```
 
+Illustrative response:
 
-
+```json
+{
+  "suggestions": {
+    "auth.login": "Se connecter",
+    "common.cancel": "Annuler"
+  }
+}
 ```
 
+`data` and `suggestions` are string-to-string dictionaries. An empty batch returns an empty dictionary. Responses are JSON objects with `suggestion` or `suggestions` fields, not plain text.
 
+## 6. Backend integration
 
+Configure the Management API:
+
+```powershell
+$env:AI__BaseUrl = 'http://localhost:8000'
 ```
 
+The backend's `TranslationSuggestionService` calls the two endpoints above. In Docker, use an address reachable from the API container: container `localhost` is not the host machine. Root Compose does not start AI/Ollama.
+
+## 7. Manual checks
+
+```powershell
+Invoke-RestMethod -Uri 'http://localhost:8000/health'
+
+$body = @{
+    source_text = 'Hello'
+    source_language = 'en-US'
+    target_language = 'fr-FR'
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri 'http://localhost:8000/api/review/suggest' -Method Post -ContentType 'application/json; charset=utf-8' -Body ([System.Text.Encoding]::UTF8.GetBytes($body))
+```
+
+Also check unavailable models, multi-key batches, placeholders, missing keys, and invalid generated JSON. There is no dedicated automated test suite in this service directory yet.
+
+## 8. Error behavior and limitations
+
+| Situation | Current behavior |
+| --- | --- |
+| Invalid request schema | FastAPI/Pydantic validation error |
+| Single translation failure | String beginning with `[AI Error]`, followed by the source text |
+| Batch failure or invalid generated JSON | Empty dictionary |
+| Missing batch keys | One retry; results may remain incomplete |
+
+Because exceptions can produce fallback values, HTTP 200 does not always mean translation succeeded. Clients must inspect the response content.
+
+`ollama.chat` is synchronous even though the surrounding methods are `async`, so inference can block the event loop. The service currently has no separate authentication layer. Output language, placeholders, and translation accuracy are not automatically verified. The single-string prompt currently prohibits Vietnamese output and needs adjustment before using Vietnamese as the target language.

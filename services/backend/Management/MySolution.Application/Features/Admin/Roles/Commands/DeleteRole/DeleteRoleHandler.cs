@@ -31,11 +31,9 @@ public class DeleteRoleHandler : IRequestHandler<DeleteRoleCommand, DeleteRoleRe
             var role = await _unitOfWork.Role
                 .GetAll()
                 .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
-            
             if (role == null)
             {
                 _logger.LogInformation("{FunctionName} Role with ID {RoleId} not found.", functionName, request.Id);
-                
                 response.ErrorMessage = "Role not found";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySolution.Application.Common.Models;
 
-namespace Backend_Net.Api.Handler;
+namespace MySolution.Api.Handler;
 
 public static class ResponseHandler
 {

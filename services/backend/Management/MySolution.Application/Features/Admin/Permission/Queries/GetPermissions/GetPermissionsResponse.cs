@@ -2,9 +2,6 @@
 
 namespace MySolution.Application.Features.Admin.Permission.Queries.GetPermissions;
 
-/// <summary>
-///     Response class for the get permissions operation.
-/// </summary>
 public class GetPermissionsResponse : BaseResponse<GetPermissionsResult>
 {
 }

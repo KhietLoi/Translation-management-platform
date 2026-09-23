@@ -1,73 +1,206 @@
-# MySolution Platform
+# Translation Management Platform
 
-Monorepo chứa source ứng dụng và lịch sử Git gốc. Thư mục `.git` duy nhất nằm ở root.
+A multilingual translation management system for internal enterprise applications, covering content organization, editing, review, releases, version management, and API-based delivery.
 
-| Thư mục | Thành phần |
+**Author:** Trần Khiết Lôi
+
+## Component documentation
+
+| Component | Documentation | Scope |
+| --- | --- | --- |
+| Backend | [Backend README](services/backend/README.md) | .NET architecture, business workflows, APIs, database, queues, configuration, tests |
+| Frontend | [Frontend README](apps/web/README.md) | Administration UI, authentication, realtime features, web builds |
+| AI | [AI README](services/ai-translation/README.md) | FastAPI, Ollama, model setup, suggestion APIs, limitations |
+| Integration example | [Translation Read README](examples/translation-read/README.md) | Reading translations and checking versions/packages with API Keys |
+
+## 1. Purpose and scope
+
+The platform centralizes multilingual content. Administrators organize projects and access permissions; translators edit content; reviewers approve translations; external applications consume the active release.
+
+Main capabilities:
+
+- Manage accounts, profiles, roles, and permissions.
+- Manage projects, members, languages, and namespaces.
+- Manage translation keys and values through a searchable, filterable, paginated grid.
+- Submit, approve, reject, and update translations individually or in batches.
+- Import/export JSON, CSV, and XLSX using background processing.
+- Publish releases, inspect history, compare versions, and roll back the active release.
+- Manage applications and API Keys for translation and package delivery.
+- Send email and realtime notifications; display presence and editing locks.
+- Generate single and batch translation suggestions through Ollama using `qwen2.5:3b`.
+
+## 2. System architecture
+
+```mermaid
+flowchart LR
+    User[Administrator / Translator] --> Web[React Web / Nginx]
+    Web --> API[ASP.NET Core Management API]
+    Demo[External Application / Translation Read Demo] -->|API Key| API
+    API --> DB[(PostgreSQL)]
+    API --> Redis[(Redis)]
+    API --> Blob[Azure Blob Storage]
+    API --> MQ[RabbitMQ]
+    MQ --> Consumers[Import / Export / Publish]
+    Consumers --> DB
+    Consumers --> Blob
+    MQ --> Email[Email Service]
+    Email --> SendGrid[SendGrid]
+    API --> AI[FastAPI AI Service]
+    AI --> Ollama[Ollama / Qwen 2.5 3B]
+    API <-->|SignalR| Web
+```
+
+The Management API follows Clean Architecture with Domain, Application, Infrastructure, and API layers. Business requests use CQRS/MediatR. Import/export/publish consumers currently run inside the Management API host. Email runs in a separate host; AI runs as a Python service accessed over HTTP.
+
+## 3. Technology stack
+
+| Area | Technologies |
 | --- | --- |
-| `apps/web` | Frontend React/Vite |
-| `services/backend` | Solution .NET 10, API, email và migration |
-| `services/ai-translation` | Dịch vụ AI dịch thuật |
-| `examples/translation-read` | Ứng dụng thử SDK đọc bản dịch |
-| `examples/package-download` | Ứng dụng thử tải package |
-| `tools/load-tests` | Script kiểm thử tải Python |
-| `infra` | Cấu hình hạ tầng dùng chung |
+| Backend | .NET 10, ASP.NET Core, EF Core, PostgreSQL, DbUp |
+| Design | Clean Architecture, CQRS, MediatR, Repository, Unit of Work |
+| Validation and access control | FluentValidation, JWT, refresh tokens, roles/permissions, API Keys |
+| Infrastructure | Redis, RabbitMQ, MassTransit, Azure Blob Storage |
+| Realtime and observability | SignalR, Serilog, Audit Log, Usage Log |
+| Email | SendGrid, Scriban |
+| Frontend | React 19, Vite 8, React Router, TanStack Query, Axios, Bootstrap |
+| AI | Python, FastAPI, Pydantic, Ollama, `qwen2.5:3b` |
+| Packaging | Docker, Docker Compose, Nginx |
+| Backend unit tests | xUnit, Moq |
 
-## Git và lịch sử
+Exact dependency versions are defined in each component's `.csproj`, `package.json`, `package-lock.json`, and `requirements.txt` files.
 
-Lịch sử được nhập bằng merge không squash, giữ nguyên hash commit gốc.
-Các nhánh cũ nằm ở `archive/<source>/<branch>`, tag cũ ở `archive/<source>/<tag>`.
-Git ngoài của frontend chưa có commit nên không có lịch shông ử để nhập.
+## 4. Repository structure
 
-```sh
-git log --all --graph --oneline
-git branch --list 'archive/*'
-git status --short
+```text
+Translation-management-platform/
+├── apps/web/                   # Administration frontend
+├── services/
+│   ├── backend/                # Management API, Email, Migration, Shared, Tests
+│   └── ai-translation/         # FastAPI and Ollama integration
+├── examples/
+│   ├── translation-read/       # Translation, version, and package demo
+│   └── package-download/       # Separate package download example
+├── infra/                      # Local infrastructure Compose
+├── tools/load-tests/           # Load-testing scripts
+├── docs/                       # Additional documentation
+├── scripts/                    # Supporting scripts
+└── compose.yaml                # API, Email, Web, Redis, RabbitMQ
 ```
 
-Thay đổi chưa commit tại source gốc được sao chép vào working tree và giữ chưa commit.
-Trạng thái staged/unstaged gốc không được tái tạo; nội dung file hiện tại được giữ.
-File `.env` được sao chép phục vụ chạy local, không thêm mới vào Git.
-Hai `.env` đã được theo dõi ở frontend và ví dụ SDK được bỏ khỏi index mới, vẫn giữ file local và lịch sử cũ.
-Các dependency, môi trường ảo và build output bị bỏ qua khi sao chép.
-Lịch sử nhập vẫn chứa mọi file đã từng commit, bao gồm cấu hình nhạy cảm nếu source gốc đã commit chúng.
+## 5. Business workflows
 
-Muốn lưu cả các nhánh lịch sử khi đưa lên remote mới:
+| Problem | Implementation |
+| --- | --- |
+| Authentication | JWT, refresh tokens, email verification, password reset with `PasswordVersion` |
+| Authorization | User roles/permissions; API Keys and permissions for external applications |
+| Content organization | Project → namespace → key → language-specific value |
+| Grid and filtering | Project, namespace, keyword, status, and pagination queries |
+| Import/export | Format-specific parsers/generators, Azure Blob, background consumers |
+| Publishing/versioning | Releases, packages, history, diffs, and active-release rollback |
+| Caching and coordination | Redis for permissions/tokens/security stamps; distributed publish locks |
+| Realtime collaboration | SignalR notifications, presence, editing locks, and progress |
+| AI assistance | Single/batch FastAPI suggestions followed by the regular review workflow |
 
-```sh
-git remote add origin <repository-url>
-git push -u origin main
-git push origin 'refs/heads/archive/*:refs/heads/archive/*'
-git push origin 'refs/tags/archive/*:refs/tags/archive/*'
+Typical flow:
+
+```text
+Create project → Configure languages and members → Create/import keys and values
+→ Edit or request AI suggestions → Submit → Review/Reject
+→ Publish release → External applications read translations using API Keys
 ```
 
-Review và commit thay đổi local trước khi push nếu muốn remote có source hiện tại.
-Chưa cấu hình remote hoặc push tự động.
+Statuses include `Missing`, `Draft`, `Translated`, `Rejected`, `Reviewed`, and `Published`. Rollback switches the release being served; it does not restore all working translation data to an earlier point in time.
 
-Trên Windows, nên clone vào đường dẫn ngắn hoặc dùng `git -c core.longpaths=true clone <repository-url>`.
-Repository local đã bật `core.longpaths=true`. Git có thể báo thêm thay đổi xuống dòng do cấu hình CRLF/LF khác nhau giữa source gốc; dùng `git diff --ignore-space-at-eol` để xem thay đổi nội dung.
+## 6. Local development
 
-## Phát triển local
+### Prerequisites
 
-Backend được tổ chức thành thư mục thật `Management/`, `Email/` và `Tests/`.
-Mở `services/backend/MySolution.slnx` trong Rider để nạp solution.
-Chạy API chính từ root bằng:
+- .NET SDK 10 and PostgreSQL.
+- Node.js matching the Vite lockfile requirement: `^20.19.0 || >=22.12.0`; Node 22.12+ is an option.
+- Docker/Compose for Redis and RabbitMQ.
+- Azure Blob Storage and SendGrid for file/email features.
+- Python 3.10+ and Ollama for AI suggestions.
 
-```sh
+### Startup order
+
+Run these commands from the repository root:
+
+```powershell
+# 1. Start Redis, RabbitMQ, and RedisInsight.
+docker compose -f infra/compose.yaml up -d
+
+# 2. Restore and build the backend.
+dotnet restore services/backend/MySolution.slnx
+dotnet build services/backend/MySolution.slnx --no-restore
+```
+
+Configure PostgreSQL, JWT, Redis, RabbitMQ, Blob, and email, then run DbUp using the [Backend instructions](services/backend/README.md#8-local-development). Run migrations before using the application.
+
+Start each host in a separate configured terminal:
+
+```powershell
 dotnet run --project services/backend/Management/MySolution.Api/MySolution.Api.csproj --launch-profile http
 ```
 
-Chạy Email API từ root bằng:
-
-```sh
+```powershell
 dotnet run --project services/backend/Email/MySolution.Email.Api/MySolution.Email.Api.csproj --launch-profile http
 ```
 
-Chạy Redis/RabbitMQ bằng `docker compose -f infra/compose.yaml up -d` từ root.
-Đây là hạ tầng local, chưa phải cấu hình triển khai toàn bộ ứng dụng.
+```powershell
+Set-Location apps/web
+npm ci
+# Create .env.local as described in the Frontend README.
+npm run dev
+```
 
-- Frontend: vào `apps/web`, chạy `npm ci`, sau đó `npm run dev`.
-- Backend: chạy `dotnet restore services/backend/MySolution.slnx`, sau đó chạy project mong muốn bằng `dotnet run --project <path.csproj>`.
-- AI: tạo môi trường Python riêng tại mỗi service, cài `requirements.txt`, cấu hình `.env` theo code/source tương ứng.
-- Kiểm thử .NET: `dotnet test services/backend/MySolution.slnx`.
+Start AI using the [AI instructions](services/ai-translation/README.md) when suggestions are required. Run the [Translation Read demo](examples/translation-read/README.md) separately on port 5174.
 
-Xem [lộ trình triển khai](docs/deployment.md) trước khi triển khai độc lập.
+### Development addresses
+
+| Component | Address |
+| --- | --- |
+| Vite frontend | `http://localhost:5173` if the port is available |
+| Management API | `http://localhost:5182` |
+| Backend Swagger | `http://localhost:5182/swagger` |
+| Email host | `http://localhost:5188` |
+| FastAPI Swagger | `http://localhost:8000/docs` |
+| RabbitMQ UI with infrastructure Compose | `http://localhost:15672` |
+| RedisInsight with infrastructure Compose | `http://localhost:5540` |
+
+**API URL distinction:** the administration frontend uses `VITE_API_URL=http://localhost:5182/api`; Translation Read uses `VITE_API_URL=http://localhost:5182`. Backend CORS must allow each client's actual origin.
+
+## 7. Docker Compose
+
+The root `compose.yaml` declares `redis`, `rabbitmq`, `api`, `email`, and `web`. After configuring connections and required environment variables:
+
+```powershell
+docker compose up -d --build
+```
+
+The current root Compose maps Web to `http://localhost:5173` and RabbitMQ Management to `http://localhost:15674`. Nginx forwards `/api`, `/hubs`, and `/swagger` to the API on the Docker network.
+
+PostgreSQL and AI are not included as services in root Compose. Provide reachable external endpoints, plus Azure Blob and SendGrid configuration. Avoid running both Compose stacks when ports/resources conflict. Compose `.env` and Vite `.env.local` belong to different configuration mechanisms.
+
+## 8. Validation and testing
+
+```powershell
+dotnet test services/backend/MySolution.slnx
+```
+
+Run `npm run lint` and `npm run build` in each React application. AI provides `/health` and Swagger for manual checks; `/health` does not check Ollama or the model.
+
+The most recent Auth test run passed 19 Login/Register/ResetPassword cases. Email still contains a placeholder test. This documentation does not claim complete integration-test coverage or successful execution of every command in every environment.
+
+## 9. Current limitations
+
+- Presence and editing locks are held in API memory; multiple instances require shared state and SignalR configuration.
+- AI calls synchronous `ollama.chat` from `async` methods; `context` is not yet included in the prompt. Suggestions require review.
+- AI `requirements.txt` does not declare `ollama`; its README includes an additional installation step.
+- The browser API Key demo is intended for integration testing. Keys are visible to the client and Network Inspector.
+- Further work includes integration tests, operational monitoring, secret management, and background-task idempotency.
+
+## 10. Git and related documentation
+
+This monorepo preserves imported source history in `archive/*` branches/tags. Use `git log --all --graph --oneline` to inspect it.
+
+[Deployment notes](docs/deployment.md) describe an earlier stage; compare them with current Compose files and READMEs. See [LICENSE](LICENSE) for the repository's license information.

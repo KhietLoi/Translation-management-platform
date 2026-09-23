@@ -2,9 +2,6 @@
 
 namespace MySolution.Application.Features.Admin.Permission.Commands.CreatePermission;
 
-/// <summary>
-///     Response class for the create permission operation.
-/// </summary>
 public class CreatePermissionResponse : BaseResponse<CreatePermissionData>
 {
 }

@@ -34,11 +34,9 @@ public class GetRoleByIdHandler : IRequestHandler<GetRoleByIdQuery, GetRoleByIdR
                 .GetAll()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == request.RoleId, cancellationToken);
-            
             if (role == null)
             {
                 _logger.LogInformation("{FunctionName} Role with ID {RoleId} not found.", functionName, request.RoleId);
-                
                 response.ErrorMessage = "Role not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;

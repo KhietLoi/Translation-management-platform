@@ -6,9 +6,7 @@ using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Application.Features.Admin.Permission.Queries.GetPermissionById;
 
-/// <summary>
-///     Handler for the GetPermissionByIdQuery, responsible for retrieving a permission by its ID.
-/// </summary>
+
 public class GetPermissionByIdHandler : IRequestHandler<GetPermissionByIdQuery, GetPermissionByIdResponse>
 {
     private readonly ILogger<GetPermissionByIdHandler> _logger;
@@ -33,7 +31,6 @@ public class GetPermissionByIdHandler : IRequestHandler<GetPermissionByIdQuery, 
                 .GetAll()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.Id == request.PermissionId, cancellationToken);
-            
             if (permission == null)
             {
                 _logger.LogInformation("{FunctionName} Permission with ID {PermissionId} not found.", functionName, request.PermissionId);

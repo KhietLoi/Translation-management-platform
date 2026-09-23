@@ -2,9 +2,6 @@
 
 namespace MySolution.Application.Features.Admin.Permission.Commands.DeletePermission;
 
-/// <summary>
-///     Response class for the delete permission operation.
-/// </summary>
 public class DeletePermissionResponse : BaseResponse<DeletePermissionData>
 {
 }

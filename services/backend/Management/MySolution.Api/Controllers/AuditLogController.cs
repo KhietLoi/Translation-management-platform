@@ -9,7 +9,6 @@ namespace MySolution.Api.Controllers;
 [ApiController]
 public class AuditLogController (IMediator mediator) : Controller
 {
-    // GET
     [HttpGet]
     public async Task<IActionResult> GetAuditLogs(
         [FromQuery] string entityName,

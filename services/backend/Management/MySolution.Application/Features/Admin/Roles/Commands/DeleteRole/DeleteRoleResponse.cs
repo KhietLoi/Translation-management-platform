@@ -2,9 +2,6 @@
 
 namespace MySolution.Application.Features.Admin.Roles.Commands.DeleteRole;
 
-/// <summary>
-///     Response class for the delete role operation.
-/// </summary>
 public class DeleteRoleResponse : BaseResponse<DeleteRoleData>
 {
 }

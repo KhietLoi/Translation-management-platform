@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using AuthService.UnitTests.Helpers;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MySolution.Application.Common.Interfaces;
@@ -62,12 +63,13 @@ public class LoginHandlerTests
             });
 
         _userRepositoryMock
-            .Setup(x => x.GetUserWithRolesAsync("admin"))
-            .ReturnsAsync((User?)null);
+            .Setup(x => x.GetAll())
+            .Returns(AsyncQuery.Create<User>());
         // Act
         var response = await _handler.Handle(command, CancellationToken.None);
         // Assert
         Assert.False(response.Success);
+        VerifyNoSessionCreated();
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.Equal("Username or Password is incorrect.", response.ErrorMessage);
     }
@@ -90,12 +92,13 @@ public class LoginHandlerTests
             });
 
         _userRepositoryMock
-            .Setup(x => x.GetUserWithRolesAsync("admin"))
-            .ReturnsAsync(user);
+            .Setup(x => x.GetAll())
+            .Returns(AsyncQuery.Create(user));
         // Act
         var response = await _handler.Handle(command, CancellationToken.None);
         // Assert
         Assert.False(response.Success);
+        VerifyNoSessionCreated();
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         Assert.Equal("Account is not active.", response.ErrorMessage);
 
@@ -125,13 +128,14 @@ public class LoginHandlerTests
             });
 
         _userRepositoryMock
-            .Setup(x => x.GetUserWithRolesAsync("admin"))
-            .ReturnsAsync(user);
+            .Setup(x => x.GetAll())
+            .Returns(AsyncQuery.Create(user));
 
         // Act
         var response = await _handler.Handle(command, CancellationToken.None);
         // Assert
         Assert.False(response.Success);
+        VerifyNoSessionCreated();
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("Account is blocked.", response.ErrorMessage);
 
@@ -162,8 +166,8 @@ public class LoginHandlerTests
             });
 
         _userRepositoryMock
-            .Setup(x => x.GetUserWithRolesAsync("admin"))
-            .ReturnsAsync(user);
+            .Setup(x => x.GetAll())
+            .Returns(AsyncQuery.Create(user));
 
         _passwordHasherMock
             .Setup(x => x.VerifyPassword(
@@ -175,6 +179,7 @@ public class LoginHandlerTests
         var response = await _handler.Handle(command, CancellationToken.None);
         // Assert
         Assert.False(response.Success);
+        VerifyNoSessionCreated();
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("Username or Password is incorrect.", response.ErrorMessage);
     }
@@ -200,7 +205,7 @@ public class LoginHandlerTests
                 Password = "Password@123"
             });
 
-        _userRepositoryMock.Setup(x => x.GetUserWithRolesAsync("admin")).ReturnsAsync(user);
+        _userRepositoryMock.Setup(x => x.GetAll()).Returns(AsyncQuery.Create(user));
         _passwordHasherMock
             .Setup(x => x.VerifyPassword(
                 "Password@123",
@@ -210,6 +215,7 @@ public class LoginHandlerTests
         var response = await _handler.Handle(command, CancellationToken.None);
         // Assert
         Assert.False(response.Success);
+        VerifyNoSessionCreated();
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("User is not verified.", response.ErrorMessage);
         Assert.NotNull(response.Data);
@@ -217,8 +223,10 @@ public class LoginHandlerTests
         Assert.Equal("admin@gmail.com", response.Data.Email);
     }
     
-    [Fact]
-    public async Task Handle_Should_Login_Successfully_When_Credentials_Are_Valid()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Handle_Should_Login_Successfully_When_Credentials_Are_Valid(bool profileCompleted)
     {
         // Arrange
         var user = new User
@@ -229,7 +237,10 @@ public class LoginHandlerTests
             PasswordHash = "hashed-password",
             SecurityStamp = Guid.NewGuid().ToString(),
             Status = UserStatus.Active,
-            IsEmailVerified = true
+            IsEmailVerified = true,
+            Profile = profileCompleted
+                ? new UserProfile { FullName = "Test User", PhoneNumber = "0901234567", BirthDate = new DateOnly(2000, 1, 1) }
+                : new UserProfile()
         };
 
         var command = new LoginCommand(
@@ -240,8 +251,8 @@ public class LoginHandlerTests
             });
 
         _userRepositoryMock
-            .Setup(x => x.GetUserWithRolesAsync("admin"))
-            .ReturnsAsync(user);
+            .Setup(x => x.GetAll())
+            .Returns(AsyncQuery.Create(user));
 
         _passwordHasherMock
             .Setup(x => x.VerifyPassword(
@@ -249,10 +260,16 @@ public class LoginHandlerTests
                 "hashed-password"))
             .Returns(true);
 
+        var accessExpiresAt = DateTime.UtcNow.AddHours(1);
+        var refreshExpiresAt = DateTime.UtcNow.AddDays(7);
+        using var cancellation = new CancellationTokenSource();
+        string? issuedJti = null;
+        _hashServiceMock.Setup(x => x.ComputeHash("refresh-token")).Returns("refresh-token-hash");
         _jwtServiceMock
             .Setup(x => x.GenerateJwtToken(
                 It.IsAny<User>(),
                 It.IsAny<string>()))
+            .Callback<User, string>((_, jti) => issuedJti = jti)
             .Returns("access-token");
 
         _jwtServiceMock
@@ -261,15 +278,15 @@ public class LoginHandlerTests
 
         _jwtServiceMock
             .Setup(x => x.GetAccessTokenExpirationDate())
-            .Returns(DateTime.UtcNow.AddHours(1));
+            .Returns(accessExpiresAt);
 
         _jwtServiceMock
             .Setup(x => x.GetRefreshTokenExpirationDate())
-            .Returns(DateTime.UtcNow.AddDays(7));
+            .Returns(refreshExpiresAt);
 
 
         // Act
-        var response = await _handler.Handle(command, CancellationToken.None);
+        var response = await _handler.Handle(command, cancellation.Token);
         // Assert
         Assert.True(response.Success);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -278,12 +295,21 @@ public class LoginHandlerTests
         Assert.Equal("refresh-token", response.Data.RefreshToken);
         Assert.Equal("admin@gmail.com", response.Data.Email);
         Assert.True(response.Data.IsEmailVerified);
+        Assert.Equal(!profileCompleted, response.Data.NeedCompleteProfile);
+        Assert.Equal(accessExpiresAt, response.Data.ExpiresAtAccessToken);
+        Assert.True(Guid.TryParse(issuedJti, out _));
+        _jwtServiceMock.Verify(x => x.GenerateJwtToken(user, It.IsAny<string>()), Times.Once);
+        _hashServiceMock.Verify(x => x.ComputeHash("refresh-token"), Times.Once);
+        _securityStampServiceMock.Verify(x => x.SetSecurityStampAsync(user.Id, user.SecurityStamp), Times.Once);
         _refreshTokenRepositoryMock.Verify(
-            x => x.Add(It.IsAny<RefreshToken>()),
+            x => x.Add(It.Is<RefreshToken>(token =>
+                token.Id != Guid.Empty && token.UserId == user.Id &&
+                token.TokenHash == "refresh-token-hash" && token.Jti == issuedJti &&
+                token.ExpiredAt == refreshExpiresAt)),
             Times.Once);
 
         _unitOfWorkMock.Verify(
-            x => x.SaveAsync(It.IsAny<CancellationToken>()),
+            x => x.SaveAsync(cancellation.Token),
             Times.Once);
     }
     [Fact]
@@ -298,14 +324,15 @@ public class LoginHandlerTests
             });
 
         _userRepositoryMock
-            .Setup(x => x.GetUserWithRolesAsync(It.IsAny<string>()))
-            .ThrowsAsync(new Exception("Database error"));
+            .Setup(x => x.GetAll())
+            .Throws(new Exception("Database error"));
 
         // Act
         var response = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.False(response.Success);
+        VerifyNoSessionCreated();
 
         Assert.Equal(
             HttpStatusCode.InternalServerError,
@@ -314,5 +341,13 @@ public class LoginHandlerTests
         Assert.Equal(
             "An unexpected error occurred.",
             response.ErrorMessage);
+    }
+    private void VerifyNoSessionCreated()
+    {
+        _jwtServiceMock.Verify(x => x.GenerateJwtToken(It.IsAny<User>(), It.IsAny<string>()), Times.Never);
+        _jwtServiceMock.Verify(x => x.GenerateRefreshToken(), Times.Never);
+        _refreshTokenRepositoryMock.Verify(x => x.Add(It.IsAny<RefreshToken>()), Times.Never);
+        _unitOfWorkMock.Verify(x => x.SaveAsync(It.IsAny<CancellationToken>()), Times.Never);
+        _securityStampServiceMock.Verify(x => x.SetSecurityStampAsync(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
     }
 }

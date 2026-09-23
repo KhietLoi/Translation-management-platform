@@ -8,10 +8,6 @@ using MySolution.Application.Features.Admin.User.Queries.GetUser;
 
 namespace MySolution.Application.Features.Admin.Permission.Queries.GetPermissions;
 
-/// <summary>
-///     Handler for processing the GetPermissionsQuery,
-///     which retrieves a list of permissions based on the provided search criteria and pagination parameters.
-/// </summary>
 public class GetPermissionsHandler : IRequestHandler<GetPermissionsQuery, GetPermissionsResponse>
 {
     private readonly ILogger<GetUsersHandler> _logger;

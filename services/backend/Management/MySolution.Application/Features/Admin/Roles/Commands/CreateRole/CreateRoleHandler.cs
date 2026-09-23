@@ -44,7 +44,7 @@ public class CreateRoleHandler : IRequestHandler<CreateRoleCommand, CreateRoleRe
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
             }
-
+            
             // Create Role
             var role = new Role
             {
@@ -62,6 +62,7 @@ public class CreateRoleHandler : IRequestHandler<CreateRoleCommand, CreateRoleRe
                 RoleDescription = role.Description,
                 CreatedAt = DateTime.UtcNow
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.Created);

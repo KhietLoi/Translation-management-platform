@@ -2,9 +2,6 @@
 
 namespace MySolution.Application.Features.Admin.Permission.Commands.DeletePermission;
 
-/// <summary>
-///     Command to delete a permission by its ID.
-/// </summary>
 public class DeletePermissionCommand : IRequest<DeletePermissionResponse>
 {
     public Guid Id { get; }

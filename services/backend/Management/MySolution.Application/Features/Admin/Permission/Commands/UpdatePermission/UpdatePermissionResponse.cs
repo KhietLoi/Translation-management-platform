@@ -2,9 +2,6 @@
 
 namespace MySolution.Application.Features.Admin.Permission.Commands.UpdatePermission;
 
-/// <summary>
-///     Response class for the update permission operation.
-/// </summary>
 public class UpdatePermissionResponse : BaseResponse<UpdatePermissionData>
 {
 }

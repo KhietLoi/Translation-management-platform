@@ -6,9 +6,6 @@ using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Application.Features.Admin.Permission.Commands.UpdatePermission;
 
-/// <summary>
-///     Handler for updating a permission.
-/// </summary>
 public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, UpdatePermissionResponse>
 {
     private readonly ILogger<UpdatePermissionHandler> _logger;
@@ -24,8 +21,7 @@ public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, 
         _logger = logger;
     }
 
-    public async Task<UpdatePermissionResponse> Handle(UpdatePermissionCommand request,
-        CancellationToken cancellationToken)
+    public async Task<UpdatePermissionResponse> Handle(UpdatePermissionCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
         var functionName = $"{nameof(UpdatePermissionHandler)} =>";
@@ -38,11 +34,9 @@ public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, 
             var permission = await _unitOfWork.Permission
                 .GetAll()
                 .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
-            
             if (permission == null)
             {
                 _logger.LogInformation("{FunctionName} Permission not found.", functionName);
-                
                 response.ErrorMessage = "Permission not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -57,7 +51,6 @@ public class UpdatePermissionHandler : IRequestHandler<UpdatePermissionCommand, 
             if (existingPermission != null && existingPermission.Id != permission.Id)
             {
                 _logger.LogInformation("{FunctionName} Permission code already exists.", functionName);
-                
                 response.ErrorMessage = "Permission code already exists.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;

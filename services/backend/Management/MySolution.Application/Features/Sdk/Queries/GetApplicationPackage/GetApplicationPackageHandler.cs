@@ -42,9 +42,7 @@ public class GetApplicationPackageHandler
         try
         {
             // 1. Get authorized application
-            var application = await _applicationAccessService
-                .GetApplicationAsync(cancellationToken);
-
+            var application = await _applicationAccessService.GetApplicationAsync(cancellationToken);
             if (application == null)
             {
                 response.ErrorMessage = "Application is not authorized.";

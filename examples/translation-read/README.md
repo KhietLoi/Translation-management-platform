@@ -1,138 +1,147 @@
-# TMS External React Demo — i18n & TranslationRead SDK Integration
+# Translation Read — External Integration Example
 
-Ứng dụng demo tích hợp dịch đa ngôn ngữ (i18n) cho ứng dụng React Web, cho phép kết nối trực tiếp với **MySolution Translation Management Platform (TMS)** qua API `TranslationRead`.
+A React example demonstrating how an external client consumes published Translation Management Platform content using an API Key. It includes a data table, JSON viewer, multilingual UI preview, version/package checks, and a Network Inspector.
 
----
+[Project overview](../../README.md) · [Backend/API](../../services/backend/README.md) · [Administration frontend](../../apps/web/README.md)
 
-## Tổng Quan Dự Án
+## 1. Purpose
 
-Dự án mô phỏng việc tích hợp và tải bản dịch tự động từ API SDK của hệ thống TMS. Ứng dụng cung cấp bảng điều khiển xem bản dịch, bộ kiểm tra log mạng (Network Inspector) và một **User Profile i18n Live Demo (MiniAppPreview)** giúp xem trực tiếp giao diện ứng dụng khi thay đổi ngôn ngữ.
+- Configure the backend address and API Key.
+- Read translations for a language code.
+- Inspect table/JSON results and copy JSON.
+- Switch languages in `MiniAppPreview` using loaded translations.
+- Retrieve the active release version and package information.
+- Inspect requests, headers, responses, latency, and errors.
 
----
+This is a demo application calling SDK HTTP endpoints, not a published npm SDK library. Key creation, translation editing, and publishing belong to the administration application.
 
-## Các Tính Năng Chính
+## 2. Technology and structure
 
-### 1. 👤 User Profile i18n Live Demo (`MiniAppPreview.jsx`)
-Màn hình mô phỏng giao diện cá nhân (User Profile) render nội dung động dựa trên dữ liệu bản dịch fetched từ API.
-
-* **Chuyển Đổi Ngôn Ngữ Trực Tiếp (Quick Language Switcher)**:
-  * Cho phép người dùng chuyển đổi ngôn ngữ nhanh chóng qua thanh nút chip hoặc `select` trong mục **Preferences**.
-  * Hỗ trợ các mã ngôn ngữ: `vi-VN` (Tiếng Việt), `en-US` (Tiếng Anh), `ja-JP` (Tiếng Nhật), `ko-KR` (Tiếng Hàn), `zh-TW` (Tiếng Trung Phồn thể), `fr-FR` (Tiếng Pháp), `de-DE` (Tiếng Đức).
-* **Dynamic Translation Helper `t(key, fallback)`**:
-  * Hàm tiện ích giúp truy xuất giá trị dịch động theo key (ví dụ: `profile.title`, `profile.preferences`, `profile.language`).
-  * Tự động hiển thị chuỗi `fallback` nếu key chưa được tải hoặc chưa được định nghĩa.
-* **Key Inspector (Soi Key Bản Dịch)**:
-  * Kiểm tra chi tiết từng khóa dịch `profile.*` đang active.
-  * Hiển thị tên key, giá trị dịch thực tế theo ngôn ngữ đã chọn, kiểu dữ liệu và độ dài chuỗi.
-
----
-
-### 2. Translation Viewer (`TranslationViewer.jsx`)
-* Tải bản dịch theo `projectId` và mã ngôn ngữ (`language`).
-* Chế độ xem linh hoạt: dạng **Bảng (Table)** hoặc dạng **JSON thô**.
-* Lọc từ khóa tìm kiếm nhanh theo key hoặc value.
-* Hỗ trợ copy toàn bộ JSON bản dịch chỉ với một cú nhấp chuột.
-
----
-
-### 3. API Configuration Panel (`ApiConfigPanel.jsx`)
-* Cấu hình tham số kết nối API:
-  * **Base API URL**: Địa chỉ server backend (mặc định: `http://localhost:5182` hoặc `https://localhost:7185`).
-  * **X-API-KEY**: API Key xác thực quyền `TranslationRead`.
-  * **Project ID**: ID của project cần lấy bản dịch.
-
----
-
-### 4. Version & Package Viewer (`VersionPackageViewer.jsx`)
-* Kiểm tra phiên bản phát hành hiện tại (**Active Release Version**).
-* Tải xuống toàn bộ gói bản dịch dạng tập tin nén ZIP (`.zip`).
-
----
-
-### 5. Network Inspector (`NetworkInspector.jsx`)
-* Ghi log thời gian thực các request HTTP gửi đến TMS API.
-* Hiển thị thông số chi tiết: HTTP Method, Status Code, Latency (độ trễ ms), Headers và Response Payload.
-
----
-
-## Cấu Trúc Mã Nguồn
+React 19, Vite 8, Axios, and ESLint.
 
 ```text
-translationread/
+examples/translation-read/
 ├── src/
-│   ├── api/
-│   │   └── translationApi.js     # Helper gửi request axios tới TMS Backend API
+│   ├── api/translationApi.js          # getTranslations/getVersion/getPackage
 │   ├── components/
-│   │   ├── ApiConfigPanel.jsx       # Form cấu hình URL, API Key, Project ID
-│   │   ├── Header.jsx               # Header ứng dụng
-│   │   ├── MiniAppPreview.jsx       # Component Live Demo User Profile i18n
-│   │   ├── NetworkInspector.jsx     # Bảng theo dõi log request/response
-│   │   ├── TranslationViewer.jsx    # Bảng xem và tra cứu bản dịch
-│   │   └── VersionPackageViewer.jsx # Xem phiên bản & tải ZIP package
-│   ├── App.css                      # Styling chính với Glassmorphism UI
-│   ├── App.jsx                      # Main Layout & State Management
-│   └── main.jsx                     # Entry point React
-├── DataTest/                        # Thư mục lưu file JSON dữ liệu mẫu
-│   ├── vi-VN.json
-│   ├── en-US.json
-│   ├── zh-TW.json
-│   ├── ko-KR.json
-│   └── fr-FR.json
+│   │   ├── ApiConfigPanel.jsx         # Connection configuration
+│   │   ├── TranslationViewer.jsx      # Languages, table/JSON
+│   │   ├── MiniAppPreview.jsx         # Multilingual example UI
+│   │   ├── VersionPackageViewer.jsx   # Version and package information
+│   │   └── NetworkInspector.jsx       # Request/response inspection
+│   ├── App.jsx                       # State and component wiring
+│   └── main.jsx
+├── DataTest/                          # Sample data
 ├── package.json
-└── README.md
+└── vite.config.js
 ```
 
----
+## 3. Prepare platform data
 
-## Hướng Dẫn Cài Đặt & Chạy Dự Án
+1. Start the backend and configure dependencies using the [Backend README](../../services/backend/README.md).
+2. Create a project, languages, namespaces, keys, and values.
+3. Review content, publish a release, and ensure an active release exists.
+4. Create an application with the appropriate scope and issue an API Key.
+5. Grant `TranslationRead`, `VersionRead`, and/or `PackageDownload` as required.
+6. Allow the demo origin in backend CORS.
 
-### 1. Cài đặt thư viện
-```bash
-npm install
+The server determines project access through the application and API Key. Entering another Project ID in the UI does not grant access to that project.
+
+## 4. Installation and startup
+
+Use Node.js `^20.19.0 || >=22.12.0`, as required by the lockfile. From `examples/translation-read`:
+
+```powershell
+npm ci
 ```
 
-### 2. Khởi tạo file môi trường (Tùy chọn)
-Tạo file `.env` tại thư mục gốc dự án:
-```env
+Create `.env.local`:
+
+```dotenv
 VITE_API_URL=http://localhost:5182
-VITE_API_KEY=
-VITE_PROJECT_ID=01a00d6f-864a-78ed-8bd4-70bcbda5a552
+VITE_API_KEY=<api-key-for-demo>
+VITE_PROJECT_ID=<project-id-for-display>
 ```
 
-### 3. Chạy môi trường phát triển (Development)
-```bash
-npm run dev
+**Do not append `/api` to this URL:** `translationApi.js` appends `/api/sdk/...`. You can also change settings through `ApiConfigPanel`.
+
+`VITE_PROJECT_ID` provides client state/display fallback. The three API helper functions do not send Project ID in the URL or query. The translation endpoint receives `language` as a query parameter.
+
+Use a different port from the administration frontend:
+
+```powershell
+npm run dev -- --port 5174 --strictPort
 ```
-Ứng dụng sẽ chạy tại địa chỉ: `http://localhost:5173`.
 
----
+Open `http://localhost:5174` and allow that origin in backend CORS. App and API helper fallback settings differ; configure the URL and demo key explicitly instead of relying on source defaults.
 
-## Ví Dụ Sử Dụng Key trong Component (`MiniAppPreview.jsx`)
+Browser API Keys and `VITE_*` values are visible to users. Network Inspector displays request headers for debugging. Use a scoped test key and do not share logs containing it.
 
-```jsx
-// Hàm tiện ích lookup bản dịch
-const t = (key, fallback = "") => {
-  if (!translations) return fallback;
-  return translations[key] !== undefined ? translations[key] : fallback;
-};
+## 5. API contract
 
-// Render giao diện với key profile.preferences
-<h4 className="section-title">
-  {t("profile.preferences", "Preferences")}
-</h4>
+| Client function | Request | Permission |
+| --- | --- | --- |
+| `getTranslations(language, options)` | `GET /api/sdk/projects/translations?language=en-US` | `TranslationRead` |
+| `getVersion(options)` | `GET /api/sdk/projects/version` | `VersionRead` |
+| `getPackage(options)` | `GET /api/sdk/projects/package` | `PackageDownload` |
 
-// Render thẻ select đổi ngôn ngữ trong phần Preferences
-<select
-  className="input-field"
-  value={language}
-  onChange={(e) => onSwitchLanguage && onSwitchLanguage(e.target.value)}
->
-  <option value="vi-VN">Vietnamese (vi-VN)</option>
-  <option value="en-US">English (en-US)</option>
-  <option value="ja-JP">Japanese (ja-JP)</option>
-  <option value="ko-KR">Korean (ko-KR)</option>
-  <option value="zh-TW">Traditional Chinese (zh-TW)</option>
-  <option value="fr-FR">French (fr-FR)</option>
-  <option value="de-DE">German (de-DE)</option>
-</select>
+Header:
+
+```http
+X-API-KEY: <api-key-for-demo>
 ```
+
+`options` accepts `baseUrl` and `apiKey`. An empty or `null` key omits the header, allowing missing-key scenarios. Helpers return Axios `response.data`; viewers support both a `data` envelope and a direct payload.
+
+Example:
+
+```javascript
+import { getTranslations } from './src/api/translationApi.js';
+
+const result = await getTranslations('en-US', {
+  baseUrl: 'http://localhost:5182',
+  apiKey: '<api-key-for-demo>',
+});
+
+const payload = result.data ?? result;
+console.log(payload);
+```
+
+The package endpoint returns package metadata/download information as defined by the backend, not necessarily ZIP bytes directly. Download URLs may expire and require a new request.
+
+## 6. Demo scenario
+
+1. Enter the Base URL and API Key.
+2. Select a published language and load translations.
+3. Inspect table/JSON output and compare it with published content.
+4. Switch preview languages and observe the updated UI.
+5. Retrieve the version/package and inspect network responses.
+6. Publish another release in the administration application and reload.
+7. Roll back a release and reload version/content.
+8. Try a missing, invalid, or insufficiently privileged key.
+
+Preview completeness depends on the keys provided by the project's translation data.
+
+## 7. Scripts and validation
+
+```powershell
+npm run lint
+npm run build
+npm run preview
+```
+
+Build output is written to `dist/`. There is no automated `test` script in the current `package.json`; exercise integration scenarios against a running backend. `npm run dev` uses Vite's default port unless overridden.
+
+## 8. Troubleshooting
+
+| Problem | Check |
+| --- | --- |
+| Connection/CORS failure | API availability, Base URL, allowed demo origin |
+| 401 | Valid header/key; key has not expired or been revoked |
+| 403 | Required endpoint permission and application scope |
+| Empty data/no release | Active release, published content, correct language code |
+| URL-related 404 | No `/api` suffix in Base URL; no Project ID inserted into the documented routes |
+| HTTPS certificate failure | Trust the valid development certificate; use the correct HTTPS port |
+| Package download failure | URL validity, Blob configuration, package permission |
+
+Network Inspector supports session-level debugging; it does not replace server logging or load-testing tools.

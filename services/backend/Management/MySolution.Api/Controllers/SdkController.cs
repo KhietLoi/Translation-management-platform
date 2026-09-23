@@ -16,9 +16,7 @@ public class SdkController(IMediator mediator) : ControllerBase
     [HttpGet("projects/translations")]
     [ApiKeyAuthorize]
     [ApiKeyPermission(ApiKeyPermissionType.TranslationRead)]
-    public async Task<IActionResult> GetTranslations(
-        [FromQuery] string language,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> GetTranslations([FromQuery] string language, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(
             new GetApplicationTranslationsQuery

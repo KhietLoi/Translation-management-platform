@@ -36,11 +36,9 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
             var role = await _unitOfWork.Role
                 .GetAll()
                 .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
-            
             if (role == null)
             {
                 _logger.LogInformation("{FunctionName} Role with ID {RoleId} not found.", functionName, request.Id);
-                
                 response.ErrorMessage = "Role not found.";
                 response.WithStatus(HttpStatusCode.NotFound);
                 return response;
@@ -54,7 +52,6 @@ public class UpdateRoleHandler : IRequestHandler<UpdateRoleCommand, UpdateRoleRe
             if (existingRole != null && existingRole.Id != role.Id)
             {
                 _logger.LogInformation("{FunctionName} Role name {RoleName} already exists.", functionName, payload.Name);
-                
                 response.ErrorMessage = "Role name already exists.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;

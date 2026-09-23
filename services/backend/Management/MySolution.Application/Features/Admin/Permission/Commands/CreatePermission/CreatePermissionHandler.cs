@@ -6,26 +6,18 @@ using MySolution.Application.Common.Interfaces.Repositories;
 
 namespace MySolution.Application.Features.Admin.Permission.Commands.CreatePermission;
 
-/// <summary>
-///     Handler for creating a new permission.
-/// </summary>
 public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, CreatePermissionResponse>
 {
     private readonly ILogger<CreatePermissionHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CreatePermissionHandler
-    (
-        IUnitOfWork unitOfWork,
-        ILogger<CreatePermissionHandler> logger
-    )
+    public CreatePermissionHandler(IUnitOfWork unitOfWork, ILogger<CreatePermissionHandler> logger)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public async Task<CreatePermissionResponse> Handle(CreatePermissionCommand request,
-        CancellationToken cancellationToken)
+    public async Task<CreatePermissionResponse> Handle(CreatePermissionCommand request, CancellationToken cancellationToken)
     {
         var payload = request.Payload;
         var functionName = $"{nameof(CreatePermissionHandler)} =>";
@@ -34,7 +26,6 @@ public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, 
 
         try
         {
-            // Validate if the permission code already exists
             var permissionCodeExists = await _unitOfWork.Permission
                 .GetAll()
                 .AsNoTracking()
@@ -56,8 +47,7 @@ public class CreatePermissionHandler : IRequestHandler<CreatePermissionCommand, 
                 Description = payload.Description,
                 CreatedAt = DateTime.UtcNow
             };
-
-            //Save
+            
             await _unitOfWork.Permission.Add(permission);
             await _unitOfWork.SaveAsync(cancellationToken);
                 

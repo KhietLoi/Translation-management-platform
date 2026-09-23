@@ -43,7 +43,6 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
             var role = await _unitOfWork.Role
                 .GetAll()
                 .FirstOrDefaultAsync(x => x.Id == payload.RoleId, cancellationToken);
-            
             if (role is null)
             {
                 _logger.LogInformation("{FunctionName} Role with ID {RoleId} not found.", functionName, payload.RoleId);
@@ -59,14 +58,12 @@ public class UpdateRolePermissionsHandler : IRequestHandler<UpdateRolePermission
             
             var currentPermissionIds = currentRolePermissions.Select(x => x.PermissionId).ToHashSet();
             var newPermissionIds = payload.PermissionIds.Distinct().ToHashSet();
-            var permissionIdsToAdd = newPermissionIds.Except(currentPermissionIds).ToList(); // Permissions need add
+            var permissionIdsToAdd = newPermissionIds.Except(currentPermissionIds).ToList(); 
 
             // Permissions need remove
             var rolePermissionsToRemove = currentRolePermissions
                 .Where(x => !newPermissionIds.Contains(x.PermissionId))
                 .ToList();
-
-            // Validate permissions exist
             if (permissionIdsToAdd.Count > 0)
             {
                 var permissions = await _unitOfWork.Permission
