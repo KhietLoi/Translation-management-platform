@@ -53,7 +53,9 @@ services:
       RabbitMq__Password: ${RABBITMQ_PASSWORD:?Run scripts/init-docker.ps1 first}
 
       Frontend__BaseUrl: http://localhost:5173
-      CorsAllowedOrigins: http://localhost:5173
+      CorsAllowedOrigins: http://localhost:5173,http://localhost:5174
+
+      AI__BaseUrl: http://ai-translation:8000
 
       Logging__ConsoleEnabled: "true"
       Logging__Elk__Enabled: "false"
@@ -64,6 +66,9 @@ services:
     volumes:
       - ./infra/docker/api.local.json:/app/appsettings.json:ro
       - data-protection:/root/.aspnet/DataProtection-Keys
+
+    ports:
+      - "127.0.0.1:5182:8080"
 
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -115,7 +120,49 @@ services:
       timeout: 3s
       retries: 10
 
+  ollama:
+    image: ollama/ollama:latest
+
+    volumes:
+      - ollama-data:/root/.ollama
+
+    healthcheck:
+      test: [CMD, ollama, list]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  ai-translation:
+    build:
+      context: ./services/ai-translation
+
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+
+    ports:
+      - "127.0.0.1:8000:8000"
+
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  translation-read:
+    build:
+      context: ./examples/translation-read
+
+    environment:
+      VITE_API_URL: http://localhost:5182
+      VITE_API_KEY: ""
+      VITE_PROJECT_ID: ""
+
+    ports:
+      - "127.0.0.1:5174:5174"
+
+    depends_on:
+      - api
+
 volumes:
   redis-data:
   rabbitmq-data:
   data-protection:
+  ollama-data:

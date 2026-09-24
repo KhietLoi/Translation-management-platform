@@ -50,10 +50,9 @@ Run from `services/ai-translation`:
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-python -m pip install ollama
 ```
 
-The extra `ollama` installation is required because the code imports it but `requirements.txt` does not declare it. The requirements file also includes `google-genai`, while the current suggestion implementation uses Ollama.
+The Ollama Python client is included in `requirements.txt`. The Ollama server and model must also be available, either on the host or through the Docker setup below.
 
 Download the model:
 
@@ -72,6 +71,22 @@ uvicorn app.main:app --reload --port 8000
 - Health: `http://localhost:8000/health`.
 
 Use `--host 0.0.0.0` and an appropriate port when the host needs to accept connections beyond loopback. The model is currently selected in source code, without a dedicated application setting for model selection.
+
+### Docker
+
+The root `compose.yaml` builds this service together with an `ollama` container:
+
+```powershell
+docker compose up -d --build ollama ai-translation
+docker compose exec ollama ollama pull qwen2.5:3b
+```
+
+Run the Docker commands from the repository root. See the [project README](../../README.md#6-run-from-a-fresh-clone) for the full stack. Standalone build/run:
+
+```powershell
+docker build -t ai-translation:local services/ai-translation
+docker run --rm -p 8000:8000 -e OLLAMA_HOST=http://host.docker.internal:11434 ai-translation:local
+```
 
 ## 5. API
 
@@ -140,7 +155,7 @@ Configure the Management API:
 $env:AI__BaseUrl = 'http://localhost:8000'
 ```
 
-The backend's `TranslationSuggestionService` calls the two endpoints above. In Docker, use an address reachable from the API container: container `localhost` is not the host machine. Root Compose does not start AI/Ollama.
+The backend's `TranslationSuggestionService` calls the two endpoints above. In Docker, root Compose already sets the API's `AI__BaseUrl` to `http://ai-translation:8000`; container `localhost` is not the host machine.
 
 ## 7. Manual checks
 
