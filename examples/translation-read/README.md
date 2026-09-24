@@ -77,6 +77,21 @@ Open `http://localhost:5174` and allow that origin in backend CORS. App and API 
 
 Browser API Keys and `VITE_*` values are visible to users. Network Inspector displays request headers for debugging. Use a scoped test key and do not share logs containing it.
 
+### Docker
+
+The root `compose.yaml` builds and starts this demo alongside the rest of the stack:
+
+```powershell
+docker compose up -d --build translation-read
+```
+
+It runs the Vite dev server on port 5174 against `http://localhost:5182` (the Dockerized API). Enter the API Key and Project ID through `ApiConfigPanel` at runtime — see the [project README](../../README.md#6-run-from-a-fresh-clone). Standalone build/run:
+
+```powershell
+docker build -t translation-read:local examples/translation-read
+docker run --rm -p 5174:5174 translation-read:local
+```
+
 ## 5. API contract
 
 | Client function | Request | Permission |

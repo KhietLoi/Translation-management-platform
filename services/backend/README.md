@@ -248,7 +248,7 @@ Hosts load `appsettings.json`, environment-specific configuration, and environme
 | `Redis:ConnectionString` | Redis connection |
 | `RabbitMq:Host`, `RabbitMq:Username`, `RabbitMq:Password` | RabbitMQ connection |
 | `AzureBlob:ConnectionString`, `AzureBlob:ContainerName` | Blob Storage |
-| `SendGrid:ApiKey`, `SendGrid:FromEmail`, `SendGrid:FromName`, `SendGrid:Enabled` | Email Service delivery settings |
+| `SendGrid:ApiKey`, `SendGrid:FromEmail`, `SendGrid:FromName` | Required Email Service startup and delivery settings |
 | `Frontend:BaseUrl` | Frontend links |
 | `CorsAllowedOrigins` | Allowed frontend origins |
 | `AI:BaseUrl` | FastAPI address |
@@ -260,7 +260,7 @@ Hosts load `appsettings.json`, environment-specific configuration, and environme
 PowerShell example; replace placeholders with local settings:
 
 ```powershell
-$env:ConnectionStrings__DefaultConnection = 'Host=localhost;Port=5432;Database=translation_management;Username=<db-user>;Password=
+$env:ConnectionStrings__DefaultConnection = 'Host=localhost;Port=5432;Database=mysolution_db;Username=<db-user>;Password=<db-password>;Search Path=mysolution'
 $env:Redis__ConnectionString = 'localhost:6379'
 $env:RabbitMq__Host = 'localhost'
 $env:RabbitMq__Username = '<rabbitmq-user>'
@@ -310,12 +310,14 @@ Migrations use DbUp and SQL scripts. Run from the migration project directory so
 
 ```powershell
 Push-Location services/backend/MySolution.Migration
-$env:ConnectionStrings__mysolution = 'Host=localhost;Port=5432;Database=translation_management;Username=<db-user>;Password=
+$env:ConnectionStrings__mysolution = 'Host=localhost;Port=5432;Database=mysolution_db;Username=<db-user>;Password=<db-password>;Search Path=mysolution'
+$env:CreateNewDatabase = 'true'
+$env:ASPNETCORE_ENVIRONMENT = 'Development'
 dotnet run --project MySolution.Migration.csproj -- mysolution
 Pop-Location
 ```
 
-Use `all` to run every database defined by the program. Script groups run in order: `Sequences → Scripts → Functions → Alter → Seed`, with a transaction per script and execution tracking in `public.schema_version`. Check the `Migration SUCCESS`/`Migration FAILED` logs.
+Use `all` to run every database defined by the program. Script groups run in order: `Sequences → Scripts → Functions → Alter → Seed`, with a transaction per script and execution tracking in `public.schema_version`. The seed runs as part of the migration; no separate seed command is needed. Check the `Migration SUCCESS`/`Migration FAILED` logs. For the Docker SDK alternative and initial development accounts, see the [root setup guide](../../README.md#step-4-create-the-database-and-seed-data).
 
 ### 8.5. Management API and Email Service
 
@@ -346,32 +348,29 @@ Set-Location services/ai-translation
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-python -m pip install ollama
 uvicorn app.main:app --reload --port 8000
 ```
 
-Point the API's `AI:BaseUrl` at FastAPI. The additional `ollama` installation is necessary because `requirements.txt` does not declare it. See the [AI README](../ai-translation/README.md) for contracts and limitations.
+Point the API's `AI:BaseUrl` at FastAPI. The Ollama Python client is included in `requirements.txt`. See the [AI README](../ai-translation/README.md) for contracts and limitations.
 
-## 9. Docker and deployment
+## 9. Run with Docker
 
-Root `compose.yaml` includes Redis, RabbitMQ, API, Email, and Web. `infra/compose.yaml` supports local infrastructure development. Choose the appropriate stack to avoid port/resource conflicts.
+Root `compose.yaml` builds and starts Redis, RabbitMQ, API, Email, Web, Ollama, the AI service, and the Translation Read demo together:
 
-Build .NET images from the root:
+```powershell
+docker compose up -d --build
+```
+
+See the [project README](../../README.md#6-run-from-a-fresh-clone) for the one-time setup, full service list, and addresses. `infra/compose.yaml` starts only Redis/RabbitMQ/RedisInsight for local (non-Docker) backend development.
+
+To build just one .NET image:
 
 ```powershell
 docker build -f services/backend/Management/MySolution.Api/Dockerfile -t translation-api:local services/backend
 docker build -f services/backend/Email/MySolution.Email.Api/Dockerfile -t translation-email:local services/backend
 ```
 
-After configuring dependencies and root Compose:
-
-```powershell
-docker compose up -d --build
-```
-
-Root Compose does not declare PostgreSQL or AI services. Use dependency addresses reachable from containers; `localhost` refers to the container itself. Nginx configuration is in `apps/web/nginx.conf`.
-
-See [deployment configuration](../../docs/deployment.md) and the [Docker guide](../../docs/docker.md) for the current setup.
+Root Compose does not declare PostgreSQL; provide a reachable connection string. Use container-network addresses (service names, not `localhost`) between containers. Nginx configuration is in `apps/web/nginx.conf`. See the [Docker guide](../../docs/docker.md) for troubleshooting.
 
 ## 10. Testing
 
@@ -389,7 +388,7 @@ dotnet test services/backend/MySolution.slnx
 
 The most recent Auth test run passed 19 cases covering:
 
-- **Login:** missing/inactive/blocked users, wrong  unverified email, exceptions, successful login with complete/incomplete profiles, tokens, JTI, security stamps, and persistence.
+- **Login:** missing/inactive/blocked users, wrong password, unverified email, exceptions, successful login with complete/incomplete profiles, tokens, JTI, security stamps, and persistence.
 - **Register:** duplicate details, missing default role, exceptions, successful user/role/profile creation, and verification email content.
 - **ResetPassword:** expired tokens, missing users, invalid `PasswordVersion`, exceptions, password hashes/version increments, and account status.
 
@@ -408,6 +407,6 @@ The backend implements management, editing, review, release, and delivery workfl
 
 Commands and architecture descriptions were checked against source code. Passing unit tests does not establish full integration coverage or production readiness.
 
-## Private configuration after history cleanup
+## Private configuration
 
-Sensitive settings in the tracked JSON files are empty. For `dotnet run`, load the exported `api.env.ps1`, `email.env.ps1`, or `migration.env.ps1` in the matching terminal, or supply the same settings through environment variables. Root Compose uses ignored `infra/docker/*.local.json` files. Follow [private configuration instructions](../../docs/deployment.md#private-local-configuration); never commit the exported files.
+Sensitive settings in the tracked JSON files are empty. For `dotnet run`, supply your own settings through environment variables in the matching terminal. Root Compose uses ignored `infra/docker/*.local.json` files. Follow the [private configuration instructions](../../docs/deployment.md#private-local-configuration); never commit real credentials. The Email host validates its SendGrid API key and sender settings on startup. For a limited trial without email, use the verified seed accounts and the service list in the [root setup guide](../../README.md#step-5-build-and-start-the-services).
