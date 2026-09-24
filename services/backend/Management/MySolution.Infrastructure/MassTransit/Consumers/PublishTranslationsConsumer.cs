@@ -12,10 +12,11 @@ namespace MySolution.Infrastructure.MassTransit.Consumers;
 
 public class PublishTranslationsConsumer : IConsumer<PublishTranslationsEvent>
 {
+    private const string EventName = "PublishTranslationsConsumer";
+    private readonly ILogger<PublishTranslationsConsumer> _logger;
     private readonly IMediator _mediator;
     private readonly IUnitOfWork  _unitOfWork;
     private readonly IDistributedLockService _distributedLockService;
-    public readonly ILogger<PublishTranslationsConsumer> _logger;
 
     public PublishTranslationsConsumer
     (
@@ -38,6 +39,7 @@ public class PublishTranslationsConsumer : IConsumer<PublishTranslationsEvent>
             .FirstOrDefaultAsync(j => j.Id == context.Message.JobId, context.CancellationToken);
         if (job == null)
         {
+            _logger.LogWarning("Publish message received for unknown job. EventName={EventName}, MessageId={MessageId}", EventName, context.MessageId);
             return;
         }
 
@@ -65,5 +67,6 @@ public class PublishTranslationsConsumer : IConsumer<PublishTranslationsEvent>
             job.Id);
         
         await _mediator.Send (new ProcessPublishTranslationsCommand(context.Message.JobId), context.CancellationToken);
+        _logger.LogWarning("Publish message processed successfully. EventName={EventName}, MessageId={MessageId}", EventName, context.MessageId);
     }
 }

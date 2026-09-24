@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.Sdk.Queries.GetApplicationVersion;
 
 public class GetApplicationVersionResponse : BaseResponse <GetApplicationVersionResponseData>
 {
-
 }
 
 public class GetApplicationVersionResponseData

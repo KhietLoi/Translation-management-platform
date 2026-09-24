@@ -1,4 +1,6 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using System.Reflection;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace MySolution.Api.StartupRegistrations.Swagger;
 
@@ -14,6 +16,25 @@ public static class SwaggerRegistration
             {
                 Title = "MySolution API",
                 Version = "v1"
+            });
+            
+            // XML Documentation
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            if (File.Exists(xmlPath))
+            {
+                options.IncludeXmlComments(xmlPath);
+            }
+            
+            //Operation ID
+            options.CustomOperationIds(apiDescription =>
+            {
+                if (apiDescription.TryGetMethodInfo(out var methodInfo))
+                {
+                    return methodInfo.Name;
+                }
+
+                return null;
             });
 
             // JWT Bearer
@@ -35,31 +56,6 @@ public static class SwaggerRegistration
                 Type = SecuritySchemeType.ApiKey
             });
             options.OperationFilter<SecurityRequirementsOperationFilter>();
-            /*options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    Array.Empty<string>()
-                },
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "ApiKey"
-                        }
-                    },
-                    Array.Empty<string>()
-                }
-            });*/
         });
 
         return services;

@@ -13,21 +13,26 @@ namespace MySolution.Api.Controllers;
 [Route("api/sdk")]
 public class SdkController(IMediator mediator) : ControllerBase
 {
+    /// <summary>
+    /// Get translations for the application based on the specified language.
+    /// </summary>
+    /// <param name="language"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("projects/translations")]
     [ApiKeyAuthorize]
     [ApiKeyPermission(ApiKeyPermissionType.TranslationRead)]
     public async Task<IActionResult> GetTranslations([FromQuery] string language, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(
-            new GetApplicationTranslationsQuery
-            {
-                Language = language
-            }, cancellationToken);
-
+        var response = await mediator.Send(new GetApplicationTranslationsQuery(language), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    // Get version:
+    /// <summary>
+    ///  Get the current version of the application.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("projects/version")]
     [ApiKeyAuthorize]
     [ApiKeyPermission(ApiKeyPermissionType.VersionRead)]
@@ -37,7 +42,11 @@ public class SdkController(IMediator mediator) : ControllerBase
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    // Get package info & SAS download URL:
+    /// <summary>
+    /// Get the application package for download.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("projects/package")]
     [ApiKeyAuthorize]
     [ApiKeyPermission(ApiKeyPermissionType.PackageDownload)]

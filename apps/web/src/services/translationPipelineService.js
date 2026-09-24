@@ -29,12 +29,30 @@ export const publishTranslations = async ({ projectId, notes = "" }) => {
 };
 
 // Get Release History
-export const getReleaseHistory = async (params) => {
+// export const getReleaseHistory = async (params) => {
+//   const response = await api.get("/TranslationPipeline/release-history", {
+//     params,
+//   });
+//   return response.data;
+// };
+
+// Get Release History
+export const getReleaseHistory = async ({
+    projectId,
+    pageNumber = 1,
+    pageSize = 20,
+}) => {
   const response = await api.get("/TranslationPipeline/release-history", {
-    params,
+    params: {
+      ProjectId: projectId,
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+    },
   });
+
   return response.data;
 };
+
 
 // Get Translation Jobs History
 export const getTranslationHistory = async (params) => {

@@ -24,6 +24,12 @@ namespace MySolution.Api.Controllers;
 [ApiController]
 public class ProjectController (IMediator mediator): Controller
 {
+    /// <summary>
+    /// Creates a new project.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost]
     [Permission(PermissionConstants.Project.Create)]
     public async Task<IActionResult> CreateProject
@@ -36,6 +42,12 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Retrieves a project by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [Permission(PermissionConstants.Project.View)]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetProjectById(Guid id, CancellationToken cancellationToken)
@@ -44,6 +56,13 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Updates an existing project identified by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPut("{id:guid}")]
     [Permission(PermissionConstants.Project.Update)]
     public async Task<IActionResult> UpdateProject(Guid id, [FromBody] UpdateProjectRequest request, CancellationToken cancellationToken)
@@ -52,6 +71,12 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Deletes a project identified by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpDelete("{id:guid}")]
     [Permission(PermissionConstants.Project.Delete)]
     public async Task<IActionResult> DeleteProject(Guid id, CancellationToken cancellationToken)
@@ -60,6 +85,11 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Retrieves a list of all projects.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet]
     [Permission(PermissionConstants.Project.View)]
     public async Task<IActionResult> GetProjects(CancellationToken cancellationToken)
@@ -68,6 +98,12 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Retrieves a list of namespaces associated with a specific project identified by its unique identifier.
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("{projectId:guid}/namespaces")]
     [Permission(PermissionConstants.Project.View)]
     public async Task<IActionResult> GetProjectNamespaces(Guid projectId, CancellationToken cancellationToken)
@@ -76,6 +112,13 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Creates a new namespace for a specific project identified by its unique identifier.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="projectId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("{projectId:guid}/namespaces")]
     [Permission(PermissionConstants.Project.Create)]
     public async Task<IActionResult> CreateProjectNamespace
@@ -89,6 +132,13 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Updates an existing namespace for a specific project identified by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPut("{projectId:guid}/namespaces/{id:guid}")]
     [Permission(PermissionConstants.Project.Update)]
     public async Task<IActionResult> UpdateProjectNamespace
@@ -102,6 +152,12 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Deletes a namespace for a specific project identified by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpDelete("{projectId:guid}/namespaces/{id:guid}")]
     [Permission(PermissionConstants.Project.Delete)]
     public async Task<IActionResult> DeleteProjectNamespace(Guid id, CancellationToken cancellationToken)
@@ -110,6 +166,13 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Updates the languages associated with a specific project identified by its unique identifier.
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPut("{projectId:guid}/languages")]
     [Permission(PermissionConstants.Project.Update)]
     public async Task<IActionResult> UpdateProjectLanguages
@@ -122,6 +185,13 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Updates the members associated with a specific project identified by its unique identifier.
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPut("{projectId:guid}/members")]
     [Permission(PermissionConstants.Project.Update)]
     public async Task<IActionResult> UpdateProjectMembers
@@ -134,6 +204,12 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Retrieves a list of languages associated with a specific project identified by its unique identifier.
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("{projectId:guid}/languages")]
     [Permission(PermissionConstants.Project.View)]
     public async Task<IActionResult> GetProjectLanguages(Guid projectId, CancellationToken cancellationToken)
@@ -142,6 +218,12 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse( response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Retrieves a list of members associated with a specific project identified by its unique identifier.
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("{projectId:guid}/members")]
     [Permission(PermissionConstants.Project.View)]
     public async Task<IActionResult> GetProjectMembers(Guid projectId, CancellationToken cancellationToken)
@@ -150,7 +232,12 @@ public class ProjectController (IMediator mediator): Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //Create project pipeline
+    /// <summary>
+    /// Creates a new project along with its associated namespaces, languages, and members in a single request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("Pipeline")]
     [Permission(PermissionConstants.Project.Create)]
     public async Task<IActionResult> CreateProjectFull

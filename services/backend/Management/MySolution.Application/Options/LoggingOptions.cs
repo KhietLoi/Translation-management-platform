@@ -19,7 +19,9 @@ public class Seq
 public class Elk
 {
     public bool Enabled { get; set; }
-    public string ElasticSearchUrl { get; set; } = default!;
+    // public string ElasticSearchUrl { get; set; } = default!;
+    public string ElasticSearchUrl { get; set; } = "http://localhost:9200";
+    public string DataStream { get; set; } = "translation.management";
 }
 
 public class MicrosoftTeams

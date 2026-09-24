@@ -16,15 +16,27 @@ namespace MySolution.Api.Controllers;
 [ApiController]
 public class TranslationValueController (IMediator mediator) : Controller
 {
+    /// <summary>
+    /// Create a new translation value
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost]
     [Permission(PermissionConstants.Translation.Update)]
-    public async Task<IActionResult> CreateTranslationValue([FromBody] CreateTranslationValueRequest request,
-        CancellationToken cancellationToken = default)
+    public async Task<IActionResult> CreateTranslationValue([FromBody] CreateTranslationValueRequest request, CancellationToken cancellationToken = default)
     {
         var response =  await mediator.Send(new CreateTranslationValueCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Update an existing translation value
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPut("{id:guid}")]
     [Permission(PermissionConstants.Translation.Update)]
     public async Task<IActionResult> UpdateTranslationValue
@@ -38,14 +50,29 @@ public class TranslationValueController (IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Delete a translation value by its ID
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpDelete("{id:guid}")]
     [Permission(PermissionConstants.Translation.Update)]
-    public async Task<IActionResult> DeleteTranslationValue(Guid id, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> DeleteTranslationValue(Guid id, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new DeleteTranslationValueCommand(id), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
     
+    /// <summary>
+    /// Get translation values based on filters
+    /// </summary>
+    /// <param name="translationKeyId"></param>
+    /// <param name="namespaceId"></param>
+    /// <param name="languageId"></param>
+    /// <param name="status"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet]
     [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetTranslationValues(
@@ -59,6 +86,12 @@ public class TranslationValueController (IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Get a translation value by its ID
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("{id:guid}")]
     [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetTranslationValueById(Guid id, CancellationToken cancellationToken)

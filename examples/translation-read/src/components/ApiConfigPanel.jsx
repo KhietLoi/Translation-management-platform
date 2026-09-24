@@ -29,7 +29,7 @@ function ApiConfigPanel({ config, setConfig, onPresetSelect }) {
             className="input-field"
             value={config.baseUrl}
             onChange={(e) => handleChange("baseUrl", e.target.value)}
-            placeholder="http://localhost:5182"
+            placeholder="http://127.0.0.1:5174"
           />
         </div>
 

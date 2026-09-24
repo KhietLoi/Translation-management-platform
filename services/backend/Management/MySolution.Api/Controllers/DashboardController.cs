@@ -10,6 +10,11 @@ namespace MySolution.Api.Controllers;
 [ApiController]
 public class DashboardController (IMediator mediator) : Controller
 {
+    /// <summary>
+    /// Get dashboard values
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet]
     [Authorize]
     public async Task<IActionResult> GetDashboard(CancellationToken cancellationToken)

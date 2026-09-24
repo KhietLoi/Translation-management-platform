@@ -23,6 +23,17 @@ namespace MySolution.Api.Controllers;
 [ApiController]
 public class TranslationManagementController(IMediator mediator) : Controller
 {
+    /// <summary>
+    /// Get translation grid with optional filters for project, namespace, keyword, status, and pagination.
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="namespaceId"></param>
+    /// <param name="keyword"></param>
+    /// <param name="status"></param>
+    /// <param name="numberOfLanguages"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
+    /// <returns></returns>
     [HttpGet("grid")]
     [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetTranslationGrid(
@@ -49,15 +60,27 @@ public class TranslationManagementController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Reject a translation by its ID with the provided reason in the request body.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("{id:guid}/reject")]
     [Permission(PermissionConstants.Translation.Review)]
-    public async Task<IActionResult> RejectTranslation(Guid id, [FromBody] RejectTranslationRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> RejectTranslation(Guid id, [FromBody] RejectTranslationRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new RejectTranslationCommand(request, id), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Review a translation by its ID, marking it as reviewed.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("{id:guid}/review")]
     [Permission(PermissionConstants.Translation.Review)]
     public async Task<IActionResult> ReviewTranslation(Guid id, CancellationToken cancellationToken)
@@ -66,6 +89,12 @@ public class TranslationManagementController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Submit a translation by its ID, marking it as submitted for review.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("{id:guid}/submit")]
     [Permission(PermissionConstants.Translation.Update)]
     public async Task<IActionResult> SubmitTranslation(Guid id, CancellationToken cancellationToken)
@@ -74,7 +103,12 @@ public class TranslationManagementController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
-    //GetReviewTranslations endpoint
+    /// <summary>
+    /// Get translations pending review with optional filters for project, namespace, keyword, status, and pagination.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("review")]
     [Permission(PermissionConstants.Translation.Review)]
     public async Task<IActionResult> GetReviewTranslations(
@@ -86,54 +120,69 @@ public class TranslationManagementController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //Update batch review endpoint
+    /// <summary>
+    /// Update the review status of multiple translations.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("batch-review")]
     [Permission(PermissionConstants.Translation.Review)]
-    public async Task<IActionResult> BatchReviewTranslations(
-        [FromBody] BatchReviewTranslationRequest request,
-        CancellationToken cancellationToken
-    )
+    public async Task<IActionResult> BatchReviewTranslations([FromBody] BatchReviewTranslationRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new BatchReviewTranslationCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //Get Update Translation endpoint
+    /// <summary>
+    /// Get translation values for batch update.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("update")]
     [Permission(PermissionConstants.Translation.Update)]
-    public async Task<IActionResult> GetUpdateTranslation(
-        [FromQuery] GetTranslationValuesForBatchRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> GetUpdateTranslation([FromQuery] GetTranslationValuesForBatchRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new GetTranslationValuesForBatchQuery(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //Update batch translation endpoint
+    /// <summary>
+    /// Update multiple translations in a batch.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("batch-update")]
     [Permission(PermissionConstants.Translation.Update)]
-    public async Task<IActionResult> BatchUpdateTranslations(
-        [FromBody] BatchUpdateTranslationRequest request,
-        CancellationToken cancellationToken
-    )
+    public async Task<IActionResult> BatchUpdateTranslations([FromBody] BatchUpdateTranslationRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new BatchUpdateTranslationCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //API for AI application
+    /// <summary>
+    /// Get translation suggestion for a specific translation value ID.
+    /// </summary>
+    /// <param name="translationValueId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("{translationValueId:guid}/suggest")]
     [Permission(PermissionConstants.Translation.Update)]
-    public async Task<IActionResult> GetTranslationSuggestion(
-        [FromRoute] Guid translationValueId,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> GetTranslationSuggestion([FromRoute] Guid translationValueId, CancellationToken cancellationToken)
     {
         var request = new GetTranslationSuggestionRequest { TranslationValueId = translationValueId };
         var response = await mediator.Send(new GetTranslationSuggestionQuery(request), cancellationToken);
-
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Get batch translation suggestions for multiple translation value IDs.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("batch-suggest")]
     [Permission(PermissionConstants.Translation.Update)]
     public async Task<IActionResult> BatchSuggestTranslations
@@ -145,7 +194,13 @@ public class TranslationManagementController(IMediator mediator) : Controller
         var response = await mediator.Send(new GetBatchTranslationSuggestionQuery(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-    // Get pending translation counts by namespace
+    
+    /// <summary>
+    /// Get pending translation counts by namespace.
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("pending-counts/namespaces")]
     [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetPendingNamespaceCounts
@@ -158,7 +213,13 @@ public class TranslationManagementController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
-    // Get pending translation counts by language within namespace
+    /// <summary>
+    /// Get pending translation counts by language within namespace.
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="namespaceId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("pending-counts/languages")]
     [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetPendingLanguageCounts

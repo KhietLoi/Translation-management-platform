@@ -38,7 +38,6 @@ public class UploadAvatarHandler : IRequestHandler<UploadAvatarCommand, UploadAv
             var profile =  await _unitOfWork.UserProfile
                 .GetAll()
                 .FirstOrDefaultAsync(x => x.UserId == request.UserId, cancellationToken);
-            
             if (profile == null)
             {
                 response.ErrorMessage = "Profile not found";
@@ -55,12 +54,9 @@ public class UploadAvatarHandler : IRequestHandler<UploadAvatarCommand, UploadAv
             }
             
             await using var stream = file.OpenReadStream();
-            
             var uploadBlobName = await _azureBlobService.UploadFileAsync(stream,blobName, cancellationToken);
-            
             profile.AvatarBlobName = uploadBlobName;
             profile.UpdatedAt =  DateTime.UtcNow;
-
             await _unitOfWork.SaveAsync(cancellationToken);
 
             response.Data = new UploadAvatarData
