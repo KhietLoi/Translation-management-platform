@@ -4,7 +4,6 @@ namespace MySolution.Application.Features.Sdk.Queries.GetApplicationTranslations
 
 public class GetApplicationTranslationsResponse : BaseResponse <GetApplicationTranslationsData>
 {
-
 }
 
 public class GetApplicationTranslationsData

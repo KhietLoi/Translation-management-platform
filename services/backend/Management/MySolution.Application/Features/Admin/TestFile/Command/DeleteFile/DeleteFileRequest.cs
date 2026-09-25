@@ -2,5 +2,10 @@
 
 public class DeleteFileRequest
 {
-    public string FileName { get; set; } = null!;
+    public string FileName { get; set; }
+
+    public DeleteFileRequest(string fileName)
+    {
+        FileName = fileName;
+    }
 }

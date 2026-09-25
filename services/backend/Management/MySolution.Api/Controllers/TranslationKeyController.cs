@@ -15,15 +15,27 @@ namespace MySolution.Api.Controllers;
 [ApiController]
 public class TranslationKeyController (IMediator mediator) : Controller
 {
+    /// <summary>
+    /// Creates a new translation key.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost]
     [Permission(PermissionConstants.Translation.Create)]
-    public async Task<IActionResult> CreateTranslationKey([FromBody] CreateTranslationKeyRequest request,
-        CancellationToken cancellationToken = default)
+    public async Task<IActionResult> CreateTranslationKey([FromBody] CreateTranslationKeyRequest request, CancellationToken cancellationToken = default)
     {
         var response =  await mediator.Send(new CreateTranslationKeyCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Updates an existing translation key by its ID.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPut("{id:guid}")]
     [Permission(PermissionConstants.Translation.Update)]
     public async Task<IActionResult> UpdateTranslationKey
@@ -37,6 +49,12 @@ public class TranslationKeyController (IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Deletes a translation key by its ID.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpDelete("{id:guid}")]
     [Permission(PermissionConstants.Translation.Delete)]
     public async Task<IActionResult> DeleteTranslationKey(Guid id, CancellationToken cancellationToken = default)
@@ -45,6 +63,14 @@ public class TranslationKeyController (IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
     
+    /// <summary>
+    /// Retrieves translation keys based on optional filters such as project ID, namespace ID, and search term.
+    /// </summary>
+    /// <param name="projectId"></param>
+    /// <param name="namespaceId"></param>
+    /// <param name="search"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet]
     [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetTranslationKeys(
@@ -57,6 +83,12 @@ public class TranslationKeyController (IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Retrieves a translation key by its ID.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("{id:guid}")]
     [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetTranslationKeyById(Guid id, CancellationToken cancellationToken)

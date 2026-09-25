@@ -16,15 +16,27 @@ namespace MySolution.Api.Controllers;
 [ApiController]
 public class RoleController(IMediator mediator) : Controller
 {
+    /// <summary>
+    /// Creates a new role with the specified details.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost]
     [Permission(PermissionConstants.Role.Create)]
-    public async Task<IActionResult> CreateRole([FromBody] CreateRoleRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateRole([FromBody] CreateRoleRequest request,CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new CreateRoleCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Updates the details of an existing role identified by the provided ID.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPut("{id:guid}")]
     [Permission(PermissionConstants.Role.Update)]
     public async Task<IActionResult> UpdateRole(Guid id, [FromBody] UpdateRoleRequest request,
@@ -34,6 +46,12 @@ public class RoleController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Deletes an existing role identified by the provided ID.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpDelete("{id:guid}")]
     [Permission(PermissionConstants.Role.Delete)]
     public async Task<IActionResult> DeleteRole(Guid id, CancellationToken cancellationToken)
@@ -42,6 +60,12 @@ public class RoleController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Retrieves a list of roles based on the provided query parameters.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet]
     [Permission(PermissionConstants.Role.View)]
     public async Task<IActionResult> GetRoles([FromQuery] GetRolesRequest request, CancellationToken cancellationToken)
@@ -50,6 +74,12 @@ public class RoleController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Retrieves the details of a specific role identified by the provided ID.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("{id:guid}")]
     [Permission(PermissionConstants.Role.View)]
     public async Task<IActionResult> GetRoleById(Guid id, CancellationToken cancellationToken)
@@ -58,10 +88,15 @@ public class RoleController(IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Updates the permissions associated with a specific role identified by the provided ID.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPut("permissions")]
     [Permission(PermissionConstants.Role.Update)]
-    public async Task<IActionResult> UpdateRolePermissions([FromBody] UpdateRolePermissionsRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateRolePermissions([FromBody] UpdateRolePermissionsRequest request, CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new UpdateRolePermissionsCommand(request), cancellationToken);
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);

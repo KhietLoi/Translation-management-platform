@@ -17,6 +17,12 @@ namespace MySolution.Api.Controllers;
 [ApiController]
 public class ApplicationController (IMediator mediator) : Controller
 {
+    /// <summary>
+    /// Creates a new application.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost]
     [Permission(PermissionConstants.Permission.Create)]
     public async Task<IActionResult> CreateApplication
@@ -28,7 +34,13 @@ public class ApplicationController (IMediator mediator) : Controller
        var response = await mediator.Send(new CreateApplicationCommand(request), cancellationToken);
        return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
-
+    
+    /// <summary>
+    /// Deletes an application by its ID.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpDelete("{id:guid}")]
     [Permission(PermissionConstants.Permission.Delete)]
     public async Task<IActionResult> DeleteApplication(Guid id, CancellationToken cancellationToken)
@@ -37,6 +49,13 @@ public class ApplicationController (IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response);
     }
     
+    /// <summary>
+    /// Updates an existing application by its ID.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPut("{id:guid}")]
     [Permission(PermissionConstants.Permission.Update)]
     public async Task<IActionResult> UpdateApplication
@@ -50,6 +69,12 @@ public class ApplicationController (IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Gets an application by its ID.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("{id:guid}")]
     [Permission(PermissionConstants.Permission.View)]
     public async Task<IActionResult> GetApplicationById(Guid id, CancellationToken cancellationToken)
@@ -58,6 +83,11 @@ public class ApplicationController (IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Gets a list of all applications.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet]
     [Permission(PermissionConstants.Permission.View)]
     public async Task<IActionResult> GetApplications(CancellationToken cancellationToken)
@@ -66,7 +96,13 @@ public class ApplicationController (IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //ApiKey:
+    /// <summary>
+    /// Generates a new API key for a specific application.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="applicationId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost]
     [Route("applications/{applicationId}/api-keys")]
     [Permission(PermissionConstants.Permission.Create)]

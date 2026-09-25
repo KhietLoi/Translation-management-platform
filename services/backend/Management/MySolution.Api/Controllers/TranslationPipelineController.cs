@@ -17,6 +17,12 @@ namespace MySolution.Api.Controllers;
 [Route("api/[controller]")]
 public class TranslationPipelineController(IMediator mediator) : ControllerBase
 {
+    /// <summary>
+    /// Import translations from a file
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("import")]
     [Permission(PermissionConstants.Translation.Create)]
     public async Task<IActionResult> Import
@@ -29,6 +35,12 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Export translations to a file
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("export")]
     [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> Export
@@ -41,6 +53,12 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Publish translations to a release
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("publish")]
     [Permission(PermissionConstants.Translation.Publish)]
     public async Task<IActionResult> Publish
@@ -53,6 +71,12 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
+    /// <summary>
+    /// Get release history
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("release-history")]
     [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetReleaseHistory
@@ -64,6 +88,12 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Get translation job history
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("translations-history")]
     [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetTranslationHistory
@@ -75,7 +105,12 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //Rollback:
+    /// <summary>
+    /// Rollback a release
+    /// </summary>
+    /// <param name="releaseId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost("releases/{releaseId:guid}/rollback")]
     [Permission(PermissionConstants.Translation.Publish)]
     public async Task<IActionResult> RollbackRelease(Guid releaseId, CancellationToken cancellationToken)
@@ -84,7 +119,12 @@ public class TranslationPipelineController(IMediator mediator) : ControllerBase
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
     
-    //Get release diff:
+    /// <summary>
+    /// Get the difference between the current release and a target release
+    /// </summary>
+    /// <param name="targetReleaseId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet("release-diff")]
     [Permission(PermissionConstants.Translation.View)]
     public async Task<IActionResult> GetReleaseDiff

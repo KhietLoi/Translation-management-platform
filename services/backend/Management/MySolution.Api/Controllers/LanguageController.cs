@@ -16,6 +16,12 @@ namespace MySolution.Api.Controllers;
 [ApiController]
 public class LanguageController (IMediator mediator) : Controller
 {
+    /// <summary>
+    /// Create a new language
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPost]
     [Permission(PermissionConstants.Language.Create)]
     public async Task<IActionResult> CreateLanguage([FromBody] CreateLanguageRequest request, CancellationToken cancellationToken)
@@ -24,6 +30,13 @@ public class LanguageController (IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Update an existing language
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpPut("{id:guid}")]
     [Permission(PermissionConstants.Language.Update)]
     public async Task<IActionResult> UpdateLanguage(Guid id, [FromBody] UpdateLanguageRequest request, CancellationToken cancellationToken)
@@ -32,6 +45,12 @@ public class LanguageController (IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Delete a language by ID
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpDelete("{id:guid}")]
     [Permission(PermissionConstants.Language.Delete)]
     public async Task<IActionResult> DeleteLanguage(Guid id, CancellationToken cancellationToken)
@@ -40,6 +59,11 @@ public class LanguageController (IMediator mediator) : Controller
         return ResponseHelper.ToResponse(response.StatusCode, response, response.Data);
     }
 
+    /// <summary>
+    /// Get a list of all languages
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [HttpGet]
     [Permission(PermissionConstants.Language.View)]
     public async Task<IActionResult> GetLanguages(CancellationToken cancellationToken)

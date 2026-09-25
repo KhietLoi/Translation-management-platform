@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Elastic.Serilog.Sinks" Version="9.0.0" />
       <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.10" />
       <PackageReference Include="MediatR" Version="14.2.0" />
       <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.10" />

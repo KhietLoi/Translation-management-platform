@@ -144,6 +144,7 @@ public class GetDashboardValueHandler : IRequestHandler<GetDashboardValueQuery, 
                 LanguageProgress = languageProgress,
                 RecentActivities = recentActivities
             };
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

@@ -5,7 +5,6 @@ namespace MySolution.Application.Features.Dashboard.Queries.GetDashboardValue;
 
 public class GetDashboardValueResponse : BaseResponse <GetDashboardValueResult>
 {
-
 }
 
 public class GetDashboardValueResult

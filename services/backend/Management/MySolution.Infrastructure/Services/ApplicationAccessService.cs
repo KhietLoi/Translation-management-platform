@@ -34,6 +34,7 @@ public class ApplicationAccessService : IApplicationAccessService
         {
             return null;
         }
+        
         var application = await _unitOfWork.Application
             .GetAll()
             .FirstOrDefaultAsync(x => x.Id == apiKeyContext.ApplicationId, cancellationToken);
