@@ -3,8 +3,8 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
-using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
+using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.Auth.ForgotPassword;
@@ -12,7 +12,7 @@ namespace MySolution.Application.Features.Auth.ForgotPassword;
 public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, ForgotPasswordResponse>
 {
     private readonly ILogger<ForgotPasswordHandler> _logger;
-    private readonly IMessageSender _messageSender;
+    private readonly ISendEndpointCustomProvider _messageSender;
     private readonly IPasswordResetTokenService _tokenService;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -21,7 +21,7 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
         ILogger<ForgotPasswordHandler> logger,
         IUnitOfWork unitOfWork,
         IPasswordResetTokenService tokenService,
-        IMessageSender messageSender
+        ISendEndpointCustomProvider messageSender
     )
     {
         _logger = logger;

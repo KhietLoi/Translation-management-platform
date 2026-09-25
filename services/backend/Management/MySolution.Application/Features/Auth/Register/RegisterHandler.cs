@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
-using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Constants;
 using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
+using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.Auth.Register;
@@ -20,7 +20,7 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
 {
     private readonly IEmailVerificationTokenService _emailVerificationTokenService;
     private readonly ILogger<RegisterHandler> _logger;
-    private readonly IMessageSender _messageSender;
+    private readonly ISendEndpointCustomProvider _messageSender;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -29,7 +29,7 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
         ILogger<RegisterHandler> logger,
         IUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
-        IMessageSender messageSender,
+        ISendEndpointCustomProvider messageSender,
         IEmailVerificationTokenService emailVerificationTokenService
     )
     {

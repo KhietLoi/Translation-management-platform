@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
-using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
+using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.TranslationPipeline.Commands.ImportTranslations;
@@ -17,7 +17,7 @@ public class ImportTranslationsHandler : IRequestHandler<ImportTranslationsComma
     private readonly ILogger<ImportTranslationsHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUser _currentUser;
-    private readonly IMessageSender _messageSender;
+    private readonly ISendEndpointCustomProvider _messageSender;
     private readonly IAzureBlobService _azureBlobService;
 
     public ImportTranslationsHandler
@@ -25,7 +25,7 @@ public class ImportTranslationsHandler : IRequestHandler<ImportTranslationsComma
         ILogger<ImportTranslationsHandler> logger,
 		IUnitOfWork unitOfWork,
         ICurrentUser currentUser,
-        IMessageSender messageSender,
+        ISendEndpointCustomProvider messageSender,
         IAzureBlobService azureBlobService
     )
     {

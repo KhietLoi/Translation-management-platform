@@ -5,7 +5,6 @@ namespace MySolution.Application.Features.TranslationPipeline.Commands.PublishTr
 public class PublishTranslationsCommand : IRequest<PublishTranslationsResponse>
 {
     public PublishTranslationsRequest Payload { get; set; }
-
     public PublishTranslationsCommand(PublishTranslationsRequest payload)
     {
         Payload = payload;

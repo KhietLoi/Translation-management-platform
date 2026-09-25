@@ -2,29 +2,29 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using MySolution.Application.Common.Interfaces.File;
-    using MySolution.Application.Common.Interfaces.MassTransit;
     using MySolution.Application.Common.Interfaces.Realtime;
     using MySolution.Application.Common.Interfaces.Repositories;
     using MySolution.Domain.Entities;
     using MySolution.Domain.Enums;
+    using Shared.MassTransit.Core;
     using Shared.MassTransit.IntegrationEvents;
 
     namespace MySolution.Application.Features.TranslationPipeline.Commands.ProcessExportTranslations;
 
     public class ProcessExportTranslationsHandler : IRequestHandler<ProcessExportTranslationsCommand>
-    {
+    {   
         private readonly ILogger<ProcessExportTranslationsHandler> _logger;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IExportService _exportService;
         private readonly INotificationService _notificationService;
-        private readonly IMessageSender _messageSender;
+        private readonly ISendEndpointCustomProvider _messageSender;
 
         public ProcessExportTranslationsHandler(
             ILogger<ProcessExportTranslationsHandler> logger,
             IUnitOfWork unitOfWork,
             IExportService exportService,
             INotificationService notificationService,
-            IMessageSender messageSender)
+            ISendEndpointCustomProvider messageSender)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;

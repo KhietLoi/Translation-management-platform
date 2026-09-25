@@ -3,9 +3,10 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
-using MySolution.Application.Common.Interfaces.MassTransit;
+
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Enums;
+using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.Admin.User.Commands.ResendSetupPassword;
@@ -14,14 +15,14 @@ public class ResendSetupPasswordHandler : IRequestHandler<ResendSetupPasswordCom
 {
     private readonly ILogger<ResendSetupPasswordHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
-    private IMessageSender  _messageSender;
+    private readonly ISendEndpointCustomProvider _messageSender;
     private readonly IPasswordResetTokenService  _passwordResetTokenService;
 
     public ResendSetupPasswordHandler
     (
         ILogger<ResendSetupPasswordHandler> logger,
 		IUnitOfWork unitOfWork,
-        IMessageSender messageSender,
+        ISendEndpointCustomProvider messageSender,
         IPasswordResetTokenService passwordResetTokenService
     )
     {

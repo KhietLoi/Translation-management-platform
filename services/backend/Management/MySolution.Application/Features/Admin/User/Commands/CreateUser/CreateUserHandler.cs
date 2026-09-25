@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Authentication;
-using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
+using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.Admin.User.Commands.CreateUser;
@@ -18,7 +18,7 @@ namespace MySolution.Application.Features.Admin.User.Commands.CreateUser;
 public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserResponse>
 {
     private readonly ILogger<CreateUserHandler> _logger;
-    private readonly IMessageSender _messageSender;
+    private readonly ISendEndpointCustomProvider _messageSender;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IPasswordResetTokenService _passwordResetTokenService;
     private readonly IUnitOfWork _unitOfWork;
@@ -29,7 +29,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, CreateUserRe
         ILogger<CreateUserHandler> logger,
         IPasswordHasher passwordHasher,
         IPasswordResetTokenService passwordResetTokenService,
-        IMessageSender messageSender
+        ISendEndpointCustomProvider messageSender
     )
     {
         _unitOfWork = unitOfWork;

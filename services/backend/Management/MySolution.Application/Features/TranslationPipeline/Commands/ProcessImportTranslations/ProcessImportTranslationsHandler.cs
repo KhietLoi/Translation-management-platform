@@ -1,14 +1,12 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-
 using MySolution.Application.Common.Interfaces.File;
-using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Realtime;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
-
+using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.TranslationPipeline.Commands.ProcessImportTranslations;
@@ -20,14 +18,14 @@ public class ProcessImportTranslationsHandler
     private readonly IImportService _importService;
     private readonly ILogger<ProcessImportTranslationsHandler> _logger;
     private readonly INotificationService _notificationService;
-    private readonly IMessageSender _messageSender;
+    private readonly ISendEndpointCustomProvider _messageSender;
 
     public ProcessImportTranslationsHandler(
         IUnitOfWork unitOfWork,
         IImportService importService,
         ILogger<ProcessImportTranslationsHandler> logger,
         INotificationService notificationService,
-        IMessageSender messageSender)
+        ISendEndpointCustomProvider messageSender)
     {
         _unitOfWork = unitOfWork;
         _importService = importService;

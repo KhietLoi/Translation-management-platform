@@ -1,10 +1,11 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Infrastructure.MassTransit.Consumers;
 using MySolution.Infrastructure.Options;
 using Shared.MassTransit;
+using Shared.MassTransit.Contracts;
+using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
 
@@ -41,7 +42,8 @@ public static class MassTransitRegistration
                 ConfigureEmailQueues(context, cfg);
               });
         });
-        services.AddScoped<IMessageSender, SendEndPointCustomProvider>();
+       // services.AddScoped<IMessageSender, SendEndPointCustomProvider>();
+       services.AddScoped<ISendEndpointCustomProvider,SendEndpointCustomProvider>();
 
         return services;
     }
@@ -51,7 +53,7 @@ public static class MassTransitRegistration
         IRabbitMqBusFactoryConfigurator cfg)
     {
         cfg.ReceiveEndpoint(
-            QueueNameHelper.Get<ExportTranslationsEvent>(),
+            QueueNameHelper.Get<ExportTranslations>(),
             e =>
             {
                 ConfigureRetry(e);

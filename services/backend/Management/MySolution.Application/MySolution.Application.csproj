@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="Common\Interfaces\MassTransit\" />
         <Folder Include="Features\Admin\"/>
         <Folder Include="Features\ApiKey\Command\" />
         <Folder Include="Features\ApiKey\Queries\" />

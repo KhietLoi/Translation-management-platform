@@ -3,8 +3,8 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
-using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
+using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.Auth.ResendVerificationEmail;
@@ -12,7 +12,7 @@ namespace MySolution.Application.Features.Auth.ResendVerificationEmail;
 public class ResendVerificationEmailHandler : IRequestHandler<ResendVerificationEmailCommand, ResendVerificationEmailResponse>
 {
     private readonly ILogger<ResendVerificationEmailHandler> _logger;
-    private readonly IMessageSender _messageSender;
+    private readonly ISendEndpointCustomProvider _messageSender;
     private readonly IEmailVerificationTokenService _tokenService;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -21,7 +21,7 @@ public class ResendVerificationEmailHandler : IRequestHandler<ResendVerification
         IUnitOfWork unitOfWork,
         ILogger<ResendVerificationEmailHandler> logger,
         IEmailVerificationTokenService tokenService,
-        IMessageSender messageSender
+        ISendEndpointCustomProvider messageSender
     )
     {
         _unitOfWork = unitOfWork;

@@ -3,10 +3,11 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
-using MySolution.Application.Common.Interfaces.MassTransit;
+
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
+using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.TranslationPipeline.Commands.PublishTranslations;
@@ -15,14 +16,14 @@ public class PublishTranslationsHandler : IRequestHandler<PublishTranslationsCom
 {
     private readonly ILogger<PublishTranslationsHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
-    private readonly IMessageSender _messageSender;
+    private readonly ISendEndpointCustomProvider _messageSender;
     private readonly ICurrentUser _currentUser;
 
     public PublishTranslationsHandler
     (
         ILogger<PublishTranslationsHandler> logger,
 		IUnitOfWork unitOfWork,
-        IMessageSender messageSender,
+        ISendEndpointCustomProvider messageSender,
         ICurrentUser currentUser
     )
     {
@@ -47,10 +48,10 @@ public class PublishTranslationsHandler : IRequestHandler<PublishTranslationsCom
             var project = await _unitOfWork.Project
                 .GetAll()
                 .AsNoTracking()
-                .AnyAsync(p => p.Id == request.Payload.ProjectId, cancellationToken);
+                .AnyAsync(p => p.Id == payload.ProjectId, cancellationToken);
             if (!project)
             {
-                _logger.LogInformation("Project {ProjectId} does not exist", request.Payload.ProjectId);
+                _logger.LogInformation("Project {ProjectId} does not exist", payload.ProjectId);
                 
                 response.ErrorMessage = $"Project with id {payload.ProjectId} does not exist.";
                 response.WithStatus(HttpStatusCode.BadRequest);
@@ -60,8 +61,8 @@ public class PublishTranslationsHandler : IRequestHandler<PublishTranslationsCom
             var job = new TranslationJob
             {
                 Id = Guid.CreateVersion7(),
-                ProjectId = request.Payload.ProjectId,
-                Notes = request.Payload.Notes,
+                ProjectId = payload.ProjectId,
+                Notes = payload.Notes,
                 Type = TranslationJobType.Publish,
                 Status = TranslationJobStatus.Pending,
                 CreatedBy = _currentUser.UserId,
@@ -70,11 +71,13 @@ public class PublishTranslationsHandler : IRequestHandler<PublishTranslationsCom
             
             await _unitOfWork.TranslationJob.Add(job);
             await _unitOfWork.SaveAsync(cancellationToken);
-            
-            await _messageSender.SendMessage<PublishTranslationsEvent>(new PublishTranslationsEvent
+
+            var publishTranslationsEvent = new PublishTranslationsEvent
             {
-                JobId = job.Id,
-            }, cancellationToken);
+                JobId = job.Id
+            };
+            
+            await _messageSender.SendMessage<Shared.MassTransit.Contracts.PublishTranslations>(new {Content = publishTranslationsEvent}, cancellationToken);
             
             response.Data = new PublishTranslationsData
             {
@@ -89,7 +92,6 @@ public class PublishTranslationsHandler : IRequestHandler<PublishTranslationsCom
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
-            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }

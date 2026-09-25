@@ -3,10 +3,10 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces.Authentication;
-using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
+using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.TranslationPipeline.Commands.ExportTranslations;
@@ -15,14 +15,14 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
 {
     private readonly ILogger<ExportTranslationsHandler> _logger;
 	private readonly IUnitOfWork _unitOfWork;
-    private readonly IMessageSender _messageSender;
+    private readonly ISendEndpointCustomProvider _messageSender;
     private readonly ICurrentUser _currentUser;
 
     public ExportTranslationsHandler
     (
         ILogger<ExportTranslationsHandler> logger,
 		IUnitOfWork unitOfWork,
-        IMessageSender messageSender,
+        ISendEndpointCustomProvider messageSender,
         ICurrentUser currentUser
     )
     {
@@ -51,7 +51,6 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
             if (!isProjectValid)
             {
                 _logger.LogError($"Project {payload.ProjectId} does not exist.");
-                
                 response.ErrorMessage = "Project does not exist.";
                 response.WithStatus(HttpStatusCode.BadRequest);
                 return response;
@@ -71,10 +70,12 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
             await _unitOfWork.TranslationJob.Add(job);
             await _unitOfWork.SaveAsync(cancellationToken);
             
-            await _messageSender.SendMessage<ExportTranslationsEvent>(new ExportTranslationsEvent
+            var exportEvent = new ExportTranslationsEvent
             {
                 JobId = job.Id,
-            }, cancellationToken);
+            };
+            
+            await _messageSender.SendMessage<Shared.MassTransit.Contracts.ExportTranslations>(exportEvent, cancellationToken);
             
             response.Data = new ExportTranslationData
             {
@@ -88,7 +89,6 @@ public class ExportTranslationsHandler : IRequestHandler<ExportTranslationsComma
         catch (Exception ex)
         {
             _logger.LogError(ex, "{FunctionName} Unexpected error.", functionName);
-            
             response.ErrorMessage = "An unexpected error occurred.";
             response.WithStatus(HttpStatusCode.InternalServerError);
         }
