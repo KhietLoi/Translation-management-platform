@@ -102,10 +102,11 @@ public class ImportTranslationsHandler : IRequestHandler<ImportTranslationsComma
             await _unitOfWork.TranslationJob.Add(job);
             await _unitOfWork.SaveAsync(cancellationToken);
             
-            await _messageSender.SendMessage<ImportTranslationsEvent>(new ImportTranslationsEvent
+            var importTranslationsEvent = new ImportTranslationsEvent
             {
                 JobId = job.Id
-            }, cancellationToken);
+            };
+            await _messageSender.SendMessage<Shared.MassTransit.Contracts.ImportTranslations>(importTranslationsEvent, cancellationToken);
             
             response.Data = new ImportTranslationsData
             {

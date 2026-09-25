@@ -61,14 +61,14 @@ public static class MassTransitRegistration
                     ExportTranslationsConsumer>(context);
             });
         cfg.ReceiveEndpoint(
-            QueueNameHelper.Get<ImportTranslationsEvent>(),
+            QueueNameHelper.Get<ImportTranslations>(),
             e =>
             {
                 ConfigureRetry(e);
                 e.ConfigureConsumer<ImportTranslationsConsumer>(context);
             });
         cfg.ReceiveEndpoint(
-            QueueNameHelper.Get<PublishTranslationsEvent>(),
+            QueueNameHelper.Get<PublishTranslations>(),
             e =>
             {
                 ConfigureRetry(e);

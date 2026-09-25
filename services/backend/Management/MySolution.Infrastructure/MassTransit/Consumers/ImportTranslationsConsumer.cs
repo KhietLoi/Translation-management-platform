@@ -6,11 +6,12 @@ using MySolution.Application.Common.Interfaces.DistributedLock;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Features.TranslationPipeline.Commands.ProcessImportTranslations;
 using MySolution.Domain.Enums;
+using Shared.MassTransit.Contracts;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Infrastructure.MassTransit.Consumers;
 
-public class ImportTranslationsConsumer : IConsumer<ImportTranslationsEvent>
+public class ImportTranslationsConsumer : IConsumer<ImportTranslations>
 {
     private const string EventName = "ImportTranslationsConsumer";
     private readonly ILogger<ImportTranslationsConsumer> _logger;
@@ -32,11 +33,12 @@ public class ImportTranslationsConsumer : IConsumer<ImportTranslationsEvent>
         _distributedLockService = distributedLockService;
     }
     
-    public async Task Consume(ConsumeContext<ImportTranslationsEvent> context)
+    public async Task Consume(ConsumeContext<ImportTranslations> context)
     {
+        var message = context.Message;
         var job = await _unitOfWork.TranslationJob
             .GetAll()
-            .FirstOrDefaultAsync(j => j.Id == context.Message.JobId, context.CancellationToken);
+            .FirstOrDefaultAsync(j => j.Id == message.Content.JobId, context.CancellationToken);
         if (job == null)
         {
             _logger.LogWarning("Import message received for unknown job. EventName={EventName}, MessageId={MessageId}", EventName, context.MessageId);
@@ -54,6 +56,6 @@ public class ImportTranslationsConsumer : IConsumer<ImportTranslationsEvent>
             return;
         }
         _logger.LogInformation("Import message processed successfully. EventName={EventName}, MessageId={MessageId}", EventName, context.MessageId);
-        await _mediator.Send(new ProcessImportTranslationsCommand( context.Message.JobId), context.CancellationToken);
+        await _mediator.Send(new ProcessImportTranslationsCommand(message.Content.JobId), context.CancellationToken);
     }
 }

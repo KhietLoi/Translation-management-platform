@@ -3,7 +3,6 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Features.TranslationPipeline.Commands.ProcessExportTranslations;
 using Shared.MassTransit.Contracts;
-using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Infrastructure.MassTransit.Consumers;
 
