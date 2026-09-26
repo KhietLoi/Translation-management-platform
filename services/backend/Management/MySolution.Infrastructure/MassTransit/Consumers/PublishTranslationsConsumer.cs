@@ -6,11 +6,12 @@ using MySolution.Application.Common.Interfaces.DistributedLock;
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Features.TranslationPipeline.Commands.ProcessPublishTranslations;
 using MySolution.Domain.Enums;
+using Shared.MassTransit.Contracts;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Infrastructure.MassTransit.Consumers;
 
-public class PublishTranslationsConsumer : IConsumer<PublishTranslationsEvent>
+public class PublishTranslationsConsumer : IConsumer<PublishTranslations>
 {
     private const string EventName = "PublishTranslationsConsumer";
     private readonly ILogger<PublishTranslationsConsumer> _logger;
@@ -32,11 +33,12 @@ public class PublishTranslationsConsumer : IConsumer<PublishTranslationsEvent>
         _logger = logger;
     }
     
-    public async Task Consume(ConsumeContext<PublishTranslationsEvent> context)
+    public async Task Consume(ConsumeContext<PublishTranslations> context)
     {
+        var message = context.Message;
         var job = await _unitOfWork.TranslationJob
             .GetAll()
-            .FirstOrDefaultAsync(j => j.Id == context.Message.JobId, context.CancellationToken);
+            .FirstOrDefaultAsync(j => j.Id == message.Content.JobId, context.CancellationToken);
         if (job == null)
         {
             _logger.LogWarning("Publish message received for unknown job. EventName={EventName}, MessageId={MessageId}", EventName, context.MessageId);
@@ -66,7 +68,7 @@ public class PublishTranslationsConsumer : IConsumer<PublishTranslationsEvent>
             job.ProjectId,
             job.Id);
         
-        await _mediator.Send (new ProcessPublishTranslationsCommand(context.Message.JobId), context.CancellationToken);
+        await _mediator.Send (new ProcessPublishTranslationsCommand(message.Content.JobId), context.CancellationToken);
         _logger.LogWarning("Publish message processed successfully. EventName={EventName}, MessageId={MessageId}", EventName, context.MessageId);
     }
 }

@@ -5,5 +5,10 @@ namespace MySolution.Email.Application.Features.SendForgotPasswordEmail;
 
 public class SendForgotPasswordEmailCommand : IRequest
 {
-    public SendForgotPasswordEmailEvent Message { get; set; } = default!;
+    public SendForgotPasswordEmailEvent Message { get; set; }
+    
+    public SendForgotPasswordEmailCommand(SendForgotPasswordEmailEvent message)
+    {
+        Message = message;
+    }
 }

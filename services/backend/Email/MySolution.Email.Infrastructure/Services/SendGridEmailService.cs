@@ -10,8 +10,7 @@ public class SendGridEmailService(IOptions<SendGridOptions> options) : IEmailSer
 {
     private readonly SendGridOptions _options = options.Value;
 
-    public async Task SendEmailAsync(string toEmail, string subject, string htmlContent,
-        CancellationToken cancellationToken = default)
+    public async Task SendEmailAsync(string toEmail, string subject, string htmlContent, CancellationToken cancellationToken = default)
     {
         //Client
         var client = new SendGridClient(_options.ApiKey);

@@ -2,11 +2,11 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Features.TranslationPipeline.Commands.ProcessExportTranslations;
-using Shared.MassTransit.IntegrationEvents;
+using Shared.MassTransit.Contracts;
 
 namespace MySolution.Infrastructure.MassTransit.Consumers;
 
-public class ExportTranslationsConsumer : IConsumer<ExportTranslationsEvent>
+public class ExportTranslationsConsumer : IConsumer<ExportTranslations>
 {
     private const string EventName = "ExportTranslationsConsumer";
     private readonly ILogger<ExportTranslationsConsumer> _logger;
@@ -18,14 +18,14 @@ public class ExportTranslationsConsumer : IConsumer<ExportTranslationsEvent>
         _mediator = mediator;
     }
 
-    public async Task Consume(ConsumeContext<ExportTranslationsEvent> context)
+    public async Task Consume(ConsumeContext<ExportTranslations> context)
     {
         var message = context.Message;
         _logger.LogInformation("Export message received. EventName={EventName}, MessageId={MessageId}", EventName, context.MessageId);
 
         try
         {
-            await _mediator.Send(new ProcessExportTranslationsCommand{ Message = context.Message }, context.CancellationToken);
+            await _mediator.Send(new ProcessExportTranslationsCommand{ Message = message.Content}, context.CancellationToken);
             _logger.LogInformation("Export message processed successfully. EventName={EventName}, MessageId={MessageId}", EventName, context.MessageId);
         }
         catch (Exception ex)

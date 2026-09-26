@@ -5,5 +5,9 @@ namespace MySolution.Email.Application.Features.SendTranslationJobFailedEmail;
 
 public class SendTranslationJobFailedEmailCommand : IRequest
 {
-    public TranslationJobFailedEmailEvent Message { get; set; } = null!;
+    public TranslationJobFailedEmailEvent Message { get; set; }
+    public SendTranslationJobFailedEmailCommand(TranslationJobFailedEmailEvent message)
+    {
+        Message = message;
+    }
 }

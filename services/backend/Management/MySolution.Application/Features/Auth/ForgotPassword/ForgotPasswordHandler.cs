@@ -3,8 +3,9 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
-using MySolution.Application.Common.Interfaces.MassTransit;
 using MySolution.Application.Common.Interfaces.Repositories;
+using Shared.MassTransit.Contracts;
+using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Application.Features.Auth.ForgotPassword;
@@ -12,7 +13,7 @@ namespace MySolution.Application.Features.Auth.ForgotPassword;
 public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, ForgotPasswordResponse>
 {
     private readonly ILogger<ForgotPasswordHandler> _logger;
-    private readonly IMessageSender _messageSender;
+    private readonly ISendEndpointCustomProvider _messageSender;
     private readonly IPasswordResetTokenService _tokenService;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -21,7 +22,7 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
         ILogger<ForgotPasswordHandler> logger,
         IUnitOfWork unitOfWork,
         IPasswordResetTokenService tokenService,
-        IMessageSender messageSender
+        ISendEndpointCustomProvider messageSender
     )
     {
         _logger = logger;
@@ -45,7 +46,6 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
                 .GetAll()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Email == payload.Email, cancellationToken);
-            
             if (user == null)
             {
                 response.ErrorMessage = "User not found";
@@ -54,17 +54,16 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
             }
 
             var resetToken = _tokenService.GenerateResetToken(user.Id, user.Email, user.Username, user.PasswordVersion);    
-                
-            //SendEmail
-            await _messageSender.SendMessage<SendForgotPasswordEmailEvent>(
-                new SendForgotPasswordEmailEvent
-                {
-                    UserId = user.Id,
-                    Email = user.Email,
-                    Username = user.Username,
-                    Token = resetToken
-                }, cancellationToken);
-
+            var sendForgotPasswordEmailEvent = new SendForgotPasswordEmailEvent
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+                Token = resetToken
+            };
+            
+            await _messageSender.SendMessage<SendForgotPasswordEmail>(sendForgotPasswordEmailEvent, cancellationToken);
+            
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);
@@ -78,6 +77,5 @@ public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, Forg
 
         return response;
     }
-
     #endregion
 }

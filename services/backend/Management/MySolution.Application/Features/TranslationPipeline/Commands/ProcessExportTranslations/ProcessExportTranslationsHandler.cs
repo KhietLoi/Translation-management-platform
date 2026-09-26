@@ -2,29 +2,30 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using MySolution.Application.Common.Interfaces.File;
-    using MySolution.Application.Common.Interfaces.MassTransit;
     using MySolution.Application.Common.Interfaces.Realtime;
     using MySolution.Application.Common.Interfaces.Repositories;
     using MySolution.Domain.Entities;
     using MySolution.Domain.Enums;
+    using Shared.MassTransit.Contracts;
+    using Shared.MassTransit.Core;
     using Shared.MassTransit.IntegrationEvents;
 
     namespace MySolution.Application.Features.TranslationPipeline.Commands.ProcessExportTranslations;
 
     public class ProcessExportTranslationsHandler : IRequestHandler<ProcessExportTranslationsCommand>
-    {
+    {   
         private readonly ILogger<ProcessExportTranslationsHandler> _logger;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IExportService _exportService;
         private readonly INotificationService _notificationService;
-        private readonly IMessageSender _messageSender;
+        private readonly ISendEndpointCustomProvider _messageSender;
 
         public ProcessExportTranslationsHandler(
             ILogger<ProcessExportTranslationsHandler> logger,
             IUnitOfWork unitOfWork,
             IExportService exportService,
             INotificationService notificationService,
-            IMessageSender messageSender)
+            ISendEndpointCustomProvider messageSender)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
@@ -41,6 +42,7 @@
             var jobId = request.Message.JobId;
             var job = await _unitOfWork.TranslationJob
                 .GetAll()
+                .Include(j => j.Project)
                 .FirstOrDefaultAsync(j => j.Id == jobId, cancellationToken);
             if (job == null)
             {
@@ -108,26 +110,25 @@
                 {
                     return;
                 }
-
-                await _messageSender.SendMessage<TranslationJobCompletedEmailEvent>(
-                    new TranslationJobCompletedEmailEvent
-                    {
-                        JobId = job.Id,
-                        UserId = job.CreatedBy,
-                        UserName = user.Username,
-                        ProjectName = job.Project.Name,
-                        Email = user.Email,
-                        ProjectId = job.ProjectId,
-                        JobType = job.Type == TranslationJobType.Export ? "Export" : "Import",
-                        FileName = job.FileName ?? string.Empty,
-                        DownloadUrl = job.DownloadUrl ?? string.Empty,
-                        TotalRecords = job.TotalRecords,
-                        SuccessRecords = job.SuccessRecords,
-                        FailedRecords = job.FailedRecords,
-                        SkippedRecords = job.SkippedRecords
-                    },
-                    cancellationToken);
-
+                
+                var translationJobCompletedEmailEvent = new TranslationJobCompletedEmailEvent
+                {
+                    JobId = job.Id,
+                    UserId = job.CreatedBy,
+                    UserName = user.Username,
+                    ProjectName = job.Project.Name,
+                    Email = user.Email,
+                    ProjectId = job.ProjectId,
+                    JobType = job.Type == TranslationJobType.Export ? "Export" : "Import",
+                    FileName = job.FileName ?? string.Empty,
+                    DownloadUrl = job.DownloadUrl ?? string.Empty,
+                    TotalRecords = job.TotalRecords,
+                    SuccessRecords = job.SuccessRecords,
+                    FailedRecords = job.FailedRecords,
+                    SkippedRecords = job.SkippedRecords
+                };
+                
+                await _messageSender.SendMessage<TranslationJobCompletedEmail>(translationJobCompletedEmailEvent, cancellationToken);
                 _logger.LogInformation("Completion email event sent for Export job {JobId} to {Email}", job.Id, user.Email);
             }
             catch (Exception ex)
