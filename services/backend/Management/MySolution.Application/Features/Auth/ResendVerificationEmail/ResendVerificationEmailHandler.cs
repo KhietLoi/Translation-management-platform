@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySolution.Application.Common.Interfaces;
 using MySolution.Application.Common.Interfaces.Repositories;
+using Shared.MassTransit.Contracts;
 using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
@@ -55,15 +56,16 @@ public class ResendVerificationEmailHandler : IRequestHandler<ResendVerification
             }
 
             var token = _tokenService.GenerateVerificationToken(user.Id, user.Email);
-            await _messageSender.SendMessage<SendVerifyEmailEvent>(
-                new SendVerifyEmailEvent
-                {
-                    UserId = user.Id,
-                    Username = user.Username,
-                    Email = user.Email,
-                    Token = token
-                }, cancellationToken);
-
+            var sendVerifyEmail = new SendVerifyEmailEvent
+            {
+                UserId = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Token = token
+            };
+            
+            await _messageSender.SendMessage<SendVerifyEmail>(sendVerifyEmail, cancellationToken);
+          
             response
                 .WithSuccess(true)
                 .WithStatus(HttpStatusCode.OK);

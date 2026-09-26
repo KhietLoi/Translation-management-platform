@@ -1,11 +1,11 @@
 ﻿using MassTransit;
 using MediatR;
 using MySolution.Email.Application.Features.SendTranslationJobCompletedEmail;
-using Shared.MassTransit.IntegrationEvents;
+using Shared.MassTransit.Contracts;
 
 namespace MySolution.Email.Infrastructure.MassTransit.Consumers;
 
-public class SendTranslationJobCompletedEmailConsumer : IConsumer<TranslationJobCompletedEmailEvent>
+public class SendTranslationJobCompletedEmailConsumer : IConsumer<TranslationJobCompletedEmail>
 {
     private readonly IMediator _mediator;
     
@@ -14,8 +14,9 @@ public class SendTranslationJobCompletedEmailConsumer : IConsumer<TranslationJob
         _mediator = mediator;
     }
     
-    public async Task Consume(ConsumeContext<TranslationJobCompletedEmailEvent> context)
+    public async Task Consume(ConsumeContext<TranslationJobCompletedEmail> context)
     {
-        await _mediator.Send(new SendTranslationJobCompletedEmailCommand { Message = context.Message }, context.CancellationToken);
+        var message = context.Message.Content;
+        await _mediator.Send(new SendTranslationJobCompletedEmailCommand(message), context.CancellationToken);
     }
 }   

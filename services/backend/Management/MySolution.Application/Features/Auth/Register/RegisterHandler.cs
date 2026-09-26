@@ -8,6 +8,7 @@ using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Application.Constants;
 using MySolution.Domain.Entities;
 using MySolution.Domain.Enums;
+using Shared.MassTransit.Contracts;
 using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
@@ -95,14 +96,15 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, RegisterResponse
             var token = _emailVerificationTokenService.GenerateVerificationToken(user.Id, user.Email);
                 
             //Email
-            await _messageSender.SendMessage<SendVerifyEmailEvent>(
-                new SendVerifyEmailEvent
-                {
-                    UserId = user.Id,
-                    Username = user.Username,
-                    Email = user.Email,
-                    Token = token
-                }, cancellationToken);
+            var sendVerifyEmailEvent = new SendVerifyEmailEvent
+            {
+                UserId = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Token = token
+            };
+           
+            await _messageSender.SendMessage<SendVerifyEmail>(sendVerifyEmailEvent, cancellationToken);
             
             response.Data = new RegisterResult
             {

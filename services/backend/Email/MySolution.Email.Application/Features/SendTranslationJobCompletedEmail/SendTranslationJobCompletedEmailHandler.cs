@@ -19,9 +19,7 @@ public class SendTranslationJobCompletedEmailHandler : BaseEmailHandler,IRequest
         _emailTemplateFactory = emailTemplateFactory;
     }
 
-    public Task Handle(
-        SendTranslationJobCompletedEmailCommand request,
-        CancellationToken cancellationToken)
+    public Task Handle(SendTranslationJobCompletedEmailCommand request, CancellationToken cancellationToken)
     {
         var message = request.Message;
 

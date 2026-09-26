@@ -1,10 +1,11 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MySolution.Email.Application.Common.Interfaces.MassTranssit;
 using MySolution.Email.Infrastructure.MassTransit.Consumers;
 using MySolution.Email.Infrastructure.Options;
 using Shared.MassTransit;
+using Shared.MassTransit.Contracts;
+using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
 namespace MySolution.Email.Infrastructure.MassTransit.Registration;
@@ -42,7 +43,7 @@ public static class MassTransitRegistration
                 ConfigureEmailQueues(context, cfg);
             });
         });
-        services.AddScoped<IMessageSender, SendEndPointCustomProvider>();
+        services.AddScoped<ISendEndpointCustomProvider, SendEndpointCustomProvider>();
 
         return services;
     }
@@ -52,7 +53,7 @@ public static class MassTransitRegistration
         IRabbitMqBusFactoryConfigurator cfg)
     {
         cfg.ReceiveEndpoint(
-            QueueNameHelper.Get<SendVerifyEmailEvent>(),
+            QueueNameHelper.Get<SendVerifyEmail>(),
             e =>
             {
                 ConfigureRetry(e);
@@ -60,7 +61,7 @@ public static class MassTransitRegistration
             });
 
         cfg.ReceiveEndpoint(
-            QueueNameHelper.Get<SendSetUpPasswordEmailEvent>(),
+            QueueNameHelper.Get<SendSetUpPasswordEmail>(),
             e =>
             {
                 ConfigureRetry(e);
@@ -68,7 +69,7 @@ public static class MassTransitRegistration
             });
 
         cfg.ReceiveEndpoint(
-            QueueNameHelper.Get<SendForgotPasswordEmailEvent>(),
+            QueueNameHelper.Get<SendForgotPasswordEmail>(),
             e =>
             {
                 ConfigureRetry(e);
@@ -76,7 +77,7 @@ public static class MassTransitRegistration
             });
         
         cfg.ReceiveEndpoint(
-            QueueNameHelper.Get<TranslationJobCompletedEmailEvent>(),
+            QueueNameHelper.Get<TranslationJobCompletedEmail>(),
             e =>
             {
                 ConfigureRetry(e);

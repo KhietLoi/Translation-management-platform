@@ -8,8 +8,7 @@
 
     namespace MySolution.Application.Features.TranslationPipeline.Commands.ProcessPublishTranslations;
 
-    public class ProcessPublishTranslationsHandler
-        : IRequestHandler<ProcessPublishTranslationsCommand>
+    public class ProcessPublishTranslationsHandler : IRequestHandler<ProcessPublishTranslationsCommand>
     {
         private readonly ILogger<ProcessPublishTranslationsHandler> _logger;
         private readonly IUnitOfWork _unitOfWork;

@@ -6,6 +6,7 @@
     using MySolution.Application.Common.Interfaces.Repositories;
     using MySolution.Domain.Entities;
     using MySolution.Domain.Enums;
+    using Shared.MassTransit.Contracts;
     using Shared.MassTransit.Core;
     using Shared.MassTransit.IntegrationEvents;
 
@@ -41,6 +42,7 @@
             var jobId = request.Message.JobId;
             var job = await _unitOfWork.TranslationJob
                 .GetAll()
+                .Include(j => j.Project)
                 .FirstOrDefaultAsync(j => j.Id == jobId, cancellationToken);
             if (job == null)
             {
@@ -108,26 +110,25 @@
                 {
                     return;
                 }
-
-                await _messageSender.SendMessage<TranslationJobCompletedEmailEvent>(
-                    new TranslationJobCompletedEmailEvent
-                    {
-                        JobId = job.Id,
-                        UserId = job.CreatedBy,
-                        UserName = user.Username,
-                        ProjectName = job.Project.Name,
-                        Email = user.Email,
-                        ProjectId = job.ProjectId,
-                        JobType = job.Type == TranslationJobType.Export ? "Export" : "Import",
-                        FileName = job.FileName ?? string.Empty,
-                        DownloadUrl = job.DownloadUrl ?? string.Empty,
-                        TotalRecords = job.TotalRecords,
-                        SuccessRecords = job.SuccessRecords,
-                        FailedRecords = job.FailedRecords,
-                        SkippedRecords = job.SkippedRecords
-                    },
-                    cancellationToken);
-
+                
+                var translationJobCompletedEmailEvent = new TranslationJobCompletedEmailEvent
+                {
+                    JobId = job.Id,
+                    UserId = job.CreatedBy,
+                    UserName = user.Username,
+                    ProjectName = job.Project.Name,
+                    Email = user.Email,
+                    ProjectId = job.ProjectId,
+                    JobType = job.Type == TranslationJobType.Export ? "Export" : "Import",
+                    FileName = job.FileName ?? string.Empty,
+                    DownloadUrl = job.DownloadUrl ?? string.Empty,
+                    TotalRecords = job.TotalRecords,
+                    SuccessRecords = job.SuccessRecords,
+                    FailedRecords = job.FailedRecords,
+                    SkippedRecords = job.SkippedRecords
+                };
+                
+                await _messageSender.SendMessage<TranslationJobCompletedEmail>(translationJobCompletedEmailEvent, cancellationToken);
                 _logger.LogInformation("Completion email event sent for Export job {JobId} to {Email}", job.Id, user.Email);
             }
             catch (Exception ex)

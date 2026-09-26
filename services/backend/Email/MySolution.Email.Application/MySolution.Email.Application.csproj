@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Common\Interfaces\MassTranssit\" />
       <Folder Include="Options\" />
       <Folder Include="Service\" />
     </ItemGroup>

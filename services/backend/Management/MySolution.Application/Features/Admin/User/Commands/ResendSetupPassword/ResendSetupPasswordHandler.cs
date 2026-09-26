@@ -6,6 +6,7 @@ using MySolution.Application.Common.Interfaces;
 
 using MySolution.Application.Common.Interfaces.Repositories;
 using MySolution.Domain.Enums;
+using Shared.MassTransit.Contracts;
 using Shared.MassTransit.Core;
 using Shared.MassTransit.IntegrationEvents;
 
@@ -62,16 +63,15 @@ public class ResendSetupPasswordHandler : IRequestHandler<ResendSetupPasswordCom
             
             var token = _passwordResetTokenService.GenerateResetToken(user.Id,user.Email,user.Username, user.PasswordVersion);
 
-            await _messageSender.SendMessage<SendSetUpPasswordEmailEvent>
-            (
-                new SendSetUpPasswordEmailEvent
-                {
-                    UserId = user.Id,
-                    Username = user.Email,
-                    Email = user.Email,
-                    Token = token
-                }, cancellationToken
-            );
+            var sendSetUpPasswordEmailEvent = new SendSetUpPasswordEmailEvent
+            {
+                UserId = user.Id,
+                Username = user.Email,
+                Email = user.Email,
+                Token = token
+            };
+            
+            await _messageSender.SendMessage<SendSetUpPasswordEmail>(sendSetUpPasswordEmailEvent, cancellationToken);
             
             response
                 .WithSuccess(true)
