@@ -63,11 +63,11 @@ public static class SwaggerRegistration
 
     public static IApplicationBuilder UseSwaggerLayer(this WebApplication app)
     {
-        if (!app.Environment.IsProduction())
-        {
+        // if (!app.Environment.IsProduction())
+        // {
             app.UseSwagger();
             app.UseSwaggerUI();
-        }
+       // }
 
         return app;
     }
