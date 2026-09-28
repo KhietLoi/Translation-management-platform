@@ -31,14 +31,27 @@ public static class MassTransitRegistration
             
             x.UsingRabbitMq((context, cfg) =>
             {
-                cfg.Host(
-                    rabbitMqOptions.Host,
-                    "/",
-                    h =>
+                if (!string.IsNullOrWhiteSpace(rabbitMqOptions.ConnectionString))
+                {
+                    if (!Uri.TryCreate(rabbitMqOptions.ConnectionString, UriKind.Absolute, out var brokerUri)
+                        || (brokerUri.Scheme != "amqp" && brokerUri.Scheme != "amqps"))
                     {
-                        h.Username(rabbitMqOptions.Username);
-                        h.Password(rabbitMqOptions.Password);
-                    });
+                        throw new InvalidOperationException("RabbitMq:ConnectionString must be an amqp or amqps URI.");
+                    }
+
+                    cfg.Host(brokerUri);
+                }
+                else
+                {
+                    cfg.Host(
+                        rabbitMqOptions.Host,
+                        "/",
+                        h =>
+                        {
+                            h.Username(rabbitMqOptions.Username);
+                            h.Password(rabbitMqOptions.Password);
+                        });
+                }
                 ConfigureEmailQueues(context, cfg);
               });
         });
